@@ -1,0 +1,363 @@
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
+using System.Text;
+using System.Threading.Tasks;
+using UnityEngine;
+using UnityEngine.Networking;
+
+namespace IDosGames
+{
+    public static class IGSService
+    {
+        public static event Action<Action> ConnectionError;
+
+        public static string URL_IGS_CLIENT_API = IDosGamesSDKSettings.Instance.IgsClientApiLink;
+        public static string URL_SERVER_DATA_ACTIONS = IDosGamesSDKSettings.Instance.LoginSystemLink;
+        public static string URL_WALLET_MAKE_TRANSACTION = IDosGamesSDKSettings.Instance.TryMakeTransactionLink;
+        public static string URL_MARKETPLACE_DO_ACTION = IDosGamesSDKSettings.Instance.TryDoMarketplaceActionLink;
+        public static string URL_MARKETPLACE_GET_DATA = IDosGamesSDKSettings.Instance.GetDataFromMarketplaceLink;
+        public static string URL_VALIDATE_IAP_SUBSCRIPTION = IDosGamesSDKSettings.Instance.ValidateIAPSubscriptionLink;
+
+        public static async Task<GetAllUserDataResult> GetUserAllData(string userID, string clientSessionTicket)
+        {
+            var requestBody = new IGSRequest
+            {
+                TitleID = IDosGamesSDKSettings.Instance.TitleID,
+                FunctionName = ServerFunctionHandlers.GetUserAllData.ToString(),
+                UserID = userID,
+                ClientSessionTicket = clientSessionTicket
+            };
+
+            string response = await SendPostRequest(URL_IGS_CLIENT_API, requestBody);
+            return JsonConvert.DeserializeObject<GetAllUserDataResult>(response);
+        }
+
+        // ------------------ Login / Registration ------------------ //
+        public static async Task<GetAllUserDataResult> LoginWithDeviceID()
+        {
+            string deviceID = GetOrCreateDeviceID();
+
+            var requestBody = new IGSRequest
+            {
+                TitleID = IDosGamesSDKSettings.Instance.TitleID,
+                FunctionName = ServerFunctionHandlers.LoginWithDeviceID.ToString(),
+                OS = Application.platform.ToString(),
+                Device = SystemInfo.deviceModel,
+                DeviceID = deviceID
+            };
+
+            string response = await SendPostRequest(URL_SERVER_DATA_ACTIONS, requestBody);
+
+            // Десериализация строки в объект GetAllUserDataResult  
+            GetAllUserDataResult result = JsonConvert.DeserializeObject<GetAllUserDataResult>(response);
+
+            return result;
+        }
+
+        private static string GetOrCreateDeviceID()
+        {
+            string deviceID;
+
+#if UNITY_WEBGL
+            deviceID = PlayerPrefs.GetString("DeviceID", null);
+
+            if (string.IsNullOrEmpty(deviceID))
+            {
+                deviceID = Guid.NewGuid().ToString();
+
+                PlayerPrefs.SetString("DeviceID", deviceID);
+                PlayerPrefs.Save();
+            }
+#else
+            deviceID = SystemInfo.deviceUniqueIdentifier;
+#endif
+
+            return deviceID;
+        }
+
+        public static async Task<GetAllUserDataResult> LoginWithEmail(string email, string password)
+        {
+            var requestBody = new IGSRequest
+            {
+                TitleID = IDosGamesSDKSettings.Instance.TitleID,
+                FunctionName = ServerFunctionHandlers.LoginWithEmail.ToString(),
+                Email = email,
+                Password = password
+            };
+
+            string response = await SendPostRequest(URL_SERVER_DATA_ACTIONS, requestBody);
+
+            GetAllUserDataResult result = JsonConvert.DeserializeObject<GetAllUserDataResult>(response);
+
+            return result;
+        }
+
+        public static async Task<string> AddEmailAndPassword(string userID, string email, string password, string clientSessionTicket)
+        {
+            var requestBody = new IGSRequest
+            {
+                TitleID = IDosGamesSDKSettings.Instance.TitleID,
+                FunctionName = ServerFunctionHandlers.AddEmailAndPassword.ToString(),
+                UserID = userID,
+                Email = email,
+                Password = password,
+                ClientSessionTicket = clientSessionTicket
+            };
+
+            return await SendPostRequest(URL_SERVER_DATA_ACTIONS, requestBody);
+        }
+
+        public static async Task<GetAllUserDataResult> RegisterUserByEmail(string email, string password)
+        {
+            var requestBody = new IGSRequest
+            {
+                TitleID = IDosGamesSDKSettings.Instance.TitleID,
+                FunctionName = ServerFunctionHandlers.RegisterUserByEmail.ToString(),
+                Email = email,
+                Password = password,
+                OS = Application.platform.ToString(),
+                Device = SystemInfo.deviceModel,
+                DeviceID = SystemInfo.deviceUniqueIdentifier
+            };
+
+            string response = await SendPostRequest(URL_SERVER_DATA_ACTIONS, requestBody);
+
+            GetAllUserDataResult result = JsonConvert.DeserializeObject<GetAllUserDataResult>(response);
+
+            return result;
+        }
+        // ------------------ Login / Registration END ------------------ //
+
+        // ------------------------ Inventory ------------------------ //
+        public static async Task<string> RequestUserInventory(string userID, string clientSessionTicket)
+        {
+            var requestBody = new IGSRequest
+            {
+                TitleID = IDosGamesSDKSettings.Instance.TitleID,
+                FunctionName = ServerFunctionHandlers.GetUserInventory.ToString(),
+                UserID = userID,
+                ClientSessionTicket = clientSessionTicket
+            };
+
+            return await SendPostRequest(URL_SERVER_DATA_ACTIONS, requestBody);
+        }
+        
+        public static async Task<string> RequestUserReadOnlyData(string userID, string clientSessionTicket)
+        {
+            var requestBody = new IGSRequest
+            {
+                TitleID = IDosGamesSDKSettings.Instance.TitleID,
+                FunctionName = ServerFunctionHandlers.GetUserReadOnlyData.ToString(),
+                UserID = userID,
+                ClientSessionTicket = clientSessionTicket
+            };
+
+            return await SendPostRequest(URL_SERVER_DATA_ACTIONS, requestBody);
+        }
+
+        public static async Task<string> RequestTitleData()
+        {
+            var requestBody = new IGSRequest
+            {
+                TitleID = IDosGamesSDKSettings.Instance.TitleID,
+                FunctionName = ServerFunctionHandlers.GetTitleData.ToString()
+            };
+
+            return await SendPostRequest(URL_SERVER_DATA_ACTIONS, requestBody);
+        }
+
+        public static async Task<string> RequestCatalogItems(string catalogVersion)
+        {
+            var requestBody = new IGSRequest
+            {
+                TitleID = IDosGamesSDKSettings.Instance.TitleID,
+                FunctionName = ServerFunctionHandlers.GetCatalogItems.ToString(),
+                CatalogVersion = catalogVersion
+            };
+
+            return await SendPostRequest(URL_SERVER_DATA_ACTIONS, requestBody);
+        }
+        // ------------------------ Inventory END ------------------------ //
+
+        public static async Task<string> ValidateIAPSubscription(string receipt = null)
+        {
+            var requestBody = new JObject
+            {
+				//{ "AuthContext", JsonConvert.SerializeObject(AuthService.AuthContext) },
+                { "TitleID", IDosGamesSDKSettings.Instance.TitleID },
+                { "UserID", AuthService.UserID },
+                { "ClientSessionTicket", AuthService.ClientSessionTicket },
+                { "Receipt", receipt }
+            };
+
+            return await SendJObjectRequest(URL_VALIDATE_IAP_SUBSCRIPTION, requestBody);
+        }
+
+        public static async Task<string> RequestLeaderboard(string leaderboardID, string userID, string clientSessionTicket)
+        {
+            var requestBody = new IGSRequest
+            {
+                TitleID = IDosGamesSDKSettings.Instance.TitleID,
+                FunctionName = ServerFunctionHandlers.GetDefaultLeaderboard.ToString(),
+                UserID = userID,
+                ClientSessionTicket = clientSessionTicket,
+                LeaderboardID = leaderboardID
+            };
+
+            return await SendPostRequest(URL_SERVER_DATA_ACTIONS, requestBody);
+        }
+
+#if IDOSGAMES_MARKETPLACE
+
+        public static async Task<string> GetDataFromMarketplace(MarketplaceGetDataRequest request)
+        {
+            request.TitleID = IDosGamesSDKSettings.Instance.TitleID;
+            request.UserID = AuthService.UserID; //AuthService.PlayerID;
+            request.ClientSessionTicket = AuthService.ClientSessionTicket;
+
+            var requestBody = (JObject)JToken.FromObject(request);
+
+            return await SendJObjectRequest(URL_MARKETPLACE_GET_DATA, requestBody);
+        }
+
+        public static async Task<string> TryDoMarketplaceAction(MarketplaceActionRequest request)
+        {
+            request.TitleID = IDosGamesSDKSettings.Instance.TitleID;
+            request.UserID = AuthService.UserID;
+            request.ClientSessionTicket = AuthService.ClientSessionTicket;
+            //request.AuthContext = JsonConvert.SerializeObject(AuthService.AuthContext);
+
+            var requestBody = (JObject)JToken.FromObject(request);
+
+            return await SendJObjectRequest(URL_MARKETPLACE_DO_ACTION, requestBody);
+        }
+
+#endif
+
+#if IDOSGAMES_CRYPTO_WALLET
+        public static async Task<string> TryMakeTransaction(WalletTransactionRequest request)
+        {
+            request.TitleID = IDosGamesSDKSettings.Instance.TitleID;
+            request.UserID = AuthService.UserID;
+            request.ClientSessionTicket = AuthService.ClientSessionTicket;
+            //request.AuthContext = JsonConvert.SerializeObject(AuthService.AuthContext);
+
+            var requestBody = (JObject)JToken.FromObject(request);
+
+            return await SendJObjectRequest(URL_WALLET_MAKE_TRANSACTION, requestBody);
+        }
+#endif
+
+        public static async Task<string> SendPostRequest(string functionURL, IGSRequest request)
+        {
+            var requestBody = JObject.FromObject(request);
+            byte[] bodyRaw = new UTF8Encoding(true).GetBytes(requestBody.ToString());
+
+            using (UnityWebRequest webRequest = new UnityWebRequest(functionURL, "POST"))
+            {
+                webRequest.uploadHandler = new UploadHandlerRaw(bodyRaw);
+                webRequest.downloadHandler = new DownloadHandlerBuffer();
+                webRequest.SetRequestHeader("Content-Type", "application/json");
+
+                UnityWebRequestAsyncOperation asyncOperation = webRequest.SendWebRequest();
+
+                while (!asyncOperation.isDone)
+                {
+                    await Task.Yield();
+                }
+
+                if (webRequest.result == UnityWebRequest.Result.Success)
+                {
+                    string result = webRequest.downloadHandler.text;
+
+                    if (result.Contains("INVALID_SESSION_TICKET"))
+                    {
+                        AuthService.Instance.AutoLogin();
+                    }
+
+                    if (IDosGamesSDKSettings.Instance.DebugLogging)
+                    {
+                        Debug.Log(result);
+                        //LogLongString(result);  
+                    }
+
+                    return result;
+                }
+                else
+                {
+                    string errorDetail = $"Error request: {webRequest.error}";
+                    Debug.LogError(errorDetail);
+
+                    if (webRequest.result == UnityWebRequest.Result.ConnectionError)
+                    {
+                        ConnectionError?.Invoke(null);
+                        return "ConnectionError: " + errorDetail;
+                    }
+
+                    return "Error: " + errorDetail;
+                }
+            }
+        }
+
+        private static async Task<string> SendJObjectRequest(string functionURL, JObject requestBody)
+        {
+            byte[] bodyRaw = new UTF8Encoding(true).GetBytes(requestBody.ToString());
+
+            using (UnityWebRequest webRequest = new UnityWebRequest(functionURL, "POST"))
+            {
+                webRequest.uploadHandler = new UploadHandlerRaw(bodyRaw);
+                webRequest.downloadHandler = new DownloadHandlerBuffer();
+                webRequest.SetRequestHeader("Content-Type", "application/json");
+
+                UnityWebRequestAsyncOperation asyncOperation = webRequest.SendWebRequest();
+
+                while (!asyncOperation.isDone)
+                {
+                    await Task.Yield();
+                }
+
+                if (webRequest.result == UnityWebRequest.Result.Success)
+                {
+                    string result = webRequest.downloadHandler.text;
+
+                    if (IDosGamesSDKSettings.Instance.DebugLogging)
+                    {
+                        Debug.Log(result);
+                    }
+
+                    return result;
+                }
+                else
+                {
+                    string errorDetail = $"Error request: {webRequest.error}";
+                    Debug.LogError(errorDetail);
+
+                    if (webRequest.result == UnityWebRequest.Result.ConnectionError)
+                    {
+                        ConnectionError?.Invoke(null);
+                        return "ConnectionError: " + errorDetail;
+                    }
+
+                    return "Error: " + errorDetail;
+                }
+            }
+        }
+
+        public static void LogLongString(string longString)
+        {
+            const int chunkSize = 15000; // Размер фрагмента  
+            for (int i = 0; i < longString.Length; i += chunkSize)
+            {
+                if (i + chunkSize > longString.Length)
+                {
+                    Debug.Log(longString.Substring(i));
+                }
+                else
+                {
+                    Debug.Log(longString.Substring(i, chunkSize));
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,2824 @@
+{
+  "application_update": {
+    "android": {
+      "version": "0.0.1",
+      "urgency": "0",
+      "link": "https://play.google.com/store/apps/details?id=com.idosgames.sdk"
+    },
+    "ios": {
+      "version": "0.0.1",
+      "urgency": "0",
+      "link": "https://apps.apple.com/en/app/sdk/id0000001"
+    }
+  },
+  "commission_royalty_percentage": {
+    "author": "5",
+    "referral": "5",
+    "company": "0",
+    "referral_reward": "10"
+  },
+  "creative_marketplace": {
+    "publicationPrice": "100",
+    "currencyID": "IG"
+  },
+  "cryptocurrency_prices": {
+    "igt": "0.000730149",
+    "igc": "0.0000103106",
+    "exchangeDivider": "2"
+  },
+  "default_avatar_skin": {
+    "Gender": "Male",
+    "Data": [
+      {
+        "Body": "avatar_body_v1"
+      },
+      {
+        "Pants": "avatar_pants_v1_01"
+      },
+      {
+        "Shoes": "avatar_shoes_v1_01"
+      },
+      {
+        "Torso": "avatar_torso_v1_01"
+      }
+    ]
+  },
+  "event_weekly": {
+    "type": "weekdays",
+    "endDate": "2024-06-08T00:00:00+00:00"
+  },
+  "event_weekly_rewards": [
+    {
+      "type": "weekdays",
+      "rewards": [
+        {
+          "id": "1",
+          "points": "1",
+          "standard": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "CO",
+            "amount": "10",
+            "imagePath": "Sprites/Currency/IGC"
+          },
+          "premium": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "IG",
+            "amount": "6",
+            "imagePath": "Sprites/Currency/IGT"
+          }
+        },
+        {
+          "id": "2",
+          "points": "3",
+          "standard": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "CO",
+            "amount": "20",
+            "imagePath": "Sprites/Currency/IGC"
+          },
+          "premium": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "IG",
+            "amount": "7",
+            "imagePath": "Sprites/Currency/IGT"
+          }
+        },
+        {
+          "id": "3",
+          "points": "5",
+          "standard": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "CO",
+            "amount": "30",
+            "imagePath": "Sprites/Currency/IGC"
+          },
+          "premium": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "IG",
+            "amount": "8",
+            "imagePath": "Sprites/Currency/IGT"
+          }
+        },
+        {
+          "id": "4",
+          "points": "10",
+          "standard": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "CO",
+            "amount": "40",
+            "imagePath": "Sprites/Currency/IGC"
+          },
+          "premium": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "IG",
+            "amount": "9",
+            "imagePath": "Sprites/Currency/IGT"
+          }
+        },
+        {
+          "id": "5",
+          "points": "15",
+          "standard": {
+            "name": "Standard Ticket",
+            "type": "Item",
+            "catalog": "Spin",
+            "itemID": "standard_spin_ticket",
+            "amount": "1",
+            "imagePath": "Sprites/Spin/Tickets/StandardTicket"
+          },
+          "premium": {
+            "name": "Standard Ticket",
+            "type": "Item",
+            "catalog": "Spin",
+            "itemID": "standard_spin_ticket",
+            "amount": "2",
+            "imagePath": "Sprites/Spin/Tickets/StandardTicket"
+          }
+        },
+        {
+          "id": "6",
+          "points": "25",
+          "standard": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "CO",
+            "amount": "60",
+            "imagePath": "Sprites/Currency/IGC"
+          },
+          "premium": {
+            "name": "Tokens",
+            "type": "VirtualCurrency",
+            "currencyID": "IG",
+            "amount": "10",
+            "imagePath": "Sprites/Currency/IGT"
+          }
+        },
+        {
+          "id": "7",
+          "points": "35",
+          "standard": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "CO",
+            "amount": "70",
+            "imagePath": "Sprites/Currency/IGC"
+          },
+          "premium": {
+            "name": "Tokens",
+            "type": "VirtualCurrency",
+            "currencyID": "IG",
+            "amount": "11",
+            "imagePath": "Sprites/Currency/IGT"
+          }
+        },
+        {
+          "id": "8",
+          "points": "50",
+          "standard": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "CO",
+            "amount": "80",
+            "imagePath": "Sprites/Currency/IGC"
+          },
+          "premium": {
+            "name": "Tokens",
+            "type": "VirtualCurrency",
+            "currencyID": "IG",
+            "amount": "12",
+            "imagePath": "Sprites/Currency/IGT"
+          }
+        },
+        {
+          "id": "9",
+          "points": "65",
+          "standard": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "CO",
+            "amount": "90",
+            "imagePath": "Sprites/Currency/IGC"
+          },
+          "premium": {
+            "name": "Tokens",
+            "type": "VirtualCurrency",
+            "currencyID": "IG",
+            "amount": "13",
+            "imagePath": "Sprites/Currency/IGT"
+          }
+        },
+        {
+          "id": "10",
+          "points": "85",
+          "standard": {
+            "name": "Standard Ticket",
+            "type": "Item",
+            "catalog": "Spin",
+            "itemID": "standard_spin_ticket",
+            "amount": "1",
+            "imagePath": "Sprites/Spin/Tickets/StandardTicket"
+          },
+          "premium": {
+            "name": "Premium Ticket",
+            "type": "Item",
+            "catalog": "Spin",
+            "itemID": "premium_spin_ticket",
+            "amount": "1",
+            "imagePath": "Sprites/Spin/Tickets/PremiumTicket"
+          }
+        },
+        {
+          "id": "11",
+          "points": "105",
+          "standard": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "CO",
+            "amount": "100",
+            "imagePath": "Sprites/Currency/IGC"
+          },
+          "premium": {
+            "name": "Tokens",
+            "type": "VirtualCurrency",
+            "currencyID": "IG",
+            "amount": "14",
+            "imagePath": "Sprites/Currency/IGT"
+          }
+        },
+        {
+          "id": "12",
+          "points": "130",
+          "standard": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "CO",
+            "amount": "110",
+            "imagePath": "Sprites/Currency/IGC"
+          },
+          "premium": {
+            "name": "Tokens",
+            "type": "VirtualCurrency",
+            "currencyID": "IG",
+            "amount": "15",
+            "imagePath": "Sprites/Currency/IGT"
+          }
+        },
+        {
+          "id": "13",
+          "points": "155",
+          "standard": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "CO",
+            "amount": "120",
+            "imagePath": "Sprites/Currency/IGC"
+          },
+          "premium": {
+            "name": "Tokens",
+            "type": "VirtualCurrency",
+            "currencyID": "IG",
+            "amount": "16",
+            "imagePath": "Sprites/Currency/IGT"
+          }
+        },
+        {
+          "id": "14",
+          "points": "185",
+          "standard": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "CO",
+            "amount": "130",
+            "imagePath": "Sprites/Currency/IGC"
+          },
+          "premium": {
+            "name": "Tokens",
+            "type": "VirtualCurrency",
+            "currencyID": "IG",
+            "amount": "17",
+            "imagePath": "Sprites/Currency/IGT"
+          }
+        },
+        {
+          "id": "15",
+          "points": "215",
+          "standard": {
+            "name": "Standard Ticket",
+            "type": "Item",
+            "catalog": "Spin",
+            "itemID": "standard_spin_ticket",
+            "amount": "1",
+            "imagePath": "Sprites/Spin/Tickets/StandardTicket"
+          },
+          "premium": {
+            "name": "Premium Ticket",
+            "type": "Item",
+            "catalog": "Spin",
+            "itemID": "premium_spin_ticket",
+            "amount": "1",
+            "imagePath": "Sprites/Spin/Tickets/PremiumTicket"
+          }
+        },
+        {
+          "id": "16",
+          "points": "250",
+          "standard": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "CO",
+            "amount": "140",
+            "imagePath": "Sprites/Currency/IGC"
+          },
+          "premium": {
+            "name": "Tokens",
+            "type": "VirtualCurrency",
+            "currencyID": "IG",
+            "amount": "18",
+            "imagePath": "Sprites/Currency/IGT"
+          }
+        },
+        {
+          "id": "17",
+          "points": "285",
+          "standard": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "CO",
+            "amount": "150",
+            "imagePath": "Sprites/Currency/IGC"
+          },
+          "premium": {
+            "name": "Tokens",
+            "type": "VirtualCurrency",
+            "currencyID": "IG",
+            "amount": "19",
+            "imagePath": "Sprites/Currency/IGT"
+          }
+        },
+        {
+          "id": "18",
+          "points": "325",
+          "standard": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "CO",
+            "amount": "160",
+            "imagePath": "Sprites/Currency/IGC"
+          },
+          "premium": {
+            "name": "Tokens",
+            "type": "VirtualCurrency",
+            "currencyID": "IG",
+            "amount": "20",
+            "imagePath": "Sprites/Currency/IGT"
+          }
+        },
+        {
+          "id": "19",
+          "points": "365",
+          "standard": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "CO",
+            "amount": "170",
+            "imagePath": "Sprites/Currency/IGC"
+          },
+          "premium": {
+            "name": "Tokens",
+            "type": "VirtualCurrency",
+            "currencyID": "IG",
+            "amount": "21",
+            "imagePath": "Sprites/Currency/IGT"
+          }
+        },
+        {
+          "id": "20",
+          "points": "410",
+          "standard": {
+            "name": "Standard Ticket",
+            "type": "Item",
+            "catalog": "Spin",
+            "itemID": "standard_spin_ticket",
+            "amount": "2",
+            "imagePath": "Sprites/Spin/Tickets/StandardTicket"
+          },
+          "premium": {
+            "name": "Premium Ticket",
+            "type": "Item",
+            "catalog": "Spin",
+            "itemID": "premium_spin_ticket",
+            "amount": "2",
+            "imagePath": "Sprites/Spin/Tickets/PremiumTicket"
+          }
+        },
+        {
+          "id": "21",
+          "points": "455",
+          "standard": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "CO",
+            "amount": "180",
+            "imagePath": "Sprites/Currency/IGC"
+          },
+          "premium": {
+            "name": "Tokens",
+            "type": "VirtualCurrency",
+            "currencyID": "IG",
+            "amount": "22",
+            "imagePath": "Sprites/Currency/IGT"
+          }
+        },
+        {
+          "id": "22",
+          "points": "505",
+          "standard": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "CO",
+            "amount": "190",
+            "imagePath": "Sprites/Currency/IGC"
+          },
+          "premium": {
+            "name": "Tokens",
+            "type": "VirtualCurrency",
+            "currencyID": "IG",
+            "amount": "23",
+            "imagePath": "Sprites/Currency/IGT"
+          }
+        },
+        {
+          "id": "23",
+          "points": "555",
+          "standard": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "CO",
+            "amount": "200",
+            "imagePath": "Sprites/Currency/IGC"
+          },
+          "premium": {
+            "name": "Tokens",
+            "type": "VirtualCurrency",
+            "currencyID": "IG",
+            "amount": "24",
+            "imagePath": "Sprites/Currency/IGT"
+          }
+        },
+        {
+          "id": "24",
+          "points": "610",
+          "standard": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "CO",
+            "amount": "210",
+            "imagePath": "Sprites/Currency/IGC"
+          },
+          "premium": {
+            "name": "Tokens",
+            "type": "VirtualCurrency",
+            "currencyID": "IG",
+            "amount": "25",
+            "imagePath": "Sprites/Currency/IGT"
+          }
+        },
+        {
+          "id": "25",
+          "points": "665",
+          "standard": {
+            "name": "Standard Ticket",
+            "type": "Item",
+            "catalog": "Spin",
+            "itemID": "standard_spin_ticket",
+            "amount": "3",
+            "imagePath": "Sprites/Spin/Tickets/StandardTicket"
+          },
+          "premium": {
+            "name": "Premium Ticket",
+            "type": "Item",
+            "catalog": "Spin",
+            "itemID": "premium_spin_ticket",
+            "amount": "2",
+            "imagePath": "Sprites/Spin/Tickets/PremiumTicket"
+          }
+        },
+        {
+          "id": "26",
+          "points": "725",
+          "standard": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "CO",
+            "amount": "220",
+            "imagePath": "Sprites/Currency/IGC"
+          },
+          "premium": {
+            "name": "Tokens",
+            "type": "VirtualCurrency",
+            "currencyID": "IG",
+            "amount": "26",
+            "imagePath": "Sprites/Currency/IGT"
+          }
+        },
+        {
+          "id": "27",
+          "points": "785",
+          "standard": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "CO",
+            "amount": "230",
+            "imagePath": "Sprites/Currency/IGC"
+          },
+          "premium": {
+            "name": "Tokens",
+            "type": "VirtualCurrency",
+            "currencyID": "IG",
+            "amount": "27",
+            "imagePath": "Sprites/Currency/IGT"
+          }
+        },
+        {
+          "id": "28",
+          "points": "850",
+          "standard": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "CO",
+            "amount": "240",
+            "imagePath": "Sprites/Currency/IGC"
+          },
+          "premium": {
+            "name": "Tokens",
+            "type": "VirtualCurrency",
+            "currencyID": "IG",
+            "amount": "28",
+            "imagePath": "Sprites/Currency/IGT"
+          }
+        },
+        {
+          "id": "29",
+          "points": "915",
+          "standard": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "CO",
+            "amount": "250",
+            "imagePath": "Sprites/Currency/IGC"
+          },
+          "premium": {
+            "name": "Tokens",
+            "type": "VirtualCurrency",
+            "currencyID": "IG",
+            "amount": "29",
+            "imagePath": "Sprites/Currency/IGT"
+          }
+        },
+        {
+          "id": "30",
+          "points": "985",
+          "standard": {
+            "name": "Standard Ticket",
+            "type": "Item",
+            "catalog": "Spin",
+            "itemID": "standard_spin_ticket",
+            "amount": "2",
+            "imagePath": "Sprites/Spin/Tickets/StandardTicket"
+          },
+          "premium": {
+            "name": "Premium Ticket",
+            "type": "Item",
+            "catalog": "Spin",
+            "itemID": "premium_spin_ticket",
+            "amount": "2",
+            "imagePath": "Sprites/Spin/Tickets/PremiumTicket"
+          }
+        },
+        {
+          "id": "31",
+          "points": "1055",
+          "standard": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "CO",
+            "amount": "260",
+            "imagePath": "Sprites/Currency/IGC"
+          },
+          "premium": {
+            "name": "Tokens",
+            "type": "VirtualCurrency",
+            "currencyID": "IG",
+            "amount": "30",
+            "imagePath": "Sprites/Currency/IGT"
+          }
+        },
+        {
+          "id": "32",
+          "points": "1130",
+          "standard": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "CO",
+            "amount": "270",
+            "imagePath": "Sprites/Currency/IGC"
+          },
+          "premium": {
+            "name": "Tokens",
+            "type": "VirtualCurrency",
+            "currencyID": "IG",
+            "amount": "31",
+            "imagePath": "Sprites/Currency/IGT"
+          }
+        },
+        {
+          "id": "33",
+          "points": "1205",
+          "standard": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "CO",
+            "amount": "280",
+            "imagePath": "Sprites/Currency/IGC"
+          },
+          "premium": {
+            "name": "Tokens",
+            "type": "VirtualCurrency",
+            "currencyID": "IG",
+            "amount": "32",
+            "imagePath": "Sprites/Currency/IGT"
+          }
+        },
+        {
+          "id": "34",
+          "points": "1285",
+          "standard": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "CO",
+            "amount": "290",
+            "imagePath": "Sprites/Currency/IGC"
+          },
+          "premium": {
+            "name": "Tokens",
+            "type": "VirtualCurrency",
+            "currencyID": "IG",
+            "amount": "33",
+            "imagePath": "Sprites/Currency/IGT"
+          }
+        },
+        {
+          "id": "35",
+          "points": "1365",
+          "standard": {
+            "name": "Standard Ticket",
+            "type": "Item",
+            "catalog": "Spin",
+            "itemID": "standard_spin_ticket",
+            "amount": "2",
+            "imagePath": "Sprites/Spin/Tickets/StandardTicket"
+          },
+          "premium": {
+            "name": "Premium Ticket",
+            "type": "Item",
+            "catalog": "Spin",
+            "itemID": "premium_spin_ticket",
+            "amount": "2",
+            "imagePath": "Sprites/Spin/Tickets/PremiumTicket"
+          }
+        },
+        {
+          "id": "36",
+          "points": "1450",
+          "standard": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "CO",
+            "amount": "300",
+            "imagePath": "Sprites/Currency/IGC"
+          },
+          "premium": {
+            "name": "Tokens",
+            "type": "VirtualCurrency",
+            "currencyID": "IG",
+            "amount": "34",
+            "imagePath": "Sprites/Currency/IGT"
+          }
+        },
+        {
+          "id": "37",
+          "points": "1535",
+          "standard": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "CO",
+            "amount": "310",
+            "imagePath": "Sprites/Currency/IGC"
+          },
+          "premium": {
+            "name": "Tokens",
+            "type": "VirtualCurrency",
+            "currencyID": "IG",
+            "amount": "35",
+            "imagePath": "Sprites/Currency/IGT"
+          }
+        },
+        {
+          "id": "38",
+          "points": "1625",
+          "standard": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "CO",
+            "amount": "320",
+            "imagePath": "Sprites/Currency/IGC"
+          },
+          "premium": {
+            "name": "Tokens",
+            "type": "VirtualCurrency",
+            "currencyID": "IG",
+            "amount": "36",
+            "imagePath": "Sprites/Currency/IGT"
+          }
+        },
+        {
+          "id": "39",
+          "points": "1715",
+          "standard": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "CO",
+            "amount": "330",
+            "imagePath": "Sprites/Currency/IGC"
+          },
+          "premium": {
+            "name": "Tokens",
+            "type": "VirtualCurrency",
+            "currencyID": "IG",
+            "amount": "37",
+            "imagePath": "Sprites/Currency/IGT"
+          }
+        },
+        {
+          "id": "40",
+          "points": "1810",
+          "standard": {
+            "name": "Standard Ticket",
+            "type": "Item",
+            "catalog": "Spin",
+            "itemID": "standard_spin_ticket",
+            "amount": "2",
+            "imagePath": "Sprites/Spin/Tickets/StandardTicket"
+          },
+          "premium": {
+            "name": "Premium Ticket",
+            "type": "Item",
+            "catalog": "Spin",
+            "itemID": "premium_spin_ticket",
+            "amount": "3",
+            "imagePath": "Sprites/Spin/Tickets/PremiumTicket"
+          }
+        },
+        {
+          "id": "41",
+          "points": "1905",
+          "standard": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "CO",
+            "amount": "340",
+            "imagePath": "Sprites/Currency/IGC"
+          },
+          "premium": {
+            "name": "Tokens",
+            "type": "VirtualCurrency",
+            "currencyID": "IG",
+            "amount": "38",
+            "imagePath": "Sprites/Currency/IGT"
+          }
+        },
+        {
+          "id": "42",
+          "points": "2005",
+          "standard": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "CO",
+            "amount": "350",
+            "imagePath": "Sprites/Currency/IGC"
+          },
+          "premium": {
+            "name": "Tokens",
+            "type": "VirtualCurrency",
+            "currencyID": "IG",
+            "amount": "39",
+            "imagePath": "Sprites/Currency/IGT"
+          }
+        },
+        {
+          "id": "43",
+          "points": "2105",
+          "standard": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "CO",
+            "amount": "360",
+            "imagePath": "Sprites/Currency/IGC"
+          },
+          "premium": {
+            "name": "Tokens",
+            "type": "VirtualCurrency",
+            "currencyID": "IG",
+            "amount": "40",
+            "imagePath": "Sprites/Currency/IGT"
+          }
+        },
+        {
+          "id": "44",
+          "points": "2210",
+          "standard": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "CO",
+            "amount": "370",
+            "imagePath": "Sprites/Currency/IGC"
+          },
+          "premium": {
+            "name": "Tokens",
+            "type": "VirtualCurrency",
+            "currencyID": "IG",
+            "amount": "41",
+            "imagePath": "Sprites/Currency/IGT"
+          }
+        },
+        {
+          "id": "45",
+          "points": "2315",
+          "standard": {
+            "name": "Common Chest",
+            "type": "Item",
+            "catalog": "Chest",
+            "itemID": "common_chest",
+            "amount": "1",
+            "imagePath": "Sprites/Chest/Common_Chest"
+          },
+          "premium": {
+            "name": "Rare Chest",
+            "type": "Item",
+            "catalog": "Chest",
+            "itemID": "rare_chest",
+            "amount": "1",
+            "imagePath": "Sprites/Chest/Rare_Chest"
+          }
+        },
+        {
+          "id": "46",
+          "points": "2425",
+          "standard": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "CO",
+            "amount": "390",
+            "imagePath": "Sprites/Currency/IGC"
+          },
+          "premium": {
+            "name": "Tokens",
+            "type": "VirtualCurrency",
+            "currencyID": "IG",
+            "amount": "42",
+            "imagePath": "Sprites/Currency/IGT"
+          }
+        },
+        {
+          "id": "47",
+          "points": "2535",
+          "standard": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "CO",
+            "amount": "400",
+            "imagePath": "Sprites/Currency/IGC"
+          },
+          "premium": {
+            "name": "Tokens",
+            "type": "VirtualCurrency",
+            "currencyID": "IG",
+            "amount": "43",
+            "imagePath": "Sprites/Currency/IGT"
+          }
+        },
+        {
+          "id": "48",
+          "points": "2650",
+          "standard": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "CO",
+            "amount": "410",
+            "imagePath": "Sprites/Currency/IGC"
+          },
+          "premium": {
+            "name": "Tokens",
+            "type": "VirtualCurrency",
+            "currencyID": "IG",
+            "amount": "44",
+            "imagePath": "Sprites/Currency/IGT"
+          }
+        },
+        {
+          "id": "49",
+          "points": "2765",
+          "standard": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "CO",
+            "amount": "420",
+            "imagePath": "Sprites/Currency/IGC"
+          },
+          "premium": {
+            "name": "Tokens",
+            "type": "VirtualCurrency",
+            "currencyID": "IG",
+            "amount": "45",
+            "imagePath": "Sprites/Currency/IGT"
+          }
+        },
+        {
+          "id": "50",
+          "points": "3000",
+          "standard": {
+            "name": "Rare Chest",
+            "type": "Item",
+            "catalog": "Chest",
+            "itemID": "rare_chest",
+            "amount": "1",
+            "imagePath": "Sprites/Chest/Rare_Chest"
+          },
+          "premium": {
+            "name": "Legendary Chest",
+            "type": "Item",
+            "catalog": "Chest",
+            "itemID": "legendary_chest",
+            "amount": "1",
+            "imagePath": "Sprites/Chest/Legendary_Chest"
+          }
+        }
+      ]
+    },
+    {
+      "type": "weekend",
+      "rewards": [
+        {
+          "id": "1",
+          "points": "1",
+          "standard": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "CO",
+            "amount": "10",
+            "imagePath": "Sprites/Currency/IGC"
+          },
+          "premium": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "IG",
+            "amount": "20",
+            "imagePath": "Sprites/Currency/IGT"
+          }
+        },
+        {
+          "id": "2",
+          "points": "5",
+          "standard": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "CO",
+            "amount": "20",
+            "imagePath": "Sprites/Currency/IGC"
+          },
+          "premium": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "IG",
+            "amount": "21",
+            "imagePath": "Sprites/Currency/IGT"
+          }
+        },
+        {
+          "id": "3",
+          "points": "10",
+          "standard": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "CO",
+            "amount": "30",
+            "imagePath": "Sprites/Currency/IGC"
+          },
+          "premium": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "IG",
+            "amount": "22",
+            "imagePath": "Sprites/Currency/IGT"
+          }
+        },
+        {
+          "id": "4",
+          "points": "20",
+          "standard": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "CO",
+            "amount": "40",
+            "imagePath": "Sprites/Currency/IGC"
+          },
+          "premium": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "IG",
+            "amount": "23",
+            "imagePath": "Sprites/Currency/IGT"
+          }
+        },
+        {
+          "id": "5",
+          "points": "30",
+          "standard": {
+            "name": "Standard Ticket",
+            "type": "Item",
+            "catalog": "Spin",
+            "itemID": "standard_spin_ticket",
+            "amount": "1",
+            "imagePath": "Sprites/Spin/Tickets/StandardTicket"
+          },
+          "premium": {
+            "name": "Standard Ticket",
+            "type": "Item",
+            "catalog": "Spin",
+            "itemID": "standard_spin_ticket",
+            "amount": "2",
+            "imagePath": "Sprites/Spin/Tickets/StandardTicket"
+          }
+        },
+        {
+          "id": "6",
+          "points": "50",
+          "standard": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "CO",
+            "amount": "60",
+            "imagePath": "Sprites/Currency/IGC"
+          },
+          "premium": {
+            "name": "Tokens",
+            "type": "VirtualCurrency",
+            "currencyID": "IG",
+            "amount": "24",
+            "imagePath": "Sprites/Currency/IGT"
+          }
+        },
+        {
+          "id": "7",
+          "points": "70",
+          "standard": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "CO",
+            "amount": "70",
+            "imagePath": "Sprites/Currency/IGC"
+          },
+          "premium": {
+            "name": "Tokens",
+            "type": "VirtualCurrency",
+            "currencyID": "IG",
+            "amount": "25",
+            "imagePath": "Sprites/Currency/IGT"
+          }
+        },
+        {
+          "id": "8",
+          "points": "100",
+          "standard": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "CO",
+            "amount": "80",
+            "imagePath": "Sprites/Currency/IGC"
+          },
+          "premium": {
+            "name": "Tokens",
+            "type": "VirtualCurrency",
+            "currencyID": "IG",
+            "amount": "26",
+            "imagePath": "Sprites/Currency/IGT"
+          }
+        },
+        {
+          "id": "9",
+          "points": "130",
+          "standard": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "CO",
+            "amount": "90",
+            "imagePath": "Sprites/Currency/IGC"
+          },
+          "premium": {
+            "name": "Tokens",
+            "type": "VirtualCurrency",
+            "currencyID": "IG",
+            "amount": "27",
+            "imagePath": "Sprites/Currency/IGT"
+          }
+        },
+        {
+          "id": "10",
+          "points": "170",
+          "standard": {
+            "name": "Standard Ticket",
+            "type": "Item",
+            "catalog": "Spin",
+            "itemID": "standard_spin_ticket",
+            "amount": "1",
+            "imagePath": "Sprites/Spin/Tickets/StandardTicket"
+          },
+          "premium": {
+            "name": "Premium Ticket",
+            "type": "Item",
+            "catalog": "Spin",
+            "itemID": "premium_spin_ticket",
+            "amount": "1",
+            "imagePath": "Sprites/Spin/Tickets/PremiumTicket"
+          }
+        },
+        {
+          "id": "11",
+          "points": "220",
+          "standard": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "CO",
+            "amount": "100",
+            "imagePath": "Sprites/Currency/IGC"
+          },
+          "premium": {
+            "name": "Tokens",
+            "type": "VirtualCurrency",
+            "currencyID": "IG",
+            "amount": "28",
+            "imagePath": "Sprites/Currency/IGT"
+          }
+        },
+        {
+          "id": "12",
+          "points": "270",
+          "standard": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "CO",
+            "amount": "110",
+            "imagePath": "Sprites/Currency/IGC"
+          },
+          "premium": {
+            "name": "Tokens",
+            "type": "VirtualCurrency",
+            "currencyID": "IG",
+            "amount": "29",
+            "imagePath": "Sprites/Currency/IGT"
+          }
+        },
+        {
+          "id": "13",
+          "points": "330",
+          "standard": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "CO",
+            "amount": "120",
+            "imagePath": "Sprites/Currency/IGC"
+          },
+          "premium": {
+            "name": "Tokens",
+            "type": "VirtualCurrency",
+            "currencyID": "IG",
+            "amount": "30",
+            "imagePath": "Sprites/Currency/IGT"
+          }
+        },
+        {
+          "id": "14",
+          "points": "390",
+          "standard": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "CO",
+            "amount": "130",
+            "imagePath": "Sprites/Currency/IGC"
+          },
+          "premium": {
+            "name": "Tokens",
+            "type": "VirtualCurrency",
+            "currencyID": "IG",
+            "amount": "31",
+            "imagePath": "Sprites/Currency/IGT"
+          }
+        },
+        {
+          "id": "15",
+          "points": "460",
+          "standard": {
+            "name": "Standard Ticket",
+            "type": "Item",
+            "catalog": "Spin",
+            "itemID": "standard_spin_ticket",
+            "amount": "1",
+            "imagePath": "Sprites/Spin/Tickets/StandardTicket"
+          },
+          "premium": {
+            "name": "Premium Ticket",
+            "type": "Item",
+            "catalog": "Spin",
+            "itemID": "premium_spin_ticket",
+            "amount": "2",
+            "imagePath": "Sprites/Spin/Tickets/PremiumTicket"
+          }
+        },
+        {
+          "id": "16",
+          "points": "530",
+          "standard": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "CO",
+            "amount": "140",
+            "imagePath": "Sprites/Currency/IGC"
+          },
+          "premium": {
+            "name": "Tokens",
+            "type": "VirtualCurrency",
+            "currencyID": "IG",
+            "amount": "32",
+            "imagePath": "Sprites/Currency/IGT"
+          }
+        },
+        {
+          "id": "17",
+          "points": "600",
+          "standard": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "CO",
+            "amount": "150",
+            "imagePath": "Sprites/Currency/IGC"
+          },
+          "premium": {
+            "name": "Tokens",
+            "type": "VirtualCurrency",
+            "currencyID": "IG",
+            "amount": "33",
+            "imagePath": "Sprites/Currency/IGT"
+          }
+        },
+        {
+          "id": "18",
+          "points": "680",
+          "standard": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "CO",
+            "amount": "160",
+            "imagePath": "Sprites/Currency/IGC"
+          },
+          "premium": {
+            "name": "Tokens",
+            "type": "VirtualCurrency",
+            "currencyID": "IG",
+            "amount": "34",
+            "imagePath": "Sprites/Currency/IGT"
+          }
+        },
+        {
+          "id": "19",
+          "points": "760",
+          "standard": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "CO",
+            "amount": "170",
+            "imagePath": "Sprites/Currency/IGC"
+          },
+          "premium": {
+            "name": "Tokens",
+            "type": "VirtualCurrency",
+            "currencyID": "IG",
+            "amount": "35",
+            "imagePath": "Sprites/Currency/IGT"
+          }
+        },
+        {
+          "id": "20",
+          "points": "850",
+          "standard": {
+            "name": "Standard Ticket",
+            "type": "Item",
+            "catalog": "Spin",
+            "itemID": "standard_spin_ticket",
+            "amount": "2",
+            "imagePath": "Sprites/Spin/Tickets/StandardTicket"
+          },
+          "premium": {
+            "name": "Premium Ticket",
+            "type": "Item",
+            "catalog": "Spin",
+            "itemID": "premium_spin_ticket",
+            "amount": "2",
+            "imagePath": "Sprites/Spin/Tickets/PremiumTicket"
+          }
+        },
+        {
+          "id": "21",
+          "points": "950",
+          "standard": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "CO",
+            "amount": "180",
+            "imagePath": "Sprites/Currency/IGC"
+          },
+          "premium": {
+            "name": "Tokens",
+            "type": "VirtualCurrency",
+            "currencyID": "IG",
+            "amount": "36",
+            "imagePath": "Sprites/Currency/IGT"
+          }
+        },
+        {
+          "id": "22",
+          "points": "1150",
+          "standard": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "CO",
+            "amount": "190",
+            "imagePath": "Sprites/Currency/IGC"
+          },
+          "premium": {
+            "name": "Tokens",
+            "type": "VirtualCurrency",
+            "currencyID": "IG",
+            "amount": "37",
+            "imagePath": "Sprites/Currency/IGT"
+          }
+        },
+        {
+          "id": "23",
+          "points": "1250",
+          "standard": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "CO",
+            "amount": "200",
+            "imagePath": "Sprites/Currency/IGC"
+          },
+          "premium": {
+            "name": "Tokens",
+            "type": "VirtualCurrency",
+            "currencyID": "IG",
+            "amount": "38",
+            "imagePath": "Sprites/Currency/IGT"
+          }
+        },
+        {
+          "id": "24",
+          "points": "1350",
+          "standard": {
+            "name": "Coins",
+            "type": "VirtualCurrency",
+            "currencyID": "CO",
+            "amount": "210",
+            "imagePath": "Sprites/Currency/IGC"
+          },
+          "premium": {
+            "name": "Tokens",
+            "type": "VirtualCurrency",
+            "currencyID": "IG",
+            "amount": "39",
+            "imagePath": "Sprites/Currency/IGT"
+          }
+        },
+        {
+          "id": "25",
+          "points": "1500",
+          "standard": {
+            "name": "Common Chest",
+            "type": "Item",
+            "catalog": "Chest",
+            "itemID": "common_chest",
+            "amount": "1",
+            "imagePath": "Sprites/Chest/Common_Chest"
+          },
+          "premium": {
+            "name": "Rare Chest",
+            "type": "Item",
+            "catalog": "Chest",
+            "itemID": "rare_chest",
+            "amount": "1",
+            "imagePath": "Sprites/Chest/Rare_Chest"
+          }
+        }
+      ]
+    }
+  ],
+  "friends": {
+    "max_count": 50,
+    "max_inactive_day": 7
+  },
+  "leaderboards": [
+   {
+    "statisticName": "coin_contest",
+    "name": "Weekly Tournament",
+    "valueName": "Coin",
+    "frequency": "weekly",
+    "itemsToGrant": [
+      {
+        "rank": "1",
+        "itemsToGrant": [
+          {
+            "catalog": "Currency",
+            "id": "IG",
+            "amount": "125",
+            "imagePath": "Sprites/Currency/Bundle/IGT/IGT_Bundle_Middle"
+          },
+          {
+            "catalog": "Chest",
+            "id": "legendary_chest",
+            "amount": "1",
+            "imagePath": "Sprites/Chest/Legendary_Chest"
+          }
+        ]
+      },
+      {
+        "rank": "2",
+        "itemsToGrant": [
+          {
+            "catalog": "Currency",
+            "id": "IG",
+            "amount": "75",
+            "imagePath": "Sprites/Currency/Bundle/IGT/IGT_Bundle_Middle"
+          },
+          {
+            "catalog": "Chest",
+            "id": "rare_chest",
+            "amount": "1",
+            "imagePath": "Sprites/Chest/Rare_Chest"
+          }
+        ]
+      },
+      {
+        "rank": "3",
+        "itemsToGrant": [
+          {
+            "catalog": "Currency",
+            "id": "IG",
+            "amount": "25",
+            "imagePath": "Sprites/Currency/Bundle/IGT/IGT_Bundle_Small"
+          },
+          {
+            "catalog": "Chest",
+            "id": "common_chest",
+            "amount": "1",
+            "imagePath": "Sprites/Chest/Common_Chest"
+          }
+        ]
+      },
+      {
+        "rank": "4-10",
+        "itemsToGrant": [
+          {
+            "catalog": "Currency",
+            "id": "CO",
+            "amount": "1250",
+            "imagePath": "Sprites/Currency/Bundle/IGC/IGC_Bundle_Middle"
+          },
+          {
+            "catalog": "Spin",
+            "id": "premium_spin_ticket",
+            "amount": "1",
+            "imagePath": "Sprites/Spin/Tickets/PremiumTicket"
+          }
+        ]
+      },
+      {
+        "rank": "11-100",
+        "itemsToGrant": [
+          {
+            "catalog": "Currency",
+            "id": "CO",
+            "amount": "300",
+            "imagePath": "Sprites/Currency/Bundle/IGC/IGC_Bundle_Small"
+          }
+        ]
+      }
+    ]
+   }
+],
+  "products_for_real_money": [
+    {
+      "name": "VIP Subscription Main",
+      "itemID": "com.idosgames.sdk.vip_subs",
+      "productType": "Subscription",
+      "itemClass": "vip",
+      "priceRM": "499",
+      "itemsToGrant": []
+    },
+    {
+      "name": "Token for $5",
+      "itemID": "com.idosgames.sdk.igt_for_5",
+      "productType": "Consumable",
+      "itemClass": "igt",
+      "priceRM": "499",
+      "imagePath": "Sprites/Currency/Bundle/IGT/IGT_Bundle_Small",
+      "itemsToGrant": [
+        {
+          "itemClass": "igt",
+          "type": "VirtualCurrency",
+          "currencyID": "IG",
+          "catalog": "",
+          "itemID": "",
+          "amount": "",
+          "imagePath": ""
+        }
+      ]
+    },
+    {
+      "name": "Token for $20",
+      "itemID": "com.idosgames.sdk.igt_for_20",
+      "productType": "Consumable",
+      "itemClass": "igt",
+      "priceRM": "1999",
+      "imagePath": "Sprites/Currency/Bundle/IGT/IGT_Bundle_Middle",
+      "itemsToGrant": [
+        {
+          "itemClass": "igt",
+          "type": "VirtualCurrency",
+          "currencyID": "IG",
+          "catalog": "",
+          "itemID": "",
+          "amount": "",
+          "imagePath": ""
+        }
+      ]
+    },
+    {
+      "name": "Token for $50",
+      "itemID": "com.idosgames.sdk.igt_for_50",
+      "productType": "Consumable",
+      "itemClass": "igt",
+      "priceRM": "4999",
+      "imagePath": "Sprites/Currency/Bundle/IGT/IGT_Bundle_Big",
+      "itemsToGrant": [
+        {
+          "itemClass": "igt",
+          "type": "VirtualCurrency",
+          "currencyID": "IG",
+          "catalog": "",
+          "itemID": "",
+          "amount": "",
+          "imagePath": ""
+        }
+      ]
+    }
+  ],
+  "products_for_virtual_currency": [
+    {
+      "name": "VIP 30 Days",
+      "currencyID": "IG",
+      "currencyImagePath": "Sprites/Currency/IGT",
+      "priceRM": "499",
+      "imagePath": "",
+      "itemID": "vip_30_days",
+      "itemClass": "vip",
+      "itemsToGrant": [
+        {
+          "name": "VIP 30 Days",
+          "type": "Item",
+          "currencyID": "",
+          "catalog": "Primary",
+          "itemID": "vip_30_days",
+          "amount": "1"
+        }
+      ]
+    },
+    {
+      "name": "Coin",
+      "currencyID": "IG",
+      "currencyImagePath": "Sprites/Currency/IGT",
+      "priceRM": "1",
+      "imagePath": "Sprites/Currency/Bundle/IGC/IGC_Bundle_Small",
+      "itemID": "igc_for_igt_1",
+      "itemClass": "igc",
+      "itemsToGrant": [
+        {
+          "itemClass": "igc",
+          "type": "VirtualCurrency",
+          "currencyID": "CO",
+          "catalog": "",
+          "itemID": "",
+          "amount": "",
+          "imagePath": ""
+        }
+      ]
+    },
+    {
+      "name": "Coin",
+      "currencyID": "IG",
+      "currencyImagePath": "Sprites/Currency/IGT",
+      "priceRM": "20",
+      "imagePath": "Sprites/Currency/Bundle/IGC/IGC_Bundle_Middle",
+      "itemID": "igc_for_igt_20",
+      "itemClass": "igc",
+      "itemsToGrant": [
+        {
+          "itemClass": "igc",
+          "type": "VirtualCurrency",
+          "currencyID": "CO",
+          "catalog": "",
+          "itemID": "",
+          "amount": "",
+          "imagePath": ""
+        }
+      ]
+    },
+    {
+      "name": "Coin",
+      "currencyID": "IG",
+      "currencyImagePath": "Sprites/Currency/IGT",
+      "priceRM": "500",
+      "imagePath": "Sprites/Currency/Bundle/IGC/IGC_Bundle_Big",
+      "itemID": "igc_for_igt_50",
+      "itemClass": "igc",
+      "itemsToGrant": [
+        {
+          "itemClass": "igc",
+          "type": "VirtualCurrency",
+          "currencyID": "CO",
+          "catalog": "",
+          "itemID": "",
+          "amount": "",
+          "imagePath": ""
+        }
+      ]
+    },
+    {
+      "name": "1 Standard Spin Ticket",
+      "currencyID": "CO",
+      "currencyImagePath": "Sprites/Currency/IGC",
+      "priceRM": "10",
+      "imagePath": "Sprites/Spin/Tickets/StandardTicket",
+      "itemID": "standard_spin_ticket_1",
+      "itemClass": "standard_spin_ticket",
+      "itemsToGrant": [
+        {
+          "name": "Standard Ticket",
+          "type": "Item",
+          "currencyID": "",
+          "catalog": "Spin",
+          "itemID": "standard_spin_ticket",
+          "amount": "1"
+        }
+      ]
+    },
+    {
+      "name": "5 Standard Spin Tickets",
+      "currencyID": "CO",
+      "currencyImagePath": "Sprites/Currency/IGC",
+      "priceRM": "45",
+      "imagePath": "Sprites/Spin/Tickets/Bundle/Standard/StandardTicket_Bundle_Middle",
+      "itemID": "standard_spin_ticket_5",
+      "itemClass": "standard_spin_ticket",
+      "itemsToGrant": [
+        {
+          "name": "Standard Ticket",
+          "type": "Item",
+          "currencyID": "",
+          "catalog": "Spin",
+          "itemID": "standard_spin_ticket",
+          "amount": "5"
+        }
+      ]
+    },
+    {
+      "name": "10 Standard Spin Tickets",
+      "currencyID": "CO",
+      "currencyImagePath": "Sprites/Currency/IGC",
+      "priceRM": "85",
+      "imagePath": "Sprites/Spin/Tickets/Bundle/Standard/StandardTicket_Bundle_Big",
+      "itemID": "standard_spin_ticket_10",
+      "itemClass": "standard_spin_ticket",
+      "itemsToGrant": [
+        {
+          "name": "Standard Ticket",
+          "type": "Item",
+          "currencyID": "",
+          "catalog": "Spin",
+          "itemID": "standard_spin_ticket",
+          "amount": "10"
+        }
+      ]
+    },
+    {
+      "name": "1 Premium Spin Ticket",
+      "currencyID": "IG",
+      "currencyImagePath": "Sprites/Currency/IGT",
+      "priceRM": "100",
+      "imagePath": "Sprites/Spin/Tickets/PremiumTicket",
+      "itemID": "premium_spin_ticket_1",
+      "itemClass": "premium_spin_ticket",
+      "itemsToGrant": [
+        {
+          "name": "Premium Ticket",
+          "type": "Item",
+          "currencyID": "",
+          "catalog": "Spin",
+          "itemID": "premium_spin_ticket",
+          "amount": "1"
+        }
+      ]
+    },
+    {
+      "name": "5 Premium Spin Tickets",
+      "currencyID": "IG",
+      "currencyImagePath": "Sprites/Currency/IGT",
+      "priceRM": "450",
+      "imagePath": "Sprites/Spin/Tickets/Bundle/Premium/PremiumTicket_Bundle_Middle",
+      "itemID": "premium_spin_ticket_5",
+      "itemClass": "premium_spin_ticket",
+      "itemsToGrant": [
+        {
+          "name": "Premium Ticket",
+          "type": "Item",
+          "currencyID": "",
+          "catalog": "Spin",
+          "itemID": "premium_spin_ticket",
+          "amount": "5"
+        }
+      ]
+    },
+    {
+      "name": "10 Premium Spin Tickets",
+      "currencyID": "IG",
+      "currencyImagePath": "Sprites/Currency/IGT",
+      "priceRM": "850",
+      "imagePath": "Sprites/Spin/Tickets/Bundle/Premium/PremiumTicket_Bundle_Big",
+      "itemID": "premium_spin_ticket_10",
+      "itemClass": "premium_spin_ticket",
+      "itemsToGrant": [
+        {
+          "name": "Premium Ticket",
+          "type": "Item",
+          "currencyID": "",
+          "catalog": "Spin",
+          "itemID": "premium_spin_ticket",
+          "amount": "10"
+        }
+      ]
+    },
+    {
+      "name": "1 Withdrawal Key",
+      "currencyID": "IG",
+      "currencyImagePath": "Sprites/Currency/IGT",
+      "priceRM": "99",
+      "imagePath": "Sprites/Currency/WK",
+      "itemID": "wk_1",
+      "itemClass": "withdrawal_key",
+      "itemsToGrant": [
+        {
+          "name": "Withdrawal Key",
+          "type": "VirtualCurrency",
+          "currencyID": "WK",
+          "catalog": "",
+          "itemID": "",
+          "amount": "1"
+        }
+      ]
+    },
+    {
+      "name": "10 Withdrawal Keys",
+      "currencyID": "IG",
+      "currencyImagePath": "Sprites/Currency/IGT",
+      "priceRM": "999",
+      "imagePath": "Sprites/Currency/Bundle/WK/WK_Bundle_Middle",
+      "itemID": "wk_10",
+      "itemClass": "withdrawal_key",
+      "itemsToGrant": [
+        {
+          "name": "Withdrawal Key",
+          "type": "VirtualCurrency",
+          "currencyID": "WK",
+          "catalog": "",
+          "itemID": "",
+          "amount": "10"
+        }
+      ]
+    },
+    {
+      "name": "50 Withdrawal Keys",
+      "currencyID": "IG",
+      "currencyImagePath": "Sprites/Currency/IGT",
+      "priceRM": "3999",
+      "imagePath": "Sprites/Currency/Bundle/WK/WK_Bundle_Big",
+      "itemID": "wk_50",
+      "itemClass": "withdrawal_key",
+      "itemsToGrant": [
+        {
+          "name": "Withdrawal Key",
+          "type": "VirtualCurrency",
+          "currencyID": "WK",
+          "catalog": "",
+          "itemID": "",
+          "amount": "50"
+        }
+      ]
+    }
+  ],
+  "referral_first_activation_reward": {
+    "type": "Item",
+    "currencyID": "",
+    "catalog": "Spin",
+    "itemID": "premium_spin_ticket",
+    "amount": "1"
+  },
+  "referral_invite_rewards": [
+    {
+      "followersAmount": "1",
+      "reward": {
+        "name": "Coin",
+        "type": "VirtualCurrency",
+        "currencyID": "CO",
+        "catalog": "",
+        "itemID": "",
+        "amount": "1000",
+        "imagePath": "Sprites/Currency/IGC"
+      }
+    },
+    {
+      "followersAmount": "3",
+      "reward": {
+        "name": "Token",
+        "type": "VirtualCurrency",
+        "currencyID": "IG",
+        "catalog": "",
+        "itemID": "",
+        "amount": "10",
+        "imagePath": "Sprites/Currency/IGT"
+      }
+    },
+    {
+      "followersAmount": "5",
+      "reward": {
+        "name": "Standard Ticket",
+        "type": "Item",
+        "currencyID": "",
+        "catalog": "Spin",
+        "itemID": "standard_spin_ticket",
+        "amount": "1",
+        "imagePath": "Sprites/Spin/Tickets/StandardTicket"
+      }
+    },
+    {
+      "followersAmount": "7",
+      "reward": {
+        "name": "Premium Ticket",
+        "type": "Item",
+        "currencyID": "",
+        "catalog": "Spin",
+        "itemID": "premium_spin_ticket",
+        "amount": "1",
+        "imagePath": "Sprites/Spin/Tickets/PremiumTicket"
+      }
+    },
+    {
+      "followersAmount": "10",
+      "reward": {
+        "name": "Withdrawal Key",
+        "type": "VirtualCurrency",
+        "currencyID": "WK",
+        "catalog": "",
+        "itemID": "",
+        "amount": "1",
+        "imagePath": "Sprites/Currency/WK"
+      }
+    }
+  ],
+  "secondary_spin_rewards": [
+    {
+      "id": "1",
+      "itemID": "spin_reward_1",
+      "reward": {
+        "name": "Coins",
+        "type": "VirtualCurrency",
+        "currencyID": "CO",
+        "amount": "50",
+        "imagePath": "Sprites/Currency/IGC"
+      }
+    },
+    {
+      "id": "2",
+      "itemID": "spin_reward_2",
+      "reward": {
+        "name": "Rare Chest Key Fragment 3",
+        "type": "Item",
+        "catalog": "Chest",
+        "itemID": "rare_chest_key_fragment_3",
+        "amount": "1",
+        "imagePath": "Sprites/Chest/KeyFragments/Rare/Rare_Key_Fragment_3"
+      }
+    },
+    {
+      "id": "3",
+      "itemID": "spin_reward_3",
+      "reward": {
+        "name": "Common Chest Key Fragment 1",
+        "type": "Item",
+        "catalog": "Chest",
+        "itemID": "common_chest_key_fragment_1",
+        "amount": "1",
+        "imagePath": "Sprites/Chest/KeyFragments/Common/Common_Key_Fragment_1"
+      }
+    },
+    {
+      "id": "4",
+      "itemID": "spin_reward_4",
+      "reward": {
+        "name": "Rare Chest Key Fragment 2",
+        "type": "Item",
+        "catalog": "Chest",
+        "itemID": "rare_chest_key_fragment_2",
+        "amount": "1",
+        "imagePath": "Sprites/Chest/KeyFragments/Rare/Rare_Key_Fragment_2"
+      }
+    },
+    {
+      "id": "5",
+      "itemID": "spin_reward_5",
+      "reward": {
+        "name": "Common Chest Key Fragment 2",
+        "type": "Item",
+        "catalog": "Chest",
+        "itemID": "common_chest_key_fragment_2",
+        "amount": "1",
+        "imagePath": "Sprites/Chest/KeyFragments/Common/Common_Key_Fragment_2"
+      }
+    },
+    {
+      "id": "6",
+      "itemID": "spin_reward_6",
+      "reward": {
+        "name": "Coins",
+        "type": "VirtualCurrency",
+        "currencyID": "CO",
+        "amount": "90",
+        "imagePath": "Sprites/Currency/IGC"
+      }
+    },
+    {
+      "id": "7",
+      "itemID": "spin_reward_7",
+      "reward": {
+        "name": "Rare Chest Key Fragment 1",
+        "type": "Item",
+        "catalog": "Chest",
+        "itemID": "rare_chest_key_fragment_1",
+        "amount": "1",
+        "imagePath": "Sprites/Chest/KeyFragments/Rare/Rare_Key_Fragment_1"
+      }
+    },
+    {
+      "id": "8",
+      "itemID": "spin_reward_8",
+      "reward": {
+        "name": "Common Chest Key Fragment 3",
+        "type": "Item",
+        "catalog": "Chest",
+        "itemID": "common_chest_key_fragment_3",
+        "amount": "1",
+        "imagePath": "Sprites/Chest/KeyFragments/Common/Common_Key_Fragment_3"
+      }
+    }
+  ],
+  "shop_daily_free_products": [
+    {
+      "name": "Free Spin Ticket",
+      "enabled": "1",
+      "amount": "3",
+      "imagePath": "Sprites/Spin/Tickets/FreeTicket",
+      "itemID": "free_spin_ticket",
+      "itemClass": "spin_ticket",
+      "itemsToGrant": []
+    },
+    {
+      "name": "Free Tokens",
+      "enabled": "1",
+      "amount": "3",
+      "imagePath": "Sprites/Currency/Bundle/IGT/IGT_Bundle_Small",
+      "itemID": "free_tokens",
+      "itemClass": "currency",
+      "itemsToGrant": [
+        {
+          "itemClass": "igt",
+          "type": "VirtualCurrency",
+          "currencyID": "IG",
+          "amount": "1"
+        }
+      ]
+    },
+    {
+      "name": "Free Coins",
+      "enabled": "1",
+      "amount": "3",
+      "imagePath": "Sprites/Currency/Bundle/IGC/IGC_Bundle_Small",
+      "itemID": "free_coins",
+      "itemClass": "currency",
+      "itemsToGrant": [
+        {
+          "itemClass": "igc",
+          "type": "VirtualCurrency",
+          "currencyID": "CO",
+          "amount": "70"
+        }
+      ]
+    }
+  ],
+  "shop_daily_products": {
+    "products": [
+      {
+        "itemID": "daily_item_1_3",
+        "name": "Common Key Fragment",
+        "currencyID": "CO",
+        "currencyImagePath": "Sprites/Currency/IGC",
+        "imagePath": "Sprites/Chest/KeyFragments/Common/Common_Key_Fragment_3",
+        "itemsToGrant": [
+          {
+            "name": "Common Key Fragment",
+            "type": "Item",
+            "currencyID": "",
+            "catalog": "Chest",
+            "itemID": "common_chest_key_fragment_3",
+            "amount": "1"
+          }
+        ],
+        "priceRM": 14
+      },
+      {
+        "itemID": "daily_item_2_1",
+        "name": "Rare Key Fragment",
+        "currencyID": "IG",
+        "currencyImagePath": "Sprites/Currency/IGT",
+        "imagePath": "Sprites/Chest/KeyFragments/Rare/Rare_Key_Fragment_1",
+        "itemsToGrant": [
+          {
+            "name": "Rare Key Fragment",
+            "type": "Item",
+            "currencyID": "",
+            "catalog": "Chest",
+            "itemID": "rare_chest_key_fragment_1",
+            "amount": "1"
+          }
+        ],
+        "priceRM": 198
+      },
+      {
+        "itemID": "daily_item_3_2",
+        "name": "Legendary Key Fragment",
+        "currencyID": "IG",
+        "currencyImagePath": "Sprites/Currency/IGT",
+        "imagePath": "Sprites/Chest/KeyFragments/Legendary/Legendary_Key_Fragment_2",
+        "itemsToGrant": [
+          {
+            "name": "Rare Key Fragment",
+            "type": "Item",
+            "currencyID": "",
+            "catalog": "Chest",
+            "itemID": "legendary_chest_key_fragment_2",
+            "amount": "1"
+          }
+        ],
+        "priceRM": 233
+      }
+    ],
+    "endDate": "2024-06-07 00:00:00Z"
+  },
+  "shop_daily_products_constructor": [
+    {
+      "itemID": "daily_item_1",
+      "itemClass": "keyFragment",
+      "products": [
+        {
+          "weight": "5",
+          "priceRMFrom": "80",
+          "priceRMTo": "100",
+          "itemID": "daily_item_1_1",
+          "name": "Common Key Fragment",
+          "currencyID": "CO",
+          "currencyImagePath": "Sprites/Currency/IGC",
+          "imagePath": "Sprites/Chest/KeyFragments/Common/Common_Key_Fragment_1",
+          "itemsToGrant": [
+            {
+              "name": "Common Key Fragment",
+              "type": "Item",
+              "currencyID": "",
+              "catalog": "Chest",
+              "itemID": "common_chest_key_fragment_1",
+              "amount": "1"
+            }
+          ]
+        },
+        {
+          "weight": "15",
+          "priceRMFrom": "30",
+          "priceRMTo": "50",
+          "itemID": "daily_item_1_2",
+          "name": "Common Key Fragment",
+          "currencyID": "CO",
+          "currencyImagePath": "Sprites/Currency/IGC",
+          "imagePath": "Sprites/Chest/KeyFragments/Common/Common_Key_Fragment_2",
+          "itemsToGrant": [
+            {
+              "name": "Common Key Fragment",
+              "type": "Item",
+              "currencyID": "",
+              "catalog": "Chest",
+              "itemID": "common_chest_key_fragment_2",
+              "amount": "1"
+            }
+          ]
+        },
+        {
+          "weight": "80",
+          "priceRMFrom": "10",
+          "priceRMTo": "20",
+          "itemID": "daily_item_1_3",
+          "name": "Common Key Fragment",
+          "currencyID": "CO",
+          "currencyImagePath": "Sprites/Currency/IGC",
+          "imagePath": "Sprites/Chest/KeyFragments/Common/Common_Key_Fragment_3",
+          "itemsToGrant": [
+            {
+              "name": "Common Key Fragment",
+              "type": "Item",
+              "currencyID": "",
+              "catalog": "Chest",
+              "itemID": "common_chest_key_fragment_3",
+              "amount": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "itemID": "daily_item_2",
+      "itemClass": "keyFragment",
+      "products": [
+        {
+          "weight": "5",
+          "priceRMFrom": "180",
+          "priceRMTo": "200",
+          "itemID": "daily_item_2_1",
+          "name": "Rare Key Fragment",
+          "currencyID": "IG",
+          "currencyImagePath": "Sprites/Currency/IGT",
+          "imagePath": "Sprites/Chest/KeyFragments/Rare/Rare_Key_Fragment_1",
+          "itemsToGrant": [
+            {
+              "name": "Rare Key Fragment",
+              "type": "Item",
+              "currencyID": "",
+              "catalog": "Chest",
+              "itemID": "rare_chest_key_fragment_1",
+              "amount": "1"
+            }
+          ]
+        },
+        {
+          "weight": "15",
+          "priceRMFrom": "130",
+          "priceRMTo": "150",
+          "itemID": "daily_item_2_2",
+          "name": "Rare Key Fragment",
+          "currencyID": "IG",
+          "currencyImagePath": "Sprites/Currency/IGT",
+          "imagePath": "Sprites/Chest/KeyFragments/Rare/Rare_Key_Fragment_2",
+          "itemsToGrant": [
+            {
+              "name": "Rare Key Fragment",
+              "type": "Item",
+              "currencyID": "",
+              "catalog": "Chest",
+              "itemID": "rare_chest_key_fragment_2",
+              "amount": "1"
+            }
+          ]
+        },
+        {
+          "weight": "80",
+          "priceRMFrom": "100",
+          "priceRMTo": "110",
+          "itemID": "daily_item_2_3",
+          "name": "Rare Key Fragment",
+          "currencyID": "IG",
+          "currencyImagePath": "Sprites/Currency/IGT",
+          "imagePath": "Sprites/Chest/KeyFragments/Rare/Rare_Key_Fragment_3",
+          "itemsToGrant": [
+            {
+              "name": "Rare Key Fragment",
+              "type": "Item",
+              "currencyID": "",
+              "catalog": "Chest",
+              "itemID": "rare_chest_key_fragment_3",
+              "amount": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "itemID": "daily_item_3",
+      "itemClass": "keyFragment",
+      "products": [
+        {
+          "weight": "5",
+          "priceRMFrom": "280",
+          "priceRMTo": "300",
+          "itemID": "daily_item_3_1",
+          "name": "Legendary Key Fragment",
+          "currencyID": "IG",
+          "currencyImagePath": "Sprites/Currency/IGT",
+          "imagePath": "Sprites/Chest/KeyFragments/Legendary/Legendary_Key_Fragment_1",
+          "itemsToGrant": [
+            {
+              "name": "Legendary Key Fragment",
+              "type": "Item",
+              "currencyID": "",
+              "catalog": "Chest",
+              "itemID": "legendary_chest_key_fragment_1",
+              "amount": "1"
+            }
+          ]
+        },
+        {
+          "weight": "15",
+          "priceRMFrom": "230",
+          "priceRMTo": "250",
+          "itemID": "daily_item_3_2",
+          "name": "Legendary Key Fragment",
+          "currencyID": "IG",
+          "currencyImagePath": "Sprites/Currency/IGT",
+          "imagePath": "Sprites/Chest/KeyFragments/Legendary/Legendary_Key_Fragment_2",
+          "itemsToGrant": [
+            {
+              "name": "Rare Key Fragment",
+              "type": "Item",
+              "currencyID": "",
+              "catalog": "Chest",
+              "itemID": "legendary_chest_key_fragment_2",
+              "amount": "1"
+            }
+          ]
+        },
+        {
+          "weight": "80",
+          "priceRMFrom": "200",
+          "priceRMTo": "210",
+          "itemID": "daily_item_3_3",
+          "name": "Legendary Key Fragment",
+          "currencyID": "IG",
+          "currencyImagePath": "Sprites/Currency/IGT",
+          "imagePath": "Sprites/Chest/KeyFragments/Legendary/Legendary_Key_Fragment_3",
+          "itemsToGrant": [
+            {
+              "name": "Rare Key Fragment",
+              "type": "Item",
+              "currencyID": "",
+              "catalog": "Chest",
+              "itemID": "legendary_chest_key_fragment_3",
+              "amount": "1"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "shop_special_products": [
+    {
+      "itemID": "time_limited_1",
+      "type": "time_limited",
+      "endDate": "05-05-2023",
+      "name": "Common Key Fragment 3",
+      "priceRM": "10",
+      "currencyID": "IG",
+      "currencyImagePath": "Sprites/Currency/IGT",
+      "imagePath": "Sprites/Chest/KeyFragments/Common/Common_Key_Fragment_3",
+      "itemsToGrant": [
+        {
+          "name": "Common Key Fragment 3",
+          "type": "Item",
+          "currencyID": "",
+          "catalog": "Chest",
+          "itemID": "common_chest_key_fragment_3",
+          "amount": "3"
+        }
+      ]
+    },
+    {
+      "itemID": "quantity_limited_for_player_1",
+      "type": "quantity_limited_for_player",
+      "quantityLimit": "5",
+      "name": "3 Standard Tickets",
+      "priceRM": "25",
+      "currencyID": "CO",
+      "currencyImagePath": "Sprites/Currency/IGC",
+      "imagePath": "Sprites/Spin/Tickets/Bundle/Standard/StandardTicket_Bundle_Middle",
+      "itemsToGrant": [
+        {
+          "name": "3 Standard Tickets",
+          "type": "Item",
+          "currencyID": "",
+          "catalog": "Spin",
+          "itemID": "standard_spin_ticket",
+          "amount": "3"
+        }
+      ]
+    },
+    {
+      "itemID": "time_quantity_limited_for_player_1",
+      "type": "time_quantity_limited_for_player",
+      "quantityLimit": "3",
+      "endDate": "05-10-2023",
+      "name": "Rare Chest",
+      "priceRM": "450",
+      "currencyID": "IG",
+      "currencyImagePath": "Sprites/Currency/IGT",
+      "imagePath": "Sprites/Chest/Rare_Chest",
+      "itemsToGrant": [
+        {
+          "name": "1 Rare Chest",
+          "type": "Item",
+          "currencyID": "",
+          "catalog": "Chest",
+          "itemID": "rare_chest",
+          "amount": "1"
+        }
+      ]
+    },
+    {
+      "itemID": "unlimited_1",
+      "type": "unlimited",
+      "name": "Common Key Fragment 2",
+      "priceRM": "15",
+      "currencyID": "IG",
+      "currencyImagePath": "Sprites/Currency/IGT",
+      "imagePath": "Sprites/Chest/KeyFragments/Common/Common_Key_Fragment_2",
+      "itemsToGrant": [
+        {
+          "name": "Common Key Fragment 2",
+          "type": "Item",
+          "currencyID": "",
+          "catalog": "Chest",
+          "itemID": "common_chest_key_fragment_2",
+          "amount": "1"
+        }
+      ]
+    },
+    {
+      "itemID": "ethernal_vip_quantity_limited_for_player",
+      "type": "quantity_limited_for_player",
+      "quantityLimit": "1",
+      "name": "Ethernal VIP",
+      "priceRM": "10000",
+      "currencyID": "IG",
+      "currencyImagePath": "Sprites/Currency/IGT",
+      "imagePath": "Sprites/Logo/iDosGamesLogo",
+      "itemsToGrant": [
+        {
+          "name": "Ethernal VIP",
+          "type": "Item",
+          "catalog": "Primary",
+          "itemID": "eternal_vip",
+          "amount": "1"
+        }
+      ]
+    }
+  ],
+  "skin_collection_rarity": [
+    {
+      "rarity": "Common",
+      "profit": "0",
+      "collections": [
+        "Common",
+        "Skull"
+      ]
+    },
+    {
+      "rarity": "Uncommon",
+      "profit": "1",
+      "collections": [
+        "Uncommon",
+        "Tree"
+      ]
+    },
+    {
+      "rarity": "Rare",
+      "profit": "3",
+      "collections": [
+        "Rare",
+        "Graduate"
+      ]
+    },
+    {
+      "rarity": "Epic",
+      "profit": "5",
+      "collections": [
+        "Epic",
+        "Unicorn"
+      ]
+    },
+    {
+      "rarity": "Legendary",
+      "profit": "10",
+      "collections": [
+        "Legendary",
+        "Zeus"
+      ]
+    }
+  ],
+  "spin_rewards": [
+    {
+      "id": "1",
+      "itemID": "spin_reward_1",
+      "standard": {
+        "name": "Withdrawal Key",
+        "type": "VirtualCurrency",
+        "currencyID": "WK",
+        "amount": "1",
+        "imagePath": "Sprites/Currency/WK"
+      },
+      "premium": {
+        "name": "Rare Chest",
+        "type": "Item",
+        "catalog": "Chest",
+        "itemID": "rare_chest",
+        "amount": "1",
+        "imagePath": "Sprites/Chest/Rare_Chest"
+      }
+    },
+    {
+      "id": "2",
+      "itemID": "spin_reward_2",
+      "standard": {
+        "name": "Coins",
+        "type": "VirtualCurrency",
+        "currencyID": "CO",
+        "amount": "10",
+        "imagePath": "Sprites/Currency/IGC"
+      },
+      "premium": {
+        "name": "Tokens",
+        "type": "VirtualCurrency",
+        "currencyID": "IG",
+        "amount": "10",
+        "imagePath": "Sprites/Currency/IGT"
+      }
+    },
+    {
+      "id": "3",
+      "itemID": "spin_reward_3",
+      "standard": {
+        "name": "Rare Chest",
+        "type": "Item",
+        "catalog": "Chest",
+        "itemID": "rare_chest",
+        "amount": "1",
+        "imagePath": "Sprites/Chest/Rare_Chest"
+      },
+      "premium": {
+        "name": "Tokens",
+        "type": "VirtualCurrency",
+        "currencyID": "IG",
+        "amount": "20",
+        "imagePath": "Sprites/Currency/IGT"
+      }
+    },
+    {
+      "id": "4",
+      "itemID": "spin_reward_4",
+      "standard": {
+        "name": "Coins",
+        "type": "VirtualCurrency",
+        "currencyID": "CO",
+        "amount": "20",
+        "imagePath": "Sprites/Currency/IGC"
+      },
+      "premium": {
+        "name": "Tokens",
+        "type": "VirtualCurrency",
+        "currencyID": "IG",
+        "amount": "50",
+        "imagePath": "Sprites/Currency/IGT"
+      }
+    },
+    {
+      "id": "5",
+      "itemID": "spin_reward_5",
+      "standard": {
+        "name": "Common Chest",
+        "type": "Item",
+        "catalog": "Chest",
+        "itemID": "common_chest",
+        "amount": "1",
+        "imagePath": "Sprites/Chest/Common_Chest"
+      },
+      "premium": {
+        "name": "Legendary Chest",
+        "type": "Item",
+        "catalog": "Chest",
+        "itemID": "legendary_chest",
+        "amount": "1",
+        "imagePath": "Sprites/Chest/Legendary_Chest"
+      }
+    },
+    {
+      "id": "6",
+      "itemID": "spin_reward_6",
+      "standard": {
+        "name": "Coins",
+        "type": "VirtualCurrency",
+        "currencyID": "CO",
+        "amount": "100",
+        "imagePath": "Sprites/Currency/IGC"
+      },
+      "premium": {
+        "name": "Tokens",
+        "type": "VirtualCurrency",
+        "currencyID": "IG",
+        "amount": "70",
+        "imagePath": "Sprites/Currency/IGT"
+      }
+    },
+    {
+      "id": "7",
+      "itemID": "spin_reward_7",
+      "standard": {
+        "name": "Tokens",
+        "type": "VirtualCurrency",
+        "currencyID": "IG",
+        "amount": "10",
+        "imagePath": "Sprites/Currency/IGT"
+      },
+      "premium": {
+        "name": "Tokens",
+        "type": "VirtualCurrency",
+        "currencyID": "IG",
+        "amount": "100",
+        "imagePath": "Sprites/Currency/IGT"
+      }
+    },
+    {
+      "id": "8",
+      "itemID": "spin_reward_8",
+      "standard": {
+        "name": "Coins",
+        "type": "VirtualCurrency",
+        "currencyID": "CO",
+        "amount": "500",
+        "imagePath": "Sprites/Currency/IGC"
+      },
+      "premium": {
+        "name": "Tokens",
+        "type": "VirtualCurrency",
+        "currencyID": "IG",
+        "amount": "150",
+        "imagePath": "Sprites/Currency/IGT"
+      }
+    }
+  ],
+  "system_state": {
+    "leaderboards": "1",
+    "vip_free_trial": {
+      "ios": "1",
+      "android": "1"
+    },
+    "wallet": {
+      "ios": "1",
+      "android": "1"
+    }
+  },
+  "wallet": {
+    "address": "0xCF385fc5e77523BcefB3bb887d9dA24b3FE05055"
+  },
+  "favorable_deals": {
+    "singleOffers": {
+      "cheap": [
+        {
+          "endTime": "28-12-2023",
+          "quantity": "5",
+          "name": "KeyFrangmentDeal",
+          "offerID": "com.idosgames.sdk.offer_2",
+          "productType": "Consumable",
+          "priceRM": "499",
+          "iconImagePath": "Sprites/Skin/Zeus/Zeus_Square",
+          "imagePath": "Sprites/Chest/KeyFragments/Common/Common_Key_Fragment_3",
+          "itemsToGrant": [
+            {
+              "name": "Common Key Fragment 3",
+              "type": "Item",
+              "currencyID": "",
+              "catalog": "Chest",
+              "itemID": "common_chest_key_fragment_3",
+              "amount": "3"
+            }
+          ]
+        },
+        {
+          "endTime": "28-12-2023",
+          "quantity": "5",
+          "name": "KeyFrangmentDeal",
+          "offerID": "com.idosgames.sdk.offer_3",
+          "productType": "Consumable",
+          "priceRM": "499",
+          "iconImagePath": "Sprites/Skin/Zeus/Zeus_Square",
+          "imagePath": "Sprites/Chest/KeyFragments/Common/Common_Key_Fragment_3",
+          "itemsToGrant": [
+            {
+              "name": "Common Key Fragment 3",
+              "type": "Item",
+              "currencyID": "",
+              "catalog": "Chest",
+              "itemID": "common_chest_key_fragment_3",
+              "amount": "3"
+            }
+          ]
+        }
+      ],
+      "medium": [
+        {
+          "offerID": "com.idosgames.sdk.offer_3",
+          "endTime": "28-12-2023",
+          "quantity": "5",
+          "name": "KeyFrangmentDeal",
+          "priceRM": "499",
+          "productType": "Consumable",
+          "iconImagePath": "Sprites/Skin/Zeus/Zeus_Square",
+          "imagePath": "Sprites/Chest/KeyFragments/Common/Common_Key_Fragment_3",
+          "itemsToGrant": [
+            {
+              "name": "Common Key Fragment 2",
+              "type": "Item",
+              "currencyID": "",
+              "catalog": "Chest",
+              "itemID": "common_chest_key_fragment_2",
+              "amount": "3"
+            }
+          ]
+        },
+        {
+          "offerID": "com.idosgames.sdk.offer_3",
+          "endTime": "28-12-2023",
+          "quantity": "5",
+          "name": "KeyFrangmentDeal",
+          "priceRM": "499",
+          "productType": "Consumable",
+          "iconImagePath": "Sprites/Skin/Zeus/Zeus_Square",
+          "imagePath": "Sprites/Chest/KeyFragments/Common/Common_Key_Fragment_3",
+          "itemsToGrant": [
+            {
+              "name": "Common Key Fragment 2",
+              "type": "Item",
+              "currencyID": "",
+              "catalog": "Chest",
+              "itemID": "common_chest_key_fragment_2",
+              "amount": "3"
+            }
+          ]
+        }
+      ],
+      "expensive": [
+        {
+          "offerID": "com.idosgames.sdk.offer_4",
+          "endTime": "28-12-2023",
+          "quantity": "5",
+          "name": "KeyFrangmentDeal",
+          "priceRM": "999",
+          "productType": "Consumable",
+          "iconImagePath": "Sprites/Skin/Zeus/Zeus_Square",
+          "imagePath": "Sprites/Chest/KeyFragments/Common/Common_Key_Fragment_1",
+          "itemsToGrant": [
+            {
+              "name": "Common Key Fragment 1",
+              "type": "Item",
+              "currencyID": "",
+              "catalog": "Chest",
+              "itemID": "common_chest_key_fragment_1",
+              "amount": "3"
+            }
+          ]
+        },
+        {
+          "offerID": "com.idosgames.sdk.offer_5",
+          "endTime": "28-12-2023",
+          "quantity": "5",
+          "name": "KeyFrangmentDeal",
+          "priceRM": "499",
+          "productType": "Consumable",
+          "iconImagePath": "Sprites/Skin/Zeus/Zeus_Square",
+          "imagePath": "Sprites/Chest/KeyFragments/Common/Common_Key_Fragment_1",
+          "itemsToGrant": [
+            {
+              "name": "Common Key Fragment 1",
+              "type": "Item",
+              "currencyID": "",
+              "catalog": "Chest",
+              "itemID": "common_chest_key_fragment_1",
+              "amount": "3"
+            }
+          ]
+        }
+      ]
+    },
+    "chainOffers": [
+      {
+        "chainID": "chain_ticket_offer_1",
+        "iconImagePath": "Sprites/Skin/Zeus/Zeus_Square",
+        "endTime": "15-01-2024",
+        "name": "StandartTicketBundleDeal",
+        "offers": [
+          {
+            "offerID": "com.idosgames.sdk.offer_1",
+            "level": "1",
+            "priceRM": "0",
+            "imagePath": "Sprites/Spin/Tickets/Bundle/Standard/StandardTicket_Bundle_Middle",
+            "itemsToGrant": [
+              {
+                "name": "Common Key Fragment 3",
+                "type": "Item",
+                "currencyID": "",
+                "catalog": "Chest",
+                "itemID": "common_chest_key_fragment_3",
+                "amount": "3"
+              }
+            ]
+          },
+          {
+            "offerID": "com.idosgames.sdk.offer_1",
+            "priceRM": "0",
+            "level": "2",
+            "imagePath": "Sprites/Chest/KeyFragments/Common/Common_Key_Fragment_3",
+            "itemsToGrant": [
+              {
+                "name": "Common Key Fragment 3",
+                "type": "Item",
+                "currencyID": "",
+                "catalog": "Chest",
+                "itemID": "common_chest_key_fragment_3",
+                "amount": "3"
+              }
+            ]
+          },
+          {
+            "offerID": "com.idosgames.sdk.offer_1",
+            "level": "3",
+            "priceRM": "499",
+            "productType": "Consumable",
+            "imagePath": "Sprites/Chest/KeyFragments/Common/Common_Key_Fragment_3",
+            "itemsToGrant": [
+              {
+                "name": "Common Key Fragment 3",
+                "type": "Item",
+                "currencyID": "",
+                "catalog": "Chest",
+                "itemID": "common_chest_key_fragment_3",
+                "amount": "3"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "current_favorable_deals": {
+    "cheap": "com.idosgames.sdk.offer_2",
+    "medium": "com.idosgames.sdk.offer_3",
+    "expensive": "com.idosgames.sdk.offer_4",
+    "endTime": "15-01-2024",
+    "firstEndTime": "14-01-2024"
+  }
+}

@@ -1,0 +1,440 @@
+{
+  "CatalogVersion": "Spin",
+  "Catalog": [
+    {
+      "ItemId": "premium_spin_ticket",
+      "ItemClass": "spin_ticket",
+      "CatalogVersion": "Spin",
+      "DisplayName": "Premium Spin Ticket",
+      "Description": null,
+      "VirtualCurrencyPrices": {},
+      "RealCurrencyPrices": {},
+      "Tags": [],
+      "CustomData": null,
+      "Consumable": {
+        "UsageCount": null,
+        "UsagePeriod": null,
+        "UsagePeriodGroup": null
+      },
+      "Container": null,
+      "Bundle": null,
+      "CanBecomeCharacter": false,
+      "IsStackable": true,
+      "IsTradable": false,
+      "ItemImageUrl": "",
+      "IsLimitedEdition": false,
+      "InitialLimitedEditionCount": 0,
+      "ActivatedMembership": null
+    },
+    {
+      "ItemId": "standard_spin_ticket",
+      "ItemClass": "spin_ticket",
+      "CatalogVersion": "Spin",
+      "DisplayName": "Standard Spin Ticket",
+      "Description": null,
+      "VirtualCurrencyPrices": {},
+      "RealCurrencyPrices": {},
+      "Tags": [],
+      "CustomData": null,
+      "Consumable": {
+        "UsageCount": null,
+        "UsagePeriod": null,
+        "UsagePeriodGroup": null
+      },
+      "Container": null,
+      "Bundle": null,
+      "CanBecomeCharacter": false,
+      "IsStackable": true,
+      "IsTradable": false,
+      "ItemImageUrl": "",
+      "IsLimitedEdition": false,
+      "InitialLimitedEditionCount": 0,
+      "ActivatedMembership": null
+    },
+    {
+      "ItemId": "spin_reward_1",
+      "ItemClass": "spin_reward",
+      "CatalogVersion": "Spin",
+      "DisplayName": "",
+      "Description": null,
+      "VirtualCurrencyPrices": {},
+      "RealCurrencyPrices": {},
+      "Tags": [],
+      "CustomData": null,
+      "Consumable": {
+        "UsageCount": null,
+        "UsagePeriod": 3,
+        "UsagePeriodGroup": null
+      },
+      "Container": null,
+      "Bundle": {
+        "BundledItems": [],
+        "BundledResultTables": [],
+        "BundledVirtualCurrencies": {
+          "CL": 1
+        }
+      },
+      "CanBecomeCharacter": false,
+      "IsStackable": false,
+      "IsTradable": false,
+      "ItemImageUrl": null,
+      "IsLimitedEdition": false,
+      "InitialLimitedEditionCount": 0,
+      "ActivatedMembership": null
+    },
+    {
+      "ItemId": "spin_reward_2",
+      "ItemClass": "spin_reward",
+      "CatalogVersion": "Spin",
+      "DisplayName": "",
+      "Description": null,
+      "VirtualCurrencyPrices": {},
+      "RealCurrencyPrices": {},
+      "Tags": [],
+      "CustomData": null,
+      "Consumable": {
+        "UsageCount": null,
+        "UsagePeriod": 3,
+        "UsagePeriodGroup": null
+      },
+      "Container": null,
+      "Bundle": {
+        "BundledItems": [],
+        "BundledResultTables": [],
+        "BundledVirtualCurrencies": {
+          "CL": 1
+        }
+      },
+      "CanBecomeCharacter": false,
+      "IsStackable": false,
+      "IsTradable": false,
+      "ItemImageUrl": null,
+      "IsLimitedEdition": false,
+      "InitialLimitedEditionCount": 0,
+      "ActivatedMembership": null
+    },
+    {
+      "ItemId": "spin_reward_3",
+      "ItemClass": "spin_reward",
+      "CatalogVersion": "Spin",
+      "DisplayName": "",
+      "Description": null,
+      "VirtualCurrencyPrices": {},
+      "RealCurrencyPrices": {},
+      "Tags": [],
+      "CustomData": null,
+      "Consumable": {
+        "UsageCount": null,
+        "UsagePeriod": 3,
+        "UsagePeriodGroup": null
+      },
+      "Container": null,
+      "Bundle": {
+        "BundledItems": [],
+        "BundledResultTables": [],
+        "BundledVirtualCurrencies": {
+          "CL": 1
+        }
+      },
+      "CanBecomeCharacter": false,
+      "IsStackable": false,
+      "IsTradable": false,
+      "ItemImageUrl": null,
+      "IsLimitedEdition": false,
+      "InitialLimitedEditionCount": 0,
+      "ActivatedMembership": null
+    },
+    {
+      "ItemId": "spin_reward_4",
+      "ItemClass": "spin_reward",
+      "CatalogVersion": "Spin",
+      "DisplayName": "",
+      "Description": null,
+      "VirtualCurrencyPrices": {},
+      "RealCurrencyPrices": {},
+      "Tags": [],
+      "CustomData": null,
+      "Consumable": {
+        "UsageCount": null,
+        "UsagePeriod": 3,
+        "UsagePeriodGroup": null
+      },
+      "Container": null,
+      "Bundle": {
+        "BundledItems": [],
+        "BundledResultTables": [],
+        "BundledVirtualCurrencies": {
+          "CL": 1
+        }
+      },
+      "CanBecomeCharacter": false,
+      "IsStackable": false,
+      "IsTradable": false,
+      "ItemImageUrl": null,
+      "IsLimitedEdition": false,
+      "InitialLimitedEditionCount": 0,
+      "ActivatedMembership": null
+    },
+    {
+      "ItemId": "spin_reward_5",
+      "ItemClass": "spin_reward",
+      "CatalogVersion": "Spin",
+      "DisplayName": "",
+      "Description": null,
+      "VirtualCurrencyPrices": {},
+      "RealCurrencyPrices": {},
+      "Tags": [],
+      "CustomData": null,
+      "Consumable": {
+        "UsageCount": null,
+        "UsagePeriod": 3,
+        "UsagePeriodGroup": null
+      },
+      "Container": null,
+      "Bundle": {
+        "BundledItems": [],
+        "BundledResultTables": [],
+        "BundledVirtualCurrencies": {
+          "CL": 1
+        }
+      },
+      "CanBecomeCharacter": false,
+      "IsStackable": false,
+      "IsTradable": false,
+      "ItemImageUrl": null,
+      "IsLimitedEdition": false,
+      "InitialLimitedEditionCount": 0,
+      "ActivatedMembership": null
+    },
+    {
+      "ItemId": "spin_reward_6",
+      "ItemClass": "spin_reward",
+      "CatalogVersion": "Spin",
+      "DisplayName": "",
+      "Description": null,
+      "VirtualCurrencyPrices": {},
+      "RealCurrencyPrices": {},
+      "Tags": [],
+      "CustomData": null,
+      "Consumable": {
+        "UsageCount": null,
+        "UsagePeriod": 3,
+        "UsagePeriodGroup": null
+      },
+      "Container": null,
+      "Bundle": {
+        "BundledItems": [],
+        "BundledResultTables": [],
+        "BundledVirtualCurrencies": {
+          "CL": 1
+        }
+      },
+      "CanBecomeCharacter": false,
+      "IsStackable": false,
+      "IsTradable": false,
+      "ItemImageUrl": null,
+      "IsLimitedEdition": false,
+      "InitialLimitedEditionCount": 0,
+      "ActivatedMembership": null
+    },
+    {
+      "ItemId": "spin_reward_7",
+      "ItemClass": "spin_reward",
+      "CatalogVersion": "Spin",
+      "DisplayName": "",
+      "Description": null,
+      "VirtualCurrencyPrices": {},
+      "RealCurrencyPrices": {},
+      "Tags": [],
+      "CustomData": null,
+      "Consumable": {
+        "UsageCount": null,
+        "UsagePeriod": 3,
+        "UsagePeriodGroup": null
+      },
+      "Container": null,
+      "Bundle": {
+        "BundledItems": [],
+        "BundledResultTables": [],
+        "BundledVirtualCurrencies": {
+          "CL": 1
+        }
+      },
+      "CanBecomeCharacter": false,
+      "IsStackable": false,
+      "IsTradable": false,
+      "ItemImageUrl": null,
+      "IsLimitedEdition": false,
+      "InitialLimitedEditionCount": 0,
+      "ActivatedMembership": null
+    },
+    {
+      "ItemId": "spin_reward_8",
+      "ItemClass": "spin_reward",
+      "CatalogVersion": "Spin",
+      "DisplayName": "",
+      "Description": null,
+      "VirtualCurrencyPrices": {},
+      "RealCurrencyPrices": {},
+      "Tags": [],
+      "CustomData": null,
+      "Consumable": {
+        "UsageCount": null,
+        "UsagePeriod": 3,
+        "UsagePeriodGroup": null
+      },
+      "Container": null,
+      "Bundle": {
+        "BundledItems": [],
+        "BundledResultTables": [],
+        "BundledVirtualCurrencies": {
+          "CL": 1
+        }
+      },
+      "CanBecomeCharacter": false,
+      "IsStackable": false,
+      "IsTradable": false,
+      "ItemImageUrl": null,
+      "IsLimitedEdition": false,
+      "InitialLimitedEditionCount": 0,
+      "ActivatedMembership": null
+    }
+  ],
+  "DropTables": [
+    {
+      "TableId": "premium_spin_reward",
+      "Nodes": [
+        {
+          "ResultItemType": "ItemId",
+          "ResultItem": "spin_reward_1",
+          "Weight": 300
+        },
+        {
+          "ResultItemType": "ItemId",
+          "ResultItem": "spin_reward_2",
+          "Weight": 10
+        },
+        {
+          "ResultItemType": "ItemId",
+          "ResultItem": "spin_reward_3",
+          "Weight": 20
+        },
+        {
+          "ResultItemType": "ItemId",
+          "ResultItem": "spin_reward_4",
+          "Weight": 30
+        },
+        {
+          "ResultItemType": "ItemId",
+          "ResultItem": "spin_reward_5",
+          "Weight": 600
+        },
+        {
+          "ResultItemType": "ItemId",
+          "ResultItem": "spin_reward_6",
+          "Weight": 15
+        },
+        {
+          "ResultItemType": "ItemId",
+          "ResultItem": "spin_reward_7",
+          "Weight": 25
+        },
+        {
+          "ResultItemType": "ItemId",
+          "ResultItem": "spin_reward_8",
+          "Weight": 35
+        }
+      ]
+    },
+    {
+      "TableId": "standard_spin_reward",
+      "Nodes": [
+        {
+          "ResultItemType": "ItemId",
+          "ResultItem": "spin_reward_1",
+          "Weight": 1
+        },
+        {
+          "ResultItemType": "ItemId",
+          "ResultItem": "spin_reward_2",
+          "Weight": 1000
+        },
+        {
+          "ResultItemType": "ItemId",
+          "ResultItem": "spin_reward_3",
+          "Weight": 2
+        },
+        {
+          "ResultItemType": "ItemId",
+          "ResultItem": "spin_reward_4",
+          "Weight": 1000
+        },
+        {
+          "ResultItemType": "ItemId",
+          "ResultItem": "spin_reward_5",
+          "Weight": 500
+        },
+        {
+          "ResultItemType": "ItemId",
+          "ResultItem": "spin_reward_6",
+          "Weight": 700
+        },
+        {
+          "ResultItemType": "ItemId",
+          "ResultItem": "spin_reward_7",
+          "Weight": 30
+        },
+        {
+          "ResultItemType": "ItemId",
+          "ResultItem": "spin_reward_8",
+          "Weight": 500
+        }
+      ]
+    },
+    {
+      "TableId": "secondary_spin_reward",
+      "Nodes": [
+        {
+          "ResultItemType": "ItemId",
+          "ResultItem": "spin_reward_1",
+          "Weight": 10
+        },
+        {
+          "ResultItemType": "ItemId",
+          "ResultItem": "spin_reward_2",
+          "Weight": 1000
+        },
+        {
+          "ResultItemType": "ItemId",
+          "ResultItem": "spin_reward_3",
+          "Weight": 1
+        },
+        {
+          "ResultItemType": "ItemId",
+          "ResultItem": "spin_reward_4",
+          "Weight": 1000
+        },
+        {
+          "ResultItemType": "ItemId",
+          "ResultItem": "spin_reward_5",
+          "Weight": 500
+        },
+        {
+          "ResultItemType": "ItemId",
+          "ResultItem": "spin_reward_6",
+          "Weight": 700
+        },
+        {
+          "ResultItemType": "ItemId",
+          "ResultItem": "spin_reward_7",
+          "Weight": 30
+        },
+        {
+          "ResultItemType": "ItemId",
+          "ResultItem": "spin_reward_8",
+          "Weight": 500
+        }
+      ]
+    }
+  ]
+}

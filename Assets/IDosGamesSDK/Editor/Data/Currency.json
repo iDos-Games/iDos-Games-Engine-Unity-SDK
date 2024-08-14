@@ -1,0 +1,74 @@
+[
+  {
+    "CurrencyCode": "AC",
+    "DisplayName": "AttackCoin",
+    "InitialDeposit": 0,
+    "RechargeRate": 0,
+    "RechargeMax": 0,
+    "CurrencyCodeFull": "AC (AttackCoin)",
+    "GameManagerClassMetadata": null
+  },
+  {
+    "CurrencyCode": "CL",
+    "DisplayName": "Coin Limit Per Day",
+    "InitialDeposit": 10000,
+    "RechargeRate": 10000,
+    "RechargeMax": 10000,
+    "CurrencyCodeFull": "CL (Coin Limit Per Day)",
+    "GameManagerClassMetadata": null
+  },
+  {
+    "CurrencyCode": "CO",
+    "DisplayName": "Coin",
+    "InitialDeposit": 200,
+    "RechargeRate": 0,
+    "RechargeMax": 0,
+    "CurrencyCodeFull": "CO (Coin)",
+    "GameManagerClassMetadata": null
+  },
+  {
+    "CurrencyCode": "IG",
+    "DisplayName": "Token",
+    "InitialDeposit": 50,
+    "RechargeRate": 0,
+    "RechargeMax": 0,
+    "CurrencyCodeFull": "IG (Token)",
+    "GameManagerClassMetadata": null
+  },
+  {
+    "CurrencyCode": "RB",
+    "DisplayName": "RobCoin",
+    "InitialDeposit": 0,
+    "RechargeRate": 0,
+    "RechargeMax": 0,
+    "CurrencyCodeFull": "RB (RobCoin)",
+    "GameManagerClassMetadata": null
+  },
+  {
+    "CurrencyCode": "SC",
+    "DisplayName": "ShieldCoin",
+    "InitialDeposit": 0,
+    "RechargeRate": 0,
+    "RechargeMax": 0,
+    "CurrencyCodeFull": "SC (ShieldCoin)",
+    "GameManagerClassMetadata": null
+  },
+  {
+    "CurrencyCode": "SS",
+    "DisplayName": "Secondary Spin Ticket",
+    "InitialDeposit": 5,
+    "RechargeRate": 5,
+    "RechargeMax": 5,
+    "CurrencyCodeFull": "SS (Secondary Spin Ticket)",
+    "GameManagerClassMetadata": null
+  },
+  {
+    "CurrencyCode": "WK",
+    "DisplayName": "Withdrawal Key",
+    "InitialDeposit": 10,
+    "RechargeRate": 10,
+    "RechargeMax": 10,
+    "CurrencyCodeFull": "WK (Withdrawal Key)",
+    "GameManagerClassMetadata": null
+  }
+]

@@ -1,0 +1,297 @@
+using IDosGames.ClientModels;
+using IDosGames.CloudScriptModels;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using UnityEngine;
+
+namespace IDosGames
+{
+    public class ShopSystem : MonoBehaviour
+    {
+        private static ShopSystem _instance;
+
+        private const string PLAYER_PREFS_AFTER_IAP_NOT_GRANTED_PRODUCT = "NOT_GRANTED_IAP_PRODUCT";
+        private const int MAX_ATTEMPTS_COUNT_FOR_GRANT_IAP_ITEMS = 3;
+        private static int _attemptsCountForGrantIAPItemsAfterError = 0;
+
+        [SerializeField] private ShopPopUpSystem _popUpSystem;
+        public static ShopPopUpSystem PopUpSystem => _instance._popUpSystem;
+
+        public static JArray ProductsForRealMoney { get; private set; }
+        public static JArray ProductsForVirtualCurrency { get; private set; }
+        public static JArray SpecialOfferProducts { get; private set; }
+        public static JObject DailyOfferData { get; private set; }
+        public static JArray DailyFreeProducts { get; private set; }
+
+        private static string _iapProcessedProductID;
+        private static string _freeProductID;
+
+        private void Awake()
+        {
+            if (_instance == null || ReferenceEquals(this, _instance))
+            {
+                _instance = this;
+                DontDestroyOnLoad(gameObject);
+            }
+
+            CheckForItemsGrantedAfterIAPPurchase();
+        }
+
+        private void OnEnable()
+        {
+            VirtualCurrencyPrices.PricesUpdated += UpdateProductsData;
+            IAPValidator.PurchaseValidated += GrantItemsAfterIAPPurchase;
+        }
+
+        private void OnDisable()
+        {
+            VirtualCurrencyPrices.PricesUpdated -= UpdateProductsData;
+            IAPValidator.PurchaseValidated -= GrantItemsAfterIAPPurchase;
+        }
+
+        public static void BuyForRealMoney(string ID)
+        {
+#if IDOSGAMES_MOBILE_IAP
+            IAPService.PurchaseProductByID(ID);
+#endif
+            _iapProcessedProductID = ID;
+        }
+
+        public static void BuyForVirtualCurrency(string ID, VirtualCurrencyID currencyID, float price)
+        {
+            if (UserInventory.GetVirtualCurrencyAmount(currencyID.ToString()) < price)
+            {
+                //Message.Show(MessageCode.NOT_ENOUGH_FUNDS);
+
+                if (currencyID == VirtualCurrencyID.IG)
+                {
+                    PopUpSystem.ShowTokenPopUp();
+                }
+                else if (currencyID == VirtualCurrencyID.CO)
+                {
+                    PopUpSystem.ShowCoinPopUp();
+                }
+
+                return;
+            }
+
+            FunctionParameters parameter = new()
+            {
+                ItemID = ID,
+            };
+
+            _ = IGSClientAPI.ExecuteFunction
+            (
+                functionName: ServerFunctionHandlers.BuyItemForVirtualCurrency,
+                resultCallback: OnSuccessPurchase,
+                notConnectionErrorCallback: OnErrorPurchase,
+                functionParameter: parameter
+            );
+        }
+
+        private static void OnSuccessPurchase(string result)
+        {
+            if (result == null)
+            {
+                OnErrorPurchase(null);
+            }
+            else
+            {
+                JObject resultData = JsonConvert.DeserializeObject<JObject>(result.ToString());
+                if (resultData[JsonProperty.MESSAGE_KEY] != null)
+                {
+                    Message.Show(resultData[JsonProperty.MESSAGE_KEY].ToString());
+                    UserDataService.RequestUserAllData();
+                }
+            }
+        }
+
+        public static void BuySpecialItem(string ID, VirtualCurrencyID currencyID, float price)
+        {
+            if (UserInventory.GetVirtualCurrencyAmount(currencyID.ToString()) < price)
+            {
+                //Message.Show(MessageCode.NOT_ENOUGH_FUNDS);
+
+                if (currencyID == VirtualCurrencyID.IG)
+                {
+                    PopUpSystem.ShowTokenPopUp();
+                }
+                else if (currencyID == VirtualCurrencyID.CO)
+                {
+                    PopUpSystem.ShowCoinPopUp();
+                }
+
+                return;
+            }
+
+            FunctionParameters parameter = new()
+            {
+                ItemID = ID,
+            };
+
+            _ = IGSClientAPI.ExecuteFunction
+            (
+                functionName: ServerFunctionHandlers.BuyItemSpecialOffer,
+                resultCallback: OnSuccessSpecialItemPurchase,
+                notConnectionErrorCallback: OnErrorPurchase,
+                functionParameter: parameter
+            );
+        }
+
+        private static void OnSuccessSpecialItemPurchase(string result)
+        {
+            OnSuccessPurchase(result);
+        }
+
+        public static void BuyDailyItem(string ID, VirtualCurrencyID currencyID, float price)
+        {
+            if (UserInventory.GetVirtualCurrencyAmount(currencyID.ToString()) < price)
+            {
+                //Message.Show(MessageCode.NOT_ENOUGH_FUNDS);
+
+                if (currencyID == VirtualCurrencyID.IG)
+                {
+                    PopUpSystem.ShowTokenPopUp();
+                }
+                else if (currencyID == VirtualCurrencyID.CO)
+                {
+                    PopUpSystem.ShowCoinPopUp();
+                }
+
+                return;
+            }
+
+            FunctionParameters parameter = new()
+            {
+                ItemID = ID,
+            };
+
+            _ = IGSClientAPI.ExecuteFunction
+           (
+               functionName: ServerFunctionHandlers.BuyItemDailyOffer,
+               resultCallback: OnSuccessPurchase,
+               notConnectionErrorCallback: OnErrorPurchase,
+               functionParameter: parameter
+           );
+        }
+
+        public static void TryGetDailyFreeReward(string ID, bool showAd)
+        {
+            _freeProductID = ID;
+
+            if (showAd && !UserInventory.HasVIPStatus && AdMediation.Instance != null)
+            {
+                if (AdMediation.Instance.ShowRewardedVideo(GetDailyFreeReward))
+                {
+                    Debug.Log("Show rewarded video.");
+                }
+                else
+                {
+                    ///Message.Show("Ad is not ready.");
+                    PopUpSystem.ShowVIPPopUp();
+                }
+            }
+            else
+            {
+                GetDailyFreeReward();
+            }
+        }
+
+        private static void CheckForItemsGrantedAfterIAPPurchase()
+        {
+            if (PlayerPrefs.HasKey(PLAYER_PREFS_AFTER_IAP_NOT_GRANTED_PRODUCT))
+            {
+                _iapProcessedProductID = PlayerPrefs.GetString(PLAYER_PREFS_AFTER_IAP_NOT_GRANTED_PRODUCT);
+                GrantItemsAfterIAPPurchase(_iapProcessedProductID);
+            }
+        }
+
+        private void UpdateProductsData()
+        {
+            var dataProductsForRealMoney = UserDataService.GetTitleData(TitleDataKey.products_for_real_money);
+            var dataProductsForVirtualCurrency = UserDataService.GetTitleData(TitleDataKey.products_for_virtual_currency);
+            var dataSpecialProducts = UserDataService.GetTitleData(TitleDataKey.shop_special_products);
+            var dataDailyOffer = UserDataService.GetTitleData(TitleDataKey.shop_daily_products);
+            var dataDailyFreeProducts = UserDataService.GetTitleData(TitleDataKey.shop_daily_free_products);
+
+            ProductsForRealMoney = JsonConvert.DeserializeObject<JArray>(dataProductsForRealMoney);
+            ProductsForRealMoney ??= new JArray();
+
+            ProductsForVirtualCurrency = JsonConvert.DeserializeObject<JArray>(dataProductsForVirtualCurrency);
+            ProductsForVirtualCurrency ??= new JArray();
+
+            SpecialOfferProducts = JsonConvert.DeserializeObject<JArray>(dataSpecialProducts);
+            SpecialOfferProducts ??= new JArray();
+
+            DailyOfferData = JsonConvert.DeserializeObject<JObject>(dataDailyOffer);
+            DailyOfferData ??= new JObject();
+
+            DailyFreeProducts = JsonConvert.DeserializeObject<JArray>(dataDailyFreeProducts);
+            DailyFreeProducts ??= new JArray();
+        }
+
+        private static void GrantItemsAfterIAPPurchase(string ID)
+        {
+            FunctionParameters parameter = new()
+            {
+                ItemID = ID,
+            };
+
+            _ = IGSClientAPI.ExecuteFunction
+          (
+              functionName: ServerFunctionHandlers.GrantItemsAfterIAPPurchase,
+              resultCallback: OnSuccessGrantItemsAfterIAP,
+              notConnectionErrorCallback: OnErrorGrantItemsAfterIAP,
+              connectionErrorCallback: () => GrantItemsAfterIAPPurchase(ID),
+              functionParameter: parameter
+          );
+        }
+
+        private static void OnSuccessGrantItemsAfterIAP(string result)
+        {
+            OnSuccessPurchase(result);
+
+            if (PlayerPrefs.HasKey(PLAYER_PREFS_AFTER_IAP_NOT_GRANTED_PRODUCT))
+            {
+                PlayerPrefs.DeleteKey(PLAYER_PREFS_AFTER_IAP_NOT_GRANTED_PRODUCT);
+                PlayerPrefs.Save();
+            }
+        }
+
+        private static void OnErrorGrantItemsAfterIAP(string error)
+        {
+            PlayerPrefs.SetString(PLAYER_PREFS_AFTER_IAP_NOT_GRANTED_PRODUCT, _iapProcessedProductID);
+
+            if (_attemptsCountForGrantIAPItemsAfterError < MAX_ATTEMPTS_COUNT_FOR_GRANT_IAP_ITEMS)
+            {
+                CheckForItemsGrantedAfterIAPPurchase();
+                _attemptsCountForGrantIAPItemsAfterError++;
+            }
+            else
+            {
+                OnErrorPurchase(error);
+            }
+        }
+
+        private static void GetDailyFreeReward(bool adCompleted = true)
+        {
+            FunctionParameters parameter = new()
+            {
+                ItemID = _freeProductID,
+            };
+
+            _ = IGSClientAPI.ExecuteFunction
+           (
+               functionName: ServerFunctionHandlers.GetFreeDailyReward,
+               resultCallback: OnSuccessSpecialItemPurchase,
+               notConnectionErrorCallback: OnErrorPurchase,
+               functionParameter: parameter
+           );
+        }
+
+        private static void OnErrorPurchase(string error)
+        {
+            Message.Show(MessageCode.SOMETHING_WENT_WRONG.ToString() + " " + error); //LocalizationSystem
+        }
+    }
+}

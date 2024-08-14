@@ -1,0 +1,323 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 05f4e4dde64e2e04584819a67bfe1ffd, type: 3}
+  m_Name: ObjectInspection
+  m_EditorClassIdentifier: 
+  _objectInspectionData:
+  - _objectType: body_v1
+    _model: {fileID: 4917885402816284722, guid: 0da29feeb6322664db7125de3d5d074f, type: 3}
+    _modelMaterial: {fileID: 2100000, guid: 0fe46468e47c5af49a14bdb7140ea46f, type: 2}
+    _position: {x: 0, y: -0.5, z: 0}
+    _rotation: {x: 0, y: 0, z: 0}
+    _scale: {x: 80, y: 80, z: 8}
+    _additionalObject: {fileID: 0}
+  - _objectType: body_v2
+    _model: {fileID: 2931094073084317254, guid: 9e0c30bacfd64d24494733d8aa1d1f2f, type: 3}
+    _modelMaterial: {fileID: 2100000, guid: aa2b42ae21db6e640adf89b66191cd9d, type: 2}
+    _position: {x: 0, y: -0.5, z: 0}
+    _rotation: {x: 0, y: 0, z: 0}
+    _scale: {x: 80, y: 80, z: 8}
+    _additionalObject: {fileID: 0}
+  - _objectType: body_v3
+    _model: {fileID: 5660474045498535057, guid: b321844edb8e6534ba061880e6ffeb6a, type: 3}
+    _modelMaterial: {fileID: 2100000, guid: 59b9da1f5e3eb0847a01f571afb6c66c, type: 2}
+    _position: {x: 0, y: -0.5, z: 0}
+    _rotation: {x: 0, y: 0, z: 0}
+    _scale: {x: 80, y: 80, z: 8}
+    _additionalObject: {fileID: 0}
+  - _objectType: glasses_v1
+    _model: {fileID: 5242442330912293936, guid: 6252ce6dcd5b6a643b053e0951b4bcb2, type: 3}
+    _modelMaterial: {fileID: 2100000, guid: 15c9f0a429402034a9763c158853c230, type: 2}
+    _position: {x: 0, y: -8, z: 0}
+    _rotation: {x: 0, y: 0, z: 0}
+    _scale: {x: 5, y: 5, z: 5}
+    _additionalObject: {fileID: 0}
+  - _objectType: glasses_v2
+    _model: {fileID: 3815237356456975449, guid: 94e28816a5bd2524896e5331e6053bdf, type: 3}
+    _modelMaterial: {fileID: 2100000, guid: f30038f9f006a3f488483c8e64ed945a, type: 2}
+    _position: {x: 0, y: -8, z: 0}
+    _rotation: {x: 0, y: 0, z: 0}
+    _scale: {x: 5, y: 5, z: 5}
+    _additionalObject: {fileID: 0}
+  - _objectType: glasses_v3
+    _model: {fileID: 5924387687468925200, guid: 993bf0c3dd3aab74c99c0ca4e79ee501, type: 3}
+    _modelMaterial: {fileID: 2100000, guid: f45dfb0ce581b0c46afa02f148e566d4, type: 2}
+    _position: {x: 0, y: -8, z: 0}
+    _rotation: {x: 0, y: 0, z: 0}
+    _scale: {x: 5, y: 5, z: 5}
+    _additionalObject: {fileID: 0}
+  - _objectType: glasses_v4
+    _model: {fileID: 8918181084493428864, guid: e8c520789140da84793a1f341cf3b69f, type: 3}
+    _modelMaterial: {fileID: 2100000, guid: 3da1633e129103e4d96e405560dbbbe8, type: 2}
+    _position: {x: 0, y: -8, z: 0}
+    _rotation: {x: 0, y: 0, z: 0}
+    _scale: {x: 5, y: 5, z: 5}
+    _additionalObject: {fileID: 0}
+  - _objectType: glasses_v5
+    _model: {fileID: 5627069943498965320, guid: 207639326f96a5945873bd7d0f89610b, type: 3}
+    _modelMaterial: {fileID: 2100000, guid: 05fe55ec5b8842f43997cc02290b8cf1, type: 2}
+    _position: {x: 0, y: -8, z: 0}
+    _rotation: {x: 0, y: 0, z: 0}
+    _scale: {x: 5, y: 5, z: 5}
+    _additionalObject: {fileID: 0}
+  - _objectType: hands_v1
+    _model: {fileID: 4046203852067516210, guid: efe48a20a1ba49d419c63ea9837dfadc, type: 3}
+    _modelMaterial: {fileID: 2100000, guid: 35f992f8e748cda4d94a9b54018498e6, type: 2}
+    _position: {x: 0, y: -2, z: 0}
+    _rotation: {x: 0, y: 0, z: 0}
+    _scale: {x: 2, y: 2, z: 2}
+    _additionalObject: {fileID: 0}
+  - _objectType: hands_v2
+    _model: {fileID: 1780522375219588984, guid: 49fd68f1b275333468be4460c1435437, type: 3}
+    _modelMaterial: {fileID: 2100000, guid: 63b5ee057114c9a43ad00e2667ec4594, type: 2}
+    _position: {x: 0, y: -2, z: 0}
+    _rotation: {x: 0, y: 0, z: 0}
+    _scale: {x: 2, y: 2, z: 2}
+    _additionalObject: {fileID: 0}
+  - _objectType: hands_v3
+    _model: {fileID: 7871344716275604345, guid: 642ab53c7b2c6db42b3fe264c9444dd9, type: 3}
+    _modelMaterial: {fileID: 2100000, guid: 30ce7a965a02f454d83869c3fafad72e, type: 2}
+    _position: {x: 0, y: -2, z: 0}
+    _rotation: {x: 0, y: 0, z: 0}
+    _scale: {x: 2, y: 2, z: 2}
+    _additionalObject: {fileID: 0}
+  - _objectType: hands_v4
+    _model: {fileID: 9125719588124964909, guid: ba2a66e1bf240d14380148f02b4cbfd2, type: 3}
+    _modelMaterial: {fileID: 2100000, guid: 7ff25268060b511499c605afccd886fd, type: 2}
+    _position: {x: 0, y: -2, z: 0}
+    _rotation: {x: 0, y: 0, z: 0}
+    _scale: {x: 2, y: 2, z: 2}
+    _additionalObject: {fileID: 0}
+  - _objectType: hat_v1
+    _model: {fileID: 3656806410421157024, guid: 02c87c423b9c67b48a1a9a361f7cc0f9, type: 3}
+    _modelMaterial: {fileID: 2100000, guid: 7c32acec9116e8641bc33333107a3712, type: 2}
+    _position: {x: 0, y: -8.5, z: 0}
+    _rotation: {x: 0, y: 0, z: 0}
+    _scale: {x: 5, y: 5, z: 5}
+    _additionalObject: {fileID: 0}
+  - _objectType: hat_v2
+    _model: {fileID: 4993692936385046828, guid: 88aaf1f05f0e5514790eb6b1ea00a724, type: 3}
+    _modelMaterial: {fileID: 2100000, guid: 971d806a2e441fe4daa4b89a139bf49d, type: 2}
+    _position: {x: 0, y: -8.5, z: 0}
+    _rotation: {x: 0, y: 0, z: 0}
+    _scale: {x: 5, y: 5, z: 5}
+    _additionalObject: {fileID: 0}
+  - _objectType: hat_v3
+    _model: {fileID: 7630839467477758779, guid: de41ba6a23a7fc04db80a3d794d3ba8f, type: 3}
+    _modelMaterial: {fileID: 2100000, guid: 51a06453c2f13264b8dc2915ee6489d9, type: 2}
+    _position: {x: 0, y: -8.5, z: 0}
+    _rotation: {x: 0, y: 0, z: 0}
+    _scale: {x: 5, y: 5, z: 5}
+    _additionalObject: {fileID: 0}
+  - _objectType: hat_v4
+    _model: {fileID: 1087717536292609685, guid: 2a35dd859fcf30b4ebf546ed568f40f2, type: 3}
+    _modelMaterial: {fileID: 2100000, guid: 67c6057693fa4bf47969ce4835fea946, type: 2}
+    _position: {x: 0, y: -8.5, z: 0}
+    _rotation: {x: 0, y: 0, z: 0}
+    _scale: {x: 5, y: 5, z: 5}
+    _additionalObject: {fileID: 0}
+  - _objectType: hat_v5
+    _model: {fileID: 562526446982708444, guid: 59333559b1356434eb13dc2cd2f98cbb, type: 3}
+    _modelMaterial: {fileID: 2100000, guid: 608d7eb419d7ca04191366673e0c3585, type: 2}
+    _position: {x: 0, y: -8.5, z: 0}
+    _rotation: {x: 0, y: 0, z: 0}
+    _scale: {x: 5, y: 5, z: 5}
+    _additionalObject: {fileID: 0}
+  - _objectType: hat_v6
+    _model: {fileID: 13542474130047580, guid: 42d8c37c559e2674ba30d5cf95f23a0f, type: 3}
+    _modelMaterial: {fileID: 2100000, guid: aa53ee2ad3f8d974d947ac2112e06750, type: 2}
+    _position: {x: 0, y: -8.5, z: 0}
+    _rotation: {x: 0, y: 0, z: 0}
+    _scale: {x: 5, y: 5, z: 5}
+    _additionalObject: {fileID: 0}
+  - _objectType: mask_v1
+    _model: {fileID: 4849392185246032605, guid: 19be479bd56267c4b82442c5d0ed6394, type: 3}
+    _modelMaterial: {fileID: 2100000, guid: 46bef62a85eb14e41a26c3ee64f2c714, type: 2}
+    _position: {x: 0, y: -8, z: 0}
+    _rotation: {x: 0, y: 0, z: 0}
+    _scale: {x: 5, y: 5, z: 5}
+    _additionalObject: {fileID: 0}
+  - _objectType: mask_v2
+    _model: {fileID: 1728262665190273645, guid: 221d0d737a06d8b4489ccf43c1b25baf, type: 3}
+    _modelMaterial: {fileID: 2100000, guid: 053cd7a6cc4b7594497cf0935cb3f33b, type: 2}
+    _position: {x: 0, y: -8, z: 0}
+    _rotation: {x: 0, y: 0, z: 0}
+    _scale: {x: 5, y: 5, z: 5}
+    _additionalObject: {fileID: 0}
+  - _objectType: mask_v3
+    _model: {fileID: 7322476686735277223, guid: d7bc58fb5e997004e842c382942581e0, type: 3}
+    _modelMaterial: {fileID: 2100000, guid: 8d9dfd3c3fc45c744974d114f0125e35, type: 2}
+    _position: {x: 0, y: -8, z: 0}
+    _rotation: {x: 0, y: 0, z: 0}
+    _scale: {x: 5, y: 5, z: 5}
+    _additionalObject: {fileID: 0}
+  - _objectType: mask_v4
+    _model: {fileID: 5713976587845928305, guid: 78818a4be0979a84e84eaa2d46c6b579, type: 3}
+    _modelMaterial: {fileID: 2100000, guid: 0e50f3f6fc8a11d488b4b8d600c9f15a, type: 2}
+    _position: {x: 0, y: -8, z: 0}
+    _rotation: {x: 0, y: 0, z: 0}
+    _scale: {x: 5, y: 5, z: 5}
+    _additionalObject: {fileID: 0}
+  - _objectType: mask_v5
+    _model: {fileID: 6402131520680020785, guid: f0d6d7657ada30948a61a10eb33d9ddf, type: 3}
+    _modelMaterial: {fileID: 2100000, guid: 6c14ac87d7246304c9c2013c2aec5973, type: 2}
+    _position: {x: 0, y: -8, z: 0}
+    _rotation: {x: 0, y: 0, z: 0}
+    _scale: {x: 5, y: 5, z: 5}
+    _additionalObject: {fileID: 0}
+  - _objectType: mask_v6
+    _model: {fileID: 5082450988101169751, guid: 635ee61629c632e458ada5ac6897cc74, type: 3}
+    _modelMaterial: {fileID: 2100000, guid: 5c8df3ebcfc8a8c4b919908e74d2a30a, type: 2}
+    _position: {x: 0, y: -8, z: 0}
+    _rotation: {x: 0, y: 0, z: 0}
+    _scale: {x: 5, y: 5, z: 5}
+    _additionalObject: {fileID: 0}
+  - _objectType: pants_v1
+    _model: {fileID: 8702614943060690257, guid: c63390705bc3f4343a21b5cfeb9adb1b, type: 3}
+    _modelMaterial: {fileID: 2100000, guid: be9ba0752b25add46a69453294555c4c, type: 2}
+    _position: {x: 0, y: -1, z: 0}
+    _rotation: {x: 0, y: 0, z: 0}
+    _scale: {x: 2, y: 2, z: 2}
+    _additionalObject: {fileID: 0}
+  - _objectType: pants_v2
+    _model: {fileID: 8233590652538934649, guid: b35bd386ae4cf37439868080e86b8666, type: 3}
+    _modelMaterial: {fileID: 2100000, guid: 2ded298cd214cae49903cf90374da3a4, type: 2}
+    _position: {x: 0, y: -1, z: 0}
+    _rotation: {x: 0, y: 0, z: 0}
+    _scale: {x: 2, y: 2, z: 2}
+    _additionalObject: {fileID: 0}
+  - _objectType: pants_v3
+    _model: {fileID: 4751500523022433469, guid: 17ef74f0671b82544abe79d9c52d0f80, type: 3}
+    _modelMaterial: {fileID: 2100000, guid: bfce3cebaeb82bc4f94c72d95120b8c0, type: 2}
+    _position: {x: 0, y: -1, z: 0}
+    _rotation: {x: 0, y: 0, z: 0}
+    _scale: {x: 2, y: 2, z: 2}
+    _additionalObject: {fileID: 0}
+  - _objectType: pants_v4
+    _model: {fileID: 7537729749026797901, guid: 50f28e2435258e64aa3da85e6a2df485, type: 3}
+    _modelMaterial: {fileID: 2100000, guid: df99f7665288a5447b2f45a9bd314045, type: 2}
+    _position: {x: 0, y: -1, z: 0}
+    _rotation: {x: 0, y: 0, z: 0}
+    _scale: {x: 2, y: 2, z: 2}
+    _additionalObject: {fileID: 0}
+  - _objectType: pants_v5
+    _model: {fileID: 7635586408910406825, guid: 81acaff402a1aa84d9397727aecd1e82, type: 3}
+    _modelMaterial: {fileID: 2100000, guid: 878be69aa9838d443b770c427ac6e233, type: 2}
+    _position: {x: 0, y: -1, z: 0}
+    _rotation: {x: 0, y: 0, z: 0}
+    _scale: {x: 2, y: 2, z: 2}
+    _additionalObject: {fileID: 0}
+  - _objectType: shoes_v1
+    _model: {fileID: 1333968086097309080, guid: 81573b25ec66b4149a2d24f6683a1e8a, type: 3}
+    _modelMaterial: {fileID: 2100000, guid: fee187fa3830d9945acefb64d968ad63, type: 2}
+    _position: {x: 0, y: -0.3, z: 0}
+    _rotation: {x: 0, y: 0, z: 0}
+    _scale: {x: 3.5, y: 3.5, z: 3.5}
+    _additionalObject: {fileID: 0}
+  - _objectType: shoes_v2
+    _model: {fileID: 1768261537192584711, guid: d648659d95f60a34a927489c828929ff, type: 3}
+    _modelMaterial: {fileID: 2100000, guid: e8106334450a4e148b4d3ba641e5029a, type: 2}
+    _position: {x: 0, y: -0.3, z: 0}
+    _rotation: {x: 0, y: 0, z: 0}
+    _scale: {x: 3.5, y: 3.5, z: 3.5}
+    _additionalObject: {fileID: 0}
+  - _objectType: shoes_v3
+    _model: {fileID: 3823551610416020799, guid: 2e6eba4aafa972148932385f54fd87a9, type: 3}
+    _modelMaterial: {fileID: 2100000, guid: 8009f25804d55e64bb4b41e3893922f0, type: 2}
+    _position: {x: 0, y: -0.3, z: 0}
+    _rotation: {x: 0, y: 0, z: 0}
+    _scale: {x: 3.5, y: 3.5, z: 3.5}
+    _additionalObject: {fileID: 0}
+  - _objectType: shoes_v4
+    _model: {fileID: 6392017674078968640, guid: 38a0964dbe5d2c54098010bc45f19dc7, type: 3}
+    _modelMaterial: {fileID: 2100000, guid: d5b5a15fcfd71034cafb00ef21d28141, type: 2}
+    _position: {x: 0, y: -0.3, z: 0}
+    _rotation: {x: 0, y: 0, z: 0}
+    _scale: {x: 3.5, y: 3.5, z: 3.5}
+    _additionalObject: {fileID: 0}
+  - _objectType: torso_v1
+    _model: {fileID: 5652392296424639857, guid: 43839f688e029734c9da1320f9893b48, type: 3}
+    _modelMaterial: {fileID: 2100000, guid: 9f7333c25d0bfdc4e90fb3bcf7e34de3, type: 2}
+    _position: {x: 0, y: -1.5, z: 0}
+    _rotation: {x: 0, y: 0, z: 0}
+    _scale: {x: 1.5, y: 1.5, z: 1.5}
+    _additionalObject: {fileID: 0}
+  - _objectType: torso_v2
+    _model: {fileID: 4782398644057542056, guid: b15cef23eeb812243aebfc719ecc0e49, type: 3}
+    _modelMaterial: {fileID: 2100000, guid: 64e63f255c47d9c4d92178da9dec9cd2, type: 2}
+    _position: {x: 0, y: -1.5, z: 0}
+    _rotation: {x: 0, y: 0, z: 0}
+    _scale: {x: 1.5, y: 1.5, z: 1.5}
+    _additionalObject: {fileID: 0}
+  - _objectType: torso_v3
+    _model: {fileID: 5158440709840989485, guid: a5e8e85dd5d5a7f488b5a5bd1942b164, type: 3}
+    _modelMaterial: {fileID: 2100000, guid: aad5112b4b20c3a43b379c74086bb15d, type: 2}
+    _position: {x: 0, y: -1.5, z: 0}
+    _rotation: {x: 0, y: 0, z: 0}
+    _scale: {x: 1.5, y: 1.5, z: 1.5}
+    _additionalObject: {fileID: 0}
+  - _objectType: torso_v4
+    _model: {fileID: 8251830399499407897, guid: 7c330cd44f0b32f49993f8989c5e81a0, type: 3}
+    _modelMaterial: {fileID: 2100000, guid: 05aca264cbb1acc40956361a337ab7a3, type: 2}
+    _position: {x: 0, y: -1.5, z: 0}
+    _rotation: {x: 0, y: 0, z: 0}
+    _scale: {x: 1.5, y: 1.5, z: 1.5}
+    _additionalObject: {fileID: 0}
+  - _objectType: torso_v5
+    _model: {fileID: 4905586295156193522, guid: 44a00880be961ad479ffc7115085c7b1, type: 3}
+    _modelMaterial: {fileID: 2100000, guid: 8da160d64fbfe65458a965eaee0fca9b, type: 2}
+    _position: {x: 0, y: -1.5, z: 0}
+    _rotation: {x: 0, y: 0, z: 0}
+    _scale: {x: 1.5, y: 1.5, z: 8}
+    _additionalObject: {fileID: 0}
+  - _objectType: torso_v6
+    _model: {fileID: 5550914310012863267, guid: 1e27c24c141cadf45a68708447900252, type: 3}
+    _modelMaterial: {fileID: 2100000, guid: b495db33dbab5d242a505a7260b7da97, type: 2}
+    _position: {x: 0, y: -1.5, z: 0}
+    _rotation: {x: 0, y: 0, z: 0}
+    _scale: {x: 1.5, y: 1.5, z: 8}
+    _additionalObject: {fileID: 0}
+  - _objectType: ak47
+    _model: {fileID: 4568537509188807499, guid: 2c8d59af6fe33224a999c8ad11df10d2, type: 3}
+    _modelMaterial: {fileID: 2100000, guid: cd9cf42c01cccef4f8d8dd4b282ce519, type: 2}
+    _position: {x: 0, y: 0, z: -0.33}
+    _rotation: {x: 0, y: 0, z: 0}
+    _scale: {x: 2, y: 2, z: 2}
+    _additionalObject: {fileID: 0}
+  - _objectType: awm
+    _model: {fileID: 3556610089425225181, guid: 4d6c8a90e90b36f44bc44fb7f8dc4c07, type: 3}
+    _modelMaterial: {fileID: 2100000, guid: aa48998748989d14bb9dfe0d7eff4503, type: 2}
+    _position: {x: 0, y: 0, z: -0.33}
+    _rotation: {x: 0, y: 0, z: 0}
+    _scale: {x: 2, y: 2, z: 2}
+    _additionalObject: {fileID: 0}
+  - _objectType: deagle
+    _model: {fileID: 5464834999765301549, guid: 5cbdf996209ddaa4a9bafe92b332c8fd, type: 3}
+    _modelMaterial: {fileID: 2100000, guid: 5d94274d6a72ac043b5c355b1fb3babb, type: 2}
+    _position: {x: 0, y: 0, z: -0.33}
+    _rotation: {x: 0, y: 0, z: 0}
+    _scale: {x: 2, y: 2, z: 2}
+    _additionalObject: {fileID: 0}
+  - _objectType: m4
+    _model: {fileID: 4921358449888029868, guid: 8a8387fd8e3676c48b89ef373999372e, type: 3}
+    _modelMaterial: {fileID: 2100000, guid: 6500d4492e70310418d438dcec8b204a, type: 2}
+    _position: {x: 0, y: 0, z: -0.33}
+    _rotation: {x: 0, y: 0, z: 0}
+    _scale: {x: 2, y: 2, z: 2}
+    _additionalObject: {fileID: 0}
+  - _objectType: usp9
+    _model: {fileID: 4195125276947934780, guid: aeb48f1d3949a7b44b6f1ac2086c8210, type: 3}
+    _modelMaterial: {fileID: 2100000, guid: 4b56b62b567f60840b9842f49bcd2abc, type: 2}
+    _position: {x: 0, y: 0, z: -0.33}
+    _rotation: {x: 0, y: 0, z: 0}
+    _scale: {x: 2, y: 2, z: 2}
+    _additionalObject: {fileID: 0}
