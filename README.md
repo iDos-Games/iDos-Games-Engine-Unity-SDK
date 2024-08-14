@@ -1,4 +1,4 @@
-![iDos Games Engine](https://idosgames.com/wp-content/uploads/2024/08/1-min.png)\](https://azuremarketplace.microsoft.com/en-us/marketplace/apps/idosgames.sdk)
+![iDos Games Engine](https://idosgames.com/wp-content/uploads/2024/08/1-min.png)\] (https://azuremarketplace.microsoft.com/en-us/marketplace/apps/idosgames.sdk)
 
 iDos Games Engine is LiveOps, AI, mobile tools and backed solution for your cross-platform games and apps hosted on Microsoft Azure. All in One solution that improves user Retention and increases revenue per user (LTV).
 
@@ -12,7 +12,7 @@ Developer Community: [Discord](https://discord.gg/CHshHYE6j6)
 
 To get textures for a 3D avatar you need the [https://u3d.as/3hMF](https://u3d.as/3hMF) package.
 
-🖥️ Platform support:
+🖥️ Platform support:  
 ✅ Windows  
 ✅ Linux  
 ✅ Mac OS M1  
