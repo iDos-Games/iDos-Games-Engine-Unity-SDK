@@ -99,3 +99,12 @@ A complete solution that shows the player a popup with a reward that can be incr
 
 23. 3D item inspection System.
 A system that allows you to inspect skins and 3D items, 3D avatars, items in the Marketplace.
+
+24. Crypto Wallet.
+Virtual Currency can be made cryptocurrency if you enable Crypto Wallet.
+Allow players to own in-game assets such as currency and items. You can tie in-game currency to your own token and items to NFT and allow players to withdraw/enter currency and items from/to the game. You can create different games linked by a single currency and items, where players can transfer currency and items from one game to another game. Create your linked ecosystem of games and apps, keeping players in your ecosystem for the long term.
+
+25. Web NFT Marketplace.
+For the convenience of developers and players, items from the game can be withdrawn to a wallet and traded on the site on the NFT Marketplace. It is convenient, for example, when you have several games with the same items, players from different games can trade on one common marketplace.
+
+Inventory Items have their own rarity and can be converted to NFT if you enable Crypto Wallet.
