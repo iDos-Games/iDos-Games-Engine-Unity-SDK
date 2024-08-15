@@ -132,7 +132,7 @@ namespace IDosGames
 
         private static async Task<byte[]> ReadFileAsync(string filePath)
         {
-            using (FileStream sourceStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 2048, useAsync: true))
+            using (FileStream sourceStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 1024, useAsync: true))
             {
                 byte[] buffer = new byte[sourceStream.Length];
                 int numRead = await sourceStream.ReadAsync(buffer, 0, buffer.Length);
@@ -153,6 +153,7 @@ namespace IDosGames
             IDosGamesSDKSettings.Instance.TryMakeTransactionLink = null;
             IDosGamesSDKSettings.Instance.GetDataFromMarketplaceLink = null;
             IDosGamesSDKSettings.Instance.ValidateIAPSubscriptionLink = null;
+            IDosGamesSDKSettings.Instance.ValidateIAPLink = null;
             IDosGamesSDKSettings.Instance.FriendSystemLink = null;
             IDosGamesSDKSettings.Instance.SpinSystemLink = null;
             IDosGamesSDKSettings.Instance.ChestSystemLink = null;

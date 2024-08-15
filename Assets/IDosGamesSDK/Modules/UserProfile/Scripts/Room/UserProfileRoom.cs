@@ -43,11 +43,15 @@ namespace IDosGames.UserProfile
                     if (!string.IsNullOrEmpty(defaultSkin))
                     {
                         JToken jsonData = JsonConvert.DeserializeObject<JToken>(defaultSkin);
-                        Debug.Log(jsonData.ToString());
+
+                        if(IDosGamesSDKSettings.Instance.DebugLogging)
+                        {
+                            Debug.Log(jsonData.ToString());
+                        }
+                        
                         _profileWindow.Init(_user, jsonData);
                     }
                 }
-                Debug.Log(data);
                 Loading.HideAllPanels();
                 SetActiveRoom(true);
 

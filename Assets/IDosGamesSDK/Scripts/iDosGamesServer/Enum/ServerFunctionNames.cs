@@ -18,6 +18,7 @@ namespace IDosGames
         RewardAndProfitSystem,
         ChestSystem,
         SpinSystem,
-        UserDataSystem
+        UserDataSystem,
+        ValidateIAP
     }
 }

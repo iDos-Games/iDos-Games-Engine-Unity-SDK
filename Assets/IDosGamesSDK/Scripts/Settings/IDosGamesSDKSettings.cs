@@ -84,6 +84,7 @@ namespace IDosGames
         [HideInInspector] public string TryDoMarketplaceActionLink;
         [HideInInspector] public string GetDataFromMarketplaceLink;
         [HideInInspector] public string ValidateIAPSubscriptionLink;
+        [HideInInspector] public string ValidateIAPLink;
         [HideInInspector] public string FriendSystemLink;
 
         [HideInInspector] public string LoginSystemLink;
@@ -255,11 +256,6 @@ namespace IDosGames
 
         [HideInInspector] public string WebGLBuildPath = "Assets/WebGLBuild/";
         [HideInInspector] public string WebGLUrl;
-
-        private void Start()
-        {
-            SaveSettings();
-        }
 
         public void SaveSettings()
         {

@@ -53,6 +53,7 @@ namespace IDosGames
             EditorGUILayout.TextField("Try Do Marketplace Action Link", settings.TryDoMarketplaceActionLink);
             EditorGUILayout.TextField("Get Data From Marketplace Link", settings.GetDataFromMarketplaceLink);
             EditorGUILayout.TextField("Validate IAP Subscription Link", settings.ValidateIAPSubscriptionLink);
+            EditorGUILayout.TextField("Validate IAP Link", settings.ValidateIAPLink);
             EditorGUILayout.TextField("Friend System Link", settings.FriendSystemLink);
             EditorGUILayout.TextField("Spin System Link", settings.SpinSystemLink);
             EditorGUILayout.TextField("Chest System Link", settings.ChestSystemLink);
