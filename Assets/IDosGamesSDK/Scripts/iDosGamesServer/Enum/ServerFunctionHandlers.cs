@@ -55,6 +55,7 @@ namespace IDosGames
         GetUserAllData,
         GetFunctionLinks,
         UploadTitleData,
-        UploadWebGL
+        UploadWebGL,
+        ClearWebGL
     }
 }

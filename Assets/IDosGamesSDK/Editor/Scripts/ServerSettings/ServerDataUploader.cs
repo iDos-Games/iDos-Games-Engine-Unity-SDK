@@ -66,19 +66,17 @@ namespace IDosGames
         {
             Debug.Log("Uploading Start ...");
 
+            await IGSAdminApi.ClearWebGL();
+
             if (!Directory.Exists(directoryPath))
             {
-                //Debug.LogError($"Directory not found: {directoryPath}");
                 return;
             }
 
             var allFiles = await AddFilesFromDirectory(directoryPath, directoryPath);
-            //Debug.Log($"Total files to upload: {allFiles.Count}");
 
             for (int i = 0; i < allFiles.Count; i += batchSize)
             {
-                //Debug.Log("... Uploading in progress ...");
-
                 var batch = allFiles.GetRange(i, Math.Min(batchSize, allFiles.Count - i));
                 foreach (var file in batch)
                 {
@@ -91,7 +89,16 @@ namespace IDosGames
             Debug.Log("All Files Upload Completed!");
 
             AzureFunctionLinkUpdater.ParseConnectionString(IDosGamesSDKSettings.Instance.ServerConnectionString);
-            IDosGamesSDKSettings.Instance.WebGLUrl = "https://" + AzureFunctionLinkUpdater.storageAccountName + ".blob.core.windows.net/public-data/" + IDosGamesSDKSettings.Instance.TitleID + "/index.html";
+
+            if(IDosGamesSDKSettings.Instance.DevBuild)
+            {
+                IDosGamesSDKSettings.Instance.WebGLUrl = "https://" + AzureFunctionLinkUpdater.storageAccountName + ".blob.core.windows.net/public-data/" + IDosGamesSDKSettings.Instance.TitleID + "-dev/index.html";
+            }
+            else
+            {
+                IDosGamesSDKSettings.Instance.WebGLUrl = "https://" + AzureFunctionLinkUpdater.storageAccountName + ".blob.core.windows.net/public-data/" + IDosGamesSDKSettings.Instance.TitleID + "/index.html";
+            }
+            
             Debug.Log("WebGL URL: " + IDosGamesSDKSettings.Instance.WebGLUrl);
         }
 

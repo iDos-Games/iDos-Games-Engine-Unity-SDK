@@ -16,6 +16,7 @@ using Nethereum.Web3.Accounts;
 using Nethereum.Contracts.Standards.ERC1155;
 using Nethereum.Contracts;
 using Nethereum.Signer;
+
 using BalanceOfERC20Function = Nethereum.Contracts.Standards.ERC20.ContractDefinition.BalanceOfFunction;
 using TransferFunction = Nethereum.Contracts.Standards.ERC20.ContractDefinition.TransferFunction;
 
@@ -27,7 +28,6 @@ namespace IDosGames
         {
             try
             {
-                // Формируем данные JSON-RPC запроса  
                 var data = new
                 {
                     jsonrpc = "2.0",
@@ -39,50 +39,31 @@ namespace IDosGames
                     },
                     id = 1
                 };
+
                 var jsonData = JsonConvert.SerializeObject(data);
+                string responseText = await SendUnityWebRequest(BlockchainSettings.GetProviderAddress(BlockchainNetwork.IgcTestnet), jsonData);
 
-                // Отправка запроса через UnityWebRequest  
-                using (UnityWebRequest webRequest = new UnityWebRequest(BlockchainSettings.GetProviderAddress(BlockchainNetwork.IgcTestnet), "POST"))
+                if (string.IsNullOrEmpty(responseText))
                 {
-                    byte[] bodyRaw = Encoding.UTF8.GetBytes(jsonData);
-                    webRequest.uploadHandler = new UploadHandlerRaw(bodyRaw);
-                    webRequest.downloadHandler = new DownloadHandlerBuffer();
-                    webRequest.SetRequestHeader("Content-Type", "application/json");
-                    await webRequest.SendWebRequest();
+                    return 0;
+                }
 
-                    // Проверка результата запроса  
-                    if (webRequest.result != UnityWebRequest.Result.Success)
-                    {
-                        Debug.LogWarning("UnityWebRequest Error: " + webRequest.error);
-                        return 0;
-                    }
-                    else
-                    {
-                        string responseText = webRequest.downloadHandler.text;
-                        if (string.IsNullOrEmpty(responseText))
-                        {
-                            return 0;
-                        }
+                var jsonRpcResponse = JsonConvert.DeserializeObject<JsonRpcResponse<string>>(responseText);
+                if (jsonRpcResponse.Error != null)
+                {
+                    Debug.LogWarning("JSON-RPC Error: " + jsonRpcResponse.Error.Message);
+                    return 0;
+                }
 
-                        var jsonRpcResponse = JsonConvert.DeserializeObject<JsonRpcResponse<string>>(responseText);
-                        if (jsonRpcResponse.Error != null)
-                        {
-                            Debug.LogWarning("JSON-RPC Error: " + jsonRpcResponse.Error.Message);
-                            return 0;
-                        }
-
-                        if (BigInteger.TryParse(jsonRpcResponse.Result.Replace("0x", ""), System.Globalization.NumberStyles.HexNumber, null, out BigInteger balanceResult))
-                        {
-                            decimal balanceInEther = ConvertFromWei(balanceResult);
-
-                            return balanceInEther;
-                        }
-                        else
-                        {
-                            Debug.LogWarning("Failed to parse balance result.");
-                            return 0;
-                        }
-                    }
+                if (BigInteger.TryParse(jsonRpcResponse.Result.Replace("0x", ""), System.Globalization.NumberStyles.HexNumber, null, out BigInteger balanceResult))
+                {
+                    decimal balanceInEther = ConvertFromWei(balanceResult);
+                    return balanceInEther;
+                }
+                else
+                {
+                    Debug.LogWarning("Failed to parse balance result.");
+                    return 0;
                 }
             }
             catch (Exception ex)
@@ -92,86 +73,56 @@ namespace IDosGames
             }
         }
 
-        public static decimal ConvertFromWei(BigInteger weiValue)
-        {
-            const decimal etherConversionFactor = 1000000000000000000m; // 1 ether = 10^18 wei  
-            return (decimal)weiValue / etherConversionFactor;
-        }
-
         public static async Task<decimal> GetERC20TokenBalance(string walletAddress, VirtualCurrencyID virtualCurrencyID)
         {
             try
             {
-                // Получаем параметры контракта  
                 string contractABI = BlockchainSettings.GetTokenContractABI(virtualCurrencyID);
                 string contractAddress = BlockchainSettings.GetTokenContractAddress(virtualCurrencyID);
                 var web3 = new Web3(BlockchainSettings.GetProviderAddress(BlockchainNetwork.IgcTestnet));
 
-                // Настройка функции balanceOf  
                 var balanceOfFunction = new BalanceOfERC20Function
                 {
                     Owner = walletAddress
                 };
 
-                // Создаем CallInput для функции balanceOf  
                 var callInput = balanceOfFunction.CreateCallInput(contractAddress);
 
-                // Формируем данные JSON-RPC запроса  
                 var data = new
                 {
                     jsonrpc = "2.0",
                     method = "eth_call",
                     @params = new object[]
                     {
-                new { to = contractAddress, data = callInput.Data },
-                "latest"
+                        new { to = contractAddress, data = callInput.Data },
+                        "latest"
                     },
                     id = 1
                 };
+
                 var jsonData = JsonConvert.SerializeObject(data);
+                string responseText = await SendUnityWebRequest(BlockchainSettings.GetProviderAddress(BlockchainNetwork.IgcTestnet), jsonData);
 
-                // Отправка запроса через UnityWebRequest  
-                using (UnityWebRequest webRequest = new UnityWebRequest(BlockchainSettings.GetProviderAddress(BlockchainNetwork.IgcTestnet), "POST"))
+                if (string.IsNullOrEmpty(responseText))
                 {
-                    byte[] bodyRaw = Encoding.UTF8.GetBytes(jsonData);
-                    webRequest.uploadHandler = new UploadHandlerRaw(bodyRaw);
-                    webRequest.downloadHandler = new DownloadHandlerBuffer();
-                    webRequest.SetRequestHeader("Content-Type", "application/json");
+                    return 0;
+                }
 
-                    await webRequest.SendWebRequest();
+                var jsonRpcResponse = JsonConvert.DeserializeObject<JsonRpcResponse<string>>(responseText);
+                if (jsonRpcResponse.Error != null)
+                {
+                    Debug.LogWarning("JSON-RPC Error: " + jsonRpcResponse.Error.Message);
+                    return 0;
+                }
 
-                    // Проверка результата запроса  
-                    if (webRequest.result != UnityWebRequest.Result.Success)
-                    {
-                        Debug.LogWarning("UnityWebRequest Error: " + webRequest.error);
-                        return 0;
-                    }
-                    else
-                    {
-                        string responseText = webRequest.downloadHandler.text;
-                        if (string.IsNullOrEmpty(responseText))
-                        {
-                            return 0;
-                        }
-
-                        var jsonRpcResponse = JsonConvert.DeserializeObject<JsonRpcResponse<string>>(responseText);
-                        if (jsonRpcResponse.Error != null)
-                        {
-                            Debug.LogWarning("JSON-RPC Error: " + jsonRpcResponse.Error.Message);
-                            return 0;
-                        }
-
-                        // Парсинг результата  
-                        if (BigInteger.TryParse(jsonRpcResponse.Result.Replace("0x", ""), System.Globalization.NumberStyles.HexNumber, null, out BigInteger balanceResult))
-                        {
-                            return Web3.Convert.FromWei(balanceResult);
-                        }
-                        else
-                        {
-                            Debug.LogWarning("Failed to parse balance result.");
-                            return 0;
-                        }
-                    }
+                if (BigInteger.TryParse(jsonRpcResponse.Result.Replace("0x", ""), System.Globalization.NumberStyles.HexNumber, null, out BigInteger balanceResult))
+                {
+                    return Web3.Convert.FromWei(balanceResult);
+                }
+                else
+                {
+                    Debug.LogWarning("Failed to parse balance result.");
+                    return 0;
                 }
             }
             catch (Exception ex)
@@ -194,10 +145,8 @@ namespace IDosGames
                     Ids = nftIDs
                 };
 
-                // Создаем CallInput для функции balanceOfBatch  
                 var callInput = balanceOfBatchFunction.CreateCallInput(contractAddress);
 
-                // Формируем данные JSON-RPC запроса  
                 var data = new
                 {
                     jsonrpc = "2.0",
@@ -215,42 +164,26 @@ namespace IDosGames
                 };
 
                 var jsonData = JsonConvert.SerializeObject(data);
+                string responseText = await SendUnityWebRequest(BlockchainSettings.GetProviderAddress(BlockchainNetwork.IgcTestnet), jsonData);
 
-                using (UnityWebRequest webRequest = new UnityWebRequest(BlockchainSettings.GetProviderAddress(BlockchainNetwork.IgcTestnet), "POST"))
+                if (string.IsNullOrEmpty(responseText))
                 {
-                    byte[] bodyRaw = Encoding.UTF8.GetBytes(jsonData);
-                    webRequest.uploadHandler = new UploadHandlerRaw(bodyRaw);
-                    webRequest.downloadHandler = new DownloadHandlerBuffer();
-                    webRequest.SetRequestHeader("Content-Type", "application/json");
-                    await webRequest.SendWebRequest();
-
-                    if (webRequest.result != UnityWebRequest.Result.Success)
-                    {
-                        return new List<BigInteger>();
-                    }
-                    else
-                    {
-                        string responseText = webRequest.downloadHandler.text;
-                        if (string.IsNullOrEmpty(responseText))
-                        {
-                            return new List<BigInteger>();
-                        }
-
-                        var jsonRpcResponse = JsonConvert.DeserializeObject<JsonRpcResponse<string>>(responseText);
-                        if (jsonRpcResponse.Error != null)
-                        {
-                            return new List<BigInteger>();
-                        }
-
-                        var balances = ParseBalancesFromResponse(jsonRpcResponse.Result, nftIDs.Count);
-                        if (balances == null)
-                        {
-                            return new List<BigInteger>();
-                        }
-
-                        return balances;
-                    }
+                    return new List<BigInteger>();
                 }
+
+                var jsonRpcResponse = JsonConvert.DeserializeObject<JsonRpcResponse<string>>(responseText);
+                if (jsonRpcResponse.Error != null)
+                {
+                    return new List<BigInteger>();
+                }
+
+                var balances = ParseBalancesFromResponse(jsonRpcResponse.Result, nftIDs.Count);
+                if (balances == null)
+                {
+                    return new List<BigInteger>();
+                }
+
+                return balances;
             }
             catch (Exception)
             {
@@ -258,45 +191,13 @@ namespace IDosGames
             }
         }
 
-        private static List<BigInteger> ParseBalancesFromResponse(string responseText, int count)
-        {
-            if (string.IsNullOrEmpty(responseText))
-            {
-                return null;
-            }
-
-            var cleanedResponse = responseText.Replace("0x", "");
-
-            if (cleanedResponse.Length < (count + 2) * 64)
-            {
-                return null;
-            }
-
-            List<BigInteger> balances = new List<BigInteger>();
-
-            // We start with the third block (index 2), since the first two blocks are metadata
-            for (int i = 2; i < count + 2; i++)
-            {
-                string hexValue = cleanedResponse.Substring(i * 64, 64);
-                if (BigInteger.TryParse(hexValue, System.Globalization.NumberStyles.HexNumber, null, out BigInteger balance))
-                {
-                    balances.Add(balance);
-                }
-            }
-
-            return balances;
-        }
-
         public static async Task<string> TransferERC20TokenAndGetHash(string fromAddress, string toAddress, VirtualCurrencyID tokenID, int amount, string privateKey)
         {
             try
             {
-                // Получаем параметры контракта и создаем объект Web3  
                 var account = new Account(privateKey);
                 var web3 = new Web3(account, BlockchainSettings.GetProviderAddress(BlockchainNetwork.IgcTestnet));
                 var contractAddress = BlockchainSettings.GetTokenContractAddress(tokenID);
-
-                // Настраиваем функцию transfer  
                 var transferFunction = new TransferFunction
                 {
                     FromAddress = fromAddress,
@@ -306,67 +207,50 @@ namespace IDosGames
                     AmountToSend = new HexBigInteger(BlockchainSettings.DEFAULT_VALUE_IN_NATIVE_TOKEN)
                 };
 
-                // Оцениваем газ  
-                var transferHandler = web3.Eth.GetContractTransactionHandler<TransferFunction>();
-                var estimateGas = await transferHandler.EstimateGasAsync(contractAddress, transferFunction);
+                var estimateGas = await EstimateGasAsync(contractAddress, transferFunction);
+                if (estimateGas == null)
+                {
+                    return null;
+                }
+
                 transferFunction.Gas = estimateGas;
+                var nonce = await GetTransactionCountAsync(fromAddress);
+                if (nonce == null)
+                {
+                    return null;
+                }
 
-                // Создаем транзакцию  
                 var transactionInput = transferFunction.CreateTransactionInput(contractAddress);
-
-                // Подписываем транзакцию с использованием TransactionSigner  
                 var transactionSigner = new LegacyTransactionSigner();
-                var nonce = await web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(fromAddress);
                 var signedTransaction = transactionSigner.SignTransaction(privateKey, transactionInput.To, transactionInput.Value, nonce, transactionInput.GasPrice, transactionInput.Gas, transactionInput.Data);
 
-                // Формируем данные JSON-RPC запроса  
                 var data = new
                 {
                     jsonrpc = "2.0",
                     method = "eth_sendRawTransaction",
                     @params = new object[]
                     {
-                "0x" + signedTransaction
+                        "0x" + signedTransaction
                     },
                     id = 1
                 };
+
                 var jsonData = JsonConvert.SerializeObject(data);
+                string responseText = await SendUnityWebRequest(BlockchainSettings.GetProviderAddress(BlockchainNetwork.IgcTestnet), jsonData);
 
-                // Отправка запроса через UnityWebRequest  
-                using (UnityWebRequest webRequest = new UnityWebRequest(BlockchainSettings.GetProviderAddress(BlockchainNetwork.IgcTestnet), "POST"))
+                if (string.IsNullOrEmpty(responseText))
                 {
-                    byte[] bodyRaw = Encoding.UTF8.GetBytes(jsonData);
-                    webRequest.uploadHandler = new UploadHandlerRaw(bodyRaw);
-                    webRequest.downloadHandler = new DownloadHandlerBuffer();
-                    webRequest.SetRequestHeader("Content-Type", "application/json");
-
-                    await webRequest.SendWebRequest();
-
-                    // Проверка результата запроса  
-                    if (webRequest.result != UnityWebRequest.Result.Success)
-                    {
-                        Debug.LogWarning("UnityWebRequest Error: " + webRequest.error);
-                        return null;
-                    }
-                    else
-                    {
-                        string responseText = webRequest.downloadHandler.text;
-                        if (string.IsNullOrEmpty(responseText))
-                        {
-                            return null;
-                        }
-
-                        var jsonRpcResponse = JsonConvert.DeserializeObject<JsonRpcResponse<string>>(responseText);
-                        if (jsonRpcResponse.Error != null)
-                        {
-                            Debug.LogWarning("JSON-RPC Error: " + jsonRpcResponse.Error.Message);
-                            return null;
-                        }
-
-                        // Возвращаем хэш транзакции  
-                        return jsonRpcResponse.Result;
-                    }
+                    return null;
                 }
+
+                var jsonRpcResponse = JsonConvert.DeserializeObject<JsonRpcResponse<string>>(responseText);
+                if (jsonRpcResponse.Error != null)
+                {
+                    Debug.LogWarning("JSON-RPC Error: " + jsonRpcResponse.Error.Message);
+                    return null;
+                }
+
+                return jsonRpcResponse.Result;
             }
             catch (Exception ex)
             {
@@ -381,10 +265,7 @@ namespace IDosGames
             {
                 var account = new Account(privateKey);
                 var web3 = new Web3(account, BlockchainSettings.GetProviderAddress(BlockchainNetwork.IgcTestnet));
-
                 var contractAddress = BlockchainSettings.NFT_CONTRACT_ADDRESS;
-                var contractABI = BlockchainSettings.NFT_CONTRACT_ABI;
-
                 var transferFunction = new SafeTransferFromFunction
                 {
                     From = fromAddress,
@@ -395,15 +276,50 @@ namespace IDosGames
                     Data = Array.Empty<byte>()
                 };
 
-                var transferHandler = web3.Eth.GetContractTransactionHandler<SafeTransferFromFunction>();
-
-                var estimateGas = await transferHandler.EstimateGasAsync(contractAddress, transferFunction);
+                var estimateGas = await EstimateGasNFTAsync(contractAddress, transferFunction);
+                if (estimateGas == null)
+                {
+                    return null;
+                }
 
                 transferFunction.Gas = estimateGas;
+                var nonce = await GetTransactionCountAsync(fromAddress);
+                if (nonce == null)
+                {
+                    return null;
+                }
 
-                var transactionReceipt = await transferHandler.SendRequestAndWaitForReceiptAsync(contractAddress, transferFunction);
+                var transactionInput = transferFunction.CreateTransactionInput(contractAddress);
+                var transactionSigner = new LegacyTransactionSigner();
+                var signedTransaction = transactionSigner.SignTransaction(privateKey, transactionInput.To, transactionInput.Value, nonce, transactionInput.GasPrice, transactionInput.Gas, transactionInput.Data);
 
-                return transactionReceipt.TransactionHash;
+                var data = new
+                {
+                    jsonrpc = "2.0",
+                    method = "eth_sendRawTransaction",
+                    @params = new object[]
+                    {
+                        "0x" + signedTransaction
+                    },
+                    id = 1
+                };
+
+                var jsonData = JsonConvert.SerializeObject(data);
+                string responseText = await SendUnityWebRequest(BlockchainSettings.GetProviderAddress(BlockchainNetwork.IgcTestnet), jsonData);
+
+                if (string.IsNullOrEmpty(responseText))
+                {
+                    return null;
+                }
+
+                var jsonRpcResponse = JsonConvert.DeserializeObject<JsonRpcResponse<string>>(responseText);
+                if (jsonRpcResponse.Error != null)
+                {
+                    Debug.LogWarning("JSON-RPC Error: " + jsonRpcResponse.Error.Message);
+                    return null;
+                }
+
+                return jsonRpcResponse.Result;
             }
             catch (Exception ex)
             {
@@ -412,5 +328,175 @@ namespace IDosGames
             }
         }
 
+        
+        private static async Task<string> SendUnityWebRequest(string url, string jsonData)
+        {
+            using (UnityWebRequest webRequest = new UnityWebRequest(url, "POST"))
+            {
+                byte[] bodyRaw = Encoding.UTF8.GetBytes(jsonData);
+                webRequest.uploadHandler = new UploadHandlerRaw(bodyRaw);
+                webRequest.downloadHandler = new DownloadHandlerBuffer();
+                webRequest.SetRequestHeader("Content-Type", "application/json");
+
+                await webRequest.SendWebRequest();
+
+                if (webRequest.result != UnityWebRequest.Result.Success)
+                {
+                    Debug.LogWarning("UnityWebRequest Error: " + webRequest.error);
+                    return null;
+                }
+
+                return webRequest.downloadHandler.text;
+            }
+        }
+
+        public static decimal ConvertFromWei(BigInteger weiValue)
+        {
+            const decimal etherConversionFactor = 1000000000000000000m; // 1 ether = 10^18 wei  
+            return (decimal)weiValue / etherConversionFactor;
+        }
+
+        private static List<BigInteger> ParseBalancesFromResponse(string responseText, int count)
+        {
+            if (string.IsNullOrEmpty(responseText))
+            {
+                return null;
+            }
+
+            var cleanedResponse = responseText.Replace("0x", "");
+            if (cleanedResponse.Length < (count + 2) * 64)
+            {
+                return null;
+            }
+
+            List<BigInteger> balances = new List<BigInteger>();
+            for (int i = 2; i < count + 2; i++)
+            {
+                string hexValue = cleanedResponse.Substring(i * 64, 64);
+                if (BigInteger.TryParse(hexValue, System.Globalization.NumberStyles.HexNumber, null, out BigInteger balance))
+                {
+                    balances.Add(balance);
+                }
+            }
+
+            return balances;
+        }
+
+        public static async Task<HexBigInteger> EstimateGasAsync(string contractAddress, TransferFunction transferFunction)
+        {
+            var web3 = new Web3(BlockchainSettings.GetProviderAddress(BlockchainNetwork.IgcTestnet));
+            var transferHandler = web3.Eth.GetContractTransactionHandler<TransferFunction>();
+            var callInput = transferFunction.CreateCallInput(contractAddress);
+
+            var data = new
+            {
+                jsonrpc = "2.0",
+                method = "eth_estimateGas",
+                @params = new object[]
+                {
+                    new
+                    {
+                        from = transferFunction.FromAddress,
+                        to = contractAddress,
+                        gas = transferFunction.Gas != null ? transferFunction.Gas.Value.ToString("X") : null, // Convert to hex string if not null  
+                        gasPrice = transferFunction.GasPrice != null ? transferFunction.GasPrice.Value.ToString("X") : null, // Convert to hex string if not null  
+                        value = transferFunction.AmountToSend != null ? transferFunction.AmountToSend.ToString("X") : null, // Convert to hex string if not null  
+                        data = callInput.Data
+                    }
+                },
+                id = 1
+            };
+
+            var jsonData = JsonConvert.SerializeObject(data);
+            string responseText = await SendUnityWebRequest(BlockchainSettings.GetProviderAddress(BlockchainNetwork.IgcTestnet), jsonData);
+
+            if (string.IsNullOrEmpty(responseText))
+            {
+                return null;
+            }
+
+            var jsonRpcResponse = JsonConvert.DeserializeObject<JsonRpcResponse<string>>(responseText);
+            if (jsonRpcResponse.Error != null)
+            {
+                Debug.LogWarning("JSON-RPC Error: " + jsonRpcResponse.Error.Message);
+                return null;
+            }
+
+            return new HexBigInteger(jsonRpcResponse.Result);
+        }
+
+        public static async Task<HexBigInteger> EstimateGasNFTAsync(string contractAddress, SafeTransferFromFunction transferFunction)
+        {
+            //var web3 = new Web3(BlockchainSettings.GetProviderAddress(BlockchainNetwork.IgcTestnet));
+            var callInput = transferFunction.CreateCallInput(contractAddress);
+
+            var data = new
+            {
+                jsonrpc = "2.0",
+                method = "eth_estimateGas",
+                @params = new object[]
+                {
+                    new
+                    {
+                        from = transferFunction.From,
+                        to = contractAddress,
+                        gas = transferFunction.Gas != null ? transferFunction.Gas.Value.ToString("X") : null, // Convert to hex string if not null  
+                        gasPrice = transferFunction.GasPrice != null ? transferFunction.GasPrice.Value.ToString("X") : null, // Convert to hex string if not null  
+                        value = transferFunction.AmountToSend != null ? transferFunction.AmountToSend.ToString("X") : null, // Convert to hex string if not null  
+                        data = callInput.Data
+                    }
+                },
+                id = 1
+            };
+
+            var jsonData = JsonConvert.SerializeObject(data);
+            string responseText = await SendUnityWebRequest(BlockchainSettings.GetProviderAddress(BlockchainNetwork.IgcTestnet), jsonData);
+
+            if (string.IsNullOrEmpty(responseText))
+            {
+                return null;
+            }
+
+            var jsonRpcResponse = JsonConvert.DeserializeObject<JsonRpcResponse<string>>(responseText);
+            if (jsonRpcResponse.Error != null)
+            {
+                Debug.LogWarning("JSON-RPC Error: " + jsonRpcResponse.Error.Message);
+                return null;
+            }
+
+            return new HexBigInteger(jsonRpcResponse.Result);
+        }
+
+        public static async Task<HexBigInteger> GetTransactionCountAsync(string fromAddress)
+        {
+            var data = new
+            {
+                jsonrpc = "2.0",
+                method = "eth_getTransactionCount",
+                @params = new object[]
+                {
+                    fromAddress,
+                    "latest"
+                },
+                id = 1
+            };
+
+            var jsonData = JsonConvert.SerializeObject(data);
+            string responseText = await SendUnityWebRequest(BlockchainSettings.GetProviderAddress(BlockchainNetwork.IgcTestnet), jsonData);
+
+            if (string.IsNullOrEmpty(responseText))
+            {
+                return null;
+            }
+
+            var jsonRpcResponse = JsonConvert.DeserializeObject<JsonRpcResponse<string>>(responseText);
+            if (jsonRpcResponse.Error != null)
+            {
+                Debug.LogWarning("JSON-RPC Error: " + jsonRpcResponse.Error.Message);
+                return null;
+            }
+
+            return new HexBigInteger(jsonRpcResponse.Result);
+        }
     }
 }

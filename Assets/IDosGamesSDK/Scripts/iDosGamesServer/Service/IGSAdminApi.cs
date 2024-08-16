@@ -19,7 +19,7 @@ namespace IDosGames
             var requestBody = new IGSRequest
             {
                 TitleID = IDosGamesSDKSettings.Instance.TitleID,
-                FunctionName = "GetFunctionLinks",
+                FunctionName = ServerFunctionHandlers.GetFunctionLinks.ToString(),
                 SecretKey = IDosGamesSDKSettings.Instance.DeveloperSecretKey
             };
 
@@ -31,7 +31,7 @@ namespace IDosGames
             var requestBody = new IGSRequest
             {
                 TitleID = IDosGamesSDKSettings.Instance.TitleID,
-                FunctionName = "UploadTitleData",
+                FunctionName = ServerFunctionHandlers.UploadTitleData.ToString(),
                 SecretKey = IDosGamesSDKSettings.Instance.DeveloperSecretKey,
                 Files = files
             };
@@ -43,11 +43,24 @@ namespace IDosGames
             var requestBody = new IGSRequest
             {
                 TitleID = IDosGamesSDKSettings.Instance.TitleID,
-                FunctionName = "UploadWebGL",
+                FunctionName = ServerFunctionHandlers.UploadWebGL.ToString(),
                 SecretKey = IDosGamesSDKSettings.Instance.DeveloperSecretKey,
                 Files = files,
                 DevBuild = IDosGamesSDKSettings.Instance.DevBuild
             };
+            return await SendPostRequest(URL_IGS_ADMIN_API, requestBody);
+        }
+
+        public static async Task<string> ClearWebGL()
+        {
+            var requestBody = new IGSRequest
+            {
+                TitleID = IDosGamesSDKSettings.Instance.TitleID,
+                FunctionName = ServerFunctionHandlers.ClearWebGL.ToString(),
+                SecretKey = IDosGamesSDKSettings.Instance.DeveloperSecretKey,
+                DevBuild = IDosGamesSDKSettings.Instance.DevBuild
+            };
+
             return await SendPostRequest(URL_IGS_ADMIN_API, requestBody);
         }
 
