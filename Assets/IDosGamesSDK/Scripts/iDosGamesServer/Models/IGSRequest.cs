@@ -20,6 +20,7 @@ namespace IDosGames
         public string FriendID { get; set; }
         public string LeaderboardID { get; set; }
         public string SecretKey { get; set; }
+        public bool DevBuild { get; set; }
 
         // IAP Validations
         public string Receipt { get; set; }

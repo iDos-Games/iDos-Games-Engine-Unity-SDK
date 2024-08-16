@@ -45,7 +45,8 @@ namespace IDosGames
                 TitleID = IDosGamesSDKSettings.Instance.TitleID,
                 FunctionName = "UploadWebGL",
                 SecretKey = IDosGamesSDKSettings.Instance.DeveloperSecretKey,
-                Files = files
+                Files = files,
+                DevBuild = IDosGamesSDKSettings.Instance.DevBuild
             };
             return await SendPostRequest(URL_IGS_ADMIN_API, requestBody);
         }

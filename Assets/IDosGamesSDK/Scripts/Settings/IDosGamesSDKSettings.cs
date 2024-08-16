@@ -60,6 +60,8 @@ namespace IDosGames
             set => _titleID = value.Trim();
         }
 
+        [HideInInspector] public bool DevBuild = false;
+
         [Space(10)]
         [SerializeField] private string _iosBundleID;
         public string IosBundleID => _iosBundleID;

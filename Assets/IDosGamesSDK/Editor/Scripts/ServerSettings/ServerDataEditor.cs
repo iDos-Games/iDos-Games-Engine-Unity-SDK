@@ -70,6 +70,7 @@ namespace IDosGames
 
             EditorGUILayout.BeginHorizontal();
             settings.WebGLBuildPath = EditorGUILayout.TextField("WebGL build path", settings.WebGLBuildPath);
+            
             if (!string.IsNullOrEmpty(settings.TitleID) && !string.IsNullOrEmpty(settings.DeveloperSecretKey) && !string.IsNullOrEmpty(settings.IgsAdminApiLink) && !string.IsNullOrEmpty(settings.ServerConnectionString))
             {
                 if (GUILayout.Button("Upload WebGL"))
@@ -83,6 +84,7 @@ namespace IDosGames
             }
             EditorGUILayout.EndHorizontal();
 
+            settings.DevBuild = EditorGUILayout.Toggle("Development Build", settings.DevBuild);
 
             EditorGUILayout.BeginHorizontal();
 
@@ -105,7 +107,7 @@ namespace IDosGames
 
             if (!string.IsNullOrEmpty(settings.TitleID) && !string.IsNullOrEmpty(settings.DeveloperSecretKey) && !string.IsNullOrEmpty(settings.ServerConnectionString))
             {
-                GUILayout.Space(5);
+                GUILayout.Space(20);
 
                 if (GUILayout.Button("Get Configure Server"))
                 {

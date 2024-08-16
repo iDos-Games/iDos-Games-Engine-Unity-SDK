@@ -13,10 +13,11 @@ MonoBehaviour:
   m_Name: IDosGamesSDKSettings
   m_EditorClassIdentifier: 
   _titleID: 
+  DevBuild: 0
   _iosBundleID: com.idosgames.sdk.ios
   _iosAppStoreID: 12341234
   _androidBundleID: com.idosgames.sdk
-  _debugLogging: 0
+  _debugLogging: 1
   _showLoadingOnExecuteServerFunction: 1
   TryMakeTransactionLink: 
   TryDoMarketplaceActionLink: 
@@ -51,7 +52,7 @@ MonoBehaviour:
   _pushNotificationsIosEnabled: 1
   _marketplaceEnabled: 1
   _cryptoWalletEnabled: 1
-  _localHotWalletEnabled: 1
+  _localHotWalletEnabled: 0
   _hotWalletAddress: 
   _gasPrice: 2
   _chainId: 1499
