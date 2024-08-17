@@ -6,9 +6,7 @@ Our iDos Games Engine has a detailed meta-game and each module is tightly connec
 
 **Deploy Backend Engine: [iDos Games Engine](https://azuremarketplace.microsoft.com/en-us/marketplace/apps/idosgames.sdk)**
 
-Documentation: [iDosGames.com](https://idosgames.com/)
-
-Developer Community: [Discord](https://discord.gg/CHshHYE6j6)
+Documentation: [iDosGames.com](https://idosgames.com/docs/developers/quick-start/ige-unity-sdk/)
 
 To get textures for a 3D avatar you need the [https://u3d.as/3hMF](https://u3d.as/3hMF) package.
 
