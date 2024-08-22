@@ -30,7 +30,7 @@ namespace IDosGames
             }
         }
 
-        void OnGUI()
+        async void OnGUI()
         {
             GUILayout.Space(20);
             GUILayout.Label("Server Settings", EditorStyles.boldLabel);
@@ -54,6 +54,7 @@ namespace IDosGames
             EditorGUILayout.TextField("Get Data From Marketplace Link", settings.GetDataFromMarketplaceLink);
             EditorGUILayout.TextField("Validate IAP Subscription Link", settings.ValidateIAPSubscriptionLink);
             EditorGUILayout.TextField("Validate IAP Link", settings.ValidateIAPLink);
+            EditorGUILayout.TextField("Additional IAP Validate Link", settings.AdditionalIAPValidateLink);
             EditorGUILayout.TextField("Friend System Link", settings.FriendSystemLink);
             EditorGUILayout.TextField("Spin System Link", settings.SpinSystemLink);
             EditorGUILayout.TextField("Chest System Link", settings.ChestSystemLink);
@@ -64,6 +65,7 @@ namespace IDosGames
             EditorGUILayout.TextField("Deal Offer System Link", settings.DealOfferSystemLink);
             EditorGUILayout.TextField("Login System Link", settings.LoginSystemLink);
             EditorGUILayout.TextField("IGS Client API Link", settings.IgsClientApiLink);
+            EditorGUILayout.TextField("Telegram Webhook Link", settings.TelegramWebhookLink);
             EditorGUI.EndDisabledGroup();
 
             GUILayout.Space(10);
@@ -99,6 +101,24 @@ namespace IDosGames
                     GUILayout.Space(5);
 
                     EditorGUIUtility.systemCopyBuffer = settings.WebGLUrl;
+
+                    GUILayout.Space(5);
+                }
+            }
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.BeginHorizontal();
+            EditorGUI.BeginDisabledGroup(true);
+            EditorGUILayout.TextField("Do not forget to register Telegram Webhook");
+            EditorGUI.EndDisabledGroup();
+
+            if (!string.IsNullOrEmpty(settings.TitleID) && !string.IsNullOrEmpty(settings.DeveloperSecretKey) && !string.IsNullOrEmpty(settings.IgsAdminApiLink) && !string.IsNullOrEmpty(settings.TelegramWebhookLink))
+            {
+                if (GUILayout.Button("Register Telegram Webhook"))
+                {
+                    GUILayout.Space(5);
+
+                    ServerDataUploader.RegisterTelegramWebhook();
 
                     GUILayout.Space(5);
                 }

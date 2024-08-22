@@ -13,7 +13,7 @@ namespace IDosGames
         public static event Action<Action> ConnectionError;
 
         public static string URL_IGS_CLIENT_API = IDosGamesSDKSettings.Instance.IgsClientApiLink;
-        public static string URL_SERVER_DATA_ACTIONS = IDosGamesSDKSettings.Instance.LoginSystemLink;
+        public static string URL_LOGIN_SYSTEM = IDosGamesSDKSettings.Instance.LoginSystemLink;
         public static string URL_WALLET_MAKE_TRANSACTION = IDosGamesSDKSettings.Instance.TryMakeTransactionLink;
         public static string URL_MARKETPLACE_DO_ACTION = IDosGamesSDKSettings.Instance.TryDoMarketplaceActionLink;
         public static string URL_MARKETPLACE_GET_DATA = IDosGamesSDKSettings.Instance.GetDataFromMarketplaceLink;
@@ -37,6 +37,7 @@ namespace IDosGames
         public static async Task<GetAllUserDataResult> LoginWithDeviceID()
         {
             string deviceID = GetOrCreateDeviceID();
+            string userName = GetUserName();
 
             var requestBody = new IGSRequest
             {
@@ -44,10 +45,11 @@ namespace IDosGames
                 FunctionName = ServerFunctionHandlers.LoginWithDeviceID.ToString(),
                 OS = Application.platform.ToString(),
                 Device = SystemInfo.deviceModel,
-                DeviceID = deviceID
+                DeviceID = deviceID,
+                UserName = userName
             };
 
-            string response = await SendPostRequest(URL_SERVER_DATA_ACTIONS, requestBody);
+            string response = await SendPostRequest(URL_LOGIN_SYSTEM, requestBody);
 
             // Десериализация строки в объект GetAllUserDataResult  
             GetAllUserDataResult result = JsonConvert.DeserializeObject<GetAllUserDataResult>(response);
@@ -60,20 +62,40 @@ namespace IDosGames
             string deviceID;
 
 #if UNITY_WEBGL
-            deviceID = PlayerPrefs.GetString("DeviceID", null);
-
-            if (string.IsNullOrEmpty(deviceID))
+            if (AuthService.WebGLPlatform == WebGLPlatform.Telegram)
             {
-                deviceID = Guid.NewGuid().ToString();
-
-                PlayerPrefs.SetString("DeviceID", deviceID);
-                PlayerPrefs.Save();
+                deviceID = AuthService.TelegramInitData.user.id.ToString();
             }
+            else
+            {
+                deviceID = PlayerPrefs.GetString("DeviceID", null);
+
+                if (string.IsNullOrEmpty(deviceID))
+                {
+                    deviceID = Guid.NewGuid().ToString();
+
+                    PlayerPrefs.SetString("DeviceID", deviceID);
+                    PlayerPrefs.Save();
+                }
+            }
+
 #else
             deviceID = SystemInfo.deviceUniqueIdentifier;
 #endif
 
             return deviceID;
+        }
+
+        private static string GetUserName()
+        {
+            string userName = null;
+#if UNITY_WEBGL
+            if (AuthService.WebGLPlatform == WebGLPlatform.Telegram)
+            {
+                userName = AuthService.TelegramInitData.user.username;
+            }
+#endif
+            return userName;
         }
 
         public static async Task<GetAllUserDataResult> LoginWithEmail(string email, string password)
@@ -86,7 +108,7 @@ namespace IDosGames
                 Password = password
             };
 
-            string response = await SendPostRequest(URL_SERVER_DATA_ACTIONS, requestBody);
+            string response = await SendPostRequest(URL_LOGIN_SYSTEM, requestBody);
 
             GetAllUserDataResult result = JsonConvert.DeserializeObject<GetAllUserDataResult>(response);
 
@@ -105,7 +127,7 @@ namespace IDosGames
                 ClientSessionTicket = clientSessionTicket
             };
 
-            return await SendPostRequest(URL_SERVER_DATA_ACTIONS, requestBody);
+            return await SendPostRequest(URL_LOGIN_SYSTEM, requestBody);
         }
 
         public static async Task<GetAllUserDataResult> RegisterUserByEmail(string email, string password)
@@ -121,7 +143,7 @@ namespace IDosGames
                 DeviceID = SystemInfo.deviceUniqueIdentifier
             };
 
-            string response = await SendPostRequest(URL_SERVER_DATA_ACTIONS, requestBody);
+            string response = await SendPostRequest(URL_LOGIN_SYSTEM, requestBody);
 
             GetAllUserDataResult result = JsonConvert.DeserializeObject<GetAllUserDataResult>(response);
 
@@ -140,7 +162,7 @@ namespace IDosGames
                 ClientSessionTicket = clientSessionTicket
             };
 
-            return await SendPostRequest(URL_SERVER_DATA_ACTIONS, requestBody);
+            return await SendPostRequest(URL_LOGIN_SYSTEM, requestBody);
         }
         
         public static async Task<string> RequestUserReadOnlyData(string userID, string clientSessionTicket)
@@ -153,7 +175,7 @@ namespace IDosGames
                 ClientSessionTicket = clientSessionTicket
             };
 
-            return await SendPostRequest(URL_SERVER_DATA_ACTIONS, requestBody);
+            return await SendPostRequest(URL_LOGIN_SYSTEM, requestBody);
         }
 
         public static async Task<string> RequestTitleData()
@@ -164,7 +186,7 @@ namespace IDosGames
                 FunctionName = ServerFunctionHandlers.GetTitleData.ToString()
             };
 
-            return await SendPostRequest(URL_SERVER_DATA_ACTIONS, requestBody);
+            return await SendPostRequest(URL_LOGIN_SYSTEM, requestBody);
         }
 
         public static async Task<string> RequestCatalogItems(string catalogVersion)
@@ -176,7 +198,7 @@ namespace IDosGames
                 CatalogVersion = catalogVersion
             };
 
-            return await SendPostRequest(URL_SERVER_DATA_ACTIONS, requestBody);
+            return await SendPostRequest(URL_LOGIN_SYSTEM, requestBody);
         }
         // ------------------------ Inventory END ------------------------ //
 
@@ -205,7 +227,7 @@ namespace IDosGames
                 LeaderboardID = leaderboardID
             };
 
-            return await SendPostRequest(URL_SERVER_DATA_ACTIONS, requestBody);
+            return await SendPostRequest(URL_LOGIN_SYSTEM, requestBody);
         }
 
 #if IDOSGAMES_MARKETPLACE

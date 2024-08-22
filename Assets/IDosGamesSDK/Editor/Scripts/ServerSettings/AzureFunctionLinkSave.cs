@@ -165,8 +165,10 @@ namespace IDosGames
                             case ServerFunctionNames.GetDataFromMarketplace: IDosGamesSDKSettings.Instance.GetDataFromMarketplaceLink = functionLink; break;
                             case ServerFunctionNames.ValidateIAPSubscription: IDosGamesSDKSettings.Instance.ValidateIAPSubscriptionLink = functionLink; break;
                             case ServerFunctionNames.ValidateIAP: IDosGamesSDKSettings.Instance.ValidateIAPLink = functionLink; break;
+                            case ServerFunctionNames.AdditionalIAPValidate: IDosGamesSDKSettings.Instance.AdditionalIAPValidateLink = functionLink; break;
                             case ServerFunctionNames.FriendSystem: IDosGamesSDKSettings.Instance.FriendSystemLink = functionLink; break;
                             case ServerFunctionNames.LoginSystem: IDosGamesSDKSettings.Instance.LoginSystemLink = functionLink; break;
+                            case ServerFunctionNames.TelegramWebhook: IDosGamesSDKSettings.Instance.TelegramWebhookLink = functionLink; break;
                             default: Debug.LogWarning($"Unexpected function name: {functionName}"); break;
                         }
 

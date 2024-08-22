@@ -19,6 +19,8 @@ namespace IDosGames
         ChestSystem,
         SpinSystem,
         UserDataSystem,
-        ValidateIAP
+        ValidateIAP,
+        AdditionalIAPValidate,
+        TelegramWebhook
     }
 }

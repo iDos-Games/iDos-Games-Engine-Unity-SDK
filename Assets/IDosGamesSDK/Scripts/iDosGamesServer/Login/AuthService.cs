@@ -15,6 +15,7 @@ namespace IDosGames
         private const string SAVED_AUTH_EMAIL_KEY = "Saved_Auth_Email";
         private const string SAVED_AUTH_PASSWORD_KEY = "Saved_Auth_Password";
 
+        public static WebGLPlatform WebGLPlatform { get; set; }
         public static AuthType LastAuthType => (AuthType)PlayerPrefs.GetInt(SAVED_AUTH_TYPE_KEY, (int)AuthType.None);
         public static bool IsLoggedIn => LastAuthType != AuthType.Device && LastAuthType != AuthType.None;
         public static string SavedEmail => PlayerPrefs.GetString(SAVED_AUTH_EMAIL_KEY, string.Empty);
@@ -24,6 +25,8 @@ namespace IDosGames
         public static string ClientSessionTicket { get; private set; }
         public static string EntityToken { get; private set; }
         public static IGSAuthenticationContext AuthContext { get; private set; }
+
+        public static InitData TelegramInitData { get; set; }
 
         private static AuthService _instance;
 
@@ -62,13 +65,11 @@ namespace IDosGames
                 }
                 else
                 {
-                    // Обработка ошибки, если результат пустой или недействительный  
                     IGSClientAPI.OnIGSError("Invalid result", errorCallback, retryCallback);
                 }
             }
             catch (Exception ex)
             {
-                // Обработка исключений  
                 IGSClientAPI.OnIGSError(ex.Message, errorCallback, retryCallback);
             }
         }
@@ -157,7 +158,7 @@ namespace IDosGames
             /*
             RequestSent?.Invoke();
 
-            PlayFabClientAPI.SendAccountRecoveryEmail
+            IGSClientAPI.SendAccountRecoveryEmail
             (
                 request: new SendAccountRecoveryEmailRequest()
                 {

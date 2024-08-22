@@ -56,6 +56,9 @@ namespace IDosGames
         GetFunctionLinks,
         UploadTitleData,
         UploadWebGL,
-        ClearWebGL
+        ClearWebGL,
+        CreateTelegramInvoice,
+        CheckTelegramInvoice,
+        RegisterTelegramWebhook
     }
 }

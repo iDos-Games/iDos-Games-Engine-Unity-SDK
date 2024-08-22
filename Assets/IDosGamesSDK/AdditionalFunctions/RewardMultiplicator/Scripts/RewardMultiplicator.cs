@@ -31,37 +31,29 @@ namespace IDosGames
 
         public void GetReward()
         {
-#if UNITY_EDITOR
+#if UNITY_WEBGL || UNITY_EDITOR
             _shouldMove = false;
             OnFinishedWatchingRewardedVideo(true);
 #else
 
-            try
+            if (AdMediation.Instance != null)
             {
-                if (AdMediation.Instance != null)
+                if (AdMediation.Instance.ShowRewardedVideo(OnFinishedWatchingRewardedVideo))
                 {
-                    if (AdMediation.Instance.ShowRewardedVideo(OnFinishedWatchingRewardedVideo))
-                    {
-                        _shouldMove = false;
-                        Debug.Log("Show rewarded video.");
-                    }
-                    else
-                    {
-                        //For Testing
-                        //_shouldMove = false;
-                        //OnFinishedWatchingRewardedVideo(true);
-
-                        Message.Show(MessageCode.AD_IS_NOT_READY);
-                        ShopSystem.PopUpSystem.ShowVIPPopUp();
-                    }
+                    _shouldMove = false;
+                    Debug.Log("Show rewarded video.");
                 }
                 else
                 {
+                    //For Testing
+                    //_shouldMove = false;
+                    //OnFinishedWatchingRewardedVideo(true);
+
                     Message.Show(MessageCode.AD_IS_NOT_READY);
                     ShopSystem.PopUpSystem.ShowVIPPopUp();
                 }
             }
-            catch
+            else
             {
                 Message.Show(MessageCode.AD_IS_NOT_READY);
                 ShopSystem.PopUpSystem.ShowVIPPopUp();
@@ -77,6 +69,9 @@ namespace IDosGames
                 //WeeklyEventSystem.AddEventPoints(_currentEventReward * 5);
 
                 _popUpReward.SetActive(false);
+
+                RewardAnimations.ShowIgcAnimation();
+                RewardAnimations.ShowEventPointAnimation();
             }
             else
             {

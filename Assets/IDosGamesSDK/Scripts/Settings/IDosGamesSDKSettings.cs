@@ -86,13 +86,9 @@ namespace IDosGames
         [HideInInspector] public string TryDoMarketplaceActionLink;
         [HideInInspector] public string GetDataFromMarketplaceLink;
         [HideInInspector] public string ValidateIAPSubscriptionLink;
-        [HideInInspector] public string ValidateIAPLink;
         [HideInInspector] public string FriendSystemLink;
-
         [HideInInspector] public string LoginSystemLink;
         [HideInInspector] public string IgsClientApiLink;
-
-        [HideInInspector] public string RegisterUserLink;
         [HideInInspector] public string UserDataSystemLink;
         [HideInInspector] public string SpinSystemLink;
         [HideInInspector] public string ChestSystemLink;
@@ -101,6 +97,9 @@ namespace IDosGames
         [HideInInspector] public string EventSystemLink;
         [HideInInspector] public string ShopSystemLink;
         [HideInInspector] public string DealOfferSystemLink;
+        [HideInInspector] public string ValidateIAPLink;
+        [HideInInspector] public string AdditionalIAPValidateLink;
+        [HideInInspector] public string TelegramWebhookLink;
 
         [Space(5)]
         [Header("In App Purchasing")]
@@ -134,6 +133,12 @@ namespace IDosGames
         [SerializeField] private bool _ironSourceAdQualityEnabled;
 
         [Space(5)]
+        [Header("Telegram Settings")]
+
+        [Space(5)]
+        [SerializeField] public string TelegramWebAppLink = "https://t.me/iDos_Games_bot/2048cube";
+
+        [Space(5)]
         [Header("Analytics")]
 
         [Space(5)]
@@ -154,6 +159,7 @@ namespace IDosGames
         [Space(5)]
         [SerializeField] private string _referralTrackerLink = "https://idosgames.com/games/";
         public string ReferralTrackerLink => _referralTrackerLink;
+        [HideInInspector] public string WebGLUrl;
 
         [Header("Account")]
         [Space(5)]
@@ -257,8 +263,7 @@ namespace IDosGames
         [HideInInspector][SerializeField] public string IgsAdminApiLink;
 
         [HideInInspector] public string WebGLBuildPath = "Assets/WebGLBuild/";
-        [HideInInspector] public string WebGLUrl;
-
+        
         public void SaveSettings()
         {
             SaveState(_mobileIAPEnabled, MOBILE_IAP_DEFINE);

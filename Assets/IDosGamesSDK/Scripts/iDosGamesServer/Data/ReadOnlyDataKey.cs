@@ -14,7 +14,8 @@ namespace IDosGames
 		products_for_virtual_currency,
 		shop_special_products,
 		shop_daily_products,
-		shop_daily_free_products,
+        shop_daily_products_constructor,
+        shop_daily_free_products,
 		cryptocurrency_prices,
 		application_update,
 		system_state,
@@ -23,7 +24,13 @@ namespace IDosGames
 		event_weekly,
 		event_weekly_rewards,
 		commission_royalty_percentage,
-        default_avatar_skin
+        default_avatar_skin,
+        creative_marketplace,
+        friends,
+        referral_first_activation_reward,
+        favorable_deals,
+        current_favorable_deals,
+        telegram_settings
     }
 
 	public enum UserReadOnlyDataKey

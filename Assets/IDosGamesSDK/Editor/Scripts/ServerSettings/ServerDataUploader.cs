@@ -147,6 +147,13 @@ namespace IDosGames
             }
         }
 
+        public static async void RegisterTelegramWebhook()
+        {
+            Debug.Log("Register Started ...");
+
+            await IGSAdminApi.RegisterTelegramWebhook();
+        }
+
         public static void DeleteAllSettings()
         {
             IDosGamesSDKSettings.Instance.ServerConnectionString = null;
@@ -170,6 +177,8 @@ namespace IDosGames
             IDosGamesSDKSettings.Instance.ShopSystemLink = null;
             IDosGamesSDKSettings.Instance.DealOfferSystemLink = null;
             IDosGamesSDKSettings.Instance.LoginSystemLink = null;
+            IDosGamesSDKSettings.Instance.AdditionalIAPValidateLink = null;
+            IDosGamesSDKSettings.Instance.TelegramWebhookLink = null;
 
             IDosGamesSDKSettings.Instance.TitleID = "";
         }

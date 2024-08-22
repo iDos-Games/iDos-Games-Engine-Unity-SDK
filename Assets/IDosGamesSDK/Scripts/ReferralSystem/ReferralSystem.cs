@@ -1,4 +1,3 @@
-//using Firebase.DynamicLinks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -12,51 +11,54 @@ namespace IDosGames
     {
         public static string ReferralLink { get; private set; }
 
+        private const string ReferralCodeKey = "ReferralCodeActivated";
+        private bool ReferralCodeActivated;
+
         public string firebaseBaseDynamicLink;
         public string firebaseDynamicLinkURIPrefix;
+        private static string _referralLinkDescription;
 
         [SerializeField] private InviteFriendsPopUp _popUp;
-
-        private const string CLOUD_FUNCTION_ARGUMENT_REFERRAL_CODE = "ReferralCode";
-
-        private static string _referralLinkDescription;
 
         [Obsolete]
         private void OnEnable()
         {
-            //DynamicLinks.DynamicLinkReceived += OnDynamicLink;
             UserDataService.UserReadOnlyDataUpdated += _popUp.ResetView;
         }
 
         [Obsolete]
         private void OnDisable()
         {
-            //DynamicLinks.DynamicLinkReceived -= OnDynamicLink;
             UserDataService.UserReadOnlyDataUpdated -= _popUp.ResetView;
         }
 
         [Obsolete]
         private void Start()
         {
-            //CreateReferralDynamicLink();
+            LoadReferralCodeStatus();
+            CreateReferralLink();
+            if(!ReferralCodeActivated)
+            {
+                CheckReferral();
+            }
         }
 
-        private void OnDynamicLink(object sender, EventArgs args)
+        private void CheckReferral()
         {
-            /*
-            var dynamicLinkEventArgs = args as ReceivedDynamicLinkEventArgs;
-
-            Debug.LogFormat("Received dynamic link {0}", dynamicLinkEventArgs.ReceivedDynamicLink.Url.OriginalString);
-
-            string link = dynamicLinkEventArgs.ReceivedDynamicLink.Url.OriginalString;
-
-            string playfabID = link.Split('=').Last();
-
-            if (playfabID != string.Empty)
+#if UNITY_WEBGL
+            if (AuthService.WebGLPlatform != WebGLPlatform.None)
             {
-                ActivateReferralCode(playfabID);
+                WebSDK.FetchStartAppParameter();
+                string startAppValue = WebSDK.GetStartAppParameterValue();
+
+                if (!string.IsNullOrEmpty(startAppValue))
+                {
+                    ActivateReferralCode(startAppValue);
+                    //Message.Show(startAppValue);
+                }
             }
-            */
+
+#endif
         }
 
         public void ActivateReferralCode(string code)
@@ -84,6 +86,9 @@ namespace IDosGames
                 {
                     var message = json[JsonProperty.MESSAGE_KEY].ToString();
 
+                    ReferralCodeActivated = true;
+                    SaveReferralCodeStatus();
+
                     Message.Show(message);
 
                     if (message == MessageCode.REFERRAL_MESSAGE_CODE_SUCCESS_ACTIVATED.ToString() ||
@@ -105,61 +110,59 @@ namespace IDosGames
         }
 
         [Obsolete]
-        private void CreateReferralDynamicLink()
+        private void CreateReferralLink()
         {
-            /*
-            var baseLink = firebaseBaseDynamicLink;
-            var uriPrefix = firebaseDynamicLinkURIPrefix;
-
-            var iosParameters = new IOSParameters(IDosGamesSDKSettings.Instance.IosBundleID)
+            if(AuthService.WebGLPlatform == WebGLPlatform.Web)
             {
-                AppStoreId = IDosGamesSDKSettings.Instance.IosAppStoreID
-            };
-
-            var components = new DynamicLinkComponents(
-
-            new Uri(baseLink + "?Referral_ID=" + AuthService.UserID),
-                    uriPrefix)
+                ReferralLink = IDosGamesSDKSettings.Instance.WebGLUrl + "?startapp=" + AuthService.UserID;
+            }
+            else if (AuthService.WebGLPlatform == WebGLPlatform.Telegram)
             {
-                IOSParameters = iosParameters,
-                AndroidParameters = new AndroidParameters(IDosGamesSDKSettings.Instance.AndroidBundleID),
-            };
-
-            ReferralLink = components.LongDynamicLink.ToString();
-
-            var options = new DynamicLinkOptions
+                ReferralLink = IDosGamesSDKSettings.Instance.TelegramWebAppLink + "?startapp=" + AuthService.UserID;
+            }
+            else
             {
-                PathLength = DynamicLinkPathLength.Unguessable
-            };
+                // Android and iOS link needs to be implemented here
+                ReferralLink = IDosGamesSDKSettings.Instance.ReferralTrackerLink + "?startapp=" + AuthService.UserID;
+            }
 
-            DynamicLinks.GetShortLinkAsync(components, options).ContinueWith(task =>
-            {
-                if (task.IsCanceled)
-                {
-                    Debug.LogError("GetShortLinkAsync was canceled.");
-                    return;
-                }
-                if (task.IsFaulted)
-                {
-                    Debug.LogError("GetShortLinkAsync encountered an error: " + task.Exception);
-                    return;
-                }
-
-                ShortDynamicLink link = task.Result;
-
-                ReferralLink = link.Url.ToString();
-            });
-            */
         }
 
         public static void Share()
         {
+#if UNITY_ANDROID || UNITY_IOS
             _referralLinkDescription = "Play and earn! Install the game using the link and receive a gift"; //LocalizationSystem
 
             new NativeShare().SetSubject(Application.productName)
                 .SetText(_referralLinkDescription).SetUrl(ReferralLink)
                 .SetCallback((result, shareTarget) => Debug.Log("Share result: " + result + ", selected app: " + shareTarget))
                 .Share();
+#endif
+
+#if UNITY_WEBGL
+            if (AuthService.WebGLPlatform != WebGLPlatform.None)
+            {
+                WebSDK.ShareLink(ReferralLink);
+            }
+#endif
+        }
+
+        private void SaveReferralCodeStatus()
+        {
+            PlayerPrefs.SetInt(ReferralCodeKey, ReferralCodeActivated ? 1 : 0);
+            PlayerPrefs.Save();
+        }
+
+        private void LoadReferralCodeStatus()
+        {
+            if (PlayerPrefs.HasKey(ReferralCodeKey))
+            {
+                ReferralCodeActivated = PlayerPrefs.GetInt(ReferralCodeKey) == 1;
+            }
+            else
+            {
+                ReferralCodeActivated = false;
+            }
         }
     }
 }

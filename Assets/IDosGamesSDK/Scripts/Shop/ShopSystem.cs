@@ -2,6 +2,7 @@ using IDosGames.ClientModels;
 using IDosGames.CloudScriptModels;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
 using UnityEngine;
 
 namespace IDosGames
@@ -25,6 +26,7 @@ namespace IDosGames
 
         private static string _iapProcessedProductID;
         private static string _freeProductID;
+        public static string _payload;
 
         private void Awake()
         {
@@ -55,6 +57,30 @@ namespace IDosGames
             IAPService.PurchaseProductByID(ID);
 #endif
             _iapProcessedProductID = ID;
+
+            BuyForTelegramStars();
+        }
+
+        public static async void BuyForTelegramStars()
+        {
+#if UNITY_WEBGL
+            if (AuthService.WebGLPlatform == WebGLPlatform.Telegram)
+            {
+                Loading.ShowTransparentPanel();
+
+                Product product = UserDataService.GetProductForRealMoney(_iapProcessedProductID);
+                float starPrice = UserDataService.GetTelegramStarPrice();
+
+                int priceRM = int.Parse(product.PriceRM);
+                int price = (int)Math.Round(priceRM / starPrice);
+
+                _payload = IDosGamesSDKSettings.Instance.TitleID + "-|-" + AuthService.UserID + "-|-" + _iapProcessedProductID + "-|-" + Guid.NewGuid();
+
+                string invoiceLink = await AdditionalIAPService.CreateTelegramInvoice(product.Name, product.Name, _payload, null, "XTR", price);
+                Loading.HideAllPanels();
+                WebSDK.OpenInvoiceLink(invoiceLink);
+            }
+#endif
         }
 
         public static void BuyForVirtualCurrency(string ID, VirtualCurrencyID currencyID, float price)

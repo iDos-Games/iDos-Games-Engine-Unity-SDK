@@ -8,6 +8,7 @@ namespace IDosGames
     {
         public string TitleID { get; set; }
         public string UserID { get; set; }
+        public string UserName { get; set; }
         public string FunctionName { get; set; }
         public string OS { get; set; }
         public string Device { get; set; }
@@ -22,7 +23,11 @@ namespace IDosGames
         public string SecretKey { get; set; }
         public bool DevBuild { get; set; }
 
+        // Telegram
+        public string WebhookLink { get; set; }
+
         // IAP Validations
+        public CreateInvoiceRequest CreateInvoice { get; set; }
         public string Receipt { get; set; }
 
         // Marketplace

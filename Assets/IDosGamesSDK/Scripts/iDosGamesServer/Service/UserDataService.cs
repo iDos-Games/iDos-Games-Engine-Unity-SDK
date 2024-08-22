@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -115,20 +116,6 @@ namespace IDosGames
         public static void RequestUserAllData()
         {
             IGSClientAPI.GetUserAllData(resultCallback: ProcessingAllData, notConnectionErrorCallback: OnAllDataRequestError, connectionErrorCallback: () => { RequestUserAllData(); TryInvokeDataRequestAgain(); });
-            /*
-            DataRequested?.Invoke();
-
-            RequestUserInventory();
-            await WaitForNextStepRequestAllDataSequence();
-            RequestTitleData();
-            await WaitForNextStepRequestAllDataSequence();
-            RequestUserReadOnlyData();
-            await WaitForNextStepRequestAllDataSequence();
-            RequestSkinCatalogItems();
-            await WaitForNextStepRequestAllDataSequence();
-
-            DataUpdated?.Invoke();
-            */
         }
 
         private static async Task WaitForNextStepRequestAllDataSequence()
@@ -276,6 +263,58 @@ namespace IDosGames
             _avatarSkinItems.TryGetValue(itemID, out AvatarSkinCatalogItem item);
 
             return item;
+        }
+
+        public static Product GetProductForRealMoney(string productID)
+        {
+            var products = ShopSystem.ProductsForRealMoney;
+
+            if (products == null)
+            {
+                return null;
+            }
+
+            foreach (var product in products)
+            {
+                if (product[JsonProperty.ITEM_ID]?.ToString() == productID)
+                {
+                    var productObject = new Product
+                    {
+                        Name = product[JsonProperty.NAME]?.ToString(),
+                        ItemID = product[JsonProperty.ITEM_ID]?.ToString(),
+                        ProductType = product[JsonProperty.PRODUCT_TYPE]?.ToString(),
+                        ItemClass = product[JsonProperty.ITEM_CLASS]?.ToString(),
+                        PriceRM = product[JsonProperty.PRICE_RM]?.ToString(),
+                        ImagePath = product[JsonProperty.IMAGE_PATH]?.ToString(),
+                        ItemsToGrant = product[JsonProperty.ITEMS_TO_GRANT]?.ToObject<List<ItemToGrant>>()
+                    };
+
+                    return productObject;
+                }
+            }
+
+            return null;
+        }
+
+        public static float GetTelegramStarPrice()
+        {
+            string titleData = GetTitleData(TitleDataKey.telegram_settings);
+            if (string.IsNullOrEmpty(titleData))
+            {
+                return 2f;
+            }
+
+            var starPriceInCent = JsonConvert.DeserializeObject<JObject>(titleData);
+
+            if (starPriceInCent.ContainsKey(JsonProperty.STAR_PRICE_IN_CENT))
+            {
+                string starPriceInCentString = starPriceInCent[JsonProperty.STAR_PRICE_IN_CENT]?.ToString();
+                return float.Parse(starPriceInCentString);
+            }
+            else
+            {
+                return 2f;
+            }
         }
 
         public static void UpdateEquippedSkins(List<string> equippedSkins)

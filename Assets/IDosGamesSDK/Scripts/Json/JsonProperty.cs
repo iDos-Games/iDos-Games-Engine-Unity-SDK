@@ -90,5 +90,7 @@ namespace IDosGames
         public const string KEY = "key";
 
         public const string MESSAGE_KEY = "Message";
-	}
+
+        public const string STAR_PRICE_IN_CENT = "starPriceInCent";
+    }
 }

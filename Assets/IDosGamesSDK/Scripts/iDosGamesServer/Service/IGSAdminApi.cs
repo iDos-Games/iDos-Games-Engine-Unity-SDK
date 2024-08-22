@@ -64,6 +64,19 @@ namespace IDosGames
             return await SendPostRequest(URL_IGS_ADMIN_API, requestBody);
         }
 
+        public static async Task<string> RegisterTelegramWebhook()
+        {
+            var requestBody = new IGSRequest
+            {
+                TitleID = IDosGamesSDKSettings.Instance.TitleID,
+                FunctionName = ServerFunctionHandlers.RegisterTelegramWebhook.ToString(),
+                SecretKey = IDosGamesSDKSettings.Instance.DeveloperSecretKey,
+                WebhookLink = IDosGamesSDKSettings.Instance.TelegramWebhookLink
+            };
+
+            return await SendPostRequest(URL_IGS_ADMIN_API, requestBody);
+        }
+
         private static async Task<string> SendPostRequest(string functionURL, IGSRequest request)
         {
             var requestBody = JObject.FromObject(request);

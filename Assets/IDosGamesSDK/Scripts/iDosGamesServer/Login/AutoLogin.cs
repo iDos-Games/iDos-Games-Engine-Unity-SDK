@@ -11,6 +11,7 @@ namespace IDosGames
 
         private void Start()
         {
+            CheckPlatform();
             Login();
         }
 
@@ -52,6 +53,28 @@ namespace IDosGames
         {
             Debug.Log("Auto login Error: " + errorResponse);
             Invoke(nameof(AutoLoginWithDeviceID), delayAutoLogin);
+        }
+
+        private void CheckPlatform()
+        {
+            AuthService.WebGLPlatform = WebGLPlatform.None;
+#if UNITY_WEBGL && !UNITY_EDITOR
+
+            WebSDK.FetchPlatform();
+
+            if (WebSDK.platform == "web")
+            {
+                AuthService.WebGLPlatform = WebGLPlatform.Web;
+            }
+            else if (WebSDK.platform == "telegram")
+            {
+                AuthService.WebGLPlatform = WebGLPlatform.Telegram;
+
+                WebSDK.FetchInitDataUnsafe();
+                AuthService.TelegramInitData = WebSDK.ParseInitDataUnsafe();
+            }
+
+#endif
         }
     }
 }

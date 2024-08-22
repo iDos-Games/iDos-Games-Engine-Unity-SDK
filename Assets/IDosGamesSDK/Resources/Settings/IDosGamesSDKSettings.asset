@@ -23,11 +23,9 @@ MonoBehaviour:
   TryDoMarketplaceActionLink: 
   GetDataFromMarketplaceLink: 
   ValidateIAPSubscriptionLink: 
-  ValidateIAPLink: 
   FriendSystemLink: 
   LoginSystemLink: 
   IgsClientApiLink: 
-  RegisterUserLink: https://idosgamescore.azurewebsites.net/api/registeruser?code=f80Kengj3q9j2zMWHKXfYU7ijCjlEEPOorzDEkvCg_R-59hN_WXlNw==
   UserDataSystemLink: 
   SpinSystemLink: 
   ChestSystemLink: 
@@ -36,16 +34,21 @@ MonoBehaviour:
   EventSystemLink: 
   ShopSystemLink: 
   DealOfferSystemLink: 
-  _mobileIAPEnabled: 1
+  ValidateIAPLink: 
+  AdditionalIAPValidateLink: 
+  TelegramWebhookLink: 
+  _mobileIAPEnabled: 0
   _adMediationPlatform: 0
   _mediationAppKeyIOS: 18643491d
   _mediationAppKeyAndroid: 1864754ad
   _banerPosition: 0
   _bannerEnabled: 1
   _ironSourceAdQualityEnabled: 0
+  TelegramWebAppLink: https://t.me/iDos_Games_bot/app
   _firebaseAnalyticsEnabled: 0
   _appMetricaEnabled: 0
   _referralTrackerLink: https://idosgames.com/games/
+  WebGLUrl: 
   _iOSAccountDeletionEnabled: 1
   _AndroidAccountDeletionEnabled: 0
   _pushNotificationsAndroidEnabled: 1
@@ -71,4 +74,3 @@ MonoBehaviour:
   _developerSecretKey: 
   IgsAdminApiLink: 
   WebGLBuildPath: 
-  WebGLUrl: 
