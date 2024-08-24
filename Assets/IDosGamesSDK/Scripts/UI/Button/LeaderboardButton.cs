@@ -48,7 +48,7 @@ namespace IDosGames
 		{
 			bool enabled = true;
 
-			var titleData = UserDataService.GetTitleData(TitleDataKey.system_state);
+			var titleData = UserDataService.GetCachedTitleData(TitleDataKey.system_state);
 
 			if (titleData == string.Empty)
 			{

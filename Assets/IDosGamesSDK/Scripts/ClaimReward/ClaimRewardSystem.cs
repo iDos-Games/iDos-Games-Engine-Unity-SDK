@@ -98,7 +98,7 @@ namespace IDosGames
 
             foreach (var itemID in UserDataService.EquippedSkins)
             {
-                amount += (int)UserDataService.GetSkinItem(itemID).Profit;
+                amount += (int)UserDataService.GetCachedSkinItem(itemID).Profit;
             }
 
             return amount;

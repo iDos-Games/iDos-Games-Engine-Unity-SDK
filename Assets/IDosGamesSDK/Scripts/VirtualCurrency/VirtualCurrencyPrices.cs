@@ -34,7 +34,7 @@ namespace IDosGames
 
 		private void InitializePrices()
 		{
-			var pricesData = UserDataService.GetTitleData(TitleDataKey.cryptocurrency_prices);
+			var pricesData = UserDataService.GetCachedTitleData(TitleDataKey.cryptocurrency_prices);
 
 			if (pricesData == string.Empty)
 			{

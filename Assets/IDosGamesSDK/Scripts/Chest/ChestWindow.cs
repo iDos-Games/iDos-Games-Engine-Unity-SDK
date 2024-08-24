@@ -46,7 +46,7 @@ namespace IDosGames
             {
                 var itemID = result.ToString();
                 //Debug.Log(itemID);
-                var item = UserDataService.GetSkinItem(itemID);
+                var item = UserDataService.GetCachedSkinItem(itemID);
 
                 _rewardRoom.ShowReward(_chestRarity, item);
 

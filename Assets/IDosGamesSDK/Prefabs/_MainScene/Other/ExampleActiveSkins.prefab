@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &8379415770932359357
+--- !u!1 &9139244670091895796
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,8 +8,8 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1700285537977309776}
-  - component: {fileID: 792165446273413372}
+  - component: {fileID: 4761104617617763419}
+  - component: {fileID: 5324337728717383743}
   m_Layer: 0
   m_Name: ExampleActiveSkins
   m_TagString: Untagged
@@ -17,13 +17,13 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &1700285537977309776
+--- !u!4 &4761104617617763419
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8379415770932359357}
+  m_GameObject: {fileID: 9139244670091895796}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -32,21 +32,25 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &792165446273413372
+--- !u!114 &5324337728717383743
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8379415770932359357}
+  m_GameObject: {fileID: 9139244670091895796}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bd7eee5d87594ef49991841c7867dab7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _circle: {fileID: 0}
-  _triangle: {fileID: 0}
-  _square: {fileID: 0}
-  _circleDefaultSkin: {fileID: 21300000, guid: aada64d0713b3c84abc9f236cc43a5d7, type: 3}
-  _triangleDefaultSkin: {fileID: 21300000, guid: de2955c6713401744868982a8a5b9d4d, type: 3}
-  _squareDefaultSkin: {fileID: 21300000, guid: d8e3c3777889c444bafbb8a134d27683, type: 3}
+  _ak47: {fileID: 0}
+  _awm: {fileID: 0}
+  _deagle: {fileID: 0}
+  _m4: {fileID: 0}
+  _usp9: {fileID: 0}
+  _ak47DefaultSkin: {fileID: 21300000, guid: f277433119905ae42960e66fe6806ea7, type: 3}
+  _awmDefaultSkin: {fileID: 21300000, guid: a6ce9603589f5c5478d301f977f3bda0, type: 3}
+  _deagleDefaultSkin: {fileID: 21300000, guid: c3d27e3ed2e6bf34b82ed5368bf78602, type: 3}
+  _m4DefaultSkin: {fileID: 21300000, guid: 7252ba6746b1dcb4a9fb0dc03da0d460, type: 3}
+  _usp9DefaultSkin: {fileID: 21300000, guid: 44452dacfe33b454ebd181be9c8a3709, type: 3}

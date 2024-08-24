@@ -123,7 +123,7 @@ namespace IDosGames
 
         private void SetData()
         {
-            var playerDataRaw = UserDataService.GetUserReadOnlyData(UserReadOnlyDataKey.event_weekly);
+            var playerDataRaw = UserDataService.GetCachedUserReadOnlyData(UserReadOnlyDataKey.event_weekly);
 
             if (playerDataRaw == string.Empty)
             {
@@ -133,7 +133,7 @@ namespace IDosGames
 
             var playerData = JsonConvert.DeserializeObject<JToken>(playerDataRaw);
 
-            var weeklyEventDataRaw = UserDataService.GetTitleData(TitleDataKey.event_weekly);
+            var weeklyEventDataRaw = UserDataService.GetCachedTitleData(TitleDataKey.event_weekly);
             var weeklyEventData = JsonConvert.DeserializeObject<JToken>(weeklyEventDataRaw);
 
             EndDate = GetEndDateTime(weeklyEventData);
@@ -170,7 +170,7 @@ namespace IDosGames
 
         private void SetRewards(string eventType)
         {
-            var eventRewardsDataRaw = UserDataService.GetTitleData(TitleDataKey.event_weekly_rewards);
+            var eventRewardsDataRaw = UserDataService.GetCachedTitleData(TitleDataKey.event_weekly_rewards);
             var weeklyEventRewardsData = JsonConvert.DeserializeObject<JToken>(eventRewardsDataRaw);
 
             var currentEvent = weeklyEventRewardsData.FirstOrDefault(x => $"{x[JsonProperty.TYPE]}" == eventType);

@@ -67,7 +67,7 @@ namespace IDosGames
             }
             else
             {
-                var titleData = UserDataService.GetTitleData(TitleDataKey.wallet);
+                var titleData = UserDataService.GetCachedTitleData(TitleDataKey.wallet);
 
                 if (titleData == string.Empty)
                 {

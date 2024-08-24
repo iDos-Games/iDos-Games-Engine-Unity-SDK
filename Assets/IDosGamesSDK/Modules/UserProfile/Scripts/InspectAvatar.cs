@@ -54,7 +54,7 @@ namespace IDosGames.UserProfile
         private void SetDefaultSkins(AvatarSkinCatalogItem skinItem)
         {
 
-            var defaultSkin = UserDataService.GetTitleData(TitleDataKey.default_avatar_skin);
+            var defaultSkin = UserDataService.GetCachedTitleData(TitleDataKey.default_avatar_skin);
             JObject json = JsonConvert.DeserializeObject<JObject>(defaultSkin);
 
 

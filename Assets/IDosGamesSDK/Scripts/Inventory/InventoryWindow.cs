@@ -41,7 +41,7 @@ namespace IDosGames
 
             foreach (var itemID in _temporaryEquippedSkins)
             {
-                var skinItem = UserDataService.GetSkinItem(itemID);
+                var skinItem = UserDataService.GetCachedSkinItem(itemID);
 
                 if (skinItem != null)
                 {
@@ -72,13 +72,13 @@ namespace IDosGames
         public void EquipSkin(string itemID)
         {
             //unequip item with same object type if exists
-            var itemObjectType = UserDataService.GetSkinItem(itemID).ObjectType;
+            var itemObjectType = UserDataService.GetCachedSkinItem(itemID).ObjectType;
 
             string itemIDWithSameObjectType = string.Empty;
 
             foreach (var equippedSkinID in _temporaryEquippedSkins)
             {
-                if (UserDataService.GetSkinItem(equippedSkinID).ObjectType == itemObjectType)
+                if (UserDataService.GetCachedSkinItem(equippedSkinID).ObjectType == itemObjectType)
                 {
                     itemIDWithSameObjectType = equippedSkinID;
                     break;

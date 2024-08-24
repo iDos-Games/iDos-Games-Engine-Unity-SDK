@@ -30,7 +30,7 @@ namespace IDosGames
             }
         }
 
-        async void OnGUI()
+        void OnGUI()
         {
             GUILayout.Space(20);
             GUILayout.Label("Server Settings", EditorStyles.boldLabel);

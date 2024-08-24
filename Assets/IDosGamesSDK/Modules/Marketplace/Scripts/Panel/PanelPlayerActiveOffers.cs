@@ -218,7 +218,7 @@ namespace IDosGames
 
         private void ShowDeleteConfirmationPopUp(MarketplaceActiveOffer offer, Sprite currencyIcon)
         {
-            var item = UserDataService.GetSkinItem(offer?.ItemID);
+            var item = UserDataService.GetCachedSkinItem(offer?.ItemID);
             if (item == null)
             {
                 item = UserDataService.GetAvatarSkinItem(offer?.ItemID);

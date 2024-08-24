@@ -35,7 +35,7 @@ namespace IDosGames
                 Destroy(child.gameObject);
             }
             _camera.transform.SetLocalPositionAndRotation(_cameraDefaultPosition, _cameraDefaultRotation);
-            var skinItem = UserDataService.GetSkinItem(itemID);
+            var skinItem = UserDataService.GetCachedSkinItem(itemID);
             if (skinItem != null)
             {
                 var inspectionData = _objectInspectionData.GetInspectionData(skinItem.ObjectType);

@@ -98,7 +98,7 @@ namespace IDosGames
 
 			if (direction == TransactionDirection.Game)
 			{
-				var nftID = UserDataService.GetSkinItem(skinID).NFTID;
+				var nftID = UserDataService.GetCachedSkinItem(skinID).NFTID;
 
 				transferResult = await WalletService.TransferNFTToGame(nftID, amount);
 				transactionHash = WalletService.TransactionHashAfterTransactionToGame;
@@ -127,8 +127,8 @@ namespace IDosGames
 				{
 					int chainID = (int)BlockchainNetwork.IgcTestnet;
 					WalletTransactionHistory.SaveNewItem(chainID, transactionHash, direction,
-						UserDataService.GetSkinItem(skinID).DisplayName, amount,
-						UserDataService.GetSkinItem(skinID).ImagePath);
+						UserDataService.GetCachedSkinItem(skinID).DisplayName, amount,
+						UserDataService.GetCachedSkinItem(skinID).ImagePath);
 
 					_walletManager.RefreshWalletBalance();
 					UserDataService.RequestUserAllData();

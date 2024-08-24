@@ -138,7 +138,7 @@ namespace IDosGames.UserProfile
                 {
 
 
-                    var titleData = UserDataService.GetTitleData(TitleDataKey.default_avatar_skin);
+                    var titleData = UserDataService.GetCachedTitleData(TitleDataKey.default_avatar_skin);
                     JObject data = JsonConvert.DeserializeObject<JObject>(titleData);
                     JArray jArray = data.GetValue("Data").Value<JArray>();
                     string bodyItemID = jArray

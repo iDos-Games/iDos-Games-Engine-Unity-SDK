@@ -115,7 +115,7 @@ namespace IDosGames
 
         private void UpdateFriendAlarm()
         {
-            var friend_request = UserDataService.GetUserReadOnlyData(UserReadOnlyDataKey.friend_requests);
+            var friend_request = UserDataService.GetCachedUserReadOnlyData(UserReadOnlyDataKey.friend_requests);
 
 
             List<string> friends = new List<string>();
@@ -176,8 +176,8 @@ namespace IDosGames
 
         private void UpdateShopAlarms()
         {
-            var playerData = UserDataService.GetUserReadOnlyData(UserReadOnlyDataKey.shop_daily_free_products);
-            var dataDailyFreeProductsData = UserDataService.GetTitleData(TitleDataKey.shop_daily_free_products);
+            var playerData = UserDataService.GetCachedUserReadOnlyData(UserReadOnlyDataKey.shop_daily_free_products);
+            var dataDailyFreeProductsData = UserDataService.GetCachedTitleData(TitleDataKey.shop_daily_free_products);
 
             var freeProducts = JsonConvert.DeserializeObject<JArray>(dataDailyFreeProductsData);
             freeProducts ??= new JArray();
@@ -208,7 +208,7 @@ namespace IDosGames
 
         private bool IsNeedUpdateDailyFreeProducts()
         {
-            var playerData = UserDataService.GetUserReadOnlyData(UserReadOnlyDataKey.shop_daily_free_products);
+            var playerData = UserDataService.GetCachedUserReadOnlyData(UserReadOnlyDataKey.shop_daily_free_products);
 
             if (playerData == string.Empty)
             {
@@ -218,7 +218,7 @@ namespace IDosGames
             var jsonData = JsonConvert.DeserializeObject<JObject>(playerData);
             var playerLastUpdateDate = GetEndDateTime(jsonData);
 
-            var dailyOfferData = UserDataService.GetTitleData(TitleDataKey.shop_daily_products);
+            var dailyOfferData = UserDataService.GetCachedTitleData(TitleDataKey.shop_daily_products);
             var offerData = JsonConvert.DeserializeObject<JObject>(dailyOfferData);
 
             if (GetEndDateTime(offerData) > playerLastUpdateDate)

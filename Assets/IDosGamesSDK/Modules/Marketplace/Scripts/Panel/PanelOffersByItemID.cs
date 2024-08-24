@@ -167,7 +167,7 @@ namespace IDosGames
 
         private void ShowConfirmationPopUp(MarketplaceActiveOffer offer, Sprite currencyIcon)
         {
-            var skinItem = UserDataService.GetSkinItem(offer.ItemID);
+            var skinItem = UserDataService.GetCachedSkinItem(offer.ItemID);
             if (skinItem == null)
             {
                 skinItem = UserDataService.GetAvatarSkinItem(offer.ItemID);

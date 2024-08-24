@@ -28,7 +28,7 @@ namespace IDosGames
 				return;
 			}
 
-			var UpdateData = UserDataService.GetTitleData(TitleDataKey.application_update);
+			var UpdateData = UserDataService.GetCachedTitleData(TitleDataKey.application_update);
 
 			if (UpdateData == string.Empty)
 			{

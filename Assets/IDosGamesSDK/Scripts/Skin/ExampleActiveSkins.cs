@@ -5,21 +5,27 @@ namespace IDosGames
 {
 	public class ExampleActiveSkins : MonoBehaviour
 	{
-		[SerializeField] private Image _circle;
-		[SerializeField] private Image _triangle;
-		[SerializeField] private Image _square;
+		[SerializeField] private Image _ak47;
+		[SerializeField] private Image _awm;
+		[SerializeField] private Image _deagle;
+        [SerializeField] private Image _m4;
+        [SerializeField] private Image _usp9;
 
-		[Header("DefaultSkins")]
+        [Header("DefaultSkins")]
 		[Space(5)]
-		[SerializeField] private Sprite _circleDefaultSkin;
-		[SerializeField] private Sprite _triangleDefaultSkin;
-		[SerializeField] private Sprite _squareDefaultSkin;
+		[SerializeField] private Sprite _ak47DefaultSkin;
+		[SerializeField] private Sprite _awmDefaultSkin;
+		[SerializeField] private Sprite _deagleDefaultSkin;
+        [SerializeField] private Sprite _m4DefaultSkin;
+        [SerializeField] private Sprite _usp9DefaultSkin;
 
-		private const string CIRCLE_OBJECT_TYPE = "circle";
-		private const string TRIANGLE_OBJECT_TYPE = "triangle";
-		private const string SQUARE_OBJECT_TYPE = "square";
+        private const string AK47_OBJECT_TYPE = "ak47";
+		private const string AWM_OBJECT_TYPE = "awm";
+		private const string DEAGLE_OBJECT_TYPE = "deagle";
+        private const string M4_OBJECT_TYPE = "m4";
+        private const string USP9_OBJECT_TYPE = "usp9";
 
-		private void OnEnable()
+        private void OnEnable()
 		{
 			UserDataService.SkinCatalogItemsUpdated += UpdateSkinsView;
 			UserDataService.EquippedSkinsUpdated += UpdateSkinsView;
@@ -33,13 +39,15 @@ namespace IDosGames
 
 		private void UpdateSkinsView()
 		{
-			_circle.sprite = _circleDefaultSkin;
-			_triangle.sprite = _triangleDefaultSkin;
-			_square.sprite = _squareDefaultSkin;
+			_ak47.sprite = _ak47DefaultSkin;
+			_awm.sprite = _awmDefaultSkin;
+			_deagle.sprite = _deagleDefaultSkin;
+			_m4.sprite = _m4DefaultSkin;
+            _usp9.sprite = _usp9DefaultSkin;
 
-			foreach (var item in UserDataService.EquippedSkins)
+            foreach (var item in UserDataService.EquippedSkins)
 			{
-				var skinItem = UserDataService.GetSkinItem(item);
+				var skinItem = UserDataService.GetCachedSkinItem(item);
 
 				if (skinItem == null)
 				{
@@ -50,22 +58,32 @@ namespace IDosGames
 
 				switch (skinItem.ObjectType)
 				{
-					case CIRCLE_OBJECT_TYPE:
+					case AK47_OBJECT_TYPE:
 						{
-							_circle.sprite = icon;
+							_ak47.sprite = icon;
 							break;
 						}
-					case TRIANGLE_OBJECT_TYPE:
+					case AWM_OBJECT_TYPE:
 						{
-							_triangle.sprite = icon;
+							_awm.sprite = icon;
 							break;
 						}
-					case SQUARE_OBJECT_TYPE:
+					case DEAGLE_OBJECT_TYPE:
 						{
-							_square.sprite = icon;
+							_deagle.sprite = icon;
 							break;
 						}
-				}
+                    case M4_OBJECT_TYPE:
+                        {
+                            _m4.sprite = icon;
+                            break;
+                        }
+                    case USP9_OBJECT_TYPE:
+                        {
+                            _usp9.sprite = icon;
+                            break;
+                        }
+                }
 			}
 		}
 	}

@@ -31,7 +31,7 @@ namespace IDosGames.UserProfile
         {
             if (_user == AuthService.UserID)
             {
-                var data = UserDataService.GetUserReadOnlyData(UserReadOnlyDataKey.equipped_avatar_skins.ToString());
+                var data = UserDataService.GetCachedUserReadOnlyData(UserReadOnlyDataKey.equipped_avatar_skins.ToString());
                 if (!string.IsNullOrEmpty(data))
                 {
                     JToken jsonData = JsonConvert.DeserializeObject<JToken>(data);
@@ -39,7 +39,7 @@ namespace IDosGames.UserProfile
                 }
                 else
                 {
-                    var defaultSkin = UserDataService.GetTitleData(TitleDataKey.default_avatar_skin);
+                    var defaultSkin = UserDataService.GetCachedTitleData(TitleDataKey.default_avatar_skin);
                     if (!string.IsNullOrEmpty(defaultSkin))
                     {
                         JToken jsonData = JsonConvert.DeserializeObject<JToken>(defaultSkin);
@@ -86,7 +86,7 @@ namespace IDosGames.UserProfile
             }
             else
             {
-                var defaultSkin = UserDataService.GetTitleData(TitleDataKey.default_avatar_skin);
+                var defaultSkin = UserDataService.GetCachedTitleData(TitleDataKey.default_avatar_skin);
                 if (!string.IsNullOrEmpty(defaultSkin))
                 {
                     JToken jsonData = JsonConvert.DeserializeObject<JToken>(defaultSkin);

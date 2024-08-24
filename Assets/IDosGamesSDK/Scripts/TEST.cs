@@ -1,4 +1,3 @@
-using IDosGames.ClientModels;
 using UnityEngine;
 
 namespace IDosGames
@@ -7,23 +6,23 @@ namespace IDosGames
     {
         private void Start()
         {
-            Test();
+            
         }
 
         public void Test()
         {
-            
+            GetValue();
         }
 
-        public void Btn1()
+        public void SaveValueToServer()
         {
-            AuthService.Instance.LoginWithDeviceID();
+            UserDataService.UpdateCustomReadOnlyData("test", "test value");
         }
 
-        public void Btn2()
+        public void GetValue()
         {
-            AuthService.Instance.AddUsernamePassword("aido_92@mail.ru", "123456aA@");
+            string value = UserDataService.GetCachedUserReadOnlyData("test");
+            Debug.Log(value);
         }
-
     }
 }

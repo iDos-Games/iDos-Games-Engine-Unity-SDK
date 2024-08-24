@@ -32,7 +32,7 @@ namespace IDosGames
 				Destroy(child.gameObject);
 			}
 
-			var playerDataSpecialPurchases = UserDataService.GetUserReadOnlyData(UserReadOnlyDataKey.special_offer_amount_purchases);
+			var playerDataSpecialPurchases = UserDataService.GetCachedUserReadOnlyData(UserReadOnlyDataKey.special_offer_amount_purchases);
 
 			JArray arrayOfSpecialPurchases = JsonConvert.DeserializeObject<JArray>(playerDataSpecialPurchases);
 			arrayOfSpecialPurchases ??= new JArray();

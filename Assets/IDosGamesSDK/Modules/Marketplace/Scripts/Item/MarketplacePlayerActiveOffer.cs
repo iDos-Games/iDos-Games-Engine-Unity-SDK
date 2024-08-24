@@ -20,7 +20,7 @@ namespace IDosGames
 		{
 			ResetButton(action);
 
-			SkinCatalogItem item = UserDataService.GetSkinItem(offer?.ItemID);
+			SkinCatalogItem item = UserDataService.GetCachedSkinItem(offer?.ItemID);
             if (item == null)
             {
                 item = UserDataService.GetAvatarSkinItem(offer?.ItemID);
