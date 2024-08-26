@@ -1,7 +1,6 @@
 ---------------------------------------------------
 iDos Games
 https://idosgames.com/
-Version 1.0.0
 ---------------------------------------------------
 
 Thank you for downloading this asset and supporting us!
@@ -16,8 +15,3 @@ Or write on our Discord server: https://discord.com/invite/CHshHYE6j6
 This Project is in Universal Render Pipeline (URP) by default but can be used on different pipelines if you convert the materials.
 
 If you find this product useful, please consider leaving feedback and a review at the Asset Store Page.
-
--------------------------------
-RELEASE NOTES - Version 1.0
--------------------------------
-- First release
