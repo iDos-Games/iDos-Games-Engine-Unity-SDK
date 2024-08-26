@@ -1,4 +1,3 @@
-#if IDOSGAMES_MARKETPLACE
 using System;
 using TMPro;
 using UnityEngine;
@@ -18,6 +17,7 @@ namespace IDosGames
 		private VirtualCurrencyID _newCurrencyID;
 		private int _newPrice;
 
+#if IDOSGAMES_MARKETPLACE
 		private void Start()
 		{
 			_currencyDropdown.onValueChanged.AddListener(OnCurrencyChanged);
@@ -75,6 +75,6 @@ namespace IDosGames
 			_saveButton.onClick.AddListener(() => saveAction?.Invoke(_newCurrencyID, _newPrice));
 			_saveButton.onClick.AddListener(() => gameObject.SetActive(false));
 		}
-	}
-}
 #endif
+    }
+}

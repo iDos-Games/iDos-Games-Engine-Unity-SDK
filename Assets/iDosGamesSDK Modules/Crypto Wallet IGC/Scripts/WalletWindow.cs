@@ -1,4 +1,3 @@
-#if IDOSGAMES_CRYPTO_WALLET
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Threading.Tasks;
@@ -10,40 +9,8 @@ namespace IDosGames
 	{
 		[SerializeField] private WalletManager _walletManager;
 
-		private void OnEnable()
-		{
-			/*
-			WalletConnectV2.ConnectingWalletStarted += Loading.ShowTransparentPanel;
-
-			WalletConnectV2.Connected += OnWalletConnected;
-			WalletConnectV2.Disconnected += OnWalletDisconnected;
-
-			WalletConnectV2.InitializationStarted += Loading.ShowTransparentPanel;
-			WalletConnectV2.InitializationFinished += Loading.HideAllPanels;
-			WalletConnectV2.InitializationFailed += OnInitializationFailed;
-
-			WalletConnectV2.FailedToConnect += OnFailedToConnectToWallet;
-			WalletConnectV2.WalletApplicationNotInstalledOnDevice += _walletView.ShowInstallCryptoWalletPopUp;
-			*/
-		}
-
-		private void OnDisable()
-		{
-			/*
-			WalletConnectV2.ConnectingWalletStarted -= Loading.ShowTransparentPanel;
-
-			WalletConnectV2.Connected -= OnWalletConnected;
-			WalletConnectV2.Disconnected -= OnWalletDisconnected;
-
-			WalletConnectV2.InitializationStarted -= Loading.ShowTransparentPanel;
-			WalletConnectV2.InitializationFinished -= Loading.HideAllPanels;
-			WalletConnectV2.InitializationFailed -= OnInitializationFailed;
-
-			WalletConnectV2.FailedToConnect -= OnFailedToConnectToWallet;
-			WalletConnectV2.WalletApplicationNotInstalledOnDevice -= _walletView.ShowInstallCryptoWalletPopUp;
-			*/
-		}
-
+#if IDOSGAMES_CRYPTO_WALLET
+		
 		public async Task<string> TransferToken(TransactionDirection direction, VirtualCurrencyID virtualCurrencyID, int amount)
 		{
 			string transferResult = null;
@@ -224,6 +191,6 @@ namespace IDosGames
 		{
 			Message.Show(MessageCode.FAILED_TO_CONNECT);
 		}
-	}
-}
 #endif
+    }
+}

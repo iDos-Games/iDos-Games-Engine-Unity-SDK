@@ -5,10 +5,7 @@ namespace IDosGames
 {
     public class WalletManager : MonoBehaviour
     {
-
-#if IDOSGAMES_CRYPTO_WALLET
         [SerializeField] private PanelCryptoWalletTokenBalance _walletBalance;
-#endif
 
         [SerializeField] private TMP_Text _walletAddress;
         [SerializeField] private TMP_Text _walletAddressCopy;

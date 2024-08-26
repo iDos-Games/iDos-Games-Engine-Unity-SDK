@@ -1,4 +1,3 @@
-#if IDOSGAMES_MARKETPLACE
 using System;
 using UnityEngine;
 using UnityEngine.UI;
@@ -12,6 +11,7 @@ namespace IDosGames
 		[SerializeField] private Button _deleteButton;
 		[SerializeField] private Button _inspectButton;
 
+#if IDOSGAMES_MARKETPLACE
 		public void SetPosition(Transform target)
 		{
 			transform.position = target.position;
@@ -44,6 +44,7 @@ namespace IDosGames
 			_inspectButton.onClick.AddListener(() => action?.Invoke());
 			_inspectButton.onClick.AddListener(() => _activeOfferMenu.SetActivateMenu(false));
 		}
-	}
-}
 #endif
+
+    }
+}

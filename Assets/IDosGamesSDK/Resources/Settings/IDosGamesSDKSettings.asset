@@ -55,10 +55,10 @@ MonoBehaviour:
   _pushNotificationsIosEnabled: 1
   _marketplaceEnabled: 1
   _cryptoWalletEnabled: 1
-  _localHotWalletEnabled: 0
+  _localHotWalletEnabled: 1
   _hotWalletAddress: 
   _gasPrice: 2
-  _chainId: 1499
+  _chainId: 0
   _rpcUrl: https://rpc-testnet.idos.games
   _blockchainExplorerUrl: https://igcscan.com/tx/
   _customContractsEnabled: 0

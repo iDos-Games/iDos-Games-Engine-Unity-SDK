@@ -1,4 +1,4 @@
-#if IDOSGAMES_MARKETPLACE
+
 using UnityEngine;
 
 namespace IDosGames
@@ -7,6 +7,7 @@ namespace IDosGames
 	{
 		[SerializeField] private GroupedOfferMenuPopUp _popUp;
 
+#if IDOSGAMES_MARKETPLACE
 		public void ShowPopUp(Transform transform, string itemID)
 		{
 			_popUp.SetButtons(itemID);
@@ -18,6 +19,7 @@ namespace IDosGames
 		{
 			gameObject.SetActive(active);
 		}
-	}
-}
 #endif
+
+    }
+}

@@ -1,10 +1,11 @@
-#if IDOSGAMES_CRYPTO_WALLET
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
+#pragma warning disable 0414
+#pragma warning disable 0067
 namespace IDosGames
 {
 	[RequireComponent(typeof(Button))]
@@ -20,6 +21,7 @@ namespace IDosGames
 
 		public SkinCatalogItem SelectedSkin { get; private set; }
 
+#if IDOSGAMES_CRYPTO_WALLET
 		private void Awake()
 		{
 			ResetListener();
@@ -99,6 +101,7 @@ namespace IDosGames
 
 			ValueChanged?.Invoke();
 		}
-	}
-}
 #endif
+
+    }
+}

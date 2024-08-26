@@ -58,12 +58,14 @@ namespace IDosGames
 #endif
             _iapProcessedProductID = ID;
 
+#if UNITY_WEBGL
             BuyForTelegramStars();
+#endif
         }
 
+#if UNITY_WEBGL
         public static async void BuyForTelegramStars()
         {
-#if UNITY_WEBGL
             if (AuthService.WebGLPlatform == WebGLPlatform.Telegram)
             {
                 Loading.ShowTransparentPanel();
@@ -80,8 +82,8 @@ namespace IDosGames
                 Loading.HideAllPanels();
                 WebSDK.OpenInvoiceLink(invoiceLink);
             }
-#endif
         }
+#endif
 
         public static void BuyForVirtualCurrency(string ID, VirtualCurrencyID currencyID, float price)
         {

@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.Purchasing;
 #endif
 
+#pragma warning disable 0067
 namespace IDosGames
 {
 	public class IAPValidator

@@ -1,4 +1,3 @@
-#if IDOSGAMES_MARKETPLACE
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -8,6 +7,8 @@ using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 
+#pragma warning disable 0414
+#pragma warning disable 0067
 namespace IDosGames
 {
     public class PanelPlayerActiveOffers : MonoBehaviour
@@ -31,6 +32,7 @@ namespace IDosGames
 
         public static event Action OfferChanged;
 
+#if IDOSGAMES_MARKETPLACE
         private void OnEnable()
         {
             if (IsNeedUpdate)
@@ -278,6 +280,7 @@ namespace IDosGames
             var result = await RequestData();
             ProcessRequestDataResult(result);
         }
+#endif
+
     }
 }
-#endif

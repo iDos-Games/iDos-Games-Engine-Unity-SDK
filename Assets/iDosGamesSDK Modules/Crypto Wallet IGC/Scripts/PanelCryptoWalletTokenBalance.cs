@@ -1,4 +1,3 @@
-#if IDOSGAMES_CRYPTO_WALLET
 using System;
 using System.Collections.Generic;
 using System.Numerics;
@@ -30,6 +29,7 @@ namespace IDosGames
 		[SerializeField] private TMP_Text _amountNFT;
 		[SerializeField] private TMP_Text _amountNativeToken;
 
+#if IDOSGAMES_CRYPTO_WALLET
 		private void OnEnable()
 		{
 			//Refresh();
@@ -128,6 +128,7 @@ namespace IDosGames
 		{
 			_amountNativeToken.text = text;
 		}
-	}
-}
 #endif
+
+    }
+}

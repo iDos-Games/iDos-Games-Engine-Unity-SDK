@@ -1,4 +1,3 @@
-#if IDOSGAMES_MARKETPLACE
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Threading.Tasks;
@@ -21,6 +20,7 @@ namespace IDosGames
 		public static int AuthorCommission { get; private set; }
 		public static int SumOfAllCommissions { get; private set; }
 
+#if IDOSGAMES_MARKETPLACE
 		private void OnEnable()
 		{
 			PanelOffersByItemID.OfferBuyed += OnOfferBuyed;
@@ -115,6 +115,6 @@ namespace IDosGames
 		{
 			_panelGropedOffers.IsNeedUpdate = true;
 		}
-	}
-}
 #endif
+    }
+}

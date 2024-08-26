@@ -1,4 +1,3 @@
-#if IDOSGAMES_CRYPTO_WALLET
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +12,8 @@ namespace IDosGames
 		[SerializeField] private Transform _itemsParent;
 		[SerializeField] private TMP_Text _voidInGameText;
 		[SerializeField] private TMP_Text _voidCryptoWalletText;
+
+#if IDOSGAMES_CRYPTO_WALLET
 		[SerializeField] private PanelCryptoWalletTokenBalance _cryptoBalancePanel;
 
 		public void Show(List<SkinCatalogItem> skins, Action<SkinCatalogItem, bool> itemOnClickAction, bool fromCryptoWallet = false)
@@ -60,6 +61,7 @@ namespace IDosGames
 
 			gameObject.SetActive(true);
 		}
-	}
-}
 #endif
+
+    }
+}

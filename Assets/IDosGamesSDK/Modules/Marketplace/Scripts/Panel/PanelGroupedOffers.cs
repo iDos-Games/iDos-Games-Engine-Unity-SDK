@@ -1,4 +1,3 @@
-#if IDOSGAMES_MARKETPLACE
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Collections;
@@ -8,6 +7,7 @@ using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 
+#pragma warning disable 0414
 namespace IDosGames
 {
 	public class PanelGroupedOffers : MonoBehaviour
@@ -30,6 +30,7 @@ namespace IDosGames
 
 		private int _currentPage = 0;
 
+#if IDOSGAMES_MARKETPLACE
 		private void OnEnable()
 		{
 			if (IsNeedUpdate)
@@ -174,6 +175,7 @@ namespace IDosGames
 			InstantiateItems(false);
 			Loading.HideAllPanels();
 		}
-	}
-}
 #endif
+
+    }
+}

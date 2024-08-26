@@ -1,4 +1,3 @@
-#if IDOSGAMES_MARKETPLACE
 using TMPro;
 using UnityEngine;
 
@@ -10,6 +9,7 @@ namespace IDosGames
 		[SerializeField] private TMP_Text _commission;
 		[SerializeField] private TMP_Text _youWillGet;
 
+#if IDOSGAMES_MARKETPLACE
 		private void Start()
 		{
 			UpdateMinPriceText();
@@ -30,6 +30,7 @@ namespace IDosGames
 		{
 			_commission.text = $"{MarketplaceWindow.SumOfAllCommissions}%";
 		}
-	}
-}
 #endif
+
+    }
+}

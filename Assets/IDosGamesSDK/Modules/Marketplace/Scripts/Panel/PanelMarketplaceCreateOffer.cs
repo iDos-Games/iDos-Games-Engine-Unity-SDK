@@ -1,4 +1,3 @@
-#if IDOSGAMES_MARKETPLACE
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -22,6 +21,7 @@ namespace IDosGames
 
 		public static Action OfferCreated;
 
+#if IDOSGAMES_MARKETPLACE
 		private void Start()
 		{
 			_currencyDropdown.onValueChanged.AddListener(OnCurrencyChanged);
@@ -123,6 +123,7 @@ namespace IDosGames
 
 			OfferCreated?.Invoke();
 		}
-	}
-}
 #endif
+
+    }
+}

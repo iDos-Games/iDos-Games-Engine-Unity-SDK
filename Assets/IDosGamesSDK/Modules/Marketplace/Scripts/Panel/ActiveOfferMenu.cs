@@ -1,4 +1,3 @@
-#if IDOSGAMES_MARKETPLACE
 using System;
 using UnityEngine;
 
@@ -9,6 +8,7 @@ namespace IDosGames
 		[SerializeField] private ActiveOfferMenuPopUp _popUp;
 		[SerializeField] private MarketplaceWindow _marketplaceWindow;
 
+#if IDOSGAMES_MARKETPLACE
 		public void ShowPopUp(Transform transform, string itemID, Action editAction, Action deleteAction)
 		{
 			_popUp.SetButtons(() => InspectSkin(itemID), editAction, deleteAction);
@@ -25,6 +25,7 @@ namespace IDosGames
 		{
 			gameObject.SetActive(active);
 		}
-	}
-}
 #endif
+
+    }
+}

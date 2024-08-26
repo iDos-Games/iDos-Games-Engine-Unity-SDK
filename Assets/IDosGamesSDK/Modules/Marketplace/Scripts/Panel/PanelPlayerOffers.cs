@@ -1,4 +1,3 @@
-#if IDOSGAMES_MARKETPLACE
 using UnityEngine;
 
 namespace IDosGames
@@ -14,6 +13,7 @@ namespace IDosGames
 		[SerializeField] private TabItem _activeOffersTab;
 		[SerializeField] private TabItem _historyTab;
 
+#if IDOSGAMES_MARKETPLACE
 		private void OnEnable()
 		{
 			OpenActiveOffersPanel();
@@ -48,6 +48,7 @@ namespace IDosGames
 				_historyPanel.Refresh();
 			}
 		}
-	}
-}
 #endif
+
+    }
+}

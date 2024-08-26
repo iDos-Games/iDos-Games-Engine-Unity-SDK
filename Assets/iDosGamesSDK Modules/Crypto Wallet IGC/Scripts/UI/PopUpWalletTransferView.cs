@@ -1,4 +1,3 @@
-#if IDOSGAMES_CRYPTO_WALLET
 using TMPro;
 using UnityEngine;
 
@@ -18,6 +17,7 @@ namespace IDosGames
 
 		public CryptoTransactionType TransactionType { get; private set; }
 
+#if IDOSGAMES_CRYPTO_WALLET
 		private void OnEnable()
 		{
 			ResetAmountInputField();
@@ -176,6 +176,7 @@ namespace IDosGames
 		{
 			_transferButton.SetActivateIcon(GetTransferDirection() == TransactionDirection.UsersCryptoWallet);
 		}
-	}
-}
 #endif
+
+    }
+}

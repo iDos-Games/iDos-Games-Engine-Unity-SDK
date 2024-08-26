@@ -1,4 +1,3 @@
-#if IDOSGAMES_CRYPTO_WALLET
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,6 +10,7 @@ namespace IDosGames
 		[SerializeField] private Button _transferButton;
 		[SerializeField] private PopUpTransferConfirmation _confirmationPopUp;
 
+#if IDOSGAMES_CRYPTO_WALLET
 		private void Start()
 		{
 			_transferButton.onClick.RemoveAllListeners();
@@ -131,6 +131,7 @@ namespace IDosGames
 
 			gameObject.SetActive(false);
 		}
-	}
-}
 #endif
+
+    }
+}
