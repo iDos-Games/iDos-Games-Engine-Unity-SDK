@@ -1,6 +1,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections;
 using UnityEngine;
 
 namespace IDosGames
@@ -14,7 +15,14 @@ namespace IDosGames
 
         private void OnEnable()
         {
-			Invoke("InitializePanel", 0.3f);
+            StartCoroutine(CallInitializePanel());
+        }
+
+        IEnumerator CallInitializePanel()
+        {
+            yield return new WaitForSecondsRealtime(0.3f);
+            InitializePanel();
+			yield return null;
         }
 
         public override void InitializePanel()

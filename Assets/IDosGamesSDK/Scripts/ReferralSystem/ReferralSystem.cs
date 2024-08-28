@@ -86,14 +86,14 @@ namespace IDosGames
                 {
                     var message = json[JsonProperty.MESSAGE_KEY].ToString();
 
-                    ReferralCodeActivated = true;
-                    SaveReferralCodeStatus();
-
                     Message.Show(message);
 
                     if (message == MessageCode.REFERRAL_MESSAGE_CODE_SUCCESS_ACTIVATED.ToString() ||
                         message == MessageCode.REFERRAL_MESSAGE_CODE_SUCCESS_CHANGED.ToString())
                     {
+                        ReferralCodeActivated = true;
+                        SaveReferralCodeStatus();
+
                         _popUp.OnSuccessActivated();
                     }
                 }

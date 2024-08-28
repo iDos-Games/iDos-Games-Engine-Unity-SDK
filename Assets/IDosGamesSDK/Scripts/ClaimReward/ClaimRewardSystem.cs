@@ -1,3 +1,4 @@
+using Newtonsoft.Json;
 using System.Collections.Generic;
 
 namespace IDosGames
@@ -18,6 +19,7 @@ namespace IDosGames
             {
                 ExecuteClaimFunction(value, ServerFunctionHandlers.ClaimCoinWithSkinReward, point);
             }
+            Loading.HideAllPanels();
         }
 
         public static void ClaimX3CoinReward(int value, int point)
@@ -32,6 +34,7 @@ namespace IDosGames
             {
                 ExecuteClaimFunction(value, ServerFunctionHandlers.ClaimX3CoinWithSkinReward, point);
             }
+            Loading.HideAllPanels();
         }
 
         public static void ClaimX5CoinReward(int value, int point)
@@ -46,6 +49,7 @@ namespace IDosGames
             {
                 ExecuteClaimFunction(value, ServerFunctionHandlers.ClaimX5CoinWithSkinReward, point);
             }
+            Loading.HideAllPanels();
         }
 
         public static void ClaimRewardWithoutSkinProfit(int value)
@@ -56,11 +60,13 @@ namespace IDosGames
         public static void ClaimX3RewardWithoutSkinProfit(int value)
         {
             ExecuteClaimFunction(value, ServerFunctionHandlers.ClaimX3CoinReward);
+            Loading.HideAllPanels();
         }
 
         public static void ClaimX5RewardWithoutSkinProfit(int value)
         {
             ExecuteClaimFunction(value, ServerFunctionHandlers.ClaimX5CoinReward);
+            Loading.HideAllPanels();
         }
 
         private static void ExecuteClaimFunction(int value, ServerFunctionHandlers functionName, int points = 0)
@@ -83,8 +89,9 @@ namespace IDosGames
 
         private static void OnSuccessClaimReward(string result)
         {
-            //UserInventory.OnSuccessCoinRewardClaimed(_currentRewardValue);
-            UserDataService.RequestUserAllData();
+            var userData = JsonConvert.DeserializeObject<GetAllUserDataResult>(result);
+            UserDataService.ProcessingAllData(userData);
+            Loading.HideAllPanels();
         }
 
         private static void OnErrorClaimReward(string error)
