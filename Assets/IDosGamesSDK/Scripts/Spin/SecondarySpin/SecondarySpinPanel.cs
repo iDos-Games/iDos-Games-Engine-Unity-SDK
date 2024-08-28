@@ -31,7 +31,7 @@ namespace IDosGames
 
         public void TryToSpin(bool showAd)
         {
-#if UNITY_EDITOR
+#if UNITY_WEBGL || UNITY_EDITOR
             showAd = false;
 #endif
             if (showAd)
