@@ -39,31 +39,15 @@ namespace IDosGames
             EditorGUILayout.HelpBox("To make the solution work, you need to make Server Settings! To start Configuration, you must first fill in the fields below - Title ID, Server Connection String and Developer Secret Key.", MessageType.None);
             GUILayout.Space(5);
 
-            settings.ServerConnectionString = EditorGUILayout.TextField("Server Connection String", settings.ServerConnectionString);
+            settings.ServerLink = EditorGUILayout.TextField("Server Link", settings.ServerLink);
             GUILayout.Space(5);
             settings.DeveloperSecretKey = EditorGUILayout.TextField("Developer Secret Key", settings.DeveloperSecretKey);
             settings.TitleID = EditorGUILayout.TextField("Title ID", settings.TitleID);
-
+            
             GUILayout.Space(10);
 
             EditorGUI.BeginDisabledGroup(true);
             EditorGUILayout.TextField("IGS Admin API Link", settings.IgsAdminApiLink);
-            EditorGUILayout.TextField("User Data System Link", settings.UserDataSystemLink);
-            EditorGUILayout.TextField("Try Make Transaction Link", settings.TryMakeTransactionLink);
-            EditorGUILayout.TextField("Try Do Marketplace Action Link", settings.TryDoMarketplaceActionLink);
-            EditorGUILayout.TextField("Get Data From Marketplace Link", settings.GetDataFromMarketplaceLink);
-            EditorGUILayout.TextField("Validate IAP Subscription Link", settings.ValidateIAPSubscriptionLink);
-            EditorGUILayout.TextField("Validate IAP Link", settings.ValidateIAPLink);
-            EditorGUILayout.TextField("Additional IAP Validate Link", settings.AdditionalIAPValidateLink);
-            EditorGUILayout.TextField("Friend System Link", settings.FriendSystemLink);
-            EditorGUILayout.TextField("Spin System Link", settings.SpinSystemLink);
-            EditorGUILayout.TextField("Chest System Link", settings.ChestSystemLink);
-            EditorGUILayout.TextField("Reward And Profit System Link", settings.RewardAndProfitSystemLink);
-            EditorGUILayout.TextField("Referral System Link", settings.ReferralSystemLink);
-            EditorGUILayout.TextField("Event System Link", settings.EventSystemLink);
-            EditorGUILayout.TextField("Shop System Link", settings.ShopSystemLink);
-            EditorGUILayout.TextField("Deal Offer System Link", settings.DealOfferSystemLink);
-            EditorGUILayout.TextField("Login System Link", settings.LoginSystemLink);
             EditorGUILayout.TextField("IGS Client API Link", settings.IgsClientApiLink);
             EditorGUILayout.TextField("Telegram Webhook Link", settings.TelegramWebhookLink);
             EditorGUI.EndDisabledGroup();
@@ -73,7 +57,7 @@ namespace IDosGames
             EditorGUILayout.BeginHorizontal();
             settings.WebGLBuildPath = EditorGUILayout.TextField("WebGL build path", settings.WebGLBuildPath);
             
-            if (!string.IsNullOrEmpty(settings.TitleID) && !string.IsNullOrEmpty(settings.DeveloperSecretKey) && !string.IsNullOrEmpty(settings.IgsAdminApiLink) && !string.IsNullOrEmpty(settings.ServerConnectionString))
+            if (!string.IsNullOrEmpty(settings.TitleID) && !string.IsNullOrEmpty(settings.DeveloperSecretKey) && !string.IsNullOrEmpty(settings.ServerLink))
             {
                 if (GUILayout.Button("Upload WebGL"))
                 {
@@ -112,7 +96,7 @@ namespace IDosGames
             EditorGUILayout.TextField("Do not forget to register Telegram Webhook");
             EditorGUI.EndDisabledGroup();
 
-            if (!string.IsNullOrEmpty(settings.TitleID) && !string.IsNullOrEmpty(settings.DeveloperSecretKey) && !string.IsNullOrEmpty(settings.IgsAdminApiLink) && !string.IsNullOrEmpty(settings.TelegramWebhookLink))
+            if (!string.IsNullOrEmpty(settings.TitleID) && !string.IsNullOrEmpty(settings.DeveloperSecretKey) && !string.IsNullOrEmpty(settings.ServerLink))
             {
                 if (GUILayout.Button("Register Telegram Webhook"))
                 {
@@ -125,19 +109,8 @@ namespace IDosGames
             }
             EditorGUILayout.EndHorizontal();
 
-            if (!string.IsNullOrEmpty(settings.TitleID) && !string.IsNullOrEmpty(settings.DeveloperSecretKey) && !string.IsNullOrEmpty(settings.ServerConnectionString))
-            {
-                GUILayout.Space(20);
-
-                if (GUILayout.Button("Get Configure Server"))
-                {
-                    AzureFunctionLinkUpdater.UpdateJsonFiles();
-                }
-
-                GUILayout.Space(5);
-            }
-
-            if (!string.IsNullOrEmpty(settings.TitleID) && !string.IsNullOrEmpty(settings.DeveloperSecretKey) && !string.IsNullOrEmpty(settings.IgsAdminApiLink))
+            GUILayout.Space(10);
+            if (!string.IsNullOrEmpty(settings.TitleID) && !string.IsNullOrEmpty(settings.DeveloperSecretKey) && !string.IsNullOrEmpty(settings.ServerLink))
             {
                 if (GUILayout.Button("Upload Server Data"))
                 {

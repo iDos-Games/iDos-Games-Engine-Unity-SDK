@@ -63,6 +63,15 @@ mergeInto(LibraryManager.library, {
             console.warn("getInitDataUnsafe function is not defined");  
             return 0;  
         }  
+    },
+
+    ShowAd: function(blockId) {  
+        if (typeof window.showAd === 'function') {  
+            var blockIdStr = UTF8ToString(blockId);  
+            window.showAd(blockIdStr);  
+        } else {  
+            console.warn("showAd function is not defined or AdsGram SDK is not loaded");  
+        }  
     }
     
 });  

@@ -143,6 +143,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8333743053075732741}
   - component: {fileID: 7989243304652772760}
+  - component: {fileID: 1191447660817308484}
   m_Layer: 0
   m_Name: AdMediation
   m_TagString: Untagged
@@ -178,5 +179,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 04f19261bf2e37946a5f0a546de03152, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1191447660817308484
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8655987174309119330}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fdc68eabfa3c04448bf67b0d0537016a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 

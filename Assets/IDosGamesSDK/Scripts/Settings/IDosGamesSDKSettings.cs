@@ -81,25 +81,32 @@ namespace IDosGames
         [SerializeField] private bool _showLoadingOnExecuteServerFunction;
         public bool ShowLoadingOnExecuteServerFunction => _showLoadingOnExecuteServerFunction;
 
+        [HideInInspector][SerializeField] private string _serverLink;
+        public string ServerLink
+        {
+            get => _serverLink;
+            set => _serverLink = value;
+        }
+
         // [HideInInspector]
-        [HideInInspector] public string TryMakeTransactionLink;
-        [HideInInspector] public string TryDoMarketplaceActionLink;
-        [HideInInspector] public string GetDataFromMarketplaceLink;
-        [HideInInspector] public string ValidateIAPSubscriptionLink;
-        [HideInInspector] public string FriendSystemLink;
-        [HideInInspector] public string LoginSystemLink;
-        [HideInInspector] public string IgsClientApiLink;
-        [HideInInspector] public string UserDataSystemLink;
-        [HideInInspector] public string SpinSystemLink;
-        [HideInInspector] public string ChestSystemLink;
-        [HideInInspector] public string RewardAndProfitSystemLink;
-        [HideInInspector] public string ReferralSystemLink;
-        [HideInInspector] public string EventSystemLink;
-        [HideInInspector] public string ShopSystemLink;
-        [HideInInspector] public string DealOfferSystemLink;
-        [HideInInspector] public string ValidateIAPLink;
-        [HideInInspector] public string AdditionalIAPValidateLink;
-        [HideInInspector] public string TelegramWebhookLink;
+        public string CryptoWalletLink => $"{_serverLink}/api/{_titleID}/Client/CryptoWallet".Trim();
+        public string MarketplaceActionsLink => $"{_serverLink}/api/{_titleID}/Client/MarketplaceActions".Trim();
+        public string MarketplaceDataLink => $"{_serverLink}/api/{_titleID}/Client/MarketplaceData".Trim();
+        public string ValidateIAPSubscriptionLink => $"{_serverLink}/api/{_titleID}/Client/ValidateIAPSubscription".Trim();
+        public string FriendSystemLink => $"{_serverLink}/api/{_titleID}/Client/FriendSystem".Trim();
+        public string LoginSystemLink => $"{_serverLink}/api/{_titleID}/Client/LoginSystem".Trim();
+        public string IgsClientApiLink => $"{_serverLink}/api/{_titleID}/Client/IGSClientApi".Trim();
+        public string UserDataSystemLink => $"{_serverLink}/api/{_titleID}/Client/UserDataSystem".Trim();
+        public string SpinSystemLink => $"{_serverLink}/api/{_titleID}/Client/SpinSystem".Trim();
+        public string ChestSystemLink => $"{_serverLink}/api/{_titleID}/Client/ChestSystem".Trim();
+        public string RewardAndProfitSystemLink => $"{_serverLink}/api/{_titleID}/Client/RewardAndProfitSystem".Trim();
+        public string ReferralSystemLink => $"{_serverLink}/api/{_titleID}/Client/ReferralSystem".Trim();
+        public string EventSystemLink => $"{_serverLink}/api/{_titleID}/Client/EventSystem".Trim();
+        public string ShopSystemLink => $"{_serverLink}/api/{_titleID}/Client/ShopSystem".Trim();
+        public string DealOfferSystemLink => $"{_serverLink}/api/{_titleID}/Client/DealOfferSystem".Trim();
+        public string ValidateIAPLink => $"{_serverLink}/api/{_titleID}/Client/ValidateIAP".Trim();
+        public string AdditionalIAPValidateLink => $"{_serverLink}/api/{_titleID}/Client/AdditionalIAPValidate".Trim();
+        public string TelegramWebhookLink => $"{_serverLink}/api/{_titleID}/Server/TelegramWebhook".Trim();
 
         [Space(5)]
         [Header("In App Purchasing")]
@@ -110,6 +117,10 @@ namespace IDosGames
 
         [Space(5)]
         [Header("Ad Mediation")]
+
+        [Space(5)]
+        public string AdsGramBlockID;
+
         [Space(5)]
         [SerializeField] private AdMediationPlatform _adMediationPlatform;
         public AdMediationPlatform AdMediationPlatform => _adMediationPlatform;
@@ -118,7 +129,6 @@ namespace IDosGames
         private const string IRON_SOURCE_AD_QUALITY_DEFINE_POSTFIX = "LEVELPLAY_AD_QUALITY";
 
         [SerializeField] private string _mediationAppKeyIOS = "";
-
         public string MediationAppKeyIOS => _mediationAppKeyIOS;
 
         [SerializeField] private string _mediationAppKeyAndroid = "";
@@ -136,7 +146,7 @@ namespace IDosGames
         [Header("Telegram Settings")]
 
         [Space(5)]
-        [SerializeField] public string TelegramWebAppLink = "https://t.me/iDos_Games_bot/2048cube";
+        [SerializeField] public string TelegramWebAppLink = "https://t.me/iDos_Games_bot/cube2048";
 
         [Space(5)]
         [Header("Analytics")]
@@ -246,13 +256,6 @@ namespace IDosGames
 
 #if UNITY_EDITOR
 
-        [HideInInspector][SerializeField] private string _serverConnectionString;
-        public string ServerConnectionString
-        {
-            get => _serverConnectionString;
-            set => _serverConnectionString = value;
-        }
-
         [HideInInspector][SerializeField] private string _developerSecretKey;
         public string DeveloperSecretKey
         {
@@ -260,7 +263,7 @@ namespace IDosGames
             set => _developerSecretKey = value;
         }
 
-        [HideInInspector][SerializeField] public string IgsAdminApiLink;
+        [HideInInspector][SerializeField] public string IgsAdminApiLink => $"{_serverLink}/api/{_titleID}/Admin/IGSAdminApi".Trim();
 
         [HideInInspector] public string WebGLBuildPath = "Assets/WebGLBuild/";
         

@@ -13,6 +13,16 @@ namespace IDosGames
             _spinWindowView.ResetSpinButtonsListener(TryToSpin);
         }
 
+        private void OnEnable()
+        {
+            WebAdsManager.Instance.OnAdCompleteEvent += WebAdComplete;
+        }
+
+        private void OnDisable()
+        {
+            WebAdsManager.Instance.OnAdCompleteEvent -= WebAdComplete;
+        }
+
         private void TryToSpin(SpinTicketType type)
         {
             var ticketAmount = UserInventory.GetSpinTicketAmount(type);
@@ -32,22 +42,46 @@ namespace IDosGames
 
             ExecuteSpinCloudFunction(functionName);
         }
-        
+
         public void TryToFreeSpin(bool showAd)
         {
-            if (showAd && AdMediation.Instance != null)
+            if (showAd) // && AdMediation.Instance != null
             {
-                if (AdMediation.Instance.ShowRewardedVideo(GetFreeSpin))
+                if (AdMediation.Instance != null)
                 {
-                    Debug.Log("Show rewarded video.");
+                    if (AdMediation.Instance.ShowRewardedVideo(GetFreeSpin))
+                    {
+                        Debug.Log("Show rewarded video.");
+                    }
+                    else
+                    {
+                        ///Message.Show("Ad is not ready.");
+                        ShopSystem.PopUpSystem.ShowVIPPopUp();
+                    }
                 }
                 else
                 {
-                    ///Message.Show("Ad is not ready.");
-                    ShopSystem.PopUpSystem.ShowVIPPopUp();
+                    if (AuthService.WebGLPlatform == WebGLPlatform.Telegram)
+                    {
+#if UNITY_WEBGL
+                        WebAdsManager.Instance.ShowAd(IDosGamesSDKSettings.Instance.AdsGramBlockID.ToString(), "FreeSpin");
+#endif
+                    }
+                    else
+                    {
+                        ShopSystem.PopUpSystem.ShowVIPPopUp();
+                    }
                 }
             }
             else
+            {
+                GetFreeSpin();
+            }
+        }
+
+        private void WebAdComplete(string args)
+        {
+            if (args == "FreeSpin")
             {
                 GetFreeSpin();
             }

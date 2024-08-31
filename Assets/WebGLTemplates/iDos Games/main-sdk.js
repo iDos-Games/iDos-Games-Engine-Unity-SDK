@@ -33,6 +33,20 @@
         
     }
 
+    function loadAdsGramSDK(callback) 
+    {
+        if (platform === "telegram")
+        {
+            const script = document.createElement("script");  
+            script.src = "https://sad.adsgram.ai/js/sad.min.js";  
+            script.onload = callback;  
+            script.onerror = () => {  
+                console.error("Failed to load AdsGram SDK");  
+            };  
+            document.head.appendChild(script);  
+        }
+    }
+
     function getStartAppParameter() 
 	{
 		if(platform === "telegram")
@@ -75,15 +89,38 @@
         }  
     }
 
+    let AdController;
+    function showAd(blockId) {  
+        if (!AdController) {  
+            AdController = window.Adsgram.init({ blockId: blockId });  
+            console.log("AdsGram initialized with blockId:", blockId);  
+        }  
+      
+        AdController.show().then((result) => {  
+            if (result.done) {  
+                console.log("User has finished watching the Ad");  
+                window.igcInstance.SendMessage('WebAdsManager', 'OnAdComplete', JSON.stringify(result));  
+            }  
+        }).catch((result) => {  
+            console.warn("Error displaying ad or ad skipped", result);  
+            window.igcInstance.SendMessage('WebAdsManager', 'OnAdError', JSON.stringify(result));  
+        });  
+    }
+
 	window.getPlatform = function() { return platform; };
     window.getStartAppParameter = getStartAppParameter;
     window.getInitDataUnsafe = getInitDataUnsafe;
     window.shareAppLink = shareAppLink;
 	window.openInvoice = openInvoice;
+    window.showAd = showAd;
   
     const platform = getPlatform();
     console.log("Platform: " + platform);
     loadSDK(platform, () => {  
         console.log("SDK is ready to be used");  
     });  
+
+    loadAdsGramSDK(() => {  
+        console.log("AdsGram SDK is ready to be used");  
+    }); 
 })();  

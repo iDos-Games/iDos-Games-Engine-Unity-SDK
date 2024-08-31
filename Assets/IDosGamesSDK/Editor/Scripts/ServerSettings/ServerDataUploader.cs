@@ -88,15 +88,15 @@ namespace IDosGames
 
             Debug.Log("All Files Upload Completed!");
 
-            AzureFunctionLinkUpdater.ParseConnectionString(IDosGamesSDKSettings.Instance.ServerConnectionString);
+            string appName = ExtractAppName(IDosGamesSDKSettings.Instance.ServerLink);
 
-            if(IDosGamesSDKSettings.Instance.DevBuild)
+            if (IDosGamesSDKSettings.Instance.DevBuild)
             {
-                IDosGamesSDKSettings.Instance.WebGLUrl = "https://" + AzureFunctionLinkUpdater.storageAccountName + ".blob.core.windows.net/public-data/" + IDosGamesSDKSettings.Instance.TitleID + "-dev/index.html";
+                IDosGamesSDKSettings.Instance.WebGLUrl = "https://igc" + appName + ".blob.core.windows.net/public-data/" + IDosGamesSDKSettings.Instance.TitleID + "-dev/index.html";
             }
             else
             {
-                IDosGamesSDKSettings.Instance.WebGLUrl = "https://" + AzureFunctionLinkUpdater.storageAccountName + ".blob.core.windows.net/public-data/" + IDosGamesSDKSettings.Instance.TitleID + "/index.html";
+                IDosGamesSDKSettings.Instance.WebGLUrl = "https://igc" + appName + ".blob.core.windows.net/public-data/" + IDosGamesSDKSettings.Instance.TitleID + "/index.html";
             }
             
             Debug.Log("WebGL URL: " + IDosGamesSDKSettings.Instance.WebGLUrl);
@@ -154,32 +154,27 @@ namespace IDosGames
             await IGSAdminApi.RegisterTelegramWebhook();
         }
 
+        public static string ExtractAppName(string serverLink)
+        {
+            string prefix = "app-";
+            string suffix = ".azurewebsites.net";
+
+            if (serverLink.Contains(prefix))
+            {
+                int startIndex = serverLink.IndexOf(prefix) + prefix.Length;
+                int endIndex = serverLink.IndexOf(suffix);
+                return serverLink.Substring(startIndex, endIndex - startIndex);
+            }
+            else
+            {
+                return serverLink.Replace("https://", string.Empty);
+            }
+        }
+
         public static void DeleteAllSettings()
         {
-            IDosGamesSDKSettings.Instance.ServerConnectionString = null;
             IDosGamesSDKSettings.Instance.DeveloperSecretKey = null;
             IDosGamesSDKSettings.Instance.WebGLUrl = null;
-
-            IDosGamesSDKSettings.Instance.UserDataSystemLink = null;
-            IDosGamesSDKSettings.Instance.IgsAdminApiLink = null;
-            IDosGamesSDKSettings.Instance.IgsClientApiLink = null;
-            IDosGamesSDKSettings.Instance.TryDoMarketplaceActionLink = null;
-            IDosGamesSDKSettings.Instance.TryMakeTransactionLink = null;
-            IDosGamesSDKSettings.Instance.GetDataFromMarketplaceLink = null;
-            IDosGamesSDKSettings.Instance.ValidateIAPSubscriptionLink = null;
-            IDosGamesSDKSettings.Instance.ValidateIAPLink = null;
-            IDosGamesSDKSettings.Instance.FriendSystemLink = null;
-            IDosGamesSDKSettings.Instance.SpinSystemLink = null;
-            IDosGamesSDKSettings.Instance.ChestSystemLink = null;
-            IDosGamesSDKSettings.Instance.RewardAndProfitSystemLink = null;
-            IDosGamesSDKSettings.Instance.ReferralSystemLink = null;
-            IDosGamesSDKSettings.Instance.EventSystemLink = null;
-            IDosGamesSDKSettings.Instance.ShopSystemLink = null;
-            IDosGamesSDKSettings.Instance.DealOfferSystemLink = null;
-            IDosGamesSDKSettings.Instance.LoginSystemLink = null;
-            IDosGamesSDKSettings.Instance.AdditionalIAPValidateLink = null;
-            IDosGamesSDKSettings.Instance.TelegramWebhookLink = null;
-
             IDosGamesSDKSettings.Instance.TitleID = "";
         }
     }

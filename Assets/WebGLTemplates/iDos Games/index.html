@@ -132,6 +132,7 @@
         createUnityInstance(canvas, config, (progress) => {
           progressBarFull.style.width = 100 * progress + "%";
               }).then((unityInstance) => {
+                window.igcInstance = unityInstance;
                 loadingBar.style.display = "none";
 #if SHOW_DIAGNOSTICS
                 diagnostics_icon.onclick = () => {

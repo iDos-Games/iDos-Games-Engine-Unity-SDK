@@ -9,6 +9,7 @@ namespace IDosGames
         private void OnEnable()
         {
             UserInventory.InventoryUpdated += ResetSpinButton;
+            WebAdsManager.Instance.OnAdCompleteEvent += WebAdComplete;
 
             ResetSpinButton();
         }
@@ -16,6 +17,7 @@ namespace IDosGames
         private void OnDisable()
         {
             UserInventory.InventoryUpdated -= ResetSpinButton;
+            WebAdsManager.Instance.OnAdCompleteEvent -= WebAdComplete;
         }
 
         public void ShowInterstitial()
@@ -31,11 +33,22 @@ namespace IDosGames
 
         public void TryToSpin(bool showAd)
         {
-#if UNITY_WEBGL || UNITY_EDITOR
+#if UNITY_EDITOR
             showAd = false;
 #endif
             if (showAd)
             {
+#if UNITY_WEBGL
+
+                if (AuthService.WebGLPlatform == WebGLPlatform.Telegram)
+                {
+                    WebAdsManager.Instance.ShowAd(IDosGamesSDKSettings.Instance.AdsGramBlockID.ToString(), "SecondarySpin");
+                }
+                else
+                {
+                    ShopSystem.PopUpSystem.ShowVIPPopUp();
+                }
+#else
                 if (AdMediation.Instance.ShowRewardedVideo((finished) => TryExecuteSpinFunction()))
                 {
                     Debug.Log("Show rewarded video.");
@@ -47,6 +60,7 @@ namespace IDosGames
                     ShopSystem.PopUpSystem.ShowVIPPopUp();
                     return;
                 }
+#endif
             }
             else
             {
@@ -80,6 +94,14 @@ namespace IDosGames
         private void ResetSpinButton()
         {
             _view.ResetSpinButton(TryToSpin);
+        }
+
+        private void WebAdComplete(string args)
+        {
+            if (args == "SecondarySpin")
+            {
+                TryExecuteSpinFunction();
+            }
         }
 
         private void TryExecuteSpinFunction()

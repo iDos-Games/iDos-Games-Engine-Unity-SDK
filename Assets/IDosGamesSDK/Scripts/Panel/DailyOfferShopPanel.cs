@@ -113,9 +113,7 @@ namespace IDosGames
             {
                 return false;
             }
-#if UNITY_EDITOR
-            return false;
-#else
+
             bool isNeed = false;
 
             if (productAmountInOffer <= 1 || productAmountInOffer - productAmountInPlayer > 0)
@@ -124,7 +122,6 @@ namespace IDosGames
             }
 
             return isNeed;
-#endif
         }
 
         private string GetItemAmountToGrant(JToken product)

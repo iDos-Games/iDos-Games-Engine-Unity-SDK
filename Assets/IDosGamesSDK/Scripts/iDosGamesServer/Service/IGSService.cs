@@ -14,9 +14,9 @@ namespace IDosGames
 
         public static string URL_IGS_CLIENT_API = IDosGamesSDKSettings.Instance.IgsClientApiLink;
         public static string URL_LOGIN_SYSTEM = IDosGamesSDKSettings.Instance.LoginSystemLink;
-        public static string URL_WALLET_MAKE_TRANSACTION = IDosGamesSDKSettings.Instance.TryMakeTransactionLink;
-        public static string URL_MARKETPLACE_DO_ACTION = IDosGamesSDKSettings.Instance.TryDoMarketplaceActionLink;
-        public static string URL_MARKETPLACE_GET_DATA = IDosGamesSDKSettings.Instance.GetDataFromMarketplaceLink;
+        public static string URL_WALLET_MAKE_TRANSACTION = IDosGamesSDKSettings.Instance.CryptoWalletLink;
+        public static string URL_MARKETPLACE_DO_ACTION = IDosGamesSDKSettings.Instance.MarketplaceActionsLink;
+        public static string URL_MARKETPLACE_GET_DATA = IDosGamesSDKSettings.Instance.MarketplaceDataLink;
         public static string URL_VALIDATE_IAP_SUBSCRIPTION = IDosGamesSDKSettings.Instance.ValidateIAPSubscriptionLink;
 
         public static async Task<GetAllUserDataResult> GetUserAllData(string userID, string clientSessionTicket)
@@ -38,13 +38,15 @@ namespace IDosGames
         {
             string deviceID = GetOrCreateDeviceID();
             string userName = GetUserName();
+            string device = GetDevice();
+            string os = GetOS();
 
             var requestBody = new IGSRequest
             {
                 TitleID = IDosGamesSDKSettings.Instance.TitleID,
                 FunctionName = ServerFunctionHandlers.LoginWithDeviceID.ToString(),
-                OS = Application.platform.ToString(),
-                Device = SystemInfo.deviceModel,
+                OS = os,
+                Device = device,
                 DeviceID = deviceID,
                 UserName = userName
             };
@@ -96,6 +98,28 @@ namespace IDosGames
             }
 #endif
             return userName;
+        }
+
+        private static string GetDevice()
+        {
+            string device = null;
+#if UNITY_WEBGL
+            device = "0";
+#else
+            device = SystemInfo.deviceModel;
+#endif
+            return device;
+        }
+
+        private static string GetOS()
+        {
+            string os = null;
+#if UNITY_WEBGL
+            os = "0";
+#else
+            os = Application.platform.ToString();
+#endif
+            return os;
         }
 
         public static async Task<GetAllUserDataResult> LoginWithEmail(string email, string password)

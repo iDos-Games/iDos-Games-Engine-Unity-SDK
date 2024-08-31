@@ -22,18 +22,33 @@ namespace IDosGames
         private void OnEnable()
         {
             _shouldMove = true;
+            WebAdsManager.Instance.OnAdCompleteEvent += WebAdComplete;
         }
 
         private void OnDisable()
         {
             _shouldMove = false;
+            WebAdsManager.Instance.OnAdCompleteEvent -= WebAdComplete;
         }
 
         public void GetReward()
         {
-#if UNITY_WEBGL || UNITY_EDITOR
+#if UNITY_EDITOR
+
             _shouldMove = false;
             OnFinishedWatchingRewardedVideo(true);
+
+#elif UNITY_WEBGL
+            if (AuthService.WebGLPlatform == WebGLPlatform.Telegram)
+            {
+                _shouldMove = false;
+                WebAdsManager.Instance.ShowAd(IDosGamesSDKSettings.Instance.AdsGramBlockID.ToString(), "RewardMultiplicator");
+            }
+            else
+            {
+                _shouldMove = false;
+                OnFinishedWatchingRewardedVideo(true);
+            }
 #else
 
             if (AdMediation.Instance != null)
@@ -96,6 +111,15 @@ namespace IDosGames
                 }
 
                 _multiplicatorText.text = " x" + _multiplicator;
+            }
+        }
+
+        private void WebAdComplete(string args)
+        {
+            if (args == "RewardMultiplicator")
+            {
+                bool finished = true;
+                OnFinishedWatchingRewardedVideo(finished);
             }
         }
 

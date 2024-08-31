@@ -66,6 +66,13 @@ namespace IDosGames
             return JsonUtility.FromJson<InitData>(initDataUnsafe);
         }
 
+        [DllImport("__Internal")]
+        private static extern void ShowAd(string blockId);
+        public static void ShowAdInternal(string blockId)
+        {
+            ShowAd(blockId);
+        }
+
 #endif
 
     }

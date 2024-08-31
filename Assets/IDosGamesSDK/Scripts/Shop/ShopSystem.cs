@@ -51,6 +51,16 @@ namespace IDosGames
             IAPValidator.PurchaseValidated -= GrantItemsAfterIAPPurchase;
         }
 
+        private void Start()
+        {
+            WebAdsManager.Instance.OnAdCompleteEvent += WebAdComplete;
+        }
+
+        private void OnDestroy()
+        {
+            WebAdsManager.Instance.OnAdCompleteEvent -= WebAdComplete;
+        }
+
         public static void BuyForRealMoney(string ID)
         {
 #if IDOSGAMES_MOBILE_IAP
@@ -207,22 +217,47 @@ namespace IDosGames
         {
             _freeProductID = ID;
 
-            if (showAd && !UserInventory.HasVIPStatus && AdMediation.Instance != null)
+            if (showAd && !UserInventory.HasVIPStatus) //&& AdMediation.Instance != null
             {
-                if (AdMediation.Instance.ShowRewardedVideo(GetDailyFreeReward))
+                if (AdMediation.Instance != null)
                 {
-                    Debug.Log("Show rewarded video.");
+                    if (AdMediation.Instance.ShowRewardedVideo(GetDailyFreeReward))
+                    {
+                        Debug.Log("Show rewarded video.");
+                    }
+                    else
+                    {
+                        ///Message.Show("Ad is not ready.");
+                        PopUpSystem.ShowVIPPopUp();
+                    }
                 }
                 else
                 {
-                    ///Message.Show("Ad is not ready.");
-                    PopUpSystem.ShowVIPPopUp();
+                    if (AuthService.WebGLPlatform == WebGLPlatform.Telegram)
+                    {
+#if UNITY_WEBGL
+                        WebAdsManager.Instance.ShowAd(IDosGamesSDKSettings.Instance.AdsGramBlockID.ToString(), ID);
+#endif
+                    }
+                    else
+                    {
+                        PopUpSystem.ShowVIPPopUp();
+                    }
                 }
             }
             else
             {
                 GetDailyFreeReward();
             }
+        }
+
+        private void WebAdComplete(string args)
+        {
+            if (args == _freeProductID)
+            {
+                GetDailyFreeReward();
+            }
+
         }
 
         private static void CheckForItemsGrantedAfterIAPPurchase()
