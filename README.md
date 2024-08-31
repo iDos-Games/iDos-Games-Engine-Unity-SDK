@@ -23,7 +23,7 @@ To get textures for a 3D avatar you need the [https://u3d.as/3hMF](https://u3d.a
 Key features (works out of the box):
 
 - **Telegram Mini Apps.**
-Integration with Telegram Mini Apps, which allows you to integrate the referral system and payment system with Telegram. You can also host your WebGL build on the server for free.
+Integration with Telegram Mini Apps, which allows you to integrate referral system, payment system with Telegram and Rewarded Video Ads (earning from ads). You can also host your WebGL build on the server for free.
 
 - **Analytics.**  
 Integrate analytics from Firebase and AppMetrica (free) into your game and track your game's key metrics.
