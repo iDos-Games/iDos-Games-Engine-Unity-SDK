@@ -266,7 +266,9 @@ namespace IDosGames
         [HideInInspector][SerializeField] public string IgsAdminApiLink => $"{_serverLink}/api/{_titleID}/Admin/IGSAdminApi".Trim();
 
         [HideInInspector] public string WebGLBuildPath = "Assets/WebGLBuild/";
-        
+
+        [HideInInspector] public bool ClearDirectory = true;
+
         public void SaveSettings()
         {
             SaveState(_mobileIAPEnabled, MOBILE_IAP_DEFINE);

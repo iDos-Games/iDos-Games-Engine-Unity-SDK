@@ -53,12 +53,12 @@ namespace IDosGames
 
         private void Start()
         {
-            WebAdsManager.Instance.OnAdCompleteEvent += WebAdComplete;
+            WebFunctionHandler.Instance.OnAdCompleteEvent += WebAdComplete;
         }
 
         private void OnDestroy()
         {
-            WebAdsManager.Instance.OnAdCompleteEvent -= WebAdComplete;
+            WebFunctionHandler.Instance.OnAdCompleteEvent -= WebAdComplete;
         }
 
         public static void BuyForRealMoney(string ID)
@@ -236,7 +236,7 @@ namespace IDosGames
                     if (AuthService.WebGLPlatform == WebGLPlatform.Telegram)
                     {
 #if UNITY_WEBGL
-                        WebAdsManager.Instance.ShowAd(IDosGamesSDKSettings.Instance.AdsGramBlockID.ToString(), ID);
+                        WebFunctionHandler.Instance.ShowAd(IDosGamesSDKSettings.Instance.AdsGramBlockID.ToString(), ID);
 #endif
                     }
                     else

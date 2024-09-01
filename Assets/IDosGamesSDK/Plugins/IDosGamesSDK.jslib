@@ -72,6 +72,15 @@ mergeInto(LibraryManager.library, {
         } else {  
             console.warn("showAd function is not defined or AdsGram SDK is not loaded");  
         }  
+    },
+
+    CopyToClipboard: function (text) {  
+        var str = UTF8ToString(text);  
+        window.copyToClipboard(str);  
+    },
+
+    PasteFromClipboard: function () {  
+        window.pasteFromClipboard();  
     }
     
 });  

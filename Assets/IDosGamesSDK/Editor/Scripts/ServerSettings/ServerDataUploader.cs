@@ -66,8 +66,11 @@ namespace IDosGames
         {
             Debug.Log("Uploading Start ...");
 
-            await IGSAdminApi.ClearWebGL();
-
+            if(IDosGamesSDKSettings.Instance.ClearDirectory)
+            {
+                await IGSAdminApi.ClearWebGL();
+            }
+            
             if (!Directory.Exists(directoryPath))
             {
                 return;

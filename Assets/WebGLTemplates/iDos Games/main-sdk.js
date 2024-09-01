@@ -99,11 +99,27 @@
         AdController.show().then((result) => {  
             if (result.done) {  
                 console.log("User has finished watching the Ad");  
-                window.igcInstance.SendMessage('WebAdsManager', 'OnAdComplete', JSON.stringify(result));  
+                window.igcInstance.SendMessage('WebFunctionHandler', 'OnAdComplete', JSON.stringify(result));  
             }  
         }).catch((result) => {  
             console.warn("Error displaying ad or ad skipped", result);  
-            window.igcInstance.SendMessage('WebAdsManager', 'OnAdError', JSON.stringify(result));  
+            window.igcInstance.SendMessage('WebFunctionHandler', 'OnAdError', JSON.stringify(result));  
+        });  
+    }
+
+    function copyToClipboard(text) {  
+        navigator.clipboard.writeText(text).then(function() {  
+            console.log('Text copied to clipboard: ' + text);  
+        }).catch(function(err) {  
+            console.error('Could not copy text: ', err);  
+        });  
+    }
+
+    function pasteFromClipboard() {  
+        navigator.clipboard.readText().then(function(text) {  
+            window.igcInstance.SendMessage('WebFunctionHandler', 'OnPasteFromClipboard', text);  
+        }, function(err) {  
+            console.error('Could not read text from clipboard: ', err);  
         });  
     }
 
@@ -113,6 +129,8 @@
     window.shareAppLink = shareAppLink;
 	window.openInvoice = openInvoice;
     window.showAd = showAd;
+    window.copyToClipboard = copyToClipboard;
+    window.pasteFromClipboard = pasteFromClipboard;
   
     const platform = getPlatform();
     console.log("Platform: " + platform);

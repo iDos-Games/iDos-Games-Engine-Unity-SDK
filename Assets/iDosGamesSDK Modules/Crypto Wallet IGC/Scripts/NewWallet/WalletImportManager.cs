@@ -200,5 +200,25 @@ namespace IDosGames
         {
             GUIUtility.systemCopyBuffer = seedPhraseInputField.text;
         }
+
+        public void ClearSeedPhrase()
+        {
+            seedPhraseInputField.text = "";
+        }
+
+        public void PasteSeedPhrase()
+        {
+            seedPhraseInputField.text = GUIUtility.systemCopyBuffer;
+
+#if UNITY_WEBGL
+            WebSDK.PasteTextFromClipboard();
+            Invoke(nameof(CopyClipboardText), 0.3f);
+#endif
+        }
+
+        private void CopyClipboardText()
+        {
+            seedPhraseInputField.text = WebFunctionHandler.Instance._clipboardText;
+        }
     }
 }

@@ -15,12 +15,12 @@ namespace IDosGames
 
         private void OnEnable()
         {
-            WebAdsManager.Instance.OnAdCompleteEvent += WebAdComplete;
+            WebFunctionHandler.Instance.OnAdCompleteEvent += WebAdComplete;
         }
 
         private void OnDisable()
         {
-            WebAdsManager.Instance.OnAdCompleteEvent -= WebAdComplete;
+            WebFunctionHandler.Instance.OnAdCompleteEvent -= WebAdComplete;
         }
 
         private void TryToSpin(SpinTicketType type)
@@ -64,7 +64,7 @@ namespace IDosGames
                     if (AuthService.WebGLPlatform == WebGLPlatform.Telegram)
                     {
 #if UNITY_WEBGL
-                        WebAdsManager.Instance.ShowAd(IDosGamesSDKSettings.Instance.AdsGramBlockID.ToString(), "FreeSpin");
+                        WebFunctionHandler.Instance.ShowAd(IDosGamesSDKSettings.Instance.AdsGramBlockID.ToString(), "FreeSpin");
 #endif
                     }
                     else

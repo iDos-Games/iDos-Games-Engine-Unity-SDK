@@ -9,7 +9,7 @@ namespace IDosGames
         private void OnEnable()
         {
             UserInventory.InventoryUpdated += ResetSpinButton;
-            WebAdsManager.Instance.OnAdCompleteEvent += WebAdComplete;
+            WebFunctionHandler.Instance.OnAdCompleteEvent += WebAdComplete;
 
             ResetSpinButton();
         }
@@ -17,7 +17,7 @@ namespace IDosGames
         private void OnDisable()
         {
             UserInventory.InventoryUpdated -= ResetSpinButton;
-            WebAdsManager.Instance.OnAdCompleteEvent -= WebAdComplete;
+            WebFunctionHandler.Instance.OnAdCompleteEvent -= WebAdComplete;
         }
 
         public void ShowInterstitial()
@@ -42,7 +42,7 @@ namespace IDosGames
 
                 if (AuthService.WebGLPlatform == WebGLPlatform.Telegram)
                 {
-                    WebAdsManager.Instance.ShowAd(IDosGamesSDKSettings.Instance.AdsGramBlockID.ToString(), "SecondarySpin");
+                    WebFunctionHandler.Instance.ShowAd(IDosGamesSDKSettings.Instance.AdsGramBlockID.ToString(), "SecondarySpin");
                 }
                 else
                 {

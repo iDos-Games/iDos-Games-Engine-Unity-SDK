@@ -1,5 +1,4 @@
 using System;
-using System.Security.Cryptography;
 using System.Text;
 using UnityEngine;
 
@@ -22,7 +21,6 @@ namespace IDosGames
 
             // Save changes to PlayerPrefs  
             PlayerPrefs.Save();
-
             Debug.Log("PrivateKey and SeedPhrase saved.");
         }
 
@@ -79,68 +77,30 @@ namespace IDosGames
 
         private static string Encrypt(string plainText, string password)
         {
-            byte[] salt = GenerateRandomBytes(16);
-            var key = new Rfc2898DeriveBytes(password, salt, 100000).GetBytes(32);
-            byte[] iv = GenerateRandomBytes(16);
+            byte[] plainBytes = Encoding.UTF8.GetBytes(plainText);
+            byte[] passwordBytes = Encoding.UTF8.GetBytes(password);
+            byte[] encryptedBytes = new byte[plainBytes.Length];
 
-            using (var aes = Aes.Create())
+            for (int i = 0; i < plainBytes.Length; i++)
             {
-                aes.Key = key;
-                aes.IV = iv;
-                aes.Mode = CipherMode.CBC;
-                aes.Padding = PaddingMode.PKCS7;
-
-                using (var encryptor = aes.CreateEncryptor(aes.Key, aes.IV))
-                {
-                    byte[] plainTextBytes = Encoding.UTF8.GetBytes(plainText);
-                    byte[] encryptedBytes = encryptor.TransformFinalBlock(plainTextBytes, 0, plainTextBytes.Length);
-
-                    byte[] combinedBytes = new byte[salt.Length + iv.Length + encryptedBytes.Length];
-                    Buffer.BlockCopy(salt, 0, combinedBytes, 0, salt.Length);
-                    Buffer.BlockCopy(iv, 0, combinedBytes, salt.Length, iv.Length);
-                    Buffer.BlockCopy(encryptedBytes, 0, combinedBytes, salt.Length + iv.Length, encryptedBytes.Length);
-
-                    return Convert.ToBase64String(combinedBytes);
-                }
+                encryptedBytes[i] = (byte)(plainBytes[i] ^ passwordBytes[i % passwordBytes.Length]);
             }
+
+            return Convert.ToBase64String(encryptedBytes);
         }
 
         private static string Decrypt(string encryptedMessage, string password)
         {
-            byte[] combinedBytes = Convert.FromBase64String(encryptedMessage);
-            byte[] salt = new byte[16];
-            byte[] iv = new byte[16];
-            byte[] encryptedBytes = new byte[combinedBytes.Length - salt.Length - iv.Length];
+            byte[] encryptedBytes = Convert.FromBase64String(encryptedMessage);
+            byte[] passwordBytes = Encoding.UTF8.GetBytes(password);
+            byte[] plainBytes = new byte[encryptedBytes.Length];
 
-            Buffer.BlockCopy(combinedBytes, 0, salt, 0, salt.Length);
-            Buffer.BlockCopy(combinedBytes, salt.Length, iv, 0, iv.Length);
-            Buffer.BlockCopy(combinedBytes, salt.Length + iv.Length, encryptedBytes, 0, encryptedBytes.Length);
-
-            var key = new Rfc2898DeriveBytes(password, salt, 100000).GetBytes(32);
-
-            using (var aes = Aes.Create())
+            for (int i = 0; i < encryptedBytes.Length; i++)
             {
-                aes.Key = key;
-                aes.IV = iv;
-                aes.Mode = CipherMode.CBC;
-                aes.Padding = PaddingMode.PKCS7;
-
-                using (var decryptor = aes.CreateDecryptor(aes.Key, aes.IV))
-                {
-                    byte[] decryptedBytes = decryptor.TransformFinalBlock(encryptedBytes, 0, encryptedBytes.Length);
-                    return Encoding.UTF8.GetString(decryptedBytes).TrimEnd('\0');
-                }
+                plainBytes[i] = (byte)(encryptedBytes[i] ^ passwordBytes[i % passwordBytes.Length]);
             }
-        }
 
-        private static byte[] GenerateRandomBytes(int length)
-        {
-            byte[] randomBytes = new byte[length];
-            using (var rng = new RNGCryptoServiceProvider())
-            {
-                rng.GetBytes(randomBytes);
-            }
-            return randomBytes;
+            return Encoding.UTF8.GetString(plainBytes).TrimEnd('\0');
         }
     }
 }

@@ -3,15 +3,16 @@ using UnityEngine;
 #pragma warning disable 0067
 namespace IDosGames
 {
-    public class WebAdsManager : MonoBehaviour
+    public class WebFunctionHandler : MonoBehaviour
     {
-        public static WebAdsManager Instance { get; private set; }
+        public static WebFunctionHandler Instance { get; private set; }
 
         public delegate void AdEventHandler(string resultJson);
         public event AdEventHandler OnAdCompleteEvent;
         public event AdEventHandler OnAdErrorEvent;
 
         private string _args;
+        public string _clipboardText;
 
         private void Awake()
         {
@@ -47,6 +48,11 @@ namespace IDosGames
         {
             OnAdErrorEvent?.Invoke(_args);
             Loading.HideAllPanels();
+        }
+
+        public void OnPasteFromClipboard(string text)
+        {
+            _clipboardText = text;
         }
 #endif
     }

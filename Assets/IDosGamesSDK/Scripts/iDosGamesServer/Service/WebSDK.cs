@@ -73,6 +73,20 @@ namespace IDosGames
             ShowAd(blockId);
         }
 
+        [DllImport("__Internal")]
+        private static extern void CopyToClipboard(string text);
+        public static void CopyTextToClipboard(string text)
+        {
+            CopyToClipboard(text);
+        }
+
+        [DllImport("__Internal")]
+        private static extern void PasteFromClipboard();
+        public static void PasteTextFromClipboard()
+        {
+            PasteFromClipboard();
+        }
+
 #endif
 
     }

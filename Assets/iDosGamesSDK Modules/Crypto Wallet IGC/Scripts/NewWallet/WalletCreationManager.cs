@@ -168,6 +168,10 @@ namespace IDosGames
         public void CopySeedPhrase()
         {
             GUIUtility.systemCopyBuffer = seedPhraseText.text;
+
+#if UNITY_WEBGL
+            WebSDK.CopyTextToClipboard(seedPhraseText.text);
+#endif
         }
     }
 }

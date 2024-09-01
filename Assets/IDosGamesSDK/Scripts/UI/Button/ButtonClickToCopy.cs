@@ -31,6 +31,10 @@ namespace IDosGames
 			{
 				_popUp.gameObject.SetActive(true);
 			}
+
+#if UNITY_WEBGL
+			WebSDK.CopyTextToClipboard(_textToCopy.text);
+#endif
 		}
-	}
+    }
 }

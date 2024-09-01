@@ -22,13 +22,13 @@ namespace IDosGames
         private void OnEnable()
         {
             _shouldMove = true;
-            WebAdsManager.Instance.OnAdCompleteEvent += WebAdComplete;
+            WebFunctionHandler.Instance.OnAdCompleteEvent += WebAdComplete;
         }
 
         private void OnDisable()
         {
             _shouldMove = false;
-            WebAdsManager.Instance.OnAdCompleteEvent -= WebAdComplete;
+            WebFunctionHandler.Instance.OnAdCompleteEvent -= WebAdComplete;
         }
 
         public void GetReward()
@@ -42,7 +42,7 @@ namespace IDosGames
             if (AuthService.WebGLPlatform == WebGLPlatform.Telegram)
             {
                 _shouldMove = false;
-                WebAdsManager.Instance.ShowAd(IDosGamesSDKSettings.Instance.AdsGramBlockID.ToString(), "RewardMultiplicator");
+                WebFunctionHandler.Instance.ShowAd(IDosGamesSDKSettings.Instance.AdsGramBlockID.ToString(), "RewardMultiplicator");
             }
             else
             {
