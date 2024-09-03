@@ -341,8 +341,11 @@ namespace IDosGames
                 Value = data
             };
 
-            Debug.Log(JsonConvert.SerializeObject(parameter));
-
+            if (IDosGamesSDKSettings.Instance.DebugLogging)
+            {
+                Debug.Log(JsonConvert.SerializeObject(parameter));
+            }
+            
             _ = IGSClientAPI.ExecuteFunction(
 
                 functionName: ServerFunctionHandlers.UpdateCustomReadOnlyData,
@@ -362,8 +365,6 @@ namespace IDosGames
                 if (resultData[JsonProperty.MESSAGE_KEY] != null && resultData[JsonProperty.MESSAGE_KEY].ToString() == "SUCCESS")
                 {
                     CustomReadOnlyDataUpdated?.Invoke(key, CustomUpdateResult.SUCCESS);
-                    RequestUserReadOnlyData();
-
                 }
                 else if (resultData[JsonProperty.MESSAGE_KEY] != null && resultData[JsonProperty.MESSAGE_KEY].ToString() == "MESSAGE_CODE_INCORECT_KEY")
                 {
