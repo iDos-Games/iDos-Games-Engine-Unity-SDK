@@ -76,7 +76,7 @@ namespace IDosGames
 
 		private void AddProductsToBuilder(ConfigurationBuilder builder)
 		{
-			var productsData = UserDataService.GetTitleData(TitleDataKey.products_for_real_money);
+			var productsData = UserDataService.GetCachedTitleData(TitleDataKey.products_for_real_money);
 
 			var products = JsonConvert.DeserializeObject<JArray>(productsData);
 
@@ -147,7 +147,7 @@ namespace IDosGames
 			return PurchaseProcessingResult.Complete;
 		}
 
-		public void OnPurchaseFailed(Product product, PurchaseFailureReason failureReason)
+		public void OnPurchaseFailed(UnityEngine.Purchasing.Product product, PurchaseFailureReason failureReason)
 		{
 			try
 			{
@@ -161,7 +161,7 @@ namespace IDosGames
 			}
 		}
 
-		public void OnPurchaseFailed(Product product, PurchaseFailureDescription failureDescription)
+		public void OnPurchaseFailed(UnityEngine.Purchasing.Product product, PurchaseFailureDescription failureDescription)
 		{
 			try
 			{
