@@ -169,7 +169,7 @@ namespace IDosGames
         {
             GUIUtility.systemCopyBuffer = seedPhraseText.text;
 
-#if UNITY_WEBGL
+#if UNITY_WEBGL && !UNITY_EDITOR
             WebSDK.CopyTextToClipboard(seedPhraseText.text);
 #endif
         }

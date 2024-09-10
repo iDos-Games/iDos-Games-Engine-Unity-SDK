@@ -31,7 +31,7 @@ namespace IDosGames
 
 			var request = new WalletTransactionRequest
 			{
-				ChainID = (int)BlockchainNetwork.IgcTestnet,
+				ChainID = BlockchainSettings.ChainID,
 				TransactionType = CryptoTransactionType.Token,
 				Direction = TransactionDirection.Game,
 				TransactionHash = transactionHash
@@ -62,7 +62,7 @@ namespace IDosGames
 
 			var request = new WalletTransactionRequest
 			{
-				ChainID = (int)BlockchainNetwork.IgcTestnet,
+				ChainID = BlockchainSettings.ChainID,
 				TransactionType = CryptoTransactionType.NFT,
 				Direction = TransactionDirection.Game,
 				TransactionHash = transactionHash
@@ -82,7 +82,7 @@ namespace IDosGames
 
 			var request = new WalletTransactionRequest
 			{
-				ChainID = (int)BlockchainNetwork.IgcTestnet,
+				ChainID = BlockchainSettings.ChainID,
 				TransactionType = CryptoTransactionType.Token,
 				Direction = TransactionDirection.UsersCryptoWallet,
 				CurrencyID = virtualCurrencyID,
@@ -104,7 +104,7 @@ namespace IDosGames
 
 			var request = new WalletTransactionRequest
 			{
-				ChainID = (int)BlockchainNetwork.IgcTestnet,
+				ChainID = BlockchainSettings.ChainID,
 				TransactionType = CryptoTransactionType.NFT,
 				Direction = TransactionDirection.UsersCryptoWallet,
 				SkinID = skinID,

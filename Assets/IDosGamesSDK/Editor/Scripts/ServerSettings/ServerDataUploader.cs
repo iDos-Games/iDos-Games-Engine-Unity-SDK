@@ -176,9 +176,11 @@ namespace IDosGames
 
         public static void DeleteAllSettings()
         {
+            IDosGamesSDKSettings.Instance.ServerLink = null;
             IDosGamesSDKSettings.Instance.DeveloperSecretKey = null;
             IDosGamesSDKSettings.Instance.WebGLUrl = null;
             IDosGamesSDKSettings.Instance.TitleID = "";
+            PlayerPrefs.DeleteAll();
         }
     }
 }

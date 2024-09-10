@@ -41,7 +41,7 @@ namespace IDosGames
                 };
 
                 var jsonData = JsonConvert.SerializeObject(data);
-                string responseText = await SendUnityWebRequest(BlockchainSettings.GetProviderAddress(BlockchainNetwork.IgcTestnet), jsonData);
+                string responseText = await SendUnityWebRequest(BlockchainSettings.RpcUrl, jsonData);
 
                 if (string.IsNullOrEmpty(responseText))
                 {
@@ -79,7 +79,7 @@ namespace IDosGames
             {
                 string contractABI = BlockchainSettings.GetTokenContractABI(virtualCurrencyID);
                 string contractAddress = BlockchainSettings.GetTokenContractAddress(virtualCurrencyID);
-                var web3 = new Web3(BlockchainSettings.GetProviderAddress(BlockchainNetwork.IgcTestnet));
+                var web3 = new Web3(BlockchainSettings.RpcUrl);
 
                 var balanceOfFunction = new BalanceOfERC20Function
                 {
@@ -101,7 +101,7 @@ namespace IDosGames
                 };
 
                 var jsonData = JsonConvert.SerializeObject(data);
-                string responseText = await SendUnityWebRequest(BlockchainSettings.GetProviderAddress(BlockchainNetwork.IgcTestnet), jsonData);
+                string responseText = await SendUnityWebRequest(BlockchainSettings.RpcUrl, jsonData);
 
                 if (string.IsNullOrEmpty(responseText))
                 {
@@ -136,9 +136,9 @@ namespace IDosGames
         {
             try
             {
-                var web3 = new Web3(BlockchainSettings.GetProviderAddress(BlockchainNetwork.IgcTestnet));
+                var web3 = new Web3(BlockchainSettings.RpcUrl);
                 var erc1155Service = new ERC1155Service(web3.Eth);
-                var contractAddress = BlockchainSettings.NFT_CONTRACT_ADDRESS;
+                var contractAddress = BlockchainSettings.NftContractAddress;
                 var balanceOfBatchFunction = new BalanceOfBatchFunction
                 {
                     Accounts = Enumerable.Repeat(walletAddress, nftIDs.Count).ToList(),
@@ -164,7 +164,7 @@ namespace IDosGames
                 };
 
                 var jsonData = JsonConvert.SerializeObject(data);
-                string responseText = await SendUnityWebRequest(BlockchainSettings.GetProviderAddress(BlockchainNetwork.IgcTestnet), jsonData);
+                string responseText = await SendUnityWebRequest(BlockchainSettings.RpcUrl, jsonData);
 
                 if (string.IsNullOrEmpty(responseText))
                 {
@@ -196,14 +196,14 @@ namespace IDosGames
             try
             {
                 var account = new Account(privateKey);
-                var web3 = new Web3(account, BlockchainSettings.GetProviderAddress(BlockchainNetwork.IgcTestnet));
+                var web3 = new Web3(account, BlockchainSettings.RpcUrl);
                 var contractAddress = BlockchainSettings.GetTokenContractAddress(tokenID);
                 var transferFunction = new TransferFunction
                 {
                     FromAddress = fromAddress,
                     To = toAddress,
                     Value = new HexBigInteger(Web3.Convert.ToWei(amount, UnitConversion.EthUnit.Ether)),
-                    GasPrice = new HexBigInteger(Web3.Convert.ToWei(BlockchainSettings.GAS_PRICE, UnitConversion.EthUnit.Gwei)),
+                    GasPrice = new HexBigInteger(Web3.Convert.ToWei(BlockchainSettings.GasPrice, UnitConversion.EthUnit.Gwei)),
                     AmountToSend = new HexBigInteger(BlockchainSettings.DEFAULT_VALUE_IN_NATIVE_TOKEN)
                 };
 
@@ -236,7 +236,7 @@ namespace IDosGames
                 };
 
                 var jsonData = JsonConvert.SerializeObject(data);
-                string responseText = await SendUnityWebRequest(BlockchainSettings.GetProviderAddress(BlockchainNetwork.IgcTestnet), jsonData);
+                string responseText = await SendUnityWebRequest(BlockchainSettings.RpcUrl, jsonData);
 
                 if (string.IsNullOrEmpty(responseText))
                 {
@@ -264,15 +264,15 @@ namespace IDosGames
             try
             {
                 var account = new Account(privateKey);
-                var web3 = new Web3(account, BlockchainSettings.GetProviderAddress(BlockchainNetwork.IgcTestnet));
-                var contractAddress = BlockchainSettings.NFT_CONTRACT_ADDRESS;
+                var web3 = new Web3(account, BlockchainSettings.RpcUrl);
+                var contractAddress = BlockchainSettings.NftContractAddress;
                 var transferFunction = new SafeTransferFromFunction
                 {
                     From = fromAddress,
                     To = toAddress,
                     Id = nftID,
                     Amount = amount,
-                    GasPrice = new HexBigInteger(Web3.Convert.ToWei(BlockchainSettings.GAS_PRICE, UnitConversion.EthUnit.Gwei)),
+                    GasPrice = new HexBigInteger(Web3.Convert.ToWei(BlockchainSettings.GasPrice, UnitConversion.EthUnit.Gwei)),
                     Data = Array.Empty<byte>()
                 };
 
@@ -305,7 +305,7 @@ namespace IDosGames
                 };
 
                 var jsonData = JsonConvert.SerializeObject(data);
-                string responseText = await SendUnityWebRequest(BlockchainSettings.GetProviderAddress(BlockchainNetwork.IgcTestnet), jsonData);
+                string responseText = await SendUnityWebRequest(BlockchainSettings.RpcUrl, jsonData);
 
                 if (string.IsNullOrEmpty(responseText))
                 {
@@ -328,7 +328,6 @@ namespace IDosGames
             }
         }
 
-        
         private static async Task<string> SendUnityWebRequest(string url, string jsonData)
         {
             using (UnityWebRequest webRequest = new UnityWebRequest(url, "POST"))
@@ -384,7 +383,7 @@ namespace IDosGames
 
         public static async Task<HexBigInteger> EstimateGasAsync(string contractAddress, TransferFunction transferFunction)
         {
-            var web3 = new Web3(BlockchainSettings.GetProviderAddress(BlockchainNetwork.IgcTestnet));
+            var web3 = new Web3(BlockchainSettings.RpcUrl);
             var transferHandler = web3.Eth.GetContractTransactionHandler<TransferFunction>();
             var callInput = transferFunction.CreateCallInput(contractAddress);
 
@@ -408,7 +407,7 @@ namespace IDosGames
             };
 
             var jsonData = JsonConvert.SerializeObject(data);
-            string responseText = await SendUnityWebRequest(BlockchainSettings.GetProviderAddress(BlockchainNetwork.IgcTestnet), jsonData);
+            string responseText = await SendUnityWebRequest(BlockchainSettings.RpcUrl, jsonData);
 
             if (string.IsNullOrEmpty(responseText))
             {
@@ -450,7 +449,7 @@ namespace IDosGames
             };
 
             var jsonData = JsonConvert.SerializeObject(data);
-            string responseText = await SendUnityWebRequest(BlockchainSettings.GetProviderAddress(BlockchainNetwork.IgcTestnet), jsonData);
+            string responseText = await SendUnityWebRequest(BlockchainSettings.RpcUrl, jsonData);
 
             if (string.IsNullOrEmpty(responseText))
             {
@@ -482,7 +481,7 @@ namespace IDosGames
             };
 
             var jsonData = JsonConvert.SerializeObject(data);
-            string responseText = await SendUnityWebRequest(BlockchainSettings.GetProviderAddress(BlockchainNetwork.IgcTestnet), jsonData);
+            string responseText = await SendUnityWebRequest(BlockchainSettings.RpcUrl, jsonData);
 
             if (string.IsNullOrEmpty(responseText))
             {

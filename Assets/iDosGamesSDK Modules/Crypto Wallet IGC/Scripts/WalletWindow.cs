@@ -44,7 +44,7 @@ namespace IDosGames
 			{
 				if (transactionHash != null && transactionHash != string.Empty)
 				{
-					int chainID = (int)BlockchainNetwork.IgcTestnet;
+					int chainID = BlockchainSettings.ChainID;
 					WalletTransactionHistory.SaveNewItem(chainID, transactionHash, direction,
 						GetTokenName(virtualCurrencyID), amount,
 						GetTokenImagePath(virtualCurrencyID));
@@ -92,7 +92,7 @@ namespace IDosGames
 			{
 				if (transactionHash != null && transactionHash != string.Empty)
 				{
-					int chainID = (int)BlockchainNetwork.IgcTestnet;
+					int chainID = BlockchainSettings.ChainID;
 					WalletTransactionHistory.SaveNewItem(chainID, transactionHash, direction,
 						UserDataService.GetCachedSkinItem(skinID).DisplayName, amount,
 						UserDataService.GetCachedSkinItem(skinID).ImagePath);

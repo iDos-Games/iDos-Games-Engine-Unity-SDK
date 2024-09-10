@@ -208,17 +208,17 @@ namespace IDosGames
         [SerializeField] private string _hotWalletAddress;
         public string HotWalletAddress => _hotWalletAddress;
 
-        [SerializeField] private int _gasPrice = 2;
-        public int GasPrice => _gasPrice;
+        [SerializeField] private float _gasPrice = 2;
+        public float GasPrice => _gasPrice;
 
         [Space(5)]
-        [SerializeField] private BlockchainNetwork _chainId;
-        public BlockchainNetwork ChainID => _chainId;
+        [SerializeField] private int _chainId = 1499;
+        public int ChainID => _chainId;
 
         [SerializeField] private string _rpcUrl = "https://rpc-testnet.idos.games";
         public string RpcUrl => _rpcUrl;
 
-        [SerializeField] private string _blockchainExplorerUrl = "https://igcscan.com/tx/";
+        [SerializeField] private string _blockchainExplorerUrl = "https://igcscan.com";
         public string BlockchainExplorerUrl => _blockchainExplorerUrl;
 
         [Space(10)]
