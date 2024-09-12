@@ -39,13 +39,13 @@ namespace IDosGames
             string deviceID = GetOrCreateDeviceID();
             string userName = GetUserName();
             string device = GetDevice();
-            string os = GetOS();
+            string platform = GetPlatform();
 
             var requestBody = new IGSRequest
             {
                 TitleID = IDosGamesSDKSettings.Instance.TitleID,
                 FunctionName = ServerFunctionHandlers.LoginWithDeviceID.ToString(),
-                OS = os,
+                Platform = platform,
                 Device = device,
                 DeviceID = deviceID,
                 UserName = userName
@@ -111,15 +111,22 @@ namespace IDosGames
             return device;
         }
 
-        private static string GetOS()
+        private static string GetPlatform()
         {
-            string os = null;
+            string platform = null;
 #if UNITY_WEBGL
-            os = "0";
+            if (AuthService.WebGLPlatform == WebGLPlatform.Telegram)
+            {
+                platform = "Telegram";
+            }
+            else
+            {
+                platform = "WebGLPlayer";
+            }
 #else
-            os = Application.platform.ToString();
+            platform = Application.platform.ToString();
 #endif
-            return os;
+            return platform;
         }
 
         public static async Task<GetAllUserDataResult> LoginWithEmail(string email, string password)
@@ -162,7 +169,7 @@ namespace IDosGames
                 FunctionName = ServerFunctionHandlers.RegisterUserByEmail.ToString(),
                 Email = email,
                 Password = password,
-                OS = Application.platform.ToString(),
+                Platform = Application.platform.ToString(),
                 Device = SystemInfo.deviceModel,
                 DeviceID = SystemInfo.deviceUniqueIdentifier
             };

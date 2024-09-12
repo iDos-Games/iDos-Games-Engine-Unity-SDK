@@ -10,7 +10,7 @@ namespace IDosGames
         public string UserID { get; set; }
         public string UserName { get; set; }
         public string FunctionName { get; set; }
-        public string OS { get; set; }
+        public string Platform { get; set; }
         public string Device { get; set; }
         public string DeviceID { get; set; }
         public string Email { get; set; }

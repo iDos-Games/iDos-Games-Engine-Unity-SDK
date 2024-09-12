@@ -21,7 +21,7 @@ namespace IDosGames
 		private void Start()
 		{
 			_currencyDropdown.onValueChanged.AddListener(OnCurrencyChanged);
-			_priceInputField.onEndEdit.AddListener(OnPriceChanged);
+			_priceInputField.onValueChanged.AddListener(OnPriceChanged);
 		}
 
 		public void Show(Action<VirtualCurrencyID, int> saveAction, VirtualCurrencyID currencyID, int price)
