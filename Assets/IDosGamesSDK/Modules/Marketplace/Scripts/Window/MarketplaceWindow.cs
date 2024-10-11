@@ -43,7 +43,7 @@ namespace IDosGames
 
 		private void SetCommissions()
 		{
-			var commissionDataRaw = UserDataService.GetCachedTitleData(TitleDataKey.commission_royalty_percentage);
+			var commissionDataRaw = UserDataService.GetCachedTitleData(TitleDataKey.CommissionRoyaltyPercentage);
 
 			if (commissionDataRaw == string.Empty)
 			{

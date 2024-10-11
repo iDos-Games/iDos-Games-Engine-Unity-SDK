@@ -52,7 +52,7 @@ namespace IDosGames
 
             foreach (var product in products)
             {
-                if ($"{product[JsonProperty.ENABLED]}" != JsonProperty.ENABLED_VALUE)
+                if (!(bool)product[JsonProperty.ENABLED])
                 {
                     continue;
                 }

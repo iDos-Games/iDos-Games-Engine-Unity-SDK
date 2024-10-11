@@ -1,4 +1,5 @@
-using Newtonsoft.Json.Linq;
+using IDosGames.TitlePublicConfiguration;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
@@ -14,41 +15,40 @@ namespace IDosGames
 		[SerializeField] private Transform _rewardsParent;
 		[SerializeField] private LeaderboardRankReward _rankRewardPrefab;
 
-		public void Initialize(JObject leaderboardData)
-		{
-			if (leaderboardData == null)
-			{
-				return;
-			}
+        public void Initialize(Leaderboard leaderboardData)
+        {
+            if (leaderboardData == null)
+            {
+                return;
+            }
 
-			SetTitle($"{leaderboardData[JsonProperty.NAME]}");
-			SetFrequency($"{leaderboardData[JsonProperty.FREQUENCY]}");
-			SetRewards((JArray)leaderboardData[JsonProperty.ITEMS_TO_GRANT]);
-		}
+            SetFrequency(leaderboardData.Frequency);
+            SetTitle(leaderboardData.Name);
+            SetRewards(leaderboardData.RankRewards);
+        }
 
-		private void SetTitle(string title)
+        private void SetTitle(string title)
 		{
 			_title.text = title;
 		}
 
-		private void SetFrequency(string frequency)
+		private void SetFrequency(StatisticResetFrequency frequency)
 		{
-			_frequency.text = frequency;
+			_frequency.text = frequency.ToString();
 		}
 
-		private void SetRewards(JArray rankRewards)
-		{
-			foreach (Transform child in _rewardsParent)
-			{
-				Destroy(child.gameObject);
-			}
+        private void SetRewards(List<RankReward> rankRewards)
+        {
+            foreach (Transform child in _rewardsParent)
+            {
+                Destroy(child.gameObject);
+            }
 
-			foreach (var rankReward in rankRewards)
-			{
-				var reward = Instantiate(_rankRewardPrefab, _rewardsParent);
-				reward.Set($"{rankReward[JsonProperty.RANK]}", (JArray)rankReward[JsonProperty.ITEMS_TO_GRANT]);
-			}
-
-		}
-	}
+            foreach (var rankReward in rankRewards)
+            {
+                var reward = Instantiate(_rankRewardPrefab, _rewardsParent);
+                reward.Set(rankReward.Rank, rankReward.ItemsToGrant);
+            }
+        }
+    }
 }

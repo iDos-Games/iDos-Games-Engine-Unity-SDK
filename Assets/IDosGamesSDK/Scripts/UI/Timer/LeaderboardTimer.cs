@@ -1,3 +1,4 @@
+using IDosGames.TitlePublicConfiguration;
 using System;
 using UnityEngine;
 
@@ -23,20 +24,20 @@ namespace IDosGames
 			_leaderboardWindow.Refresh();
 		}
 
-		public void UpdateTimer(LeaderboardUpdateFrequency frequency)
+		public void UpdateTimer(StatisticResetFrequency frequency)
 		{
 			DateTime endDate = DateTime.UtcNow;
 
 			switch (frequency)
 			{
 				default:
-				case LeaderboardUpdateFrequency.daily:
+				case StatisticResetFrequency.Daily:
 					endDate = GetTimeToNextDay();
 					break;
-				case LeaderboardUpdateFrequency.weekly:
+				case StatisticResetFrequency.Weekly:
 					endDate = GetTimeToNextWeek();
 					break;
-				case LeaderboardUpdateFrequency.monthly:
+				case StatisticResetFrequency.Monthly:
 					endDate = GetTimeToNextMonth();
 					break;
 			}

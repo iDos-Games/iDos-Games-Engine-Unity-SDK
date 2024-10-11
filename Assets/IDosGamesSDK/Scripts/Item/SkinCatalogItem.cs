@@ -16,12 +16,12 @@ namespace IDosGames
 
 		public SkinCatalogItem(CatalogItem item, JObject customData) : base(item)
 		{
-			customData.TryGetValue(JsonProperty.OBJECT_TYPE, out JToken objectType).ToString();
-			customData.TryGetValue(JsonProperty.COLLECTION, out JToken collection).ToString();
-			customData.TryGetValue(JsonProperty.IMAGE_PATH, out JToken imagePath).ToString();
-			customData.TryGetValue(JsonProperty.TEXTURE_PATH, out JToken texturePath).ToString();
-			customData.TryGetValue(JsonProperty.NFT_ID, out JToken nftIDData).ToString();
-			customData.TryGetValue(JsonProperty.AUTHOR_ID, out JToken authorID).ToString();
+			customData.TryGetValue(JsonProperty.CATALOG_ITEM_OBJECT_TYPE, out JToken objectType).ToString();
+			customData.TryGetValue(JsonProperty.CATALOG_ITEM_COLLECTION, out JToken collection).ToString();
+			customData.TryGetValue(JsonProperty.CATALOG_ITEM_IMAGE_PATH, out JToken imagePath).ToString();
+			customData.TryGetValue(JsonProperty.CATALOG_ITEM_TEXTURE_PATH, out JToken texturePath).ToString();
+			customData.TryGetValue(JsonProperty.CATALOG_ITEM_NFT_ID, out JToken nftIDData).ToString();
+			customData.TryGetValue(JsonProperty.CATALOG_ITEM_AUTHOR_ID, out JToken authorID).ToString();
 
 			ObjectType = $"{objectType}";
 			Collection = $"{collection}";

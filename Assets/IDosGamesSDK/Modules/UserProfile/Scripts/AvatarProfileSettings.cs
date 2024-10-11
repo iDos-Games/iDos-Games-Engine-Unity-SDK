@@ -1,3 +1,4 @@
+using IDosGames.TitlePublicConfiguration;
 using UnityEngine;
 
 namespace IDosGames.UserProfile

@@ -39,7 +39,7 @@ namespace IDosGames.UserProfile
                 }
                 else
                 {
-                    var defaultSkin = UserDataService.GetCachedTitleData(TitleDataKey.default_avatar_skin);
+                    var defaultSkin = UserDataService.GetCachedTitleData(TitleDataKey.DefaultAvatarSkin);
                     if (!string.IsNullOrEmpty(defaultSkin))
                     {
                         JToken jsonData = JsonConvert.DeserializeObject<JToken>(defaultSkin);
@@ -86,7 +86,7 @@ namespace IDosGames.UserProfile
             }
             else
             {
-                var defaultSkin = UserDataService.GetCachedTitleData(TitleDataKey.default_avatar_skin);
+                var defaultSkin = UserDataService.GetCachedTitleData(TitleDataKey.DefaultAvatarSkin);
                 if (!string.IsNullOrEmpty(defaultSkin))
                 {
                     JToken jsonData = JsonConvert.DeserializeObject<JToken>(defaultSkin);

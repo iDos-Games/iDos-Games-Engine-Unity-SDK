@@ -17,7 +17,7 @@ namespace IDosGames
 				return null;
 			}
 
-			var companyWalletAddress = BlockchainSettings.CompanyCryptoWallet;
+			var companyWalletAddress = BlockchainSettings.HotWalletAddress;
 
 			var transactionHash = await WalletBlockchainService.TransferERC20TokenAndGetHash(WalletManager.WalletAddress, companyWalletAddress, virtualCurrencyID, amount, WalletManager.PrivateKey);
 
@@ -49,7 +49,7 @@ namespace IDosGames
 				return null;
 			}
 
-			var companyWalletAddress = BlockchainSettings.CompanyCryptoWallet;
+			var companyWalletAddress = BlockchainSettings.HotWalletAddress;
 
 			var transactionHash = await WalletBlockchainService.TransferNFT1155AndGetHash(WalletManager.WalletAddress, companyWalletAddress, nftID, amount, WalletManager.PrivateKey);
 

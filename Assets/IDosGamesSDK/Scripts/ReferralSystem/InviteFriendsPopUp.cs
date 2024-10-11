@@ -106,7 +106,7 @@ namespace IDosGames
 
 		private void ResetInviteRewards(string followersAmount)
 		{
-			var referralInviteRewardsData = UserDataService.GetCachedTitleData(TitleDataKey.referral_invite_rewards);
+			var referralInviteRewardsData = UserDataService.GetCachedTitleData(TitleDataKey.ReferralInviteRewards);
 			var userReadOnlyReferralInviteRewardsData = UserDataService.GetCachedUserReadOnlyData(UserReadOnlyDataKey.referral_invite_rewards);
 
 			var rewards = JsonConvert.DeserializeObject<JArray>(referralInviteRewardsData);

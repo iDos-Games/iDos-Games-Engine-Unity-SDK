@@ -556,7 +556,7 @@ namespace IDosGames
 
         private static void SetSkinCollectionRarityAndProfit()
         {
-            string collectionRarityData = GetCachedTitleData(TitleDataKey.skin_collection_rarity);
+            string collectionRarityData = GetCachedTitleData(TitleDataKey.SkinCollectionRarity);
 
             JArray collectionRarities = new();
 
@@ -635,7 +635,7 @@ namespace IDosGames
                 return;
             }
             Dictionary<ClothingType, string> equippedSkins = new Dictionary<ClothingType, string>();
-            var titleData = GetCachedTitleData(TitleDataKey.default_avatar_skin);
+            var titleData = GetCachedTitleData(TitleDataKey.DefaultAvatarSkin);
             Dictionary<ClothingType, string> defaultSkins = new Dictionary<ClothingType, string>();
             Debug.Log(titleData);
             if (!string.IsNullOrEmpty(titleData))

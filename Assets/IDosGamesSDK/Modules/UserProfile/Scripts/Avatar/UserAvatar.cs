@@ -1,3 +1,4 @@
+using IDosGames.TitlePublicConfiguration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -138,7 +139,7 @@ namespace IDosGames.UserProfile
                 {
 
 
-                    var titleData = UserDataService.GetCachedTitleData(TitleDataKey.default_avatar_skin);
+                    var titleData = UserDataService.GetCachedTitleData(TitleDataKey.DefaultAvatarSkin);
                     JObject data = JsonConvert.DeserializeObject<JObject>(titleData);
                     JArray jArray = data.GetValue("Data").Value<JArray>();
                     string bodyItemID = jArray
