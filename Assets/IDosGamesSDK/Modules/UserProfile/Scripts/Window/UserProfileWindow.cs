@@ -122,7 +122,8 @@ namespace IDosGames.UserProfile
         {
             Loading.ShowTransparentPanel();
             var saveData = _userAvatar.GetUpdateData();
-            UserDataService.UpdateCustomReadOnlyData(UserReadOnlyDataKey.equipped_avatar_skins.ToString(), saveData); 
+            UserProfileRoom._equipedAvatarSkins = saveData;
+            UserDataService.UpdateCustomReadOnlyData(UserReadOnlyDataKey.equipped_avatar_skins.ToString(), saveData);
         }
 
         public void MoveCameraTo(ClothingType clothingType)
@@ -155,7 +156,8 @@ namespace IDosGames.UserProfile
                     break;
             }
         }
-        public void Init(string playfabID, JToken data)
+
+        public void Init(string playfabID, DefaultAvatarSkin data)
         {
             _cameraMovement.SetTarget(_cameraPositionOnOtherPlayer);
             if (playfabID == AuthService.UserID)
@@ -173,9 +175,6 @@ namespace IDosGames.UserProfile
             _userID = playfabID;
 
             _userAvatar.Init(data);
-
-
-
         }
 
         public void ChangeGender(Gender gender)

@@ -1,3 +1,5 @@
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
 
@@ -57,6 +59,7 @@ namespace IDosGames.TitlePublicConfiguration
         public DefaultAvatarSkinData Data { get; set; }
     }
 
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum Gender
     {
         Male,
@@ -67,6 +70,10 @@ namespace IDosGames.TitlePublicConfiguration
     public class DefaultAvatarSkinData
     {
         public string Body { get; set; }
+        public string Glasses { get; set; }
+        public string Hands { get; set; }
+        public string Hat { get; set; }
+        public string Mask { get; set; }
         public string Pants { get; set; }
         public string Shoes { get; set; }
         public string Torso { get; set; }
@@ -84,6 +91,7 @@ namespace IDosGames.TitlePublicConfiguration
         public List<Reward> Rewards { get; set; }
     }
 
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum EventType
     {
         Weekdays,
@@ -113,6 +121,7 @@ namespace IDosGames.TitlePublicConfiguration
         public List<RankReward> RankRewards { get; set; }
     }
 
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum StatisticType
     {
         Global,
@@ -121,6 +130,7 @@ namespace IDosGames.TitlePublicConfiguration
         Clan
     }
 
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum StatisticResetFrequency
     {
         Hourly,
@@ -130,6 +140,7 @@ namespace IDosGames.TitlePublicConfiguration
         Yearly
     }
 
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum StatisticAggregationMethod
     {
         Last, // Last (always update with the new value)
@@ -155,6 +166,7 @@ namespace IDosGames.TitlePublicConfiguration
         public string ItemID { get; set; }
     }
 
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum ItemType
     {
         Item,
@@ -268,7 +280,7 @@ namespace IDosGames.TitlePublicConfiguration
     public class ShopSpecialProduct
     {
         public string ItemID { get; set; }
-        public string Type { get; set; }
+        public SpecialProductType Type { get; set; }
         public DateTime? EndDate { get; set; }
         public int? QuantityLimit { get; set; }
         public string Name { get; set; }
@@ -277,6 +289,16 @@ namespace IDosGames.TitlePublicConfiguration
         public string CurrencyImagePath { get; set; }
         public string ImagePath { get; set; }
         public List<ItemOrCurrency> ItemsToGrant { get; set; }
+    }
+
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum SpecialProductType
+    {
+        TimeLimited,
+        QuantityLimited,
+        QuantityLimitedForPlayer,
+        TimeQuantityLimitedForPlayer,
+        Unlimited
     }
 
     public class SkinCollectionRarity

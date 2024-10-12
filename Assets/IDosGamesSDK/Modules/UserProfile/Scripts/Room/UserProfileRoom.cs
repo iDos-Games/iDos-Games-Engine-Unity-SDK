@@ -1,6 +1,6 @@
 using IDosGames.ClientModels;
+using IDosGames.TitlePublicConfiguration;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using UnityEngine;
 
 namespace IDosGames.UserProfile
@@ -8,6 +8,7 @@ namespace IDosGames.UserProfile
     public class UserProfileRoom : Room
     {
         [SerializeField] private UserProfileWindow _profileWindow;
+        public static DefaultAvatarSkin _equipedAvatarSkins;
         private string _user;
 
         public void OpenRoom(string playfabID = null)
@@ -34,22 +35,26 @@ namespace IDosGames.UserProfile
                 var data = UserDataService.GetCachedUserReadOnlyData(UserReadOnlyDataKey.equipped_avatar_skins.ToString());
                 if (!string.IsNullOrEmpty(data))
                 {
-                    JToken jsonData = JsonConvert.DeserializeObject<JToken>(data);
-                    _profileWindow.Init(_user, jsonData);
+                    if (_equipedAvatarSkins == null)
+                    {
+                        _equipedAvatarSkins = JsonConvert.DeserializeObject<DefaultAvatarSkin>(data);
+                    }
+                    
+                    _profileWindow.Init(_user, _equipedAvatarSkins);
                 }
                 else
                 {
                     var defaultSkin = UserDataService.GetCachedTitleData(TitleDataKey.DefaultAvatarSkin);
                     if (!string.IsNullOrEmpty(defaultSkin))
                     {
-                        JToken jsonData = JsonConvert.DeserializeObject<JToken>(defaultSkin);
+                        _equipedAvatarSkins = JsonConvert.DeserializeObject<DefaultAvatarSkin>(defaultSkin);
 
                         if(IDosGamesSDKSettings.Instance.DebugLogging)
                         {
-                            Debug.Log(jsonData.ToString());
+                            Debug.Log(_equipedAvatarSkins.ToString());
                         }
                         
-                        _profileWindow.Init(_user, jsonData);
+                        _profileWindow.Init(_user, _equipedAvatarSkins);
                     }
                 }
                 Loading.HideAllPanels();
@@ -80,7 +85,7 @@ namespace IDosGames.UserProfile
             }
             if (!string.IsNullOrEmpty(dataString))
             {
-                JToken jsonData = JsonConvert.DeserializeObject<JToken>(dataString);
+                DefaultAvatarSkin jsonData = JsonConvert.DeserializeObject<DefaultAvatarSkin>(dataString);
                 Debug.Log(jsonData.ToString());
                 _profileWindow.Init(_user, jsonData);
             }
@@ -89,7 +94,7 @@ namespace IDosGames.UserProfile
                 var defaultSkin = UserDataService.GetCachedTitleData(TitleDataKey.DefaultAvatarSkin);
                 if (!string.IsNullOrEmpty(defaultSkin))
                 {
-                    JToken jsonData = JsonConvert.DeserializeObject<JToken>(defaultSkin);
+                    DefaultAvatarSkin jsonData = JsonConvert.DeserializeObject<DefaultAvatarSkin>(defaultSkin);
                     Debug.Log(jsonData.ToString());
                     _profileWindow.Init(_user, jsonData);
                 }
