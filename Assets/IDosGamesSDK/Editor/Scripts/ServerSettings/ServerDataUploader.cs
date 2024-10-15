@@ -91,15 +91,13 @@ namespace IDosGames
 
             Debug.Log("All Files Upload Completed!");
 
-            string appName = ExtractAppName(IDosGamesSDKSettings.Instance.ServerLink);
-
             if (IDosGamesSDKSettings.Instance.DevBuild)
             {
-                IDosGamesSDKSettings.Instance.WebGLUrl = "https://igc" + appName + ".blob.core.windows.net/public-data/" + IDosGamesSDKSettings.Instance.TitleID + "-dev/index.html";
+                IDosGamesSDKSettings.Instance.WebGLUrl = "https://cloud.idosgames.com/drive/" + IDosGamesSDKSettings.Instance.TitleID + "-dev/index.html";
             }
             else
             {
-                IDosGamesSDKSettings.Instance.WebGLUrl = "https://igc" + appName + ".blob.core.windows.net/public-data/" + IDosGamesSDKSettings.Instance.TitleID + "/index.html";
+                IDosGamesSDKSettings.Instance.WebGLUrl = "https://cloud.idosgames.com/drive/" + IDosGamesSDKSettings.Instance.TitleID + "/index.html";
             }
             
             Debug.Log("WebGL URL: " + IDosGamesSDKSettings.Instance.WebGLUrl);

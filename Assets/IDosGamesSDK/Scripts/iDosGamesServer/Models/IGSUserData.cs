@@ -6,7 +6,6 @@ namespace IDosGames
     public static class IGSUserData
     {
         public static GetAllUserDataResult UserAllDataResult { get; set; }
-
         public static GetUserInventoryResult UserInventory { get; set; }
         public static JObject TitleData { get; set; }
         public static GetUserDataResult ReadOnlyData { get; set; }
@@ -18,5 +17,6 @@ namespace IDosGames
         public static string MarketplaceGroupedOffers { get; set; }
         public static string MarketplaceActiveOffers { get; set; }
         public static string MarketplaceHistory { get; set; }
+        public static CurrencyModel Currency { get; set; }
     }
 }

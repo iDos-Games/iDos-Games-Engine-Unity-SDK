@@ -204,6 +204,7 @@ namespace IDosGames
             UpdateProperty(result.GetMarketplaceGroupedOffers, value => IGSUserData.MarketplaceGroupedOffers = value?.ToString());
             UpdateProperty(result.GetMarketplaceActiveOffers, value => IGSUserData.MarketplaceActiveOffers = value?.ToString());
             UpdateProperty(result.GetMarketplaceHistory, value => IGSUserData.MarketplaceHistory = value?.ToString());
+            UpdateProperty(result.GetCurrencyData, value => IGSUserData.Currency = value);
         }
 
         private void SaveAuthType(AuthType authType)
