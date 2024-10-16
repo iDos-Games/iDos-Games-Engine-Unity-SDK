@@ -13,26 +13,15 @@ MonoBehaviour:
   m_Name: IDosGamesSDKSettings
   m_EditorClassIdentifier: 
   _titleID: A73FB872
-  DevBuild: 0
-  _iosBundleID: com.idosgames.sdk.ios
-  _iosAppStoreID: 12341234
-  _androidBundleID: com.idosgames.sdk
+  _buildForPlatform: 0
   _debugLogging: 1
   _showLoadingOnExecuteServerFunction: 1
   _serverLink: https://api.idosgames.com
   _mobileIAPEnabled: 0
-  AdsGramBlockID: 2517
   _adMediationPlatform: 0
-  _mediationAppKeyIOS: 18643491d
-  _mediationAppKeyAndroid: 1864754ad
-  _banerPosition: 0
-  _bannerEnabled: 1
   _ironSourceAdQualityEnabled: 0
-  TelegramWebAppLink: https://t.me/iDos_Games_bot/app
   _firebaseAnalyticsEnabled: 0
   _appMetricaEnabled: 0
-  _referralTrackerLink: https://idosgames.com/games/
-  WebGLUrl: 
   _iOSAccountDeletionEnabled: 1
   _AndroidAccountDeletionEnabled: 0
   _pushNotificationsAndroidEnabled: 1

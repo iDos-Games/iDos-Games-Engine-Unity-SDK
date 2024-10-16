@@ -60,18 +60,26 @@ namespace IDosGames
             set => _titleID = value.Trim();
         }
 
-        [HideInInspector] public bool DevBuild = false;
-
-        [Space(10)]
-        [SerializeField] private string _iosBundleID;
-        public string IosBundleID => _iosBundleID;
-
-        [SerializeField] private string _iosAppStoreID;
-        public string IosAppStoreID => _iosAppStoreID;
-
         [Space(5)]
-        [SerializeField] private string _androidBundleID;
-        public string AndroidBundleID => _androidBundleID;
+        [SerializeField] private Platforms _buildForPlatform = Platforms.GooglePlay;
+        public Platforms BuildForPlatform => _buildForPlatform;
+
+        public bool DevBuild { get; set; } = false;
+
+        public string IosBundleID { get; set; }
+        public string IosAppStoreID { get; set; }
+        public string AndroidBundleID { get; set; }
+
+        public bool? AdEnabled { get; set; }
+        public string AdsGramBlockID { get; set; }
+        public string MediationAppKeyIOS { get; set; }
+        public string MediationAppKeyAndroid { get; set; }
+        public BannerPosition? BannerPosition { get; set; }
+        public bool? BannerEnabled { get; set; }
+        public float? PlatformCurrencyPriceInCent { get; set; }
+        public string TelegramWebAppLink { get; set; }
+        public string ReferralTrackerLink { get; set; }
+        public string WebGLUrl { get; set; }
 
         [Space(5)]
         [SerializeField] private bool _debugLogging;
@@ -119,34 +127,13 @@ namespace IDosGames
         [Header("Ad Mediation")]
 
         [Space(5)]
-        public string AdsGramBlockID;
-
-        [Space(5)]
         [SerializeField] private AdMediationPlatform _adMediationPlatform;
         public AdMediationPlatform AdMediationPlatform => _adMediationPlatform;
 
         private const string AD_MEDIATION_DEFINE_PREFIX = "IDOSGAMES_AD_MEDIATION_";
         private const string IRON_SOURCE_AD_QUALITY_DEFINE_POSTFIX = "LEVELPLAY_AD_QUALITY";
 
-        [SerializeField] private string _mediationAppKeyIOS = "";
-        public string MediationAppKeyIOS => _mediationAppKeyIOS;
-
-        [SerializeField] private string _mediationAppKeyAndroid = "";
-        public string MediationAppKeyAndroid => _mediationAppKeyAndroid;
-
-        [SerializeField] private BannerPosition _banerPosition = BannerPosition.Bottom;
-        public BannerPosition BannerPosition => _banerPosition;
-
-        [SerializeField] private bool _bannerEnabled;
-        public bool BannerEnabled => _bannerEnabled;
-
         [SerializeField] private bool _ironSourceAdQualityEnabled;
-
-        [Space(5)]
-        [Header("Telegram Settings")]
-
-        [Space(5)]
-        [SerializeField] public string TelegramWebAppLink = "https://t.me/iDos_Games_bot/cube2048";
 
         [Space(5)]
         [Header("Analytics")]
@@ -164,12 +151,6 @@ namespace IDosGames
         [SerializeField] private string _appMetricaApiKey;
         public string AppMetricaApiKey => _appMetricaApiKey;
 #endif
-
-        [Header("Referral System")]
-        [Space(5)]
-        [SerializeField] private string _referralTrackerLink = "https://idosgames.com/games/";
-        public string ReferralTrackerLink => _referralTrackerLink;
-        [HideInInspector] public string WebGLUrl;
 
         [Header("Account")]
         [Space(5)]
