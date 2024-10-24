@@ -36,7 +36,7 @@ namespace IDosGames
 		{
 			var currencyData = IGSUserData.Currency;
 
-            foreach (var currency in currencyData.Currencies)
+            foreach (var currency in currencyData.CurrencyData)
             {
                 switch (currency.CurrencyCode)
                 {
@@ -59,7 +59,7 @@ namespace IDosGames
 			PricesUpdated?.Invoke();
 		}
 
-		private float GetExchangeRate()
+        private float GetExchangeRate()
 		{
 			if (IGT > 0 && IGC > 0)
 			{

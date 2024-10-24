@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace IDosGames
 {
-    public class Currency
+    public class CurrencyModel
     {
         public string CurrencyCode { get; set; }
         public string DisplayName { get; set; }
@@ -15,8 +15,8 @@ namespace IDosGames
         public string ImageUrl { get; set; }
     }
 
-    public class CurrencyModel
+    public class Currencies
     {
-        public List<Currency> Currencies { get; set; }
+        public List<CurrencyModel> CurrencyData { get; set; }
     }
 }

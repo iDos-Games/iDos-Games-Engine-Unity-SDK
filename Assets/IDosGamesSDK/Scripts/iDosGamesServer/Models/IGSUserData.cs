@@ -17,7 +17,7 @@ namespace IDosGames
         public static string MarketplaceGroupedOffers { get; set; }
         public static string MarketplaceActiveOffers { get; set; }
         public static string MarketplaceHistory { get; set; }
-        public static CurrencyModel Currency { get; set; }
+        public static Currencies Currency { get; set; }
         public static PlatformSettingsModel PlatformSettings { get; set; }
     }
 }

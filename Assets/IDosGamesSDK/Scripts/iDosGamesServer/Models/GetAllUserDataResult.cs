@@ -18,7 +18,7 @@ namespace IDosGames
         public JObject GetMarketplaceGroupedOffers { get; set; }
         public JObject GetMarketplaceActiveOffers { get; set; }
         public JObject GetMarketplaceHistory { get; set; }
-        public CurrencyModel GetCurrencyData { get; set; }
+        public Currencies GetCurrencyData { get; set; }
         public PlatformSettingsModel PlatformSettings { get; set; }
     }
 }
