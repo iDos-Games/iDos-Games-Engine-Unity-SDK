@@ -93,8 +93,8 @@ namespace IDosGames
             UserInventoryReceived?.Invoke(userDataResult.UserInventoryResult);
             IGSUserData.UserInventory = userDataResult.UserInventoryResult;
 
-            OnBlobTitleDataReceived(userDataResult.BlobTitleDataResult);
-            IGSUserData.TitleData = userDataResult.BlobTitleDataResult;
+            OnBlobTitleDataReceived(userDataResult.TitlePublicConfiguration);
+            IGSUserData.TitlePublicConfiguration = userDataResult.TitlePublicConfiguration;
 
             OnUserReadOnlyDataReceived(userDataResult.UserDataResult);
             IGSUserData.ReadOnlyData = userDataResult.UserDataResult;

@@ -193,7 +193,7 @@ namespace IDosGames
             void UpdateProperty<T>(T resultProperty, Action<T> updateAction) => updateAction?.Invoke(resultProperty);
 
             UpdateProperty(result.UserInventoryResult, value => IGSUserData.UserInventory = value);
-            UpdateProperty(result.BlobTitleDataResult, value => IGSUserData.TitleData = value);
+            UpdateProperty(result.TitlePublicConfiguration, value => IGSUserData.TitlePublicConfiguration = value);
             UpdateProperty(result.UserDataResult, value => IGSUserData.ReadOnlyData = value);
             UpdateProperty(result.CatalogItemsResult, value => IGSUserData.SkinCatalogItems = value);
             UpdateProperty(result.LeaderboardResult, value => IGSUserData.Leaderboard = value);

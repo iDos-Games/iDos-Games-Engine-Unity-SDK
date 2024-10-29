@@ -8,7 +8,7 @@ namespace IDosGames
         public string Message { get; set; }
         public IGSAuthenticationContext AuthContext { get; set; }
         public GetUserInventoryResult UserInventoryResult { get; set; }
-        public JObject BlobTitleDataResult { get; set; }
+        public JObject TitlePublicConfiguration { get; set; }
         public GetUserDataResult UserDataResult { get; set; }
         public GetCatalogItemsResult CatalogItemsResult { get; set; }
         public GetLeaderboardResult LeaderboardResult { get; set; }

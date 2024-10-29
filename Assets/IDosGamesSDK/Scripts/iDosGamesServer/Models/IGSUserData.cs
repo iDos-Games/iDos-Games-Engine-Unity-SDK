@@ -7,7 +7,7 @@ namespace IDosGames
     {
         public static GetAllUserDataResult UserAllDataResult { get; set; }
         public static GetUserInventoryResult UserInventory { get; set; }
-        public static JObject TitleData { get; set; }
+        public static JObject TitlePublicConfiguration { get; set; }
         public static GetUserDataResult ReadOnlyData { get; set; }
         public static GetCatalogItemsResult SkinCatalogItems { get; set; }
         public static GetLeaderboardResult Leaderboard { get; set; }
