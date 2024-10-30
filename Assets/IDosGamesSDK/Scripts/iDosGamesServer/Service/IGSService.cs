@@ -52,7 +52,7 @@ namespace IDosGames
             };
 
             string response = await SendPostRequest(URL_LOGIN_SYSTEM, requestBody);
-
+            
             // Десериализация строки в объект GetAllUserDataResult  
             GetAllUserDataResult result = JsonConvert.DeserializeObject<GetAllUserDataResult>(response);
 

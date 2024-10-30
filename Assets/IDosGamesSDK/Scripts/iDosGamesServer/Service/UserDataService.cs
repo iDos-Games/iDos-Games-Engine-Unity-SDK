@@ -198,14 +198,14 @@ namespace IDosGames
             }
         }
 
-        public static string GetCachedTitleData(TitleDataKey dataKey)
+        public static string GetCachedTitlePublicConfig(TitleDataKey dataKey)
         {
             _titleData.TryGetValue(dataKey, out string data);
 
             return $"{data}";
         }
 
-        public static string GetCachedTitleData(string dataKey)
+        public static string GetCachedTitlePublicConfig(string dataKey)
         {
             _titleDataRaw.TryGetValue(dataKey, out string data);
 
@@ -298,7 +298,7 @@ namespace IDosGames
 
         public static float GetTelegramStarPrice()
         {
-            string titleData = GetCachedTitleData(TitleDataKey.telegram_settings);
+            string titleData = GetCachedTitlePublicConfig(TitleDataKey.telegram_settings);
             if (string.IsNullOrEmpty(titleData))
             {
                 return 2f;
@@ -558,7 +558,7 @@ namespace IDosGames
 
         private static void SetSkinCollectionRarityAndProfit()
         {
-            string collectionRarityData = GetCachedTitleData(TitleDataKey.SkinCollectionRarity);
+            string collectionRarityData = GetCachedTitlePublicConfig(TitleDataKey.SkinCollectionRarity);
 
             JArray collectionRarities = new();
 
@@ -637,7 +637,7 @@ namespace IDosGames
                 return;
             }
             Dictionary<ClothingType, string> equippedSkins = new Dictionary<ClothingType, string>();
-            var titleData = GetCachedTitleData(TitleDataKey.DefaultAvatarSkin);
+            var titleData = GetCachedTitlePublicConfig(TitleDataKey.DefaultAvatarSkin);
             Dictionary<ClothingType, string> defaultSkins = new Dictionary<ClothingType, string>();
             Debug.Log(titleData);
             if (!string.IsNullOrEmpty(titleData))

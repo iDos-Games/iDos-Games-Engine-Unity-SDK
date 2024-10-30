@@ -177,7 +177,7 @@ namespace IDosGames
         private void UpdateShopAlarms()
         {
             var playerData = UserDataService.GetCachedUserReadOnlyData(UserReadOnlyDataKey.shop_daily_free_products);
-            var dataDailyFreeProductsData = UserDataService.GetCachedTitleData(TitleDataKey.ShopDailyFreeProducts);
+            var dataDailyFreeProductsData = UserDataService.GetCachedTitlePublicConfig(TitleDataKey.ShopDailyFreeProducts);
 
             var freeProducts = JsonConvert.DeserializeObject<JArray>(dataDailyFreeProductsData);
             freeProducts ??= new JArray();
@@ -218,7 +218,7 @@ namespace IDosGames
             var jsonData = JsonConvert.DeserializeObject<JObject>(playerData);
             var playerLastUpdateDate = GetEndDateTime(jsonData);
 
-            var dailyOfferData = UserDataService.GetCachedTitleData(TitleDataKey.ShopDailyProducts);
+            var dailyOfferData = UserDataService.GetCachedTitlePublicConfig(TitleDataKey.ShopDailyProducts);
             var offerData = JsonConvert.DeserializeObject<JObject>(dailyOfferData);
 
             if (GetEndDateTime(offerData) > playerLastUpdateDate)

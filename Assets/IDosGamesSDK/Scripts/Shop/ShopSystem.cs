@@ -271,11 +271,11 @@ namespace IDosGames
 
         private void UpdateProductsData()
         {
-            var dataProductsForRealMoney = UserDataService.GetCachedTitleData(TitleDataKey.ProductsForRealMoney);
-            var dataProductsForVirtualCurrency = UserDataService.GetCachedTitleData(TitleDataKey.ProductsForVirtualCurrency);
-            var dataSpecialProducts = UserDataService.GetCachedTitleData(TitleDataKey.ShopSpecialProducts);
-            var dataDailyOffer = UserDataService.GetCachedTitleData(TitleDataKey.ShopDailyProducts);
-            var dataDailyFreeProducts = UserDataService.GetCachedTitleData(TitleDataKey.ShopDailyFreeProducts);
+            var dataProductsForRealMoney = UserDataService.GetCachedTitlePublicConfig(TitleDataKey.ProductsForRealMoney);
+            var dataProductsForVirtualCurrency = UserDataService.GetCachedTitlePublicConfig(TitleDataKey.ProductsForVirtualCurrency);
+            var dataSpecialProducts = UserDataService.GetCachedTitlePublicConfig(TitleDataKey.ShopSpecialProducts);
+            var dataDailyOffer = UserDataService.GetCachedTitlePublicConfig(TitleDataKey.ShopDailyProducts);
+            var dataDailyFreeProducts = UserDataService.GetCachedTitlePublicConfig(TitleDataKey.ShopDailyFreeProducts);
 
             ProductsForRealMoney = JsonConvert.DeserializeObject<JArray>(dataProductsForRealMoney);
             ProductsForRealMoney ??= new JArray();

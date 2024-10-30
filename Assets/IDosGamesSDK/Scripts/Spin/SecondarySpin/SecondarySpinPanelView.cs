@@ -48,7 +48,7 @@ namespace IDosGames
 
 		private void InitializeRewardsData()
 		{
-			string data = UserDataService.GetCachedTitleData(TitleDataKey.SecondarySpinRewards);
+			string data = UserDataService.GetCachedTitlePublicConfig(TitleDataKey.SecondarySpinRewards);
 			var items = JsonConvert.DeserializeObject<List<JObject>>(data);
 
 			foreach (var item in items)

@@ -38,7 +38,7 @@ namespace IDosGames
         {
 #if IDOSGAMES_CRYPTO_WALLET
             
-            string titleData = UserDataService.GetCachedTitleData(TitleDataKey.CryptoWallet);
+            string titleData = UserDataService.GetCachedTitlePublicConfig(TitleDataKey.CryptoWallet);
 
             List<CryptoWallet> cryptoWallets = JsonConvert.DeserializeObject<List<CryptoWallet>>(titleData);
 

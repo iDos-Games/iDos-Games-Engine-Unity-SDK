@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4addc2a22a48e0949b9d5bc2e541ffea, type: 3}
   m_Name: IDosGamesSDKSettings
   m_EditorClassIdentifier: 
-  _titleID: C09FEFF8
+  _titleID: 2815BF1C
   _buildForPlatform: 0
   _debugLogging: 1
   _showLoadingOnExecuteServerFunction: 1

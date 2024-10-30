@@ -44,7 +44,7 @@ namespace IDosGames
 
         public void RefreshData()
         {
-            var titleData = UserDataService.GetCachedTitleData(TitleDataKey.Leaderboards);
+            var titleData = UserDataService.GetCachedTitlePublicConfig(TitleDataKey.Leaderboards);
             var leaderboardsArray = JsonConvert.DeserializeObject<List<Leaderboard>>(titleData);
 
             if (leaderboardsArray == null || !leaderboardsArray.Any())
@@ -74,7 +74,7 @@ namespace IDosGames
 
         public void Refresh()
         {
-            var titleData = UserDataService.GetCachedTitleData(TitleDataKey.Leaderboards);
+            var titleData = UserDataService.GetCachedTitlePublicConfig(TitleDataKey.Leaderboards);
             var leaderboardsArray = JsonConvert.DeserializeObject<List<Leaderboard>>(titleData);
 
             if (leaderboardsArray == null || !leaderboardsArray.Any())

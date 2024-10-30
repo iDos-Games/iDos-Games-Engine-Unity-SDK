@@ -33,7 +33,7 @@ namespace IDosGames.Friends
 
         private void Start()
         {
-            var TitleDataRaw = UserDataService.GetCachedTitleData("friends");
+            var TitleDataRaw = UserDataService.GetCachedTitlePublicConfig("friends");
             if (!string.IsNullOrEmpty(TitleDataRaw))
             {
                 var friendsData = JsonConvert.DeserializeObject<JObject>(TitleDataRaw);
