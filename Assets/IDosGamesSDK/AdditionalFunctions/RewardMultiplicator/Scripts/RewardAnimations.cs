@@ -18,7 +18,7 @@ namespace IDosGames
             {
                 if (instance == null)
                 {
-                    instance = FindObjectOfType<RewardAnimations>();
+                    instance = Object.FindAnyObjectByType<RewardAnimations>();
                 }
                 return instance;
             }
