@@ -241,8 +241,10 @@ namespace IDosGames
 
         private DateTime GetEndDateTime(JToken jToken)
         {
-            DateTime endDate = DateTime.Parse($"{jToken[JsonProperty.END_DATE]}");
-            return endDate.ToUniversalTime();
+            string endDateString = $"{jToken[JsonProperty.END_DATE]}";
+            DateTimeOffset endDateTimeOffset = DateTimeOffset.Parse(endDateString, null, System.Globalization.DateTimeStyles.AssumeUniversal);
+            DateTime endDate = endDateTimeOffset.UtcDateTime;
+            return endDate;
         }
 
         private void UpdateTimer(DateTime endDate)
