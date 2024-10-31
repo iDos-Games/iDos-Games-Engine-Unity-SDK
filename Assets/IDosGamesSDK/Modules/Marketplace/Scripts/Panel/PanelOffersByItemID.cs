@@ -27,7 +27,7 @@ namespace IDosGames
         [SerializeField] private OffersByItemIDFilterPanel _filter;
         private LoadMoreButton _loadMoreButton;
 
-        private JToken _continuationToken;
+        private string _continuationToken;
         private bool _destoyChildrenOnInstantiate = true;
 
         public static event Action OfferBuyed;
@@ -76,7 +76,7 @@ namespace IDosGames
                 ItemID = ItemID,
                 CurrencyID = currencyID,
                 ItemsInOnePage = _itemsInOnePage,
-                ContinuationToken = _continuationToken?.ToString(),
+                ContinuationToken = _continuationToken,
                 SortOrder = _filter.SortOrder,
                 OrderBy = _filter.OrderBy
             };
@@ -122,7 +122,7 @@ namespace IDosGames
 
             var items = JsonConvert.DeserializeObject<List<MarketplaceActiveOffer>>(jObjectResult["Items"].ToString());
 
-            _continuationToken = JsonConvert.DeserializeObject<JToken>(jObjectResult["ContinuationToken"]?.ToString());
+            _continuationToken = jObjectResult["ContinuationToken"]?.ToString();
 
             if (items.Count == 0)
             {
@@ -226,7 +226,7 @@ namespace IDosGames
         {
             yield return null;
 
-            if (_continuationToken != null)
+            if (!string.IsNullOrEmpty(_continuationToken))
             {
                 if (_loadMoreButton == null)
                 {
