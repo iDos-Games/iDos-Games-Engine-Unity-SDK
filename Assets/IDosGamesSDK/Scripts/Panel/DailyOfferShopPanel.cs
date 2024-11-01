@@ -182,10 +182,15 @@ namespace IDosGames
             _ = IGSClientAPI.ExecuteFunction
                 (
                 functionName: ServerFunctionHandlers.UpdateDailyFreeProducts,
-                resultCallback: (result) => UserDataService.RequestUserAllData(),
+                resultCallback: (result) => OnUpdateDailyFreeProducts(),
                 notConnectionErrorCallback: (error) => OnErrorUpdateDailyFreeProducts(),
                 connectionErrorCallback: UpdateDailyFreeProducts
                 );
+        }
+
+        private void OnUpdateDailyFreeProducts()
+        {
+            UserDataService.RequestUserAllData();
         }
 
         private void OnErrorUpdateDailyFreeProducts()
@@ -195,7 +200,7 @@ namespace IDosGames
 
         private bool IsNeedUpdateDailyFreeProducts(string playerData)
         {
-            if (playerData == string.Empty)
+            if (string.IsNullOrEmpty(playerData))
             {
                 return true;
             }
