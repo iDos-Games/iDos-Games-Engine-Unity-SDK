@@ -43,7 +43,8 @@ namespace IDosGames
             GUILayout.Space(5);
             settings.DeveloperSecretKey = EditorGUILayout.TextField("Developer Secret Key", settings.DeveloperSecretKey);
             settings.TitleID = EditorGUILayout.TextField("Title ID", settings.TitleID);
-            
+            settings.TitleTemplateID = EditorGUILayout.TextField("Title ID", settings.TitleTemplateID);
+
             GUILayout.Space(10);
 
             EditorGUI.BeginDisabledGroup(true);

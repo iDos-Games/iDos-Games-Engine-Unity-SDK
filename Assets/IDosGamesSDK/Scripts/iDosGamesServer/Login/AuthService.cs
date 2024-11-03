@@ -195,7 +195,6 @@ namespace IDosGames
             UpdateProperty(result.UserInventoryResult, value => IGSUserData.UserInventory = value);
             UpdateProperty(result.TitlePublicConfiguration, value => IGSUserData.TitlePublicConfiguration = value);
             UpdateProperty(result.UserDataResult, value => IGSUserData.ReadOnlyData = value);
-            UpdateProperty(result.CatalogItemsResult, value => IGSUserData.SkinCatalogItems = value);
             UpdateProperty(result.LeaderboardResult, value => IGSUserData.Leaderboard = value);
             UpdateProperty(result.GetFriends, value => IGSUserData.Friends = value?.ToString());
             UpdateProperty(result.GetFriendRequests, value => IGSUserData.FriendRequests = value?.ToString());

@@ -14,6 +14,7 @@ namespace IDosGames
 
         public static string URL_IGS_CLIENT_API = IDosGamesSDKSettings.Instance.IgsClientApiLink;
         public static string URL_LOGIN_SYSTEM = IDosGamesSDKSettings.Instance.LoginSystemLink;
+        public static string URL_USER_DATA_SYSTEM = IDosGamesSDKSettings.Instance.UserDataSystemLink;
         public static string URL_WALLET_MAKE_TRANSACTION = IDosGamesSDKSettings.Instance.CryptoWalletLink;
         public static string URL_MARKETPLACE_DO_ACTION = IDosGamesSDKSettings.Instance.MarketplaceActionsLink;
         public static string URL_MARKETPLACE_GET_DATA = IDosGamesSDKSettings.Instance.MarketplaceDataLink;
@@ -193,7 +194,7 @@ namespace IDosGames
                 ClientSessionTicket = clientSessionTicket
             };
 
-            return await SendPostRequest(URL_LOGIN_SYSTEM, requestBody);
+            return await SendPostRequest(URL_USER_DATA_SYSTEM, requestBody);
         }
         
         public static async Task<string> RequestUserReadOnlyData(string userID, string clientSessionTicket)
@@ -206,30 +207,34 @@ namespace IDosGames
                 ClientSessionTicket = clientSessionTicket
             };
 
-            return await SendPostRequest(URL_LOGIN_SYSTEM, requestBody);
+            return await SendPostRequest(URL_USER_DATA_SYSTEM, requestBody);
         }
 
-        public static async Task<string> RequestTitleData()
+        public static async Task<string> RequestTitleData(string userID, string clientSessionTicket)
         {
             var requestBody = new IGSRequest
             {
                 TitleID = IDosGamesSDKSettings.Instance.TitleID,
-                FunctionName = ServerFunctionHandlers.GetTitleData.ToString()
+                FunctionName = ServerFunctionHandlers.GetTitlePublicConfiguration.ToString(),
+                UserID = userID,
+                ClientSessionTicket = clientSessionTicket,
             };
 
-            return await SendPostRequest(URL_LOGIN_SYSTEM, requestBody);
+            return await SendPostRequest(URL_USER_DATA_SYSTEM, requestBody);
         }
 
-        public static async Task<string> RequestCatalogItems(string catalogVersion)
+        public static async Task<string> RequestCatalogItems(string catalogVersion, string userID, string clientSessionTicket)
         {
             var requestBody = new IGSRequest
             {
                 TitleID = IDosGamesSDKSettings.Instance.TitleID,
                 FunctionName = ServerFunctionHandlers.GetCatalogItems.ToString(),
+                UserID = userID,
+                ClientSessionTicket = clientSessionTicket,
                 CatalogVersion = catalogVersion
             };
 
-            return await SendPostRequest(URL_LOGIN_SYSTEM, requestBody);
+            return await SendPostRequest(URL_USER_DATA_SYSTEM, requestBody);
         }
         // ------------------------ Inventory END ------------------------ //
 
@@ -237,8 +242,7 @@ namespace IDosGames
         {
             var requestBody = new JObject
             {
-				//{ "AuthContext", JsonConvert.SerializeObject(AuthService.AuthContext) },
-                { "TitleID", IDosGamesSDKSettings.Instance.TitleID },
+				{ "TitleID", IDosGamesSDKSettings.Instance.TitleID },
                 { "UserID", AuthService.UserID },
                 { "ClientSessionTicket", AuthService.ClientSessionTicket },
                 { "Receipt", receipt }
@@ -252,13 +256,13 @@ namespace IDosGames
             var requestBody = new IGSRequest
             {
                 TitleID = IDosGamesSDKSettings.Instance.TitleID,
-                FunctionName = ServerFunctionHandlers.GetDefaultLeaderboard.ToString(),
+                FunctionName = ServerFunctionHandlers.GetLeaderboard.ToString(),
                 UserID = userID,
                 ClientSessionTicket = clientSessionTicket,
                 LeaderboardID = leaderboardID
             };
 
-            return await SendPostRequest(URL_LOGIN_SYSTEM, requestBody);
+            return await SendPostRequest(URL_USER_DATA_SYSTEM, requestBody);
         }
 
 #if IDOSGAMES_MARKETPLACE
@@ -324,7 +328,7 @@ namespace IDosGames
                 {
                     string result = webRequest.downloadHandler.text;
 
-                    if (result.Contains("INVALID_SESSION_TICKET"))
+                    if (result.Contains(MessageCode.SESSION_EXPIRED.ToString()) || result.Contains(MessageCode.INVALID_SESSION_TICKET.ToString()))
                     {
                         AuthService.Instance.AutoLogin();
                     }
@@ -373,6 +377,11 @@ namespace IDosGames
                 if (webRequest.result == UnityWebRequest.Result.Success)
                 {
                     string result = webRequest.downloadHandler.text;
+
+                    if (result.Contains(MessageCode.SESSION_EXPIRED.ToString()) || result.Contains(MessageCode.INVALID_SESSION_TICKET.ToString()))
+                    {
+                        AuthService.Instance.AutoLogin();
+                    }
 
                     if (IDosGamesSDKSettings.Instance.DebugLogging)
                     {

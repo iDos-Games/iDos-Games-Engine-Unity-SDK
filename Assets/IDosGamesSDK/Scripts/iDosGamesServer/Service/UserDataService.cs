@@ -13,13 +13,16 @@ namespace IDosGames
     public class UserDataService
     {
         public const string CURRENCY_ICONS_IMAGE_PATH = "Sprites/Currency/";
-        public const string CATALOG_SKIN = "Skin";
+        public const string CATALOG_SKIN = "Item";
         private const int TASK_DELAY_MILLISECONDS_STEP_REQUEST_ALL_DATA = 10;
         private const int MILLISECONDS_BEFORE_BREAK_REQUEST_ALL_DATA_SEQUENCE = 10000;
 
         public static event Action DataRequested;
         public static event Action DataUpdated;
         public static event Action<string> AllDataRequestError;
+
+        public static event Action FirstTimeDataUpdated;
+        public static bool _firstTimeDataUpdated = false;
 
         public static event Action<GetUserInventoryResult> UserInventoryReceived;
         public static event Action<JObject> BlobTitleDataReceived;
@@ -72,6 +75,7 @@ namespace IDosGames
             UserInventory.InventoryUpdated += CheckForEquippedSkinInInventory;
             // UserInventory.InventoryUpdated += CheckForEquippedAvatarSkin;
             UserReadOnlyDataUpdated += SetEquippedSkinsList;
+            FirstTimeDataUpdated += RequestSkinCatalogItems;
 
             UserInventoryReceived += (result) => _continueRequestAllDataSequence = true;
             BlobTitleDataReceived += (result) => _continueRequestAllDataSequence = true;
@@ -99,9 +103,6 @@ namespace IDosGames
             OnUserReadOnlyDataReceived(userDataResult.UserDataResult);
             IGSUserData.ReadOnlyData = userDataResult.UserDataResult;
 
-            OnSkinCatalogItemsReceived(userDataResult.CatalogItemsResult);
-            IGSUserData.SkinCatalogItems = userDataResult.CatalogItemsResult;
-
             IGSUserData.Leaderboard = userDataResult.LeaderboardResult;
 
             IGSUserData.Friends = userDataResult.GetFriends.ToString();
@@ -111,6 +112,11 @@ namespace IDosGames
             IGSUserData.Currency = userDataResult.GetCurrencyData;
             
             DataUpdated?.Invoke();
+            if (!_firstTimeDataUpdated)
+            {
+                _firstTimeDataUpdated = true;
+                FirstTimeDataUpdated?.Invoke();
+            }
         }
 
         public static void RequestUserAllData()
@@ -507,6 +513,8 @@ namespace IDosGames
             SkinCatalogReceived?.Invoke(result);
 
             UpdateCachedSkinItems(result);
+
+            IGSUserData.SkinCatalogItems = result;
         }
 
         private static void UpdateCachedSkinItems(GetCatalogItemsResult result)

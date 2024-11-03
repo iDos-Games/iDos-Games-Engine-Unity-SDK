@@ -72,7 +72,7 @@ namespace IDosGames
 
             try
             {
-                string response = await IGSService.RequestTitleData(); //CloudFunctionName.GET_TITLE_DATA ServerFunctionName.PlayfabAction
+                string response = await IGSService.RequestTitleData(AuthService.UserID, AuthService.ClientSessionTicket);
                 if (!string.IsNullOrEmpty(response))
                 {
                     var resultData = JsonConvert.DeserializeObject<JObject>(response);
@@ -117,7 +117,7 @@ namespace IDosGames
 
             try
             {
-                string response = await IGSService.RequestCatalogItems(catalogVersion);
+                string response = await IGSService.RequestCatalogItems(catalogVersion, AuthService.UserID, AuthService.ClientSessionTicket);
                 if (!string.IsNullOrEmpty(response))
                 {
                     var resultData = JsonConvert.DeserializeObject<GetCatalogItemsResult>(response);
@@ -214,7 +214,7 @@ namespace IDosGames
                 case ServerFunctionHandlers.UpdateCustomReadOnlyData:
                 case ServerFunctionHandlers.DeleteTitlePlayerAccount:
                 case ServerFunctionHandlers.SubtractVirtualCurrencyHandler:
-                case ServerFunctionHandlers.GetTitleData:
+                case ServerFunctionHandlers.GetTitlePublicConfiguration:
                     return IDosGamesSDKSettings.Instance.UserDataSystemLink;
                 case ServerFunctionHandlers.BuyItemDailyOffer:
                 case ServerFunctionHandlers.BuyItemForVirtualCurrency:

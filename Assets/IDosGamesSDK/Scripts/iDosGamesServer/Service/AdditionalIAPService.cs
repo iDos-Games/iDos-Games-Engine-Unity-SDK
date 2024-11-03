@@ -39,20 +39,6 @@ namespace IDosGames
             return await SendPostRequest(URL_ADDITIONAL_IAP_VALIDATE, requestBody);
         }
 
-        public static async Task<string> CheckTelegramInvoice(string payload)
-        {
-            var requestBody = new IGSRequest
-            {
-                TitleID = IDosGamesSDKSettings.Instance.TitleID,
-                FunctionName = ServerFunctionHandlers.CheckTelegramInvoice.ToString(),
-                UserID = AuthService.UserID,
-                ClientSessionTicket = AuthService.ClientSessionTicket,
-                Receipt = payload
-            };
-
-            return await SendPostRequest(URL_ADDITIONAL_IAP_VALIDATE, requestBody);
-        }
-
         private static async Task<string> SendPostRequest(string functionURL, IGSRequest request)
         {
             var requestBody = JObject.FromObject(request);
@@ -75,7 +61,7 @@ namespace IDosGames
                 {
                     string result = webRequest.downloadHandler.text;
 
-                    if (result.Contains("INVALID_SESSION_TICKET"))
+                    if (result.Contains(MessageCode.SESSION_EXPIRED.ToString()) || result.Contains(MessageCode.INVALID_SESSION_TICKET.ToString()))
                     {
                         AuthService.Instance.AutoLogin();
                     }

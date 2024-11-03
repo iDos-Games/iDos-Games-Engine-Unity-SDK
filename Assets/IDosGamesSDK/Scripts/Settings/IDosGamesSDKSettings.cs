@@ -54,10 +54,18 @@ namespace IDosGames
         [Header("App Settings")]
         [Space(5)]
         [SerializeField] private string _titleID;
-        public string TitleID //=> $"{_titleID}".Trim();
+        public string TitleID
         {
             get => $"{_titleID}".Trim();
             set => _titleID = value.Trim();
+        }
+
+        [Space(5)]
+        [SerializeField] private string _titleTemplateID = "default";
+        public string TitleTemplateID
+        {
+            get => _titleTemplateID.Trim();
+            set => _titleTemplateID = value.Trim();
         }
 
         [Space(5)]
@@ -97,24 +105,24 @@ namespace IDosGames
         }
 
         // [HideInInspector]
-        public string CryptoWalletLink => $"{_serverLink}/api/{_titleID}/Client/CryptoWallet".Trim();
-        public string MarketplaceActionsLink => $"{_serverLink}/api/{_titleID}/Client/MarketplaceActions".Trim();
-        public string MarketplaceDataLink => $"{_serverLink}/api/{_titleID}/Client/MarketplaceData".Trim();
-        public string ValidateIAPSubscriptionLink => $"{_serverLink}/api/{_titleID}/Client/ValidateIAPSubscription".Trim();
-        public string FriendSystemLink => $"{_serverLink}/api/{_titleID}/Client/FriendSystem".Trim();
-        public string LoginSystemLink => $"{_serverLink}/api/{_titleID}/Client/LoginSystem".Trim();
-        public string IgsClientApiLink => $"{_serverLink}/api/{_titleID}/Client/IGSClientApi".Trim();
-        public string UserDataSystemLink => $"{_serverLink}/api/{_titleID}/Client/UserDataSystem".Trim();
-        public string SpinSystemLink => $"{_serverLink}/api/{_titleID}/Client/SpinSystem".Trim();
-        public string ChestSystemLink => $"{_serverLink}/api/{_titleID}/Client/ChestSystem".Trim();
-        public string RewardAndProfitSystemLink => $"{_serverLink}/api/{_titleID}/Client/RewardAndProfitSystem".Trim();
-        public string ReferralSystemLink => $"{_serverLink}/api/{_titleID}/Client/ReferralSystem".Trim();
-        public string EventSystemLink => $"{_serverLink}/api/{_titleID}/Client/EventSystem".Trim();
-        public string ShopSystemLink => $"{_serverLink}/api/{_titleID}/Client/ShopSystem".Trim();
-        public string DealOfferSystemLink => $"{_serverLink}/api/{_titleID}/Client/DealOfferSystem".Trim();
-        public string ValidateIAPLink => $"{_serverLink}/api/{_titleID}/Client/ValidateIAP".Trim();
-        public string AdditionalIAPValidateLink => $"{_serverLink}/api/{_titleID}/Client/AdditionalIAPValidate".Trim();
-        public string TelegramWebhookLink => $"{_serverLink}/api/{_titleID}/Server/TelegramWebhook".Trim();
+        public string CryptoWalletLink => $"{_serverLink}/api/{_titleTemplateID}/{_titleID}/Client/CryptoWallet".Trim();
+        public string MarketplaceActionsLink => $"{_serverLink}/api/{_titleTemplateID}/{_titleID}/Client/MarketplaceActions".Trim();
+        public string MarketplaceDataLink => $"{_serverLink}/api/{_titleTemplateID}/{_titleID}/Client/MarketplaceData".Trim();
+        public string ValidateIAPSubscriptionLink => $"{_serverLink}/api/{_titleTemplateID}/{_titleID}/Client/ValidateIAPSubscription".Trim();
+        public string FriendSystemLink => $"{_serverLink}/api/{_titleTemplateID}/{_titleID}/Client/FriendSystem".Trim();
+        public string LoginSystemLink => $"{_serverLink}/api/{_titleTemplateID}/{_titleID}/Client/LoginSystem".Trim();
+        public string IgsClientApiLink => $"{_serverLink}/api/{_titleTemplateID}/{_titleID}/Client/IGSClientApi".Trim();
+        public string UserDataSystemLink => $"{_serverLink}/api/{_titleTemplateID}/{_titleID}/Client/UserDataSystem".Trim();
+        public string SpinSystemLink => $"{_serverLink}/api/{_titleTemplateID}/{_titleID}/Client/SpinSystem".Trim();
+        public string ChestSystemLink => $"{_serverLink}/api/{_titleTemplateID}/{_titleID}/Client/ChestSystem".Trim();
+        public string RewardAndProfitSystemLink => $"{_serverLink}/api/{_titleTemplateID}/{_titleID}/Client/RewardAndProfitSystem".Trim();
+        public string ReferralSystemLink => $"{_serverLink}/api/{_titleTemplateID}/{_titleID}/Client/ReferralSystem".Trim();
+        public string EventSystemLink => $"{_serverLink}/api/{_titleTemplateID}/{_titleID}/Client/EventSystem".Trim();
+        public string ShopSystemLink => $"{_serverLink}/api/{_titleTemplateID}/{_titleID}/Client/ShopSystem".Trim();
+        public string DealOfferSystemLink => $"{_serverLink}/api/{_titleTemplateID}/{_titleID}/Client/DealOfferSystem".Trim();
+        public string ValidateIAPLink => $"{_serverLink}/api/{_titleTemplateID}/{_titleID}/Client/ValidateIAP".Trim();
+        public string AdditionalIAPValidateLink => $"{_serverLink}/api/{_titleTemplateID}/{_titleID}/Client/AdditionalIAPValidate".Trim();
+        public string TelegramWebhookLink => $"{_serverLink}/api/{_titleTemplateID}/{_titleID}/Server/TelegramWebhook".Trim();
 
         [Space(5)]
         [Header("In App Purchasing")]

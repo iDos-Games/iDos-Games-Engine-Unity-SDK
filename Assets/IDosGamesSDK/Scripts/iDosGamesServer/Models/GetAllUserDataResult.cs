@@ -10,7 +10,6 @@ namespace IDosGames
         public GetUserInventoryResult UserInventoryResult { get; set; }
         public JObject TitlePublicConfiguration { get; set; }
         public GetUserDataResult UserDataResult { get; set; }
-        public GetCatalogItemsResult CatalogItemsResult { get; set; }
         public GetLeaderboardResult LeaderboardResult { get; set; }
         public JObject GetFriends { get; set; }
         public JObject GetFriendRequests { get; set; }
