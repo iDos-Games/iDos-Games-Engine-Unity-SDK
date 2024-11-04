@@ -114,19 +114,6 @@ namespace IDosGames
             EditorGUILayout.EndHorizontal();
 
             GUILayout.Space(10);
-            if (!string.IsNullOrEmpty(settings.TitleID) && !string.IsNullOrEmpty(settings.DeveloperSecretKey) && !string.IsNullOrEmpty(settings.ServerLink))
-            {
-                if (GUILayout.Button("Upload Server Data"))
-                {
-                    GUILayout.Space(5);
-
-                    ServerDataUploader.UploadData();
-
-                    GUILayout.Space(5);
-                }
-            }
-
-            GUILayout.Space(10);
             EditorGUILayout.BeginHorizontal();
 
             GUIStyle saveButtonStyle = new GUIStyle(GUI.skin.button);
