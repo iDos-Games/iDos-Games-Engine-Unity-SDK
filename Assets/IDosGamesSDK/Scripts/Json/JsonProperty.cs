@@ -69,7 +69,7 @@ namespace IDosGames
 		public const string VALUE_NAME = "ValueName";
 
         public const string DEFAULT_STATISTIC_NAME = "coin_contest";
-        public const string LEADERBOARD = "Leaderboards";
+        public const string LEADERBOARDS = "Leaderboards";
 		public const string WALLET = "Wallet";
 		public const string VIP_FREE_TRIAL = "vip_free_trial";
 

@@ -9,6 +9,7 @@ namespace IDosGames
         private static string startAppParameter;
         private static string initDataUnsafe;
         public static string platform;
+        public static string webAppLink;
 
 #if UNITY_WEBGL
         [DllImport("__Internal")]
@@ -85,6 +86,13 @@ namespace IDosGames
         public static void PasteTextFromClipboard()
         {
             PasteFromClipboard();
+        }
+
+        [DllImport("__Internal")]
+        private static extern string GetFullURL();
+        public static void FetchFullURL()
+        {
+            webAppLink = GetFullURL();
         }
 
 #endif

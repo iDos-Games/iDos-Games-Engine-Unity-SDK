@@ -1,4 +1,3 @@
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Text;
@@ -19,6 +18,7 @@ namespace IDosGames.Friends
             {
                 TitleID = IDosGamesSDKSettings.Instance.TitleID,
                 FunctionName = FriendActionType.GetMyFriends.ToString(),
+                WebAppLink = WebSDK.webAppLink,
                 ClientSessionTicket = AuthService.ClientSessionTicket,
                 UserID = AuthService.UserID
             };
@@ -32,6 +32,7 @@ namespace IDosGames.Friends
             {
                 TitleID = IDosGamesSDKSettings.Instance.TitleID,
                 FunctionName = FriendActionType.GetRecommendedFriends.ToString(),
+                WebAppLink = WebSDK.webAppLink,
                 ClientSessionTicket = AuthService.ClientSessionTicket,
                 UserID = AuthService.UserID
             };
@@ -45,6 +46,7 @@ namespace IDosGames.Friends
             {
                 TitleID = IDosGamesSDKSettings.Instance.TitleID,
                 FunctionName = FriendActionType.GetPendingFriendRequests.ToString(),
+                WebAppLink = WebSDK.webAppLink,
                 ClientSessionTicket = AuthService.ClientSessionTicket,
                 UserID = AuthService.UserID
             };
@@ -58,6 +60,7 @@ namespace IDosGames.Friends
             request.UserID = AuthService.UserID;
             request.FunctionName = FriendActionType.AdditionRequest.ToString();
             request.TitleID = IDosGamesSDKSettings.Instance.TitleID;
+            request.WebAppLink = WebSDK.webAppLink;
 
             return await SendRequest(URL, request);
         }
@@ -68,6 +71,7 @@ namespace IDosGames.Friends
             request.UserID = AuthService.UserID;
             request.FunctionName = FriendActionType.AcceptRequest.ToString();
             request.TitleID = IDosGamesSDKSettings.Instance.TitleID;
+            request.WebAppLink = WebSDK.webAppLink;
 
             return await SendRequest(URL, request);
         }
@@ -78,6 +82,7 @@ namespace IDosGames.Friends
             request.UserID = AuthService.UserID;
             request.FunctionName = FriendActionType.RejectRequest.ToString();
             request.TitleID = IDosGamesSDKSettings.Instance.TitleID;
+            request.WebAppLink = WebSDK.webAppLink;
 
             return await SendRequest(URL, request);
         }
@@ -88,6 +93,7 @@ namespace IDosGames.Friends
             request.UserID = AuthService.UserID;
             request.FunctionName = FriendActionType.RemoveFriend.ToString();
             request.TitleID = IDosGamesSDKSettings.Instance.TitleID;
+            request.WebAppLink = WebSDK.webAppLink;
 
             return await SendRequest(URL, request);
         }

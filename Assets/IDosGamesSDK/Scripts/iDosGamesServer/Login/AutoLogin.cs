@@ -46,13 +46,12 @@ namespace IDosGames
 
         private void OnRetryAutoLogin()
         {
-            Login();
+            Invoke(nameof(Login), delayAutoLogin);
         }
 
         private void OnErrorAutoLogin(string errorResponse)
         {
-            Debug.Log("Auto login Error: " + errorResponse);
-            Invoke(nameof(AutoLoginWithDeviceID), delayAutoLogin);
+            Message.ShowConnectionError(Login);
         }
 
         private void CheckPlatform()
@@ -61,6 +60,7 @@ namespace IDosGames
 #if UNITY_WEBGL && !UNITY_EDITOR
 
             WebSDK.FetchPlatform();
+            WebSDK.FetchFullURL();
 
             if (WebSDK.platform == "web")
             {

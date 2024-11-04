@@ -81,6 +81,18 @@ mergeInto(LibraryManager.library, {
 
     PasteFromClipboard: function () {  
         window.pasteFromClipboard();  
+    },
+
+    GetFullURL: function() {    
+        if (typeof window.getFullURL === 'function') {    
+            var fullURL = window.getFullURL();    
+            var bufferSize = lengthBytesUTF8(fullURL) + 1;    
+            var buffer = _malloc(bufferSize);    
+            stringToUTF8(fullURL, buffer, bufferSize);    
+            return buffer;    
+        } else {    
+            console.warn("getFullURL function is not defined");    
+            return 0;    
+        }    
     }
-    
 });  

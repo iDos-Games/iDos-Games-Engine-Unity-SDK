@@ -1,5 +1,9 @@
 (function() 
 {
+    function getFullURL() {  
+        return window.location.href;  
+    }
+
     function getPlatformFromURL() {  
         const urlParams = new URLSearchParams(window.location.search);  
         return urlParams.get('platform');  
@@ -123,6 +127,7 @@
         });  
     }
 
+    window.getFullURL = getFullURL;
 	window.getPlatform = function() { return platform; };
     window.getStartAppParameter = getStartAppParameter;
     window.getInitDataUnsafe = getInitDataUnsafe;

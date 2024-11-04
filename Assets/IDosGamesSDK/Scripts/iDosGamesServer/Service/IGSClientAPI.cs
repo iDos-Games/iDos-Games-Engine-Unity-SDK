@@ -72,7 +72,7 @@ namespace IDosGames
 
             try
             {
-                string response = await IGSService.RequestTitleData(AuthService.UserID, AuthService.ClientSessionTicket);
+                string response = await IGSService.RequestTitlePublicConfiguration(AuthService.UserID, AuthService.ClientSessionTicket);
                 if (!string.IsNullOrEmpty(response))
                 {
                     var resultData = JsonConvert.DeserializeObject<JObject>(response);
@@ -159,6 +159,7 @@ namespace IDosGames
             {
                 FunctionName = functionName.ToString(),
                 TitleID = IDosGamesSDKSettings.Instance.TitleID,
+                WebAppLink = WebSDK.webAppLink,
                 UserID = AuthService.UserID,
                 ClientSessionTicket = AuthService.ClientSessionTicket,
                 FunctionParameter = functionParameter // Установите дополнительные параметры

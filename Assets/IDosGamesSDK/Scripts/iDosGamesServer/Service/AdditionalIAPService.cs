@@ -31,6 +31,7 @@ namespace IDosGames
             {
                 TitleID = IDosGamesSDKSettings.Instance.TitleID,
                 FunctionName = ServerFunctionHandlers.CreateTelegramInvoice.ToString(),
+                WebAppLink = WebSDK.webAppLink,
                 UserID = AuthService.UserID,
                 ClientSessionTicket = AuthService.ClientSessionTicket,
                 CreateInvoice = createInvoiceRequest
