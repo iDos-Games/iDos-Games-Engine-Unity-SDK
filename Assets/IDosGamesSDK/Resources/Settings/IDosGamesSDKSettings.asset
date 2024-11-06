@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _titleID: 0
   _titleTemplateID: default
-  _buildForPlatform: 0
+  _buildForPlatform: 2
   _debugLogging: 1
   _showLoadingOnExecuteServerFunction: 1
   _serverLink: https://api.idosgames.com
