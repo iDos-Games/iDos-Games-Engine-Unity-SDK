@@ -110,7 +110,9 @@ namespace IDosGames
             IGSUserData.RecommendedFriends = userDataResult.GetRecommendedFriends.ToString();
 
             IGSUserData.Currency = userDataResult.GetCurrencyData;
-            
+
+            IGSUserData.ImageData = userDataResult.ImageData;
+
             DataUpdated?.Invoke();
             if (!_firstTimeDataUpdated)
             {

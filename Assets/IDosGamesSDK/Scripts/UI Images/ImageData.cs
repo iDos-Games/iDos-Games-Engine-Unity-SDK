@@ -13,6 +13,7 @@ namespace IDosGames
         {
             public ImageType imageType;
             public Sprite imageSprite;
+            public string imageUrl;
         }
     }
 }

@@ -1,5 +1,6 @@
 using IDosGames.ClientModels;
 using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
 
 namespace IDosGames
 {
@@ -19,5 +20,7 @@ namespace IDosGames
         public JObject GetMarketplaceHistory { get; set; }
         public Currencies GetCurrencyData { get; set; }
         public PlatformSettingsModel PlatformSettings { get; set; }
+        public Dictionary<string, string> ImageData { get; set; }
+        public Dictionary<string, string> AssetBundle { get; set; }
     }
 }

@@ -204,6 +204,7 @@ namespace IDosGames
             UpdateProperty(result.GetMarketplaceHistory, value => IGSUserData.MarketplaceHistory = value?.ToString());
             UpdateProperty(result.GetCurrencyData, value => IGSUserData.Currency = value);
             UpdateProperty(result.PlatformSettings, value => IGSUserData.PlatformSettings = value);
+            UpdateProperty(result.ImageData, value => IGSUserData.ImageData = value);
 
             SetPlatformSettings();
         }
