@@ -1,9 +1,6 @@
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.Networking;
 using UnityEngine.UI;
 
 namespace IDosGames
@@ -12,9 +9,8 @@ namespace IDosGames
     {
         public ImageType imageType;
         private Image _image;
-        private static Dictionary<string, string> serverImageUrls;
 
-        private async void Awake()
+        private void Awake()
         {
             _image = GetComponent<Image>();
             if (_image == null)
@@ -22,26 +18,24 @@ namespace IDosGames
                 return;
             }
 
-            // Подписка на событие загрузки данных с сервера
-            UserDataService.DataUpdated += OnServerImageDataLoaded;
+            // Подписка на событие обновления изображений
+            ImageLoader.ImagesUpdated += OnImagesUpdated;
 
-            UpdateImage();
+            UpdateImage().ConfigureAwait(false);
         }
 
         private void OnDestroy()
         {
             // Отписка от события при уничтожении объекта
-            UserDataService.DataUpdated -= OnServerImageDataLoaded;
+            ImageLoader.ImagesUpdated -= OnImagesUpdated;
         }
 
-        private void OnServerImageDataLoaded()
+        private void OnImagesUpdated()
         {
-            // Сохраняем полученные URL из данных сервера
-            serverImageUrls = IGSUserData.ImageData;
-            UpdateImage();
+            UpdateImage().ConfigureAwait(false);
         }
 
-        public async void UpdateImage()
+        public async Task UpdateImage()
         {
             if (_image == null)
             {
@@ -55,59 +49,32 @@ namespace IDosGames
             }
 
             var imagePair = imageData.images.FirstOrDefault(i => i.imageType == imageType);
+            string url = null;
 
-            // Проверяем сначала данные с сервера, затем данные imageUrl, и если их нет, используем imageSprite
-            if (serverImageUrls != null && serverImageUrls.TryGetValue(imageType.ToString(), out var serverImageUrl) && !string.IsNullOrEmpty(serverImageUrl))
+            // Проверяем сначала данные с сервера, затем данные imageUrl
+            if (IGSUserData.ImageData?.TryGetValue(imageType.ToString(), out var serverImageUrl) == true && !string.IsNullOrEmpty(serverImageUrl))
             {
-                await LoadImageFromUrl(serverImageUrl);
+                url = serverImageUrl;
             }
             else if (!string.IsNullOrEmpty(imagePair.imageUrl))
             {
-                await LoadImageFromUrl(imagePair.imageUrl);
+                url = imagePair.imageUrl;
             }
-            else if (imagePair.imageSprite != null)
+
+            if (!string.IsNullOrEmpty(url))
+            {
+                var sprite = await ImageLoader.LoadImageAsync(url);
+                if (sprite != null)
+                {
+                    _image.sprite = sprite;
+                    return;
+                }
+            }
+
+            // Используем imageSprite как запасной вариант, если загрузка из URL не удалась
+            if (imagePair.imageSprite != null)
             {
                 _image.sprite = imagePair.imageSprite;
-            }
-        }
-
-        private async Task LoadImageFromUrl(string url)
-        {
-            // Формируем путь для сохранения картинки локально
-            string localPath = Path.Combine(Application.persistentDataPath, Path.GetFileName(url));
-
-            // Проверяем, существует ли файл
-            if (File.Exists(localPath))
-            {
-                // Загружаем изображение с диска
-                byte[] imageBytes = File.ReadAllBytes(localPath);
-                Texture2D texture = new Texture2D(2, 2);
-                texture.LoadImage(imageBytes);
-                _image.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero);
-                return;
-            }
-
-            using (UnityWebRequest www = UnityWebRequestTexture.GetTexture(url))
-            {
-                var asyncOperation = www.SendWebRequest();
-
-                while (!asyncOperation.isDone)
-                    await Task.Yield();
-
-                if (www.result != UnityWebRequest.Result.Success)
-                {
-                    Debug.LogError("Error downloading image: " + www.error);
-                }
-                else
-                {
-                    // Скачанное изображение
-                    Texture2D texture = DownloadHandlerTexture.GetContent(www);
-                    _image.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero);
-
-                    // Сохраняем изображение на диск
-                    byte[] imageBytes = texture.EncodeToPNG();
-                    File.WriteAllBytes(localPath, imageBytes);
-                }
             }
         }
 
@@ -118,7 +85,7 @@ namespace IDosGames
                 _image = GetComponent<Image>();
             }
 
-            UpdateImage();
+            UpdateImage().ConfigureAwait(false);
         }
     }
 }
