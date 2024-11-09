@@ -21,12 +21,12 @@ namespace IDosGames
 
 		private void OnEnable()
 		{
-			UserDataService.TitleDataUpdated += SetEnable;
+			UserDataService.TitlePublicConfigurationUpdated += SetEnable;
 		}
 
 		private void OnDisable()
 		{
-			UserDataService.TitleDataUpdated -= SetEnable;
+			UserDataService.TitlePublicConfigurationUpdated -= SetEnable;
 		}
 
 		private void ResetListener()

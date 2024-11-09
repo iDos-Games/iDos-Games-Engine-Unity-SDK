@@ -23,7 +23,7 @@ namespace IDosGames
 		{
 			_instance = this;
 
-			UserDataService.TitleDataUpdated += InitializePrices;
+			UserDataService.TitlePublicConfigurationUpdated += InitializePrices;
 		}
 
 		[RuntimeInitializeOnLoadMethod]

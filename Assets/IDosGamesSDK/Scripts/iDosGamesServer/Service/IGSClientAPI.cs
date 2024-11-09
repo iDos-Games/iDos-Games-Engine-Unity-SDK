@@ -64,7 +64,7 @@ namespace IDosGames
             }
         }
 
-        public static async void GetBlobTitleData(Action<JObject> resultCallback, Action<string> notConnectionErrorCallback = null, Action connectionErrorCallback = null)
+        public static async void GetTitlePublicConfiguration(Action<JObject> resultCallback, Action<string> notConnectionErrorCallback = null, Action connectionErrorCallback = null)
         {
             if (!AuthService.AuthContext.IsClientLoggedIn()) throw new IGSException(IGSExceptionCode.NotLoggedIn, "Must be logged in to call this method");
 

@@ -31,7 +31,7 @@ namespace IDosGames
         [RuntimeInitializeOnLoadMethod]
         private static void Initialize()
         {
-            UserDataService.TitleDataUpdated += SetWallet;
+            UserDataService.TitlePublicConfigurationUpdated += SetWallet;
         }
 
         public static void SetWallet()

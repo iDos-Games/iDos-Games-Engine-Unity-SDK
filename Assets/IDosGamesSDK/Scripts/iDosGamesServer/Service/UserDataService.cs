@@ -25,11 +25,11 @@ namespace IDosGames
         public static bool _firstTimeDataUpdated = false;
 
         public static event Action<GetUserInventoryResult> UserInventoryReceived;
-        public static event Action<JObject> BlobTitleDataReceived;
+        public static event Action<JObject> TitlePublicConfigurationReceived;
         public static event Action<GetCustomUserDataResult> CustomUserDataReceived;
         public static event Action<GetCatalogItemsResult> SkinCatalogReceived;
 
-        public static event Action TitleDataUpdated;
+        public static event Action TitlePublicConfigurationUpdated;
         public static event Action CustomUserDataUpdated;
         public static event Action SkinCatalogItemsUpdated;
         public static event Action EquippedSkinsUpdated;
@@ -78,7 +78,7 @@ namespace IDosGames
             FirstTimeDataUpdated += RequestSkinCatalogItems;
 
             UserInventoryReceived += (result) => _continueRequestAllDataSequence = true;
-            BlobTitleDataReceived += (result) => _continueRequestAllDataSequence = true;
+            TitlePublicConfigurationReceived += (result) => _continueRequestAllDataSequence = true;
             CustomUserDataReceived += (result) => _continueRequestAllDataSequence = true;
             SkinCatalogReceived += (result) => _continueRequestAllDataSequence = true;
             AllDataRequestError += (error) => _continueRequestAllDataSequence = true;
@@ -97,7 +97,7 @@ namespace IDosGames
             UserInventoryReceived?.Invoke(userDataResult.UserInventoryResult);
             IGSUserData.UserInventory = userDataResult.UserInventoryResult;
 
-            OnBlobTitleDataReceived(userDataResult.TitlePublicConfiguration);
+            OnTitlePublicConfigurationReceived(userDataResult.TitlePublicConfiguration);
             IGSUserData.TitlePublicConfiguration = userDataResult.TitlePublicConfiguration;
 
             OnCustomUserDataReceived(userDataResult.CustomUserDataResult);
@@ -154,15 +154,15 @@ namespace IDosGames
             );
         }
 
-        public static void RequestTitleData()
+        public static void RequestTitlePublicConfiguration()
         {
-            IGSClientAPI.GetBlobTitleData(
+            IGSClientAPI.GetTitlePublicConfiguration(
 
-                resultCallback: OnBlobTitleDataReceived,
-                notConnectionErrorCallback: OnRequestTitleDataError,
+                resultCallback: OnTitlePublicConfigurationReceived,
+                notConnectionErrorCallback: OnRequestTitlePublicConfigurationError,
                 connectionErrorCallback: () =>
                 {
-                    RequestTitleData();
+                    RequestTitlePublicConfiguration();
                     TryInvokeDataRequestAgain();
                 }
                 );
@@ -415,14 +415,14 @@ namespace IDosGames
             OnVIPSubscriptionValidated();
         }
 
-        private static void OnBlobTitleDataReceived(JObject result)
+        private static void OnTitlePublicConfigurationReceived(JObject result)
         {
-            BlobTitleDataReceived?.Invoke(result);
+            TitlePublicConfigurationReceived?.Invoke(result);
 
-            UpdateCachedTitleData(result);
+            UpdateCachedTitlePublicConfiguration(result);
         }
 
-        private static void UpdateCachedTitleData(JObject result)
+        private static void UpdateCachedTitlePublicConfiguration(JObject result)
         {
             Dictionary<string, string> dataDictionary = ConvertJObjectToDictionary(result);
             foreach (var data in dataDictionary)
@@ -436,7 +436,7 @@ namespace IDosGames
 
 
             }
-            TitleDataUpdated?.Invoke();
+            TitlePublicConfigurationUpdated?.Invoke();
         }
 
         private static Dictionary<string, string> ConvertJObjectToDictionary(JObject jsonObject)
@@ -720,7 +720,7 @@ namespace IDosGames
             OnAllDataRequestError(error);
         }
 
-        private static void OnRequestTitleDataError(string error)
+        private static void OnRequestTitlePublicConfigurationError(string error)
         {
             OnAllDataRequestError(error);
         }
