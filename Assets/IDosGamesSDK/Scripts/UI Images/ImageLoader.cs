@@ -22,9 +22,9 @@ namespace IDosGames
         public static event Action ImagesUpdated;
 
         private static readonly Dictionary<string, Sprite> ImageCache = new Dictionary<string, Sprite>();
-        private static readonly string CacheFilePath = Path.Combine(Application.persistentDataPath, "ImageCache.json");
         private static Dictionary<string, CachedImageInfo> CachedImageInfos;
         private const long MaxCacheSize = 1024 * 1024 * 1024;
+        private const string CacheKey = "ImageCache";
 
         static ImageLoader()
         {
@@ -116,6 +116,7 @@ namespace IDosGames
                     };
                     SaveCache();
                     CleanupCache();
+                    ImagesUpdated?.Invoke();
                     return sprite;
                 }
             }
@@ -148,9 +149,9 @@ namespace IDosGames
 
         private static void LoadCache()
         {
-            if (File.Exists(CacheFilePath))
+            if (PlayerPrefs.HasKey(CacheKey))
             {
-                var json = File.ReadAllText(CacheFilePath);
+                var json = PlayerPrefs.GetString(CacheKey);
                 CachedImageInfos = JsonConvert.DeserializeObject<Dictionary<string, CachedImageInfo>>(json);
             }
             else
@@ -162,7 +163,8 @@ namespace IDosGames
         private static void SaveCache()
         {
             var json = JsonConvert.SerializeObject(CachedImageInfos, Formatting.Indented);
-            File.WriteAllText(CacheFilePath, json);
+            PlayerPrefs.SetString(CacheKey, json);
+            PlayerPrefs.Save();
         }
 
         public static void ClearCache()
@@ -176,10 +178,7 @@ namespace IDosGames
                 }
             }
             CachedImageInfos.Clear();
-            if (File.Exists(CacheFilePath))
-            {
-                File.Delete(CacheFilePath);
-            }
+            PlayerPrefs.DeleteKey(CacheKey);
         }
 
         private static void CleanupCache()

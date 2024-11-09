@@ -77,14 +77,5 @@ namespace IDosGames
             }
         }
 
-        private void OnValidate()
-        {
-            if (_image == null)
-            {
-                _image = GetComponent<Image>();
-            }
-
-            UpdateImage();
-        }
     }
 }
