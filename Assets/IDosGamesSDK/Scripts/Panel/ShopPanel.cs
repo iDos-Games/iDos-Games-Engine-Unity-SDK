@@ -8,12 +8,12 @@ namespace IDosGames
 		private void OnEnable()
 		{
 			InitializePanel();
-			UserDataService.UserReadOnlyDataUpdated += InitializePanel;
+			UserDataService.CustomUserDataUpdated += InitializePanel;
 		}
 
 		private void OnDisable()
 		{
-			UserDataService.UserReadOnlyDataUpdated -= InitializePanel;
+			UserDataService.CustomUserDataUpdated -= InitializePanel;
 		}
 
 		public abstract void InitializePanel();

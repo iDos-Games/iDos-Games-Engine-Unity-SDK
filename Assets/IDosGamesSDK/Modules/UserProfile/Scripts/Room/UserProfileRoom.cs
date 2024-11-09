@@ -32,7 +32,7 @@ namespace IDosGames.UserProfile
         {
             if (_user == AuthService.UserID)
             {
-                var data = UserDataService.GetCachedUserReadOnlyData(UserReadOnlyDataKey.equipped_avatar_skins.ToString());
+                var data = UserDataService.GetCachedCustomUserData(CustomUserDataKey.equipped_avatar_skins.ToString());
                 if (!string.IsNullOrEmpty(data))
                 {
                     if (_equipedAvatarSkins == null)
@@ -65,19 +65,19 @@ namespace IDosGames.UserProfile
             {
                 IGSClientAPI.GetUserAllData
                     (
-                    resultCallback: (result) => { UserDataService.ProcessingAllData(result); OnDataReceived(result.UserDataResult); }, 
+                    resultCallback: (result) => { UserDataService.ProcessingAllData(result); OnDataReceived(result.CustomUserDataResult); }, 
                     notConnectionErrorCallback: null, 
                     connectionErrorCallback: null
                     );
             }
         }
 
-        private void OnDataReceived(GetUserDataResult result)
+        private void OnDataReceived(GetCustomUserDataResult result)
         {
             string dataString = null;
             foreach (var data in result.Data)
             {
-                if (data.Key == UserReadOnlyDataKey.equipped_avatar_skins.ToString())
+                if (data.Key == CustomUserDataKey.equipped_avatar_skins.ToString())
                 {
                     dataString = data.Value.Value;
                 }

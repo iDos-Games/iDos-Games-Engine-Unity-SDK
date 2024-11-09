@@ -33,7 +33,7 @@ namespace IDosGames
         telegram_settings
     }
 
-	public enum UserReadOnlyDataKey
+	public enum CustomUserDataKey
 	{
 		referral_system,
 		referral_invite_rewards,

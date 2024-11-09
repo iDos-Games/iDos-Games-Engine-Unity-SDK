@@ -34,12 +34,12 @@ namespace IDosGames
 
         private void OnEnable()
         {
-            UserDataService.UserReadOnlyDataUpdated += SetData;
+            UserDataService.CustomUserDataUpdated += SetData;
         }
 
         private void OnDisable()
         {
-            UserDataService.UserReadOnlyDataUpdated -= SetData;
+            UserDataService.CustomUserDataUpdated -= SetData;
         }
 
         public static void UpdateEventForPlayer()
@@ -123,7 +123,7 @@ namespace IDosGames
 
         private void SetData()
         {
-            var playerDataRaw = UserDataService.GetCachedUserReadOnlyData(UserReadOnlyDataKey.event_weekly);
+            var playerDataRaw = UserDataService.GetCachedCustomUserData(CustomUserDataKey.event_weekly);
 
             if (playerDataRaw == string.Empty)
             {

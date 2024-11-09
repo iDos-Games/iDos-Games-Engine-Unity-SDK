@@ -43,7 +43,7 @@ namespace IDosGames.UserProfile
         private void OnEnable()
         {
             _closeButton.onClick.AddListener(TryCLoseRoom);
-            UserDataService.CustomReadOnlyDataUpdated += OnCustomUpdated;
+            UserDataService.ClientModifyCustomUserDataUpdated += OnCustomUpdated;
             _userAvatar.OnEquippedAvatarSkin += OnEquipSkin;
             _userAvatar.OnUnequippedAvatarSkin += OnUnequipSkin;
             _userAvatar.OnInspectAvatarSkin += OnSkinInspect;
@@ -52,7 +52,7 @@ namespace IDosGames.UserProfile
         private void OnDisable()
         {
             _closeButton.onClick.RemoveAllListeners();
-            UserDataService.CustomReadOnlyDataUpdated -= OnCustomUpdated;
+            UserDataService.ClientModifyCustomUserDataUpdated -= OnCustomUpdated;
             _userAvatar.OnEquippedAvatarSkin -= OnEquipSkin;
             _userAvatar.OnUnequippedAvatarSkin -= OnUnequipSkin;
             _userAvatar.OnInspectAvatarSkin -= OnSkinInspect;
@@ -74,7 +74,7 @@ namespace IDosGames.UserProfile
 
         private void OnCustomUpdated(string key, CustomUpdateResult result)
         {
-            if (key == UserReadOnlyDataKey.equipped_avatar_skins.ToString() || result == CustomUpdateResult.SUCCESS)
+            if (key == CustomUserDataKey.equipped_avatar_skins.ToString() || result == CustomUpdateResult.SUCCESS)
             {
                 _popUpChanges.gameObject.SetActive(false);
                 Loading.HideAllPanels();
@@ -123,7 +123,7 @@ namespace IDosGames.UserProfile
             Loading.ShowTransparentPanel();
             var saveData = _userAvatar.GetUpdateData();
             UserProfileRoom._equipedAvatarSkins = saveData;
-            UserDataService.UpdateCustomReadOnlyData(UserReadOnlyDataKey.equipped_avatar_skins.ToString(), saveData);
+            UserDataService.UpdateCustomUserData(CustomUserDataKey.equipped_avatar_skins.ToString(), saveData);
         }
 
         public void MoveCameraTo(ClothingType clothingType)

@@ -203,12 +203,12 @@ namespace IDosGames
             return await SendPostRequest(URL_USER_DATA_SYSTEM, requestBody);
         }
         
-        public static async Task<string> RequestUserReadOnlyData(string userID, string clientSessionTicket)
+        public static async Task<string> RequestCustomUserData(string userID, string clientSessionTicket)
         {
             var requestBody = new IGSRequest
             {
                 TitleID = IDosGamesSDKSettings.Instance.TitleID,
-                FunctionName = ServerFunctionHandlers.GetUserReadOnlyData.ToString(),
+                FunctionName = ServerFunctionHandlers.GetCustomUserData.ToString(),
                 WebAppLink = WebSDK.webAppLink,
                 UserID = userID,
                 ClientSessionTicket = clientSessionTicket
@@ -305,6 +305,7 @@ namespace IDosGames
 #endif
 
 #if IDOSGAMES_CRYPTO_WALLET
+
         public static async Task<string> TryMakeTransaction(WalletTransactionRequest request)
         {
             request.TitleID = IDosGamesSDKSettings.Instance.TitleID;
@@ -316,6 +317,7 @@ namespace IDosGames
 
             return await SendJObjectRequest(URL_WALLET_MAKE_TRANSACTION, requestBody);
         }
+
 #endif
 
         public static async Task<string> SendPostRequest(string functionURL, IGSRequest request)

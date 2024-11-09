@@ -34,13 +34,13 @@ namespace IDosGames
         private void OnEnable()
         {
             UserInventory.InventoryUpdated += OnInventoryUpdated;
-            UserDataService.UserReadOnlyDataUpdated += OnUserReadOnlyDataUpdated;
+            UserDataService.CustomUserDataUpdated += OnUserReadOnlyDataUpdated;
         }
 
         private void OnDisable()
         {
             UserInventory.InventoryUpdated -= OnInventoryUpdated;
-            UserDataService.UserReadOnlyDataUpdated -= OnUserReadOnlyDataUpdated;
+            UserDataService.CustomUserDataUpdated -= OnUserReadOnlyDataUpdated;
         }
 
         public void AddAlarmObject(AlarmObject alarmObject)
@@ -115,7 +115,7 @@ namespace IDosGames
 
         private void UpdateFriendAlarm()
         {
-            var friend_request = UserDataService.GetCachedUserReadOnlyData(UserReadOnlyDataKey.friend_requests);
+            var friend_request = UserDataService.GetCachedCustomUserData(CustomUserDataKey.friend_requests);
 
 
             List<string> friends = new List<string>();
@@ -176,7 +176,7 @@ namespace IDosGames
 
         private void UpdateShopAlarms()
         {
-            var playerData = UserDataService.GetCachedUserReadOnlyData(UserReadOnlyDataKey.shop_daily_free_products);
+            var playerData = UserDataService.GetCachedCustomUserData(CustomUserDataKey.shop_daily_free_products);
             var dataDailyFreeProductsData = UserDataService.GetCachedTitlePublicConfig(TitleDataKey.ShopDailyFreeProducts);
 
             var freeProducts = JsonConvert.DeserializeObject<JArray>(dataDailyFreeProductsData);
@@ -208,7 +208,7 @@ namespace IDosGames
 
         private bool IsNeedUpdateDailyFreeProducts()
         {
-            var playerData = UserDataService.GetCachedUserReadOnlyData(UserReadOnlyDataKey.shop_daily_free_products);
+            var playerData = UserDataService.GetCachedCustomUserData(CustomUserDataKey.shop_daily_free_products);
 
             if (playerData == string.Empty)
             {

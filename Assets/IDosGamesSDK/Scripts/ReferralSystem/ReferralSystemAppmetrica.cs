@@ -29,13 +29,13 @@ namespace IDosGames
         private void OnEnable()
         {
             Application.deepLinkActivated += OnDeepLinkActivated;
-            UserDataService.UserReadOnlyDataUpdated += _popUp.ResetView;
+            UserDataService.CustomUserDataUpdated += _popUp.ResetView;
         }
 
         private void OnDisable()
         {
             Application.deepLinkActivated -= OnDeepLinkActivated;
-            UserDataService.UserReadOnlyDataUpdated -= _popUp.ResetView;
+            UserDataService.CustomUserDataUpdated -= _popUp.ResetView;
         }
 
         public static void Share()

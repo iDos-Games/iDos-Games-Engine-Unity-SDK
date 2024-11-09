@@ -10,7 +10,7 @@ namespace IDosGames
         public IGSAuthenticationContext AuthContext { get; set; }
         public GetUserInventoryResult UserInventoryResult { get; set; }
         public JObject TitlePublicConfiguration { get; set; }
-        public GetUserDataResult UserDataResult { get; set; }
+        public GetCustomUserDataResult CustomUserDataResult { get; set; }
         public GetLeaderboardResult LeaderboardResult { get; set; }
         public JObject GetFriends { get; set; }
         public JObject GetFriendRequests { get; set; }

@@ -23,13 +23,13 @@ namespace IDosGames
         [Obsolete]
         private void OnEnable()
         {
-            UserDataService.UserReadOnlyDataUpdated += _popUp.ResetView;
+            UserDataService.CustomUserDataUpdated += _popUp.ResetView;
         }
 
         [Obsolete]
         private void OnDisable()
         {
-            UserDataService.UserReadOnlyDataUpdated -= _popUp.ResetView;
+            UserDataService.CustomUserDataUpdated -= _popUp.ResetView;
         }
 
         [Obsolete]

@@ -42,7 +42,7 @@ namespace IDosGames
 
         private void InitializeFreeProducts(JArray products)
         {
-            var playerData = UserDataService.GetCachedUserReadOnlyData(UserReadOnlyDataKey.shop_daily_free_products);
+            var playerData = UserDataService.GetCachedCustomUserData(CustomUserDataKey.shop_daily_free_products);
 
             if (IsNeedUpdateDailyFreeProducts(playerData))
             {
