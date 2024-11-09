@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using UnityEngine;
+using UnityEngine.Networking;
 
 namespace IDosGames
 {
@@ -21,7 +21,6 @@ namespace IDosGames
     {
         public static event Action ImagesUpdated;
 
-        private static readonly HttpClient HttpClient = new HttpClient();
         private static readonly Dictionary<string, Sprite> ImageCache = new Dictionary<string, Sprite>();
         private static readonly string CacheFilePath = Path.Combine(Application.persistentDataPath, "ImageCache.json");
         private static Dictionary<string, CachedImageInfo> CachedImageInfos;
@@ -56,7 +55,13 @@ namespace IDosGames
             }
         }
 
-        public static async Task<Sprite> LoadImageAsync(string url)
+        public static bool IsExternalUrl(string url)
+        {
+            return Uri.TryCreate(url, UriKind.Absolute, out var uriResult) &&
+                   (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
+        }
+
+        public static async Task<Sprite> LoadExternalImageAsync(string url)
         {
             if (string.IsNullOrEmpty(url))
             {
@@ -82,17 +87,26 @@ namespace IDosGames
                 }
             }
 
-            try
+            using (UnityWebRequest uwr = UnityWebRequestTexture.GetTexture(url))
             {
-                byte[] imageBytes = await HttpClient.GetByteArrayAsync(url);
-                Texture2D texture = new Texture2D(2, 2);
-                if (texture.LoadImage(imageBytes))
+                var asyncOp = uwr.SendWebRequest();
+                while (!asyncOp.isDone)
                 {
+                    await Task.Yield();
+                }
+
+                if (uwr.result != UnityWebRequest.Result.Success)
+                {
+                    Debug.LogError($"Error downloading image from URL {url}: {uwr.error}");
+                }
+                else
+                {
+                    Texture2D texture = DownloadHandlerTexture.GetContent(uwr);
                     var sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero);
                     ImageCache[url] = sprite;
 
                     string localPath = Path.Combine(Application.persistentDataPath, Path.GetFileName(url));
-                    await File.WriteAllBytesAsync(localPath, imageBytes);
+                    await File.WriteAllBytesAsync(localPath, uwr.downloadHandler.data);
 
                     CachedImageInfos[url] = new CachedImageInfo
                     {
@@ -102,15 +116,33 @@ namespace IDosGames
                     };
                     SaveCache();
                     CleanupCache();
-
                     return sprite;
                 }
             }
-            catch (HttpRequestException e)
-            {
-                Debug.LogError($"Error downloading image from URL {url}: {e.Message}");
-            }
 
+            return null;
+        }
+
+        public static Sprite LoadLocalImage(string imagePath)
+        {
+            return Resources.Load<Sprite>(imagePath);
+        }
+
+        public static async Task<Sprite> GetSpriteAsync(string imagePath)
+        {
+            if (IsExternalUrl(imagePath))
+            {
+                var sprite = await LoadExternalImageAsync(imagePath);
+                if (sprite != null)
+                {
+                    return sprite;
+                }
+                Debug.LogError($"Failed to load external image from url: {imagePath}");
+            }
+            else
+            {
+                return LoadLocalImage(imagePath);
+            }
             return null;
         }
 
@@ -163,11 +195,9 @@ namespace IDosGames
                     totalSize -= new FileInfo(info.LocalPath).Length;
                     File.Delete(info.LocalPath);
                 }
-
                 CachedImageInfos.Remove(info.Url);
                 if (totalSize <= MaxCacheSize) break;
             }
-
             SaveCache();
         }
 

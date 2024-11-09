@@ -15,7 +15,7 @@ namespace IDosGames
         [SerializeField] private Image _icon;
         [SerializeField] private TMP_Text _amount;
 
-        public virtual void Fill(Action action, string itemID, int amount)
+        public virtual async void Fill(Action action, string itemID, int amount)
         {
             ResetButton(action);
 
@@ -27,7 +27,7 @@ namespace IDosGames
 
             if (item != null)
             {
-                _icon.sprite = Resources.Load<Sprite>(item.ImagePath);
+                _icon.sprite = await ImageLoader.GetSpriteAsync(item.ImagePath);
                 _rarityBackground.color = Rarity.GetColor(item.Rarity);
                 _name.text = item.DisplayName;
             }

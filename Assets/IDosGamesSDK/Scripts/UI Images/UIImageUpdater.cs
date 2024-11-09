@@ -1,5 +1,4 @@
 using System.Linq;
-using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -21,7 +20,7 @@ namespace IDosGames
             // ѕодписка на событие обновлени€ изображений
             ImageLoader.ImagesUpdated += OnImagesUpdated;
 
-            UpdateImage().ConfigureAwait(false);
+            UpdateImage();
         }
 
         private void OnDestroy()
@@ -32,10 +31,10 @@ namespace IDosGames
 
         private void OnImagesUpdated()
         {
-            UpdateImage().ConfigureAwait(false);
+            UpdateImage();
         }
 
-        public async Task UpdateImage()
+        public async void UpdateImage()
         {
             if (_image == null)
             {
@@ -51,7 +50,7 @@ namespace IDosGames
             var imagePair = imageData.images.FirstOrDefault(i => i.imageType == imageType);
             string url = null;
 
-            // ѕровер€ем сначала данные с сервера, затем данные imageUrl
+            // ѕровер€ем сначала данные с сервера, затем данные imageUrl  
             if (IGSUserData.ImageData?.TryGetValue(imageType.ToString(), out var serverImageUrl) == true && !string.IsNullOrEmpty(serverImageUrl))
             {
                 url = serverImageUrl;
@@ -63,7 +62,7 @@ namespace IDosGames
 
             if (!string.IsNullOrEmpty(url))
             {
-                var sprite = await ImageLoader.LoadImageAsync(url);
+                var sprite = await ImageLoader.LoadExternalImageAsync(url);
                 if (sprite != null)
                 {
                     _image.sprite = sprite;
@@ -71,7 +70,7 @@ namespace IDosGames
                 }
             }
 
-            // »спользуем imageSprite как запасной вариант, если загрузка из URL не удалась
+            // »спользуем imageSprite как запасной вариант, если загрузка из URL не удалась  
             if (imagePair.imageSprite != null)
             {
                 _image.sprite = imagePair.imageSprite;
@@ -85,7 +84,7 @@ namespace IDosGames
                 _image = GetComponent<Image>();
             }
 
-            UpdateImage().ConfigureAwait(false);
+            UpdateImage();
         }
     }
 }

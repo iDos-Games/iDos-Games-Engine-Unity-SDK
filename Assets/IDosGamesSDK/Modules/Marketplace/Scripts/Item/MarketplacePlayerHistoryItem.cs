@@ -14,14 +14,14 @@ namespace IDosGames
 		[SerializeField] private TMP_Text _soldText;
 		[SerializeField] private TMP_Text _boughtText;
 
-		public virtual void Fill(MarketplaceActiveOffer offer, Sprite currencyIcon)
+		public virtual async void Fill(MarketplaceActiveOffer offer, Sprite currencyIcon)
 		{
 			SkinCatalogItem item = UserDataService.GetCachedSkinItem(offer?.ItemID);
             if (item == null)
             {
                 item = UserDataService.GetAvatarSkinItem(offer?.ItemID);
             }
-            _icon.sprite = Resources.Load<Sprite>(item.ImagePath);
+            _icon.sprite = await ImageLoader.GetSpriteAsync(item.ImagePath);
 			_rarityBackground.color = Rarity.GetColor(item.Rarity);
 			_name.text = item.DisplayName;
 
