@@ -25,7 +25,7 @@ namespace IDosGames
         private static readonly Dictionary<string, Sprite> ImageCache = new Dictionary<string, Sprite>();
         private static readonly string CacheFilePath = Path.Combine(Application.persistentDataPath, "ImageCache.json");
         private static Dictionary<string, CachedImageInfo> CachedImageInfos;
-        private const long MaxCacheSize = 500 * 1024 * 1024; // Максимальный размер кэша в байтах (например, 50 МБ)
+        private const long MaxCacheSize = 1024 * 1024 * 1024;
 
         static ImageLoader()
         {
@@ -35,13 +35,21 @@ namespace IDosGames
 
         private static void OnServerDataUpdated()
         {
-            // Проверяем, что ImageData не равно null
             if (IGSUserData.ImageData != null)
             {
-                // Обновляем локальный кэш, используя данные с сервера для корректности изображения
-                CachedImageInfos = IGSUserData.ImageData
-                    .Where(kv => kv.Value != null && !string.IsNullOrEmpty(kv.Value))
-                    .ToDictionary(kv => kv.Key, kv => new CachedImageInfo { Url = kv.Value, LocalPath = Path.Combine(Application.persistentDataPath, Path.GetFileName(kv.Value)), LastAccessed = DateTimeOffset.UtcNow.ToUnixTimeSeconds() });
+                foreach (var kv in IGSUserData.ImageData)
+                {
+                    if (kv.Value != null && !string.IsNullOrEmpty(kv.Value))
+                    {
+                        var localPath = Path.Combine(Application.persistentDataPath, Path.GetFileName(kv.Value));
+                        CachedImageInfos[kv.Key] = new CachedImageInfo
+                        {
+                            Url = kv.Value,
+                            LocalPath = localPath,
+                            LastAccessed = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+                        };
+                    }
+                }
 
                 SaveCache();
                 ImagesUpdated?.Invoke();
@@ -55,7 +63,6 @@ namespace IDosGames
                 return null;
             }
 
-            // Try to get the image from the cache
             if (ImageCache.TryGetValue(url, out var cachedImage))
             {
                 UpdateLastAccessedTime(url);

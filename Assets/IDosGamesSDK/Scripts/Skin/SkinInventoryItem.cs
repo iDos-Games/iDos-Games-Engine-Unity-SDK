@@ -6,46 +6,73 @@ using UnityEngine.UI;
 
 namespace IDosGames
 {
-	[RequireComponent(typeof(Button))]
-	public class SkinInventoryItem : Item
-	{
-		[SerializeField] private Button _button;
-		[SerializeField] private Image _rarityBackground;
-		[SerializeField] private Image _icon;
-		[SerializeField] private TMP_Text _amount;
+    [RequireComponent(typeof(Button))]
+    public class SkinInventoryItem : Item
+    {
+        [SerializeField] private Button _button;
+        [SerializeField] private Image _rarityBackground;
+        [SerializeField] private Image _icon;
+        [SerializeField] private TMP_Text _amount;
 
-		[SerializeField] private GameObject _amountObject;
+        [SerializeField] private GameObject _amountObject;
 
-		public virtual void Fill(Action action, SkinCatalogItem item)
-		{
-			ResetButton(action);
-			_icon.sprite = Resources.Load<Sprite>(item.ImagePath);
-			_rarityBackground.color = Rarity.GetColor(item.Rarity);
+        public virtual void Fill(Action action, SkinCatalogItem item)
+        {
+            ResetButton(action);
 
-			var amount = UserInventory.GetItemAmount(item.ItemID);
+            if (IsExternalUrl(item.ImagePath))
+            {
+                LoadExternalImage(item.ImagePath);
+            }
+            else
+            {
+                _icon.sprite = Resources.Load<Sprite>(item.ImagePath);
+            }
 
-			UpdateAmount(amount);
-		}
+            _rarityBackground.color = Rarity.GetColor(item.Rarity);
 
-		public void UpdateAmount(int amount)
-		{
-			_amount.text = amount.ToString();
+            var amount = UserInventory.GetItemAmount(item.ItemID);
+            UpdateAmount(amount);
+        }
 
-			if (_amountObject != null)
-			{
-				_amountObject.SetActive(amount > 0);
-			}
-		}
+        private bool IsExternalUrl(string url)
+        {
+            return Uri.TryCreate(url, UriKind.Absolute, out var uriResult) &&
+                   (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
+        }
 
-		private void ResetButton(Action action)
-		{
-			if (action == null)
-			{
-				return;
-			}
+        private async void LoadExternalImage(string url)
+        {
+            var sprite = await ImageLoader.LoadImageAsync(url);
+            if (sprite != null)
+            {
+                _icon.sprite = sprite;
+            }
+            else
+            {
+                Debug.LogError($"Failed to load external image from url: {url}");
+            }
+        }
 
-			_button.onClick.RemoveAllListeners();
-			_button.onClick.AddListener(new UnityAction(action));
-		}
-	}
+        public void UpdateAmount(int amount)
+        {
+            _amount.text = amount.ToString();
+
+            if (_amountObject != null)
+            {
+                _amountObject.SetActive(amount > 0);
+            }
+        }
+
+        private void ResetButton(Action action)
+        {
+            if (action == null)
+            {
+                return;
+            }
+
+            _button.onClick.RemoveAllListeners();
+            _button.onClick.AddListener(new UnityAction(action));
+        }
+    }
 }
