@@ -104,23 +104,18 @@ mergeInto(LibraryManager.library, {
             .catch(err => console.error("Cache save failed", err));  
     },  
   
-    CacheLoadData: function(key, callback) {        
-        var keyStr = UTF8ToString(key);        
-        var callbackFunction = Module.addFunction(function(dataPtr, length) {  
-            Module._free(dataPtr);  // Освободить память после использования  
-            Module.removeFunction(callbackFunction);  // Удалить функцию после выполнения  
-        });  
-  
-        window.cacheLoadData(keyStr, function(buffer) {      
-            if (buffer) {      
-                var dataPtr = _malloc(buffer.byteLength);      
-                HEAPU8.set(new Uint8Array(buffer), dataPtr);      
-                Module.dynCall_vii(callbackFunction, dataPtr, buffer.byteLength);      
-            } else {      
-                Module.dynCall_vii(callbackFunction, 0, 0);      
-            }      
-        });  
-    }, 
+    CacheLoadData: function(key, callback) {  
+    var keyStr = UTF8ToString(key);  
+    window.cacheLoadData(keyStr, function(buffer) {  
+        if (buffer) {  
+            var dataPtr = _malloc(buffer.byteLength);  
+            HEAPU8.set(new Uint8Array(buffer), dataPtr);  
+            {{{ makeDynCall('vii', 'callback') }}}(dataPtr, buffer.byteLength);  
+        } else {  
+            {{{ makeDynCall('vii', 'callback') }}}(0, 0);  
+        }  
+    });  
+    },
   
     CacheDeleteData: function(key) {  
         var keyStr = UTF8ToString(key);    
