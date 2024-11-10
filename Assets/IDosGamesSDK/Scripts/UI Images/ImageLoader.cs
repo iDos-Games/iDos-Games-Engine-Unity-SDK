@@ -74,19 +74,60 @@ namespace IDosGames
                 return cachedImage;
             }
 
-            if (CachedImageInfos.TryGetValue(url, out var cachedInfo) && cachedInfo != null && File.Exists(cachedInfo.LocalPath))
+            byte[] imageBytes;
+
+#if UNITY_WEBGL
+            var loadTaskSource = new TaskCompletionSource<byte[]>();
+
+            WebSDK.LoadDataFromCache(url, (data) =>
             {
-                byte[] imageBytes = await File.ReadAllBytesAsync(cachedInfo.LocalPath);
-                Texture2D texture = new Texture2D(2, 2);
-                if (texture.LoadImage(imageBytes))
-                {
-                    var sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero);
-                    ImageCache[url] = sprite;
-                    UpdateLastAccessedTime(url);
-                    return sprite;
-                }
+                loadTaskSource.SetResult(data);
+            });
+
+            var cachedData = await loadTaskSource.Task;
+
+            if (cachedData != null)
+            {
+                imageBytes = cachedData;
+            }
+            else
+            {
+                imageBytes = await DownloadImageBytes(url);
+                WebSDK.SaveDataToCache(url, imageBytes);
             }
 
+            CreateSpriteFromBytes(url, imageBytes);
+#else
+            // Стандартное сохранение изображения на файловой системе для остальных платформ
+            if (CachedImageInfos.TryGetValue(url, out var cachedInfo) && cachedInfo != null && File.Exists(cachedInfo.LocalPath))
+            {
+                imageBytes = await File.ReadAllBytesAsync(cachedInfo.LocalPath);
+            }
+            else
+            {
+                imageBytes = await DownloadImageBytes(url);
+                string localPath = Path.Combine(Application.persistentDataPath, Path.GetFileName(url));
+                await File.WriteAllBytesAsync(localPath, imageBytes);
+
+                CachedImageInfos[url] = new CachedImageInfo
+                {
+                    Url = url,
+                    LocalPath = localPath,
+                    LastAccessed = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+                };
+        
+                SaveCache();
+                CleanupCache();
+            }
+
+            CreateSpriteFromBytes(url, imageBytes);
+#endif
+
+            return ImageCache[url];
+        }
+
+        private static async Task<byte[]> DownloadImageBytes(string url)
+        {
             using (UnityWebRequest uwr = UnityWebRequestTexture.GetTexture(url))
             {
                 var asyncOp = uwr.SendWebRequest();
@@ -98,30 +139,24 @@ namespace IDosGames
                 if (uwr.result != UnityWebRequest.Result.Success)
                 {
                     Debug.LogError($"Error downloading image from URL {url}: {uwr.error}");
+                    return null;
                 }
-                else
+                return uwr.downloadHandler.data;
+            }
+        }
+
+        private static void CreateSpriteFromBytes(string url, byte[] imageBytes)
+        {
+            if (imageBytes != null)
+            {
+                Texture2D texture = new Texture2D(2, 2);
+                if (texture.LoadImage(imageBytes))
                 {
-                    Texture2D texture = DownloadHandlerTexture.GetContent(uwr);
                     var sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero);
                     ImageCache[url] = sprite;
-
-                    string localPath = Path.Combine(Application.persistentDataPath, Path.GetFileName(url));
-                    await File.WriteAllBytesAsync(localPath, uwr.downloadHandler.data);
-
-                    CachedImageInfos[url] = new CachedImageInfo
-                    {
-                        Url = url,
-                        LocalPath = localPath,
-                        LastAccessed = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
-                    };
-                    SaveCache();
-                    CleanupCache();
                     ImagesUpdated?.Invoke();
-                    return sprite;
                 }
             }
-
-            return null;
         }
 
         public static Sprite LoadLocalImage(string imagePath)

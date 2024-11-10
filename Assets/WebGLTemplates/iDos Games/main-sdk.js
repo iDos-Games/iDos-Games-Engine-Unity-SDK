@@ -127,6 +127,46 @@
         });  
     }
 
+    const cacheName = "web-cache";
+
+    function cacheSaveData(key, data) {  
+        const url = "cache://" + key;  
+        const response = new Response(new Blob([data], { type: 'application/octet-stream' }));  
+        return caches.open(cacheName).then(cache => cache.put(url, response));  
+    }  
+      
+    function cacheLoadData(key, callback) {      
+        const url = "cache://" + key;      
+        caches.open(cacheName).then(cache =>       
+            cache.match(url).then(response => {      
+                if (response) {      
+                    response.arrayBuffer().then(buffer => {      
+                        callback(buffer);      
+                    });      
+                } else {      
+                    callback(null);      
+                }      
+            })      
+        ).catch(err => {      
+            console.error("Cache load failed", err);      
+            callback(null);      
+        });      
+    }
+      
+    function cacheDeleteData(key) {  
+        const url = "cache://" + key;  
+        return caches.open(cacheName).then(cache => cache.delete(url));  
+    }  
+      
+    function cacheClear() {  
+        return caches.delete(cacheName);  
+    }  
+
+    window.cacheSaveData = cacheSaveData;
+    window.cacheLoadData = cacheLoadData;
+    window.cacheDeleteData = cacheDeleteData;
+    window.cacheClear = cacheClear;
+
     window.getFullURL = getFullURL;
 	window.getPlatform = function() { return platform; };
     window.getStartAppParameter = getStartAppParameter;

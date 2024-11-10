@@ -94,5 +94,44 @@ mergeInto(LibraryManager.library, {
             console.warn("getFullURL function is not defined");    
             return 0;    
         }    
+    },
+
+    CacheSaveData: function(key, dataPtr, length) {    
+        var keyStr = UTF8ToString(key);    
+        var data = new Uint8Array(HEAPU8.buffer, dataPtr, length);  
+        window.cacheSaveData(keyStr, data)  
+            .then(() => console.log('Cache saved successfully'))  
+            .catch(err => console.error("Cache save failed", err));  
+    },  
+  
+    CacheLoadData: function(key, callback) {        
+        var keyStr = UTF8ToString(key);        
+        var callbackFunction = Module.addFunction(function(dataPtr, length) {  
+            Module._free(dataPtr);  // Освободить память после использования  
+            Module.removeFunction(callbackFunction);  // Удалить функцию после выполнения  
+        });  
+  
+        window.cacheLoadData(keyStr, function(buffer) {      
+            if (buffer) {      
+                var dataPtr = _malloc(buffer.byteLength);      
+                HEAPU8.set(new Uint8Array(buffer), dataPtr);      
+                Module.dynCall_vii(callbackFunction, dataPtr, buffer.byteLength);      
+            } else {      
+                Module.dynCall_vii(callbackFunction, 0, 0);      
+            }      
+        });  
+    }, 
+  
+    CacheDeleteData: function(key) {  
+        var keyStr = UTF8ToString(key);    
+        window.cacheDeleteData(keyStr)  
+            .then(() => console.log('Cache deleted successfully'))  
+            .catch(err => console.error("Cache delete failed", err));  
+    },  
+  
+    CacheClear: function() {  
+        window.cacheClear()  
+            .then(() => console.log('Cache cleared successfully'))  
+            .catch(err => console.error("Cache clear failed", err));  
     }
 });  
