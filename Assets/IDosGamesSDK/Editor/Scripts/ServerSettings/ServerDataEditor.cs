@@ -39,7 +39,10 @@ namespace IDosGames
             EditorGUILayout.HelpBox("To make the solution work, you need to make Server Settings! To start Configuration, you must first fill in the fields below - Title ID, Server Connection String and Developer Secret Key.", MessageType.None);
             GUILayout.Space(5);
 
+            EditorGUI.BeginDisabledGroup(true);
             settings.ServerLink = EditorGUILayout.TextField("Server Link", settings.ServerLink);
+            EditorGUI.EndDisabledGroup();
+
             GUILayout.Space(5);
             settings.DeveloperSecretKey = EditorGUILayout.TextField("Developer Secret Key", settings.DeveloperSecretKey);
             settings.TitleID = EditorGUILayout.TextField("Title ID", settings.TitleID);
