@@ -2,6 +2,7 @@
 using Firebase.Analytics;
 #endif
 using System;
+using System.Collections;
 using UnityEngine;
 #if IDOSGAMES_MOBILE_IAP
 using UnityEngine.Purchasing;
@@ -22,7 +23,13 @@ namespace IDosGames
 			}
 		}
 
-		private void OnEnable()
+        void Start()
+        {
+            IDosGamesSDKSettings.Instance.IsPlaying = true;
+            StartCoroutine(TrackPlayTime());
+        }
+
+        private void OnEnable()
 		{
 #if IDOSGAMES_MOBILE_IAP
 			IAPService.PurchaseCompleted += ReportIAPRevenue;
@@ -117,6 +124,30 @@ namespace IDosGames
 
 			AppMetricaAnalytics.Instance.ReportAdRevenue(revenue);
 #endif
+        }
+
+        IEnumerator TrackPlayTime()
+        {
+            while (true)
+            {
+                if (IDosGamesSDKSettings.Instance.IsPlaying)
+                {
+                    IDosGamesSDKSettings.Instance.PlayTime += 1;
+                }
+                yield return new WaitForSecondsRealtime(1);
+            }
+        }
+
+        private void OnApplicationFocus(bool focus)
+        {
+            if (!focus)
+            {
+                IDosGamesSDKSettings.Instance.IsPlaying = false;
+            }
+            else
+            {
+                IDosGamesSDKSettings.Instance.IsPlaying = true;
+            }
         }
     }
 }

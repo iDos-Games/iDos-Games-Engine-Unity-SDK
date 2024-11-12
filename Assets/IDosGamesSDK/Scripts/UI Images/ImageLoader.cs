@@ -76,7 +76,7 @@ namespace IDosGames
 
             byte[] imageBytes;
 
-#if UNITY_WEBGL
+#if UNITY_WEBGL && !UNITY_EDITOR
             var loadTaskSource = new TaskCompletionSource<byte[]>();
 
             WebSDK.LoadDataFromCache(url, (data) =>

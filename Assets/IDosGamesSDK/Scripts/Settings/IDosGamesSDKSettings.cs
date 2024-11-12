@@ -89,6 +89,9 @@ namespace IDosGames
         public string ReferralTrackerLink { get; set; }
         public string WebGLUrl { get; set; }
 
+        public bool IsPlaying { get; set; }
+        public int PlayTime { get; set; }
+
         [Space(5)]
         [SerializeField] private bool _debugLogging;
         public bool DebugLogging => _debugLogging;

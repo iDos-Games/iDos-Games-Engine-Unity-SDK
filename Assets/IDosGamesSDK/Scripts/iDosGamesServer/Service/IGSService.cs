@@ -28,11 +28,16 @@ namespace IDosGames
                 FunctionName = ServerFunctionHandlers.GetUserAllData.ToString(),
                 WebAppLink = WebSDK.webAppLink,
                 UserID = userID,
-                ClientSessionTicket = clientSessionTicket
+                ClientSessionTicket = clientSessionTicket,
+                UsageTime = IDosGamesSDKSettings.Instance.PlayTime,
             };
 
-            string response = await SendPostRequest(URL_IGS_CLIENT_API, requestBody);
-            return JsonConvert.DeserializeObject<GetAllUserDataResult>(response);
+            string responseString = await SendPostRequest(URL_IGS_CLIENT_API, requestBody);
+            var response = JsonConvert.DeserializeObject<GetAllUserDataResult>(responseString);
+
+            if (response != null ) { IDosGamesSDKSettings.Instance.PlayTime = 0; }
+
+            return response;
         }
 
         // ------------------ Login / Registration ------------------ //
@@ -51,13 +56,16 @@ namespace IDosGames
                 Platform = platform,
                 Device = device,
                 DeviceID = deviceID,
-                UserName = userName
+                UserName = userName,
+                UsageTime = IDosGamesSDKSettings.Instance.PlayTime,
             };
 
             string response = await SendPostRequest(URL_LOGIN_SYSTEM, requestBody);
             
             // Десериализация строки в объект GetAllUserDataResult  
             GetAllUserDataResult result = JsonConvert.DeserializeObject<GetAllUserDataResult>(response);
+
+            if (result != null ) { IDosGamesSDKSettings.Instance.PlayTime = 0; }
 
             return result;
         }
@@ -139,6 +147,7 @@ namespace IDosGames
                 TitleID = IDosGamesSDKSettings.Instance.TitleID,
                 FunctionName = ServerFunctionHandlers.LoginWithEmail.ToString(),
                 WebAppLink = WebSDK.webAppLink,
+                UsageTime = IDosGamesSDKSettings.Instance.PlayTime,
                 Email = email,
                 Password = password
             };
@@ -146,6 +155,8 @@ namespace IDosGames
             string response = await SendPostRequest(URL_LOGIN_SYSTEM, requestBody);
 
             GetAllUserDataResult result = JsonConvert.DeserializeObject<GetAllUserDataResult>(response);
+
+            if (result != null) { IDosGamesSDKSettings.Instance.PlayTime = 0; }
 
             return result;
         }
@@ -172,6 +183,7 @@ namespace IDosGames
             {
                 TitleID = IDosGamesSDKSettings.Instance.TitleID,
                 FunctionName = ServerFunctionHandlers.RegisterUserByEmail.ToString(),
+                UsageTime = IDosGamesSDKSettings.Instance.PlayTime,
                 WebAppLink = WebSDK.webAppLink,
                 Email = email,
                 Password = password,
@@ -183,6 +195,8 @@ namespace IDosGames
             string response = await SendPostRequest(URL_LOGIN_SYSTEM, requestBody);
 
             GetAllUserDataResult result = JsonConvert.DeserializeObject<GetAllUserDataResult>(response);
+
+            if (result != null) { IDosGamesSDKSettings.Instance.PlayTime = 0; }
 
             return result;
         }
