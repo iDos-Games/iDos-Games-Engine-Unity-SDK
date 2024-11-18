@@ -6,7 +6,8 @@ namespace IDosGames
 	public class WalletTransactionRequest
 	{
 		public string TitleID { get; set; }
-		public string UserID { get; set; }
+        public string WebAppLink { get; set; }
+        public string UserID { get; set; }
 		public string ClientSessionTicket { get; set; }
 		public string EntityToken { get; set; }
 		public string AuthContext { get; set; }

@@ -16,12 +16,12 @@ namespace IDosGames
 
         public void SaveValueToServer()
         {
-            UserDataService.UpdateCustomReadOnlyData("test", "test value");
+            UserDataService.UpdateCustomUserData("test", "test value");
         }
 
         public void GetValue()
         {
-            string value = UserDataService.GetCachedUserReadOnlyData("test");
+            string value = UserDataService.GetCachedCustomUserData("test");
             Debug.Log(value);
         }
     }

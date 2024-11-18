@@ -13,7 +13,7 @@ namespace IDosGames
     public class UserDataService
     {
         public const string CURRENCY_ICONS_IMAGE_PATH = "Sprites/Currency/";
-        public const string CATALOG_SKIN = "Skin";
+        public const string CATALOG_SKIN = "Item";
         private const int TASK_DELAY_MILLISECONDS_STEP_REQUEST_ALL_DATA = 10;
         private const int MILLISECONDS_BEFORE_BREAK_REQUEST_ALL_DATA_SEQUENCE = 10000;
 
@@ -21,17 +21,20 @@ namespace IDosGames
         public static event Action DataUpdated;
         public static event Action<string> AllDataRequestError;
 
+        public static event Action FirstTimeDataUpdated;
+        public static bool _firstTimeDataUpdated = false;
+
         public static event Action<GetUserInventoryResult> UserInventoryReceived;
-        public static event Action<JObject> BlobTitleDataReceived;
-        public static event Action<GetUserDataResult> UserReadOnlyDataReceived;
+        public static event Action<JObject> TitlePublicConfigurationReceived;
+        public static event Action<GetCustomUserDataResult> CustomUserDataReceived;
         public static event Action<GetCatalogItemsResult> SkinCatalogReceived;
 
-        public static event Action TitleDataUpdated;
-        public static event Action UserReadOnlyDataUpdated;
+        public static event Action TitlePublicConfigurationUpdated;
+        public static event Action CustomUserDataUpdated;
         public static event Action SkinCatalogItemsUpdated;
         public static event Action EquippedSkinsUpdated;
 
-        public static event Action<string, CustomUpdateResult> CustomReadOnlyDataUpdated;
+        public static event Action<string, CustomUpdateResult> ClientModifyCustomUserDataUpdated;
 
         public static IReadOnlyList<SkinCatalogItem> AllSkinsInCatalog => _allSkinsInCatalog.AsReadOnly();
 
@@ -41,7 +44,7 @@ namespace IDosGames
 
         private static readonly Dictionary<TitleDataKey, string> _titleData = new();
         private static readonly Dictionary<string, string> _titleDataRaw = new();
-        private static readonly Dictionary<UserReadOnlyDataKey, string> _playerData = new();
+        private static readonly Dictionary<CustomUserDataKey, string> _playerData = new();
         private static readonly Dictionary<string, string> _playerDataRaw = new();
 
         private static readonly Dictionary<string, RarityType> _skinCollectionRarity = new();
@@ -71,11 +74,12 @@ namespace IDosGames
             IAPValidator.VIPSubscriptionValidated += OnVIPSubscriptionValidated;
             UserInventory.InventoryUpdated += CheckForEquippedSkinInInventory;
             // UserInventory.InventoryUpdated += CheckForEquippedAvatarSkin;
-            UserReadOnlyDataUpdated += SetEquippedSkinsList;
+            CustomUserDataUpdated += SetEquippedSkinsList;
+            FirstTimeDataUpdated += RequestSkinCatalogItems;
 
             UserInventoryReceived += (result) => _continueRequestAllDataSequence = true;
-            BlobTitleDataReceived += (result) => _continueRequestAllDataSequence = true;
-            UserReadOnlyDataReceived += (result) => _continueRequestAllDataSequence = true;
+            TitlePublicConfigurationReceived += (result) => _continueRequestAllDataSequence = true;
+            CustomUserDataReceived += (result) => _continueRequestAllDataSequence = true;
             SkinCatalogReceived += (result) => _continueRequestAllDataSequence = true;
             AllDataRequestError += (error) => _continueRequestAllDataSequence = true;
         }
@@ -93,14 +97,11 @@ namespace IDosGames
             UserInventoryReceived?.Invoke(userDataResult.UserInventoryResult);
             IGSUserData.UserInventory = userDataResult.UserInventoryResult;
 
-            OnBlobTitleDataReceived(userDataResult.BlobTitleDataResult);
-            IGSUserData.TitleData = userDataResult.BlobTitleDataResult;
+            OnTitlePublicConfigurationReceived(userDataResult.TitlePublicConfiguration);
+            IGSUserData.TitlePublicConfiguration = userDataResult.TitlePublicConfiguration;
 
-            OnUserReadOnlyDataReceived(userDataResult.UserDataResult);
-            IGSUserData.ReadOnlyData = userDataResult.UserDataResult;
-
-            OnSkinCatalogItemsReceived(userDataResult.CatalogItemsResult);
-            IGSUserData.SkinCatalogItems = userDataResult.CatalogItemsResult;
+            OnCustomUserDataReceived(userDataResult.CustomUserDataResult);
+            IGSUserData.CustomUserData = userDataResult.CustomUserDataResult;
 
             IGSUserData.Leaderboard = userDataResult.LeaderboardResult;
 
@@ -108,7 +109,16 @@ namespace IDosGames
             IGSUserData.FriendRequests = userDataResult.GetFriendRequests.ToString();
             IGSUserData.RecommendedFriends = userDataResult.GetRecommendedFriends.ToString();
 
+            IGSUserData.Currency = userDataResult.GetCurrencyData;
+
+            IGSUserData.ImageData = userDataResult.ImageData;
+
             DataUpdated?.Invoke();
+            if (!_firstTimeDataUpdated)
+            {
+                _firstTimeDataUpdated = true;
+                FirstTimeDataUpdated?.Invoke();
+            }
         }
 
         public static void RequestUserAllData()
@@ -144,29 +154,29 @@ namespace IDosGames
             );
         }
 
-        public static void RequestTitleData()
+        public static void RequestTitlePublicConfiguration()
         {
-            IGSClientAPI.GetBlobTitleData(
+            IGSClientAPI.GetTitlePublicConfiguration(
 
-                resultCallback: OnBlobTitleDataReceived,
-                notConnectionErrorCallback: OnRequestTitleDataError,
+                resultCallback: OnTitlePublicConfigurationReceived,
+                notConnectionErrorCallback: OnRequestTitlePublicConfigurationError,
                 connectionErrorCallback: () =>
                 {
-                    RequestTitleData();
+                    RequestTitlePublicConfiguration();
                     TryInvokeDataRequestAgain();
                 }
                 );
         }
         
-        public static void RequestUserReadOnlyData()
+        public static void RequestCustomUserData()
         {
-            IGSClientAPI.GetUserReadOnlyData
+            IGSClientAPI.GetCustomUserData
             (
-                resultCallback: OnUserReadOnlyDataReceived,
-                notConnectionErrorCallback: OnRequestUserReadOnlyDataError,
+                resultCallback: OnCustomUserDataReceived,
+                notConnectionErrorCallback: OnRequestCustomUserDataError,
                 connectionErrorCallback: () =>
                 {
-                    RequestUserReadOnlyData();
+                    RequestCustomUserData();
                     TryInvokeDataRequestAgain();
                 }
             );
@@ -196,28 +206,28 @@ namespace IDosGames
             }
         }
 
-        public static string GetCachedTitleData(TitleDataKey dataKey)
+        public static string GetCachedTitlePublicConfig(TitleDataKey dataKey)
         {
             _titleData.TryGetValue(dataKey, out string data);
 
             return $"{data}";
         }
 
-        public static string GetCachedTitleData(string dataKey)
+        public static string GetCachedTitlePublicConfig(string dataKey)
         {
             _titleDataRaw.TryGetValue(dataKey, out string data);
 
             return $"{data}";
         }
 
-        public static string GetCachedUserReadOnlyData(UserReadOnlyDataKey dataKey)
+        public static string GetCachedCustomUserData(CustomUserDataKey dataKey)
         {
             _playerData.TryGetValue(dataKey, out string data);
 
             return $"{data}";
         }
 
-        public static string GetCachedUserReadOnlyData(string dataKey)
+        public static string GetCachedCustomUserData(string dataKey)
         {
             _playerDataRaw.TryGetValue(dataKey, out string data);
 
@@ -296,7 +306,7 @@ namespace IDosGames
 
         public static float GetTelegramStarPrice()
         {
-            string titleData = GetCachedTitleData(TitleDataKey.telegram_settings);
+            string titleData = GetCachedTitlePublicConfig(TitleDataKey.telegram_settings);
             if (string.IsNullOrEmpty(titleData))
             {
                 return 2f;
@@ -333,7 +343,7 @@ namespace IDosGames
                 );
         }
 
-        public static void UpdateCustomReadOnlyData(string key, object data)
+        public static void UpdateCustomUserData(string key, object data)
         {
             FunctionParameters parameter = new()
             {
@@ -348,15 +358,15 @@ namespace IDosGames
             
             _ = IGSClientAPI.ExecuteFunction(
 
-                functionName: ServerFunctionHandlers.UpdateCustomReadOnlyData,
-                resultCallback: (result) => OnUpdateCustomReadOnlyData(result, key),
+                functionName: ServerFunctionHandlers.UpdateCustomUserData,
+                resultCallback: (result) => OnUpdateCustomUserData(result, key),
                 notConnectionErrorCallback: (error) => OnErrorUpdateCustomData(),
-                connectionErrorCallback: () => UpdateCustomReadOnlyData(key, data),
+                connectionErrorCallback: () => UpdateCustomUserData(key, data),
                 functionParameter: parameter
                 );
         }
 
-        private static void OnUpdateCustomReadOnlyData(string result, string key)
+        private static void OnUpdateCustomUserData(string result, string key)
         {
             if (result != null)
             {
@@ -364,15 +374,15 @@ namespace IDosGames
                 JObject resultData = JsonConvert.DeserializeObject<JObject>(result);
                 if (resultData[JsonProperty.MESSAGE_KEY] != null && resultData[JsonProperty.MESSAGE_KEY].ToString() == "SUCCESS")
                 {
-                    CustomReadOnlyDataUpdated?.Invoke(key, CustomUpdateResult.SUCCESS);
+                    ClientModifyCustomUserDataUpdated?.Invoke(key, CustomUpdateResult.SUCCESS);
                 }
                 else if (resultData[JsonProperty.MESSAGE_KEY] != null && resultData[JsonProperty.MESSAGE_KEY].ToString() == "MESSAGE_CODE_INCORECT_KEY")
                 {
-                    CustomReadOnlyDataUpdated?.Invoke(key, CustomUpdateResult.INCORECT_KEY);
+                    ClientModifyCustomUserDataUpdated?.Invoke(key, CustomUpdateResult.INCORECT_KEY);
                 }
                 else if (resultData[JsonProperty.MESSAGE_KEY] != null && resultData[JsonProperty.MESSAGE_KEY].ToString() == "MESSAGE_CODE_INCORECT_ARGS")
                 {
-                    CustomReadOnlyDataUpdated?.Invoke(key, CustomUpdateResult.INCIRCT_ARGS);
+                    ClientModifyCustomUserDataUpdated?.Invoke(key, CustomUpdateResult.INCIRCT_ARGS);
                 }
             }
         }
@@ -405,14 +415,14 @@ namespace IDosGames
             OnVIPSubscriptionValidated();
         }
 
-        private static void OnBlobTitleDataReceived(JObject result)
+        private static void OnTitlePublicConfigurationReceived(JObject result)
         {
-            BlobTitleDataReceived?.Invoke(result);
+            TitlePublicConfigurationReceived?.Invoke(result);
 
-            UpdateCachedTitleData(result);
+            UpdateCachedTitlePublicConfiguration(result);
         }
 
-        private static void UpdateCachedTitleData(JObject result)
+        private static void UpdateCachedTitlePublicConfiguration(JObject result)
         {
             Dictionary<string, string> dataDictionary = ConvertJObjectToDictionary(result);
             foreach (var data in dataDictionary)
@@ -426,7 +436,7 @@ namespace IDosGames
 
 
             }
-            TitleDataUpdated?.Invoke();
+            TitlePublicConfigurationUpdated?.Invoke();
         }
 
         private static Dictionary<string, string> ConvertJObjectToDictionary(JObject jsonObject)
@@ -454,33 +464,33 @@ namespace IDosGames
             return result;
         }
 
-        private static void OnUserReadOnlyDataReceived(GetUserDataResult result)
+        private static void OnCustomUserDataReceived(GetCustomUserDataResult result)
         {
-            UserReadOnlyDataReceived?.Invoke(result);
+            CustomUserDataReceived?.Invoke(result);
 
-            UpdateCachedUserReadOnlyData(result);
+            UpdateCachedCustomUserData(result);
         }
 
-        private static void UpdateCachedUserReadOnlyData(GetUserDataResult result)
+        private static void UpdateCachedCustomUserData(GetCustomUserDataResult result)
         {
             foreach (var data in result.Data)
             {
                 _playerDataRaw[data.Key] = data.Value.Value;
 
-                if (Enum.TryParse(data.Key, true, out UserReadOnlyDataKey dataKey))
+                if (Enum.TryParse(data.Key, true, out CustomUserDataKey dataKey))
                 {
                     _playerData[dataKey] = data.Value.Value;
                 }
             }
 
-            UserReadOnlyDataUpdated?.Invoke();
+            CustomUserDataUpdated?.Invoke();
         }
 
         private static void SetEquippedSkinsList()
         {
             _equippedSkins.Clear();
 
-            var equppedSkinsData = GetCachedUserReadOnlyData(UserReadOnlyDataKey.equipped_skins);
+            var equppedSkinsData = GetCachedCustomUserData(CustomUserDataKey.equipped_skins);
 
             if (equppedSkinsData == string.Empty)
             {
@@ -494,7 +504,7 @@ namespace IDosGames
             }
             catch (JsonReaderException)
             {
-                Debug.LogError("Incorrect equipped skins format in UserReadonlyData. JsonReaderException.");
+                Debug.LogError("Incorrect equipped skins format in CustomUserData. JsonReaderException.");
             }
 
             CheckForEquippedSkinInInventory();
@@ -505,6 +515,8 @@ namespace IDosGames
             SkinCatalogReceived?.Invoke(result);
 
             UpdateCachedSkinItems(result);
+
+            IGSUserData.SkinCatalogItems = result;
         }
 
         private static void UpdateCachedSkinItems(GetCatalogItemsResult result)
@@ -556,7 +568,7 @@ namespace IDosGames
 
         private static void SetSkinCollectionRarityAndProfit()
         {
-            string collectionRarityData = GetCachedTitleData(TitleDataKey.skin_collection_rarity);
+            string collectionRarityData = GetCachedTitlePublicConfig(TitleDataKey.SkinCollectionRarity);
 
             JArray collectionRarities = new();
 
@@ -627,7 +639,7 @@ namespace IDosGames
 
         private static void CheckForEquippedAvatarSkin()
         {
-            var data = GetCachedUserReadOnlyData(UserReadOnlyDataKey.equipped_avatar_skins);
+            var data = GetCachedCustomUserData(CustomUserDataKey.equipped_avatar_skins);
 
 
             if (String.IsNullOrEmpty(data))
@@ -635,7 +647,7 @@ namespace IDosGames
                 return;
             }
             Dictionary<ClothingType, string> equippedSkins = new Dictionary<ClothingType, string>();
-            var titleData = GetCachedTitleData(TitleDataKey.default_avatar_skin);
+            var titleData = GetCachedTitlePublicConfig(TitleDataKey.DefaultAvatarSkin);
             Dictionary<ClothingType, string> defaultSkins = new Dictionary<ClothingType, string>();
             Debug.Log(titleData);
             if (!string.IsNullOrEmpty(titleData))
@@ -682,7 +694,7 @@ namespace IDosGames
 
             if (equippedSkins.Count <= 0)
             {
-                UpdateCustomReadOnlyData(UserReadOnlyDataKey.equipped_avatar_skins.ToString(), defaultSkins);
+                UpdateCustomUserData(CustomUserDataKey.equipped_avatar_skins.ToString(), defaultSkins);
             }
             else
             {
@@ -693,7 +705,7 @@ namespace IDosGames
                         equippedSkins.Add(item.Key, item.Value);
                     }
                 }
-                UpdateCustomReadOnlyData(UserReadOnlyDataKey.equipped_avatar_skins.ToString(), equippedSkins);
+                UpdateCustomUserData(CustomUserDataKey.equipped_avatar_skins.ToString(), equippedSkins);
             }
         }
 
@@ -708,12 +720,12 @@ namespace IDosGames
             OnAllDataRequestError(error);
         }
 
-        private static void OnRequestTitleDataError(string error)
+        private static void OnRequestTitlePublicConfigurationError(string error)
         {
             OnAllDataRequestError(error);
         }
 
-        private static void OnRequestUserReadOnlyDataError(string error)
+        private static void OnRequestCustomUserDataError(string error)
         {
             OnAllDataRequestError(error);
         }

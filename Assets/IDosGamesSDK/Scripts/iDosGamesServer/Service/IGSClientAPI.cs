@@ -64,7 +64,7 @@ namespace IDosGames
             }
         }
 
-        public static async void GetBlobTitleData(Action<JObject> resultCallback, Action<string> notConnectionErrorCallback = null, Action connectionErrorCallback = null)
+        public static async void GetTitlePublicConfiguration(Action<JObject> resultCallback, Action<string> notConnectionErrorCallback = null, Action connectionErrorCallback = null)
         {
             if (!AuthService.AuthContext.IsClientLoggedIn()) throw new IGSException(IGSExceptionCode.NotLoggedIn, "Must be logged in to call this method");
 
@@ -72,7 +72,7 @@ namespace IDosGames
 
             try
             {
-                string response = await IGSService.RequestTitleData(); //CloudFunctionName.GET_TITLE_DATA ServerFunctionName.PlayfabAction
+                string response = await IGSService.RequestTitlePublicConfiguration(AuthService.UserID, AuthService.ClientSessionTicket);
                 if (!string.IsNullOrEmpty(response))
                 {
                     var resultData = JsonConvert.DeserializeObject<JObject>(response);
@@ -86,7 +86,7 @@ namespace IDosGames
             }
         }
 
-        public static async void GetUserReadOnlyData(Action<GetUserDataResult> resultCallback, Action<string> notConnectionErrorCallback = null, Action connectionErrorCallback = null)
+        public static async void GetCustomUserData(Action<GetCustomUserDataResult> resultCallback, Action<string> notConnectionErrorCallback = null, Action connectionErrorCallback = null)
         {
             if (!AuthService.AuthContext.IsClientLoggedIn()) throw new IGSException(IGSExceptionCode.NotLoggedIn, "Must be logged in to call this method");
 
@@ -94,10 +94,10 @@ namespace IDosGames
 
             try
             {
-                string response = await IGSService.RequestUserReadOnlyData(AuthService.UserID, AuthService.ClientSessionTicket);
+                string response = await IGSService.RequestCustomUserData(AuthService.UserID, AuthService.ClientSessionTicket);
                 if (!string.IsNullOrEmpty(response))
                 {
-                    var result = JsonConvert.DeserializeObject<GetUserDataResult>(response);
+                    var result = JsonConvert.DeserializeObject<GetCustomUserDataResult>(response);
                     resultCallback?.Invoke(result);
 
                     ServerFunctionResponsed?.Invoke();
@@ -117,7 +117,7 @@ namespace IDosGames
 
             try
             {
-                string response = await IGSService.RequestCatalogItems(catalogVersion);
+                string response = await IGSService.RequestCatalogItems(catalogVersion, AuthService.UserID, AuthService.ClientSessionTicket);
                 if (!string.IsNullOrEmpty(response))
                 {
                     var resultData = JsonConvert.DeserializeObject<GetCatalogItemsResult>(response);
@@ -159,6 +159,7 @@ namespace IDosGames
             {
                 FunctionName = functionName.ToString(),
                 TitleID = IDosGamesSDKSettings.Instance.TitleID,
+                WebAppLink = WebSDK.webAppLink,
                 UserID = AuthService.UserID,
                 ClientSessionTicket = AuthService.ClientSessionTicket,
                 FunctionParameter = functionParameter // Установите дополнительные параметры
@@ -211,10 +212,10 @@ namespace IDosGames
                 case ServerFunctionHandlers.StartNewWeeklyEventForPlayer:
                 case ServerFunctionHandlers.AddWeeklyEventPoints:
                     return IDosGamesSDKSettings.Instance.EventSystemLink;
-                case ServerFunctionHandlers.UpdateCustomReadOnlyData:
+                case ServerFunctionHandlers.UpdateCustomUserData:
                 case ServerFunctionHandlers.DeleteTitlePlayerAccount:
                 case ServerFunctionHandlers.SubtractVirtualCurrencyHandler:
-                case ServerFunctionHandlers.GetTitleData:
+                case ServerFunctionHandlers.GetTitlePublicConfiguration:
                     return IDosGamesSDKSettings.Instance.UserDataSystemLink;
                 case ServerFunctionHandlers.BuyItemDailyOffer:
                 case ServerFunctionHandlers.BuyItemForVirtualCurrency:

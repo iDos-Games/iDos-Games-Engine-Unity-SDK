@@ -47,7 +47,7 @@ namespace IDosGames.ClientModels
     }
 
     [Serializable]
-    public class GetUserDataResult : IGSResultCommon
+    public class GetCustomUserDataResult : IGSResultCommon
     {
         public Dictionary<string, UserDataRecord> Data;
         public uint DataVersion;
@@ -58,6 +58,7 @@ namespace IDosGames.ClientModels
     {
         public DateTime LastUpdated;
         public UserDataPermission? Permission;
+        public UserDataType? DataType;
         public string Value;
     }
 
@@ -65,6 +66,13 @@ namespace IDosGames.ClientModels
     {
         Private,
         Public
+    }
+
+    public enum UserDataType
+    {
+        ReadOnly,
+        ClientModify,
+        Internal
     }
 
     [Serializable]

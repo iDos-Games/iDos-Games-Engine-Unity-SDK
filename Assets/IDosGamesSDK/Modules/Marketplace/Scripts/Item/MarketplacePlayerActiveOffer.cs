@@ -16,7 +16,7 @@ namespace IDosGames
 		[SerializeField] private TMP_Text _price;
 		[SerializeField] private Image _currencyIcon;
 
-		public virtual void Fill(Action action, MarketplaceActiveOffer offer, Sprite currencyIcon)
+		public virtual async void Fill(Action action, MarketplaceActiveOffer offer, Sprite currencyIcon)
 		{
 			ResetButton(action);
 
@@ -25,8 +25,8 @@ namespace IDosGames
             {
                 item = UserDataService.GetAvatarSkinItem(offer?.ItemID);
             }
-            _icon.sprite = Resources.Load<Sprite>(item.ImagePath);
-			_rarityBackground.color = Rarity.GetColor(item.Rarity);
+            _icon.sprite = await ImageLoader.GetSpriteAsync(item.ImagePath);
+            _rarityBackground.color = Rarity.GetColor(item.Rarity);
 			_name.text = item.DisplayName;
 
 			_price.text = ((int)offer.Price).ToString();

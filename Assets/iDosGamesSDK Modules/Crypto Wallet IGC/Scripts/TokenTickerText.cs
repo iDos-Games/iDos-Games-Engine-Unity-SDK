@@ -10,14 +10,7 @@ namespace IDosGames
         private void OnEnable()
         {
 #if IDOSGAMES_CRYPTO_WALLET
-            if (IDosGamesSDKSettings.Instance.CustomContractsEnabled)
-            {
-                _customTokenTicker.text = IDosGamesSDKSettings.Instance.SecondTokenTicker;
-            }
-            else
-            {
-                _customTokenTicker.text = "IGT";
-            }
+            _customTokenTicker.text = BlockchainSettings.HardTokenTicker;
 #endif
         }
     }

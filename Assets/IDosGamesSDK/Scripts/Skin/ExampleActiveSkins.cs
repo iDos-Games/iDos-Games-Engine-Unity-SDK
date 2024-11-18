@@ -37,7 +37,7 @@ namespace IDosGames
 			UserDataService.EquippedSkinsUpdated -= UpdateSkinsView;
 		}
 
-		private void UpdateSkinsView()
+		private async void UpdateSkinsView()
 		{
 			_ak47.sprite = _ak47DefaultSkin;
 			_awm.sprite = _awmDefaultSkin;
@@ -54,7 +54,7 @@ namespace IDosGames
 					continue;
 				}
 
-				Sprite icon = Resources.Load<Sprite>(skinItem.ImagePath);
+				Sprite icon = await ImageLoader.GetSpriteAsync(skinItem.ImagePath);
 
 				switch (skinItem.ObjectType)
 				{

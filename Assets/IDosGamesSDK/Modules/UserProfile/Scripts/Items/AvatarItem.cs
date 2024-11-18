@@ -19,11 +19,11 @@ namespace IDosGames.UserProfile
         [SerializeField] private GameObject _amountObject;
 
         public AvatarSkinCatalogItem AvatarData { get; private set; }
-        public void Fill(Action action, AvatarSkinCatalogItem item)
+        public async void Fill(Action action, AvatarSkinCatalogItem item)
         {
             ResetButton(action);
             AvatarData = item;
-            _icon.sprite = Resources.Load<Sprite>(item.ImagePath);
+            _icon.sprite = await ImageLoader.GetSpriteAsync(item.ImagePath);
             _rarityBackground.color = Rarity.GetColor(item.Rarity);
             var amount = UserInventory.GetItemAmount(item.ItemID);
             UpdateAmount(amount);

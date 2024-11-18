@@ -20,6 +20,7 @@ namespace IDosGames
             {
                 TitleID = IDosGamesSDKSettings.Instance.TitleID,
                 FunctionName = ServerFunctionHandlers.GetFunctionLinks.ToString(),
+                WebAppLink = WebSDK.webAppLink,
                 SecretKey = IDosGamesSDKSettings.Instance.DeveloperSecretKey
             };
 
@@ -32,6 +33,7 @@ namespace IDosGames
             {
                 TitleID = IDosGamesSDKSettings.Instance.TitleID,
                 FunctionName = ServerFunctionHandlers.UploadTitleData.ToString(),
+                WebAppLink = WebSDK.webAppLink,
                 SecretKey = IDosGamesSDKSettings.Instance.DeveloperSecretKey,
                 Files = files
             };
@@ -44,6 +46,7 @@ namespace IDosGames
             {
                 TitleID = IDosGamesSDKSettings.Instance.TitleID,
                 FunctionName = ServerFunctionHandlers.UploadWebGL.ToString(),
+                WebAppLink = WebSDK.webAppLink,
                 SecretKey = IDosGamesSDKSettings.Instance.DeveloperSecretKey,
                 Files = files,
                 DevBuild = IDosGamesSDKSettings.Instance.DevBuild
@@ -57,6 +60,7 @@ namespace IDosGames
             {
                 TitleID = IDosGamesSDKSettings.Instance.TitleID,
                 FunctionName = ServerFunctionHandlers.ClearWebGL.ToString(),
+                WebAppLink = WebSDK.webAppLink,
                 SecretKey = IDosGamesSDKSettings.Instance.DeveloperSecretKey,
                 DevBuild = IDosGamesSDKSettings.Instance.DevBuild
             };
@@ -70,6 +74,7 @@ namespace IDosGames
             {
                 TitleID = IDosGamesSDKSettings.Instance.TitleID,
                 FunctionName = ServerFunctionHandlers.RegisterTelegramWebhook.ToString(),
+                WebAppLink = WebSDK.webAppLink,
                 SecretKey = IDosGamesSDKSettings.Instance.DeveloperSecretKey,
                 WebhookLink = IDosGamesSDKSettings.Instance.TelegramWebhookLink
             };

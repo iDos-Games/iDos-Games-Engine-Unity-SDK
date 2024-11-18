@@ -42,7 +42,7 @@ namespace IDosGames
 
         private void InitializeFreeProducts(JArray products)
         {
-            var playerData = UserDataService.GetCachedUserReadOnlyData(UserReadOnlyDataKey.shop_daily_free_products);
+            var playerData = UserDataService.GetCachedCustomUserData(CustomUserDataKey.shop_daily_free_products);
 
             if (IsNeedUpdateDailyFreeProducts(playerData))
             {
@@ -52,7 +52,7 @@ namespace IDosGames
 
             foreach (var product in products)
             {
-                if ($"{product[JsonProperty.ENABLED]}" != JsonProperty.ENABLED_VALUE)
+                if (!(bool)product[JsonProperty.ENABLED])
                 {
                     continue;
                 }
@@ -182,10 +182,15 @@ namespace IDosGames
             _ = IGSClientAPI.ExecuteFunction
                 (
                 functionName: ServerFunctionHandlers.UpdateDailyFreeProducts,
-                resultCallback: (result) => UserDataService.RequestUserAllData(),
+                resultCallback: (result) => OnUpdateDailyFreeProducts(),
                 notConnectionErrorCallback: (error) => OnErrorUpdateDailyFreeProducts(),
                 connectionErrorCallback: UpdateDailyFreeProducts
                 );
+        }
+
+        private void OnUpdateDailyFreeProducts()
+        {
+            UserDataService.RequestUserAllData();
         }
 
         private void OnErrorUpdateDailyFreeProducts()
@@ -195,7 +200,7 @@ namespace IDosGames
 
         private bool IsNeedUpdateDailyFreeProducts(string playerData)
         {
-            if (playerData == string.Empty)
+            if (string.IsNullOrEmpty(playerData))
             {
                 return true;
             }
@@ -241,8 +246,10 @@ namespace IDosGames
 
         private DateTime GetEndDateTime(JToken jToken)
         {
-            DateTime endDate = DateTime.Parse($"{jToken[JsonProperty.END_DATE]}");
-            return endDate.ToUniversalTime();
+            string endDateString = $"{jToken[JsonProperty.END_DATE]}";
+            DateTimeOffset endDateTimeOffset = DateTimeOffset.Parse(endDateString, null, System.Globalization.DateTimeStyles.AssumeUniversal);
+            DateTime endDate = endDateTimeOffset.UtcDateTime;
+            return endDate;
         }
 
         private void UpdateTimer(DateTime endDate)

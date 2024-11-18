@@ -1,6 +1,3 @@
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
 using UnityEngine;
 
 namespace IDosGames
@@ -8,8 +5,11 @@ namespace IDosGames
 	public class ApplicationUpdateSystem : MonoBehaviour
 	{
 		[SerializeField] private PopUpApplicationUpdate _popUp;
+        private string _version;
+        private UpdateUrgency _urgency;
+        private string _linkToUpdate;
 
-		private bool _alreadyShowed = false;
+        private bool _alreadyShowed = false;
 
 		private void OnEnable()
 		{
@@ -27,46 +27,33 @@ namespace IDosGames
 			{
 				return;
 			}
-
-			var UpdateData = UserDataService.GetCachedTitleData(TitleDataKey.application_update);
-
-			if (UpdateData == string.Empty)
+			
+			var platformSettings = IGSUserData.PlatformSettings;
+			
+            if (IDosGamesSDKSettings.Instance.BuildForPlatform == Platforms.GooglePlay)
+            {
+				_version = platformSettings.GooglePlay.ApplicationUpdate.Version;
+                _urgency = platformSettings.GooglePlay.ApplicationUpdate.Urgency;
+				_linkToUpdate = platformSettings.GooglePlay.ApplicationUpdate.Link;
+            }
+			else if (IDosGamesSDKSettings.Instance.BuildForPlatform == Platforms.AppleAppStore)
+			{
+                _version = platformSettings.AppleAppStore.ApplicationUpdate.Version;
+                _urgency = platformSettings.AppleAppStore.ApplicationUpdate.Urgency;
+                _linkToUpdate = platformSettings.AppleAppStore.ApplicationUpdate.Link;
+            }
+			
+			if ($"{_version}" == $"{Application.version}")
 			{
 				return;
 			}
 
-			var jsonUpdateData = JsonConvert.DeserializeObject<JObject>(UpdateData);
-
-			JObject deviceUpdateData = null;
-
-#if UNITY_IOS
-			deviceUpdateData = (JObject)jsonUpdateData[JsonProperty.IOS];
-#elif UNITY_ANDROID
-			deviceUpdateData = (JObject)jsonUpdateData[JsonProperty.ANDROID];
-#endif
-			if (deviceUpdateData == null)
+			if (_urgency == UpdateUrgency.NoUpdates)
 			{
 				return;
 			}
 
-			var version = deviceUpdateData[JsonProperty.VERSION];
-
-			if ($"{version}" == $"{Application.version}")
-			{
-				return;
-			}
-
-			var urgencyData = deviceUpdateData[JsonProperty.URGENCY];
-			Enum.TryParse($"{urgencyData}", out UpdateUrgency urgency);
-
-			if (urgency == UpdateUrgency.NoUpdates)
-			{
-				return;
-			}
-
-			var linkToUpdate = deviceUpdateData[JsonProperty.LINK];
-
-			_popUp.Set(urgency, $"{version}", $"{linkToUpdate}");
+			_popUp.Set(_urgency, $"{_version}", $"{_linkToUpdate}");
 			_popUp.gameObject.SetActive(true);
 
 			_alreadyShowed = true;

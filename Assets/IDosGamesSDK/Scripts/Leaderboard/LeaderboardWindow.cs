@@ -1,6 +1,9 @@
 using IDosGames.ClientModels;
+using IDosGames.TitlePublicConfiguration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -41,67 +44,62 @@ namespace IDosGames
 
         public void RefreshData()
         {
-            var titleData = UserDataService.GetCachedTitleData(TitleDataKey.leaderboards);
-            var leaderboardsArray = JsonConvert.DeserializeObject<JArray>(titleData);
+            var titleData = UserDataService.GetCachedTitlePublicConfig(TitleDataKey.Leaderboards);
+            var leaderboardsArray = JsonConvert.DeserializeObject<List<Leaderboard>>(titleData);
+
             if (leaderboardsArray == null || !leaderboardsArray.Any())
             {
                 return;
             }
 
-            foreach (var leaderboardData in leaderboardsArray)
+            foreach (var leaderboard in leaderboardsArray)
             {
-                if (leaderboardData == null)
+                if (leaderboard == null)
                 {
                     continue;
                 }
 
-                var leaderboardObject = leaderboardData as JObject;
-                if (leaderboardObject == null)
+                _view.SetTitle(leaderboard.Name);
+                _view.SetStatValueName(leaderboard.ValueName);
+
+                if (Enum.IsDefined(typeof(StatisticResetFrequency), leaderboard.Frequency))
                 {
-                    continue;
+                    _view.SetTimer(leaderboard.Frequency);
                 }
 
-                _view.SetTitle($"{leaderboardObject[JsonProperty.NAME]}");
-                _view.SetStatValueName($"{leaderboardObject[JsonProperty.VALUE_NAME]}");
-                _view.SetTimer($"{leaderboardObject[JsonProperty.FREQUENCY]}");
-
-                var leaderboardID = $"{leaderboardObject[JsonProperty.DEFAULT_STATISTIC_NAME]}";
                 OnSuccessGetLeaderboard(IGSUserData.Leaderboard);
-
-                _description.Initialize(leaderboardObject);
+                _description.Initialize(leaderboard);
             }
         }
 
         public void Refresh()
         {
-            var titleData = UserDataService.GetCachedTitleData(TitleDataKey.leaderboards);
-            var leaderboardsArray = JsonConvert.DeserializeObject<JArray>(titleData);
+            var titleData = UserDataService.GetCachedTitlePublicConfig(TitleDataKey.Leaderboards);
+            var leaderboardsArray = JsonConvert.DeserializeObject<List<Leaderboard>>(titleData);
+
             if (leaderboardsArray == null || !leaderboardsArray.Any())
             {
                 return;
             }
 
-            foreach (var leaderboardData in leaderboardsArray)
+            foreach (var leaderboard in leaderboardsArray)
             {
-                if (leaderboardData == null)
+                if (leaderboard == null)
                 {
                     continue;
                 }
 
-                var leaderboardObject = leaderboardData as JObject;
-                if (leaderboardObject == null)
+                _view.SetTitle(leaderboard.Name);
+                _view.SetStatValueName(leaderboard.ValueName);
+
+                if (Enum.IsDefined(typeof(StatisticResetFrequency), leaderboard.Frequency))
                 {
-                    continue;
+                    _view.SetTimer(leaderboard.Frequency);
                 }
 
-                _view.SetTitle($"{leaderboardObject[JsonProperty.NAME]}");
-                _view.SetStatValueName($"{leaderboardObject[JsonProperty.VALUE_NAME]}");
-                _view.SetTimer($"{leaderboardObject[JsonProperty.FREQUENCY]}");
-
-                var leaderboardID = $"{leaderboardObject[JsonProperty.DEFAULT_STATISTIC_NAME]}";
+                var leaderboardID = leaderboard.StatisticName;
                 RequestLeaderboard(leaderboardID);
-
-                _description.Initialize(leaderboardObject);
+                _description.Initialize(leaderboard);
             }
         }
 
@@ -111,16 +109,6 @@ namespace IDosGames
 
             IGSClientAPI.GetUserAllData(resultCallback: (result) => { OnSuccessGetLeaderboard(result.LeaderboardResult); UserDataService.ProcessingAllData(result); }, notConnectionErrorCallback: OnErrorGetLeaderboard, connectionErrorCallback: null);
 
-            /*
-            IGSClientAPI.GetLeaderboard
-			(
-				leaderboardID: leaderboardID,
-				//maxResultCount: MAX_DISPLAY_PLACES_COUNT,
-				resultCallback: OnSuccessGetLeaderboard,
-				notConnectionErrorCallback: OnErrorGetLeaderboard,
-				connectionErrorCallback: () => RequestLeaderboard(leaderboardID)
-			);
-            */
         }
 
 		private void OnSuccessGetLeaderboard(GetLeaderboardResult result)

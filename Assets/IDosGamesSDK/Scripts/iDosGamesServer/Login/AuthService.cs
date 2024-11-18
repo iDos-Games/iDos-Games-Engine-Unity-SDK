@@ -1,4 +1,3 @@
-using Newtonsoft.Json.Linq;
 using System;
 using System.Text.RegularExpressions;
 using UnityEngine;
@@ -31,8 +30,8 @@ namespace IDosGames
         private static AuthService _instance;
 
         public static event Action RequestSent;
-
         public static event Action LoggedIn;
+        public static event Action PlatformSettingsUpdated;
 
         public static AuthService Instance => _instance;
 
@@ -194,9 +193,8 @@ namespace IDosGames
             void UpdateProperty<T>(T resultProperty, Action<T> updateAction) => updateAction?.Invoke(resultProperty);
 
             UpdateProperty(result.UserInventoryResult, value => IGSUserData.UserInventory = value);
-            UpdateProperty(result.BlobTitleDataResult, value => IGSUserData.TitleData = value);
-            UpdateProperty(result.UserDataResult, value => IGSUserData.ReadOnlyData = value);
-            UpdateProperty(result.CatalogItemsResult, value => IGSUserData.SkinCatalogItems = value);
+            UpdateProperty(result.TitlePublicConfiguration, value => IGSUserData.TitlePublicConfiguration = value);
+            UpdateProperty(result.CustomUserDataResult, value => IGSUserData.CustomUserData = value);
             UpdateProperty(result.LeaderboardResult, value => IGSUserData.Leaderboard = value);
             UpdateProperty(result.GetFriends, value => IGSUserData.Friends = value?.ToString());
             UpdateProperty(result.GetFriendRequests, value => IGSUserData.FriendRequests = value?.ToString());
@@ -204,6 +202,55 @@ namespace IDosGames
             UpdateProperty(result.GetMarketplaceGroupedOffers, value => IGSUserData.MarketplaceGroupedOffers = value?.ToString());
             UpdateProperty(result.GetMarketplaceActiveOffers, value => IGSUserData.MarketplaceActiveOffers = value?.ToString());
             UpdateProperty(result.GetMarketplaceHistory, value => IGSUserData.MarketplaceHistory = value?.ToString());
+            UpdateProperty(result.GetCurrencyData, value => IGSUserData.Currency = value);
+            UpdateProperty(result.PlatformSettings, value => IGSUserData.PlatformSettings = value);
+            UpdateProperty(result.ImageData, value => IGSUserData.ImageData = value);
+
+            SetPlatformSettings();
+        }
+
+        public static void SetPlatformSettings()
+        {
+            if (IDosGamesSDKSettings.Instance.BuildForPlatform == Platforms.GooglePlay)
+            {
+                IDosGamesSDKSettings.Instance.AndroidBundleID = IGSUserData.PlatformSettings.GooglePlay.BundleID;
+                IDosGamesSDKSettings.Instance.AdEnabled = IGSUserData.PlatformSettings.GooglePlay.AdSettings.AdEnabled;
+                IDosGamesSDKSettings.Instance.MediationAppKeyAndroid = IGSUserData.PlatformSettings.GooglePlay.AdSettings.AppKey;
+                IDosGamesSDKSettings.Instance.BannerEnabled = IGSUserData.PlatformSettings.GooglePlay.AdSettings.BannerEnabled;
+                IDosGamesSDKSettings.Instance.BannerPosition = IGSUserData.PlatformSettings.GooglePlay.AdSettings.BanerPosition;
+                IDosGamesSDKSettings.Instance.ReferralTrackerLink = IGSUserData.PlatformSettings.GooglePlay.ReferralSystemSettings.ReferralAppLink;
+            }
+            else if (IDosGamesSDKSettings.Instance.BuildForPlatform == Platforms.AppleAppStore)
+            {
+                IDosGamesSDKSettings.Instance.IosBundleID = IGSUserData.PlatformSettings.AppleAppStore.BundleID;
+                IDosGamesSDKSettings.Instance.IosAppStoreID = IGSUserData.PlatformSettings.AppleAppStore.AppStoreID;
+                IDosGamesSDKSettings.Instance.AdEnabled = IGSUserData.PlatformSettings.AppleAppStore.AdSettings.AdEnabled;
+                IDosGamesSDKSettings.Instance.MediationAppKeyIOS = IGSUserData.PlatformSettings.AppleAppStore.AdSettings.AppKey;
+                IDosGamesSDKSettings.Instance.BannerEnabled = IGSUserData.PlatformSettings.AppleAppStore.AdSettings.BannerEnabled;
+                IDosGamesSDKSettings.Instance.BannerPosition = IGSUserData.PlatformSettings.AppleAppStore.AdSettings.BanerPosition;
+                IDosGamesSDKSettings.Instance.ReferralTrackerLink = IGSUserData.PlatformSettings.AppleAppStore.ReferralSystemSettings.ReferralAppLink;
+            }
+            else if (IDosGamesSDKSettings.Instance.BuildForPlatform == Platforms.Telegram)
+            {
+                IDosGamesSDKSettings.Instance.AdEnabled = IGSUserData.PlatformSettings.Telegram.AdSettings.AdEnabled;
+                IDosGamesSDKSettings.Instance.AdsGramBlockID = IGSUserData.PlatformSettings.Telegram.AdSettings.BlockID;
+                IDosGamesSDKSettings.Instance.PlatformCurrencyPriceInCent = IGSUserData.PlatformSettings.Telegram.PlatformCurrencyPriceInCent;
+                IDosGamesSDKSettings.Instance.TelegramWebAppLink = IGSUserData.PlatformSettings.Telegram.ReferralSystemSettings.ReferralAppLink;
+            }
+            else if (IDosGamesSDKSettings.Instance.BuildForPlatform == Platforms.Web)
+            {
+                IDosGamesSDKSettings.Instance.AdEnabled = IGSUserData.PlatformSettings.Web.AdSettings.AdEnabled;
+                IDosGamesSDKSettings.Instance.BannerEnabled = IGSUserData.PlatformSettings.Web.AdSettings.BannerEnabled;
+                IDosGamesSDKSettings.Instance.BannerPosition = IGSUserData.PlatformSettings.Web.AdSettings.BanerPosition;
+                IDosGamesSDKSettings.Instance.PlatformCurrencyPriceInCent = IGSUserData.PlatformSettings.Web.PlatformCurrencyPriceInCent;
+                IDosGamesSDKSettings.Instance.ReferralTrackerLink = IGSUserData.PlatformSettings.Web.ReferralSystemSettings.ReferralAppLink;
+            }
+            else if (IDosGamesSDKSettings.Instance.BuildForPlatform == Platforms.Custom)
+            {
+
+            }
+
+            PlatformSettingsUpdated?.Invoke();
         }
 
         private void SaveAuthType(AuthType authType)

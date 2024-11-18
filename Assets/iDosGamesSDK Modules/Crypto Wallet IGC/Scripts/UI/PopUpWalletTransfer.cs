@@ -50,7 +50,7 @@ namespace IDosGames
 			await _walletWindow.TransferNFT(direction, skin.ItemID, amount);
 		}
 
-		private void OnClickTransfer()
+		private async void OnClickTransfer()
 		{
 			var amountInput = _view.GetAmountInput();
 
@@ -110,8 +110,8 @@ namespace IDosGames
 					return;
 				}
 
-				itemIcon = Resources.Load<Sprite>(skin.ImagePath);
-				itemDescription = $"<color=white>{skin.DisplayName}</color> {_view.TransactionType}";
+				itemIcon = await ImageLoader.GetSpriteAsync(skin.ImagePath);
+                itemDescription = $"<color=white>{skin.DisplayName}</color> {_view.TransactionType}";
 			}
 
 			_confirmationPopUp.Set(OnClickConfirm, _view.GetTransferDirection(), itemIcon, amount, itemDescription);

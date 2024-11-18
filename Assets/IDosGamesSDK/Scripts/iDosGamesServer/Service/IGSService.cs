@@ -14,6 +14,7 @@ namespace IDosGames
 
         public static string URL_IGS_CLIENT_API = IDosGamesSDKSettings.Instance.IgsClientApiLink;
         public static string URL_LOGIN_SYSTEM = IDosGamesSDKSettings.Instance.LoginSystemLink;
+        public static string URL_USER_DATA_SYSTEM = IDosGamesSDKSettings.Instance.UserDataSystemLink;
         public static string URL_WALLET_MAKE_TRANSACTION = IDosGamesSDKSettings.Instance.CryptoWalletLink;
         public static string URL_MARKETPLACE_DO_ACTION = IDosGamesSDKSettings.Instance.MarketplaceActionsLink;
         public static string URL_MARKETPLACE_GET_DATA = IDosGamesSDKSettings.Instance.MarketplaceDataLink;
@@ -25,12 +26,18 @@ namespace IDosGames
             {
                 TitleID = IDosGamesSDKSettings.Instance.TitleID,
                 FunctionName = ServerFunctionHandlers.GetUserAllData.ToString(),
+                WebAppLink = WebSDK.webAppLink,
                 UserID = userID,
-                ClientSessionTicket = clientSessionTicket
+                ClientSessionTicket = clientSessionTicket,
+                UsageTime = IDosGamesSDKSettings.Instance.PlayTime,
             };
 
-            string response = await SendPostRequest(URL_IGS_CLIENT_API, requestBody);
-            return JsonConvert.DeserializeObject<GetAllUserDataResult>(response);
+            string responseString = await SendPostRequest(URL_IGS_CLIENT_API, requestBody);
+            var response = JsonConvert.DeserializeObject<GetAllUserDataResult>(responseString);
+
+            if (response != null ) { IDosGamesSDKSettings.Instance.PlayTime = 0; }
+
+            return response;
         }
 
         // ------------------ Login / Registration ------------------ //
@@ -45,16 +52,20 @@ namespace IDosGames
             {
                 TitleID = IDosGamesSDKSettings.Instance.TitleID,
                 FunctionName = ServerFunctionHandlers.LoginWithDeviceID.ToString(),
+                WebAppLink = WebSDK.webAppLink,
                 Platform = platform,
                 Device = device,
                 DeviceID = deviceID,
-                UserName = userName
+                UserName = userName,
+                UsageTime = IDosGamesSDKSettings.Instance.PlayTime,
             };
 
             string response = await SendPostRequest(URL_LOGIN_SYSTEM, requestBody);
-
+            
             // Десериализация строки в объект GetAllUserDataResult  
             GetAllUserDataResult result = JsonConvert.DeserializeObject<GetAllUserDataResult>(response);
+
+            if (result != null ) { IDosGamesSDKSettings.Instance.PlayTime = 0; }
 
             return result;
         }
@@ -135,6 +146,8 @@ namespace IDosGames
             {
                 TitleID = IDosGamesSDKSettings.Instance.TitleID,
                 FunctionName = ServerFunctionHandlers.LoginWithEmail.ToString(),
+                WebAppLink = WebSDK.webAppLink,
+                UsageTime = IDosGamesSDKSettings.Instance.PlayTime,
                 Email = email,
                 Password = password
             };
@@ -142,6 +155,8 @@ namespace IDosGames
             string response = await SendPostRequest(URL_LOGIN_SYSTEM, requestBody);
 
             GetAllUserDataResult result = JsonConvert.DeserializeObject<GetAllUserDataResult>(response);
+
+            if (result != null) { IDosGamesSDKSettings.Instance.PlayTime = 0; }
 
             return result;
         }
@@ -152,6 +167,7 @@ namespace IDosGames
             {
                 TitleID = IDosGamesSDKSettings.Instance.TitleID,
                 FunctionName = ServerFunctionHandlers.AddEmailAndPassword.ToString(),
+                WebAppLink = WebSDK.webAppLink,
                 UserID = userID,
                 Email = email,
                 Password = password,
@@ -167,6 +183,8 @@ namespace IDosGames
             {
                 TitleID = IDosGamesSDKSettings.Instance.TitleID,
                 FunctionName = ServerFunctionHandlers.RegisterUserByEmail.ToString(),
+                UsageTime = IDosGamesSDKSettings.Instance.PlayTime,
+                WebAppLink = WebSDK.webAppLink,
                 Email = email,
                 Password = password,
                 Platform = Application.platform.ToString(),
@@ -177,6 +195,8 @@ namespace IDosGames
             string response = await SendPostRequest(URL_LOGIN_SYSTEM, requestBody);
 
             GetAllUserDataResult result = JsonConvert.DeserializeObject<GetAllUserDataResult>(response);
+
+            if (result != null) { IDosGamesSDKSettings.Instance.PlayTime = 0; }
 
             return result;
         }
@@ -189,47 +209,55 @@ namespace IDosGames
             {
                 TitleID = IDosGamesSDKSettings.Instance.TitleID,
                 FunctionName = ServerFunctionHandlers.GetUserInventory.ToString(),
+                WebAppLink = WebSDK.webAppLink,
                 UserID = userID,
                 ClientSessionTicket = clientSessionTicket
             };
 
-            return await SendPostRequest(URL_LOGIN_SYSTEM, requestBody);
+            return await SendPostRequest(URL_USER_DATA_SYSTEM, requestBody);
         }
         
-        public static async Task<string> RequestUserReadOnlyData(string userID, string clientSessionTicket)
+        public static async Task<string> RequestCustomUserData(string userID, string clientSessionTicket)
         {
             var requestBody = new IGSRequest
             {
                 TitleID = IDosGamesSDKSettings.Instance.TitleID,
-                FunctionName = ServerFunctionHandlers.GetUserReadOnlyData.ToString(),
+                FunctionName = ServerFunctionHandlers.GetCustomUserData.ToString(),
+                WebAppLink = WebSDK.webAppLink,
                 UserID = userID,
                 ClientSessionTicket = clientSessionTicket
             };
 
-            return await SendPostRequest(URL_LOGIN_SYSTEM, requestBody);
+            return await SendPostRequest(URL_USER_DATA_SYSTEM, requestBody);
         }
 
-        public static async Task<string> RequestTitleData()
+        public static async Task<string> RequestTitlePublicConfiguration(string userID, string clientSessionTicket)
         {
             var requestBody = new IGSRequest
             {
                 TitleID = IDosGamesSDKSettings.Instance.TitleID,
-                FunctionName = ServerFunctionHandlers.GetTitleData.ToString()
+                FunctionName = ServerFunctionHandlers.GetTitlePublicConfiguration.ToString(),
+                WebAppLink = WebSDK.webAppLink,
+                UserID = userID,
+                ClientSessionTicket = clientSessionTicket,
             };
 
-            return await SendPostRequest(URL_LOGIN_SYSTEM, requestBody);
+            return await SendPostRequest(URL_USER_DATA_SYSTEM, requestBody);
         }
 
-        public static async Task<string> RequestCatalogItems(string catalogVersion)
+        public static async Task<string> RequestCatalogItems(string catalogVersion, string userID, string clientSessionTicket)
         {
             var requestBody = new IGSRequest
             {
                 TitleID = IDosGamesSDKSettings.Instance.TitleID,
                 FunctionName = ServerFunctionHandlers.GetCatalogItems.ToString(),
+                WebAppLink = WebSDK.webAppLink,
+                UserID = userID,
+                ClientSessionTicket = clientSessionTicket,
                 CatalogVersion = catalogVersion
             };
 
-            return await SendPostRequest(URL_LOGIN_SYSTEM, requestBody);
+            return await SendPostRequest(URL_USER_DATA_SYSTEM, requestBody);
         }
         // ------------------------ Inventory END ------------------------ //
 
@@ -237,8 +265,8 @@ namespace IDosGames
         {
             var requestBody = new JObject
             {
-				//{ "AuthContext", JsonConvert.SerializeObject(AuthService.AuthContext) },
-                { "TitleID", IDosGamesSDKSettings.Instance.TitleID },
+				{ "TitleID", IDosGamesSDKSettings.Instance.TitleID },
+                { "WebAppLink", WebSDK.webAppLink },
                 { "UserID", AuthService.UserID },
                 { "ClientSessionTicket", AuthService.ClientSessionTicket },
                 { "Receipt", receipt }
@@ -252,13 +280,14 @@ namespace IDosGames
             var requestBody = new IGSRequest
             {
                 TitleID = IDosGamesSDKSettings.Instance.TitleID,
-                FunctionName = ServerFunctionHandlers.GetDefaultLeaderboard.ToString(),
+                FunctionName = ServerFunctionHandlers.GetLeaderboard.ToString(),
+                WebAppLink = WebSDK.webAppLink,
                 UserID = userID,
                 ClientSessionTicket = clientSessionTicket,
                 LeaderboardID = leaderboardID
             };
 
-            return await SendPostRequest(URL_LOGIN_SYSTEM, requestBody);
+            return await SendPostRequest(URL_USER_DATA_SYSTEM, requestBody);
         }
 
 #if IDOSGAMES_MARKETPLACE
@@ -268,6 +297,7 @@ namespace IDosGames
             request.TitleID = IDosGamesSDKSettings.Instance.TitleID;
             request.UserID = AuthService.UserID; //AuthService.PlayerID;
             request.ClientSessionTicket = AuthService.ClientSessionTicket;
+            request.WebAppLink = WebSDK.webAppLink;
 
             var requestBody = (JObject)JToken.FromObject(request);
 
@@ -279,7 +309,7 @@ namespace IDosGames
             request.TitleID = IDosGamesSDKSettings.Instance.TitleID;
             request.UserID = AuthService.UserID;
             request.ClientSessionTicket = AuthService.ClientSessionTicket;
-            //request.AuthContext = JsonConvert.SerializeObject(AuthService.AuthContext);
+            request.WebAppLink = WebSDK.webAppLink;
 
             var requestBody = (JObject)JToken.FromObject(request);
 
@@ -289,17 +319,19 @@ namespace IDosGames
 #endif
 
 #if IDOSGAMES_CRYPTO_WALLET
+
         public static async Task<string> TryMakeTransaction(WalletTransactionRequest request)
         {
             request.TitleID = IDosGamesSDKSettings.Instance.TitleID;
             request.UserID = AuthService.UserID;
             request.ClientSessionTicket = AuthService.ClientSessionTicket;
-            //request.AuthContext = JsonConvert.SerializeObject(AuthService.AuthContext);
+            request.WebAppLink = WebSDK.webAppLink;
 
             var requestBody = (JObject)JToken.FromObject(request);
 
             return await SendJObjectRequest(URL_WALLET_MAKE_TRANSACTION, requestBody);
         }
+
 #endif
 
         public static async Task<string> SendPostRequest(string functionURL, IGSRequest request)
@@ -324,7 +356,7 @@ namespace IDosGames
                 {
                     string result = webRequest.downloadHandler.text;
 
-                    if (result.Contains("INVALID_SESSION_TICKET"))
+                    if (result.Contains(MessageCode.SESSION_EXPIRED.ToString()) || result.Contains(MessageCode.INVALID_SESSION_TICKET.ToString()))
                     {
                         AuthService.Instance.AutoLogin();
                     }
@@ -373,6 +405,11 @@ namespace IDosGames
                 if (webRequest.result == UnityWebRequest.Result.Success)
                 {
                     string result = webRequest.downloadHandler.text;
+
+                    if (result.Contains(MessageCode.SESSION_EXPIRED.ToString()) || result.Contains(MessageCode.INVALID_SESSION_TICKET.ToString()))
+                    {
+                        AuthService.Instance.AutoLogin();
+                    }
 
                     if (IDosGamesSDKSettings.Instance.DebugLogging)
                     {

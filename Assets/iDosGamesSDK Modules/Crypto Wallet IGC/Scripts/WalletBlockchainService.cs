@@ -9,7 +9,6 @@ using UnityEngine.Networking;
 using Newtonsoft.Json;
 using Nethereum.Contracts.Standards.ERC1155.ContractDefinition;
 using Nethereum.Hex.HexTypes;
-using Nethereum.Unity.Util;
 using Nethereum.Util;
 using Nethereum.Web3;
 using Nethereum.Web3.Accounts;

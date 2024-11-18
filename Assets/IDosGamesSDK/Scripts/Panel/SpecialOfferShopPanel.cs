@@ -40,7 +40,7 @@ namespace IDosGames
 				Destroy(child.gameObject);
 			}
 
-			var playerDataSpecialPurchases = UserDataService.GetCachedUserReadOnlyData(UserReadOnlyDataKey.special_offer_amount_purchases);
+			var playerDataSpecialPurchases = UserDataService.GetCachedCustomUserData(CustomUserDataKey.special_offer_amount_purchases);
 
 			JArray arrayOfSpecialPurchases = JsonConvert.DeserializeObject<JArray>(playerDataSpecialPurchases);
 			arrayOfSpecialPurchases ??= new JArray();
@@ -55,19 +55,19 @@ namespace IDosGames
 
 				switch (specialOfferType)
 				{
-					case SpecialOfferType.quantity_limited_for_player:
+					case SpecialOfferType.QuantityLimitedForPlayer:
 						hideItem = IsPlayerQuantityLimitPassed(product, itemID, arrayOfSpecialPurchases);
 						break;
-					case SpecialOfferType.time_quantity_limited_for_player:
+					case SpecialOfferType.TimeQuantityLimitedForPlayer:
 						hideItem = IsTimeLimitPassed(product) || IsPlayerQuantityLimitPassed(product, itemID, arrayOfSpecialPurchases);
 						break;
-					case SpecialOfferType.time_limited:
+					case SpecialOfferType.TimeLimited:
 						hideItem = IsTimeLimitPassed(product);
 						break;
-					case SpecialOfferType.unlimited:
+					case SpecialOfferType.Unlimited:
 						hideItem = false;
 						break;
-					case SpecialOfferType.quantity_limited:
+					case SpecialOfferType.QuantityLimited:
 						hideItem = true;
 						break;
 				}

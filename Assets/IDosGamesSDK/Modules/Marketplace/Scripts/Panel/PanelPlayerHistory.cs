@@ -23,7 +23,7 @@ namespace IDosGames
 
 		public bool IsNeedUpdate { get; set; } = true;
 
-		private JToken _continuationToken;
+		private string _continuationToken;
 		private bool _destoyChildrenOnInstantiate = true;
 
 #if IDOSGAMES_MARKETPLACE
@@ -97,9 +97,9 @@ namespace IDosGames
 
 			var items = JsonConvert.DeserializeObject<List<MarketplaceActiveOffer>>(jObjectResult["Items"].ToString());
 
-			_continuationToken = JsonConvert.DeserializeObject<JToken>(jObjectResult["ContinuationToken"]?.ToString());
+			_continuationToken = jObjectResult["ContinuationToken"]?.ToString();
 
-			if (items.Count == 0)
+            if (items.Count == 0)
 			{
 				_voidText.gameObject.SetActive(true);
 			}
@@ -141,8 +141,8 @@ namespace IDosGames
 		{
 			yield return null;
 
-			if (_continuationToken != null)
-			{
+            if (!string.IsNullOrEmpty(_continuationToken))
+            {
 				if (_loadMoreButton == null)
 				{
 					_loadMoreButton = Instantiate(_loadMoreButtonPrefab, _parent);

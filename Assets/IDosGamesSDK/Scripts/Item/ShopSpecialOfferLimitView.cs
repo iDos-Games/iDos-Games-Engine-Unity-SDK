@@ -16,13 +16,13 @@ namespace IDosGames
 
 			switch (type)
 			{
-				case SpecialOfferType.time_limited:
+				case SpecialOfferType.TimeLimited:
 					SetActivateTimeLimit(endDate);
 					break;
-				case SpecialOfferType.quantity_limited_for_player:
+				case SpecialOfferType.QuantityLimitedForPlayer:
 					SetActivateQuantityLimit(quantityLeft);
 					break;
-				case SpecialOfferType.time_quantity_limited_for_player:
+				case SpecialOfferType.TimeQuantityLimitedForPlayer:
 					SetActivateTimeLimit(endDate);
 					SetActivateQuantityLimit(quantityLeft);
 					break;

@@ -21,12 +21,12 @@ namespace IDosGames
 
 		private void OnEnable()
 		{
-			UserDataService.TitleDataUpdated += SetEnable;
+			UserDataService.TitlePublicConfigurationUpdated += SetEnable;
 		}
 
 		private void OnDisable()
 		{
-			UserDataService.TitleDataUpdated -= SetEnable;
+			UserDataService.TitlePublicConfigurationUpdated -= SetEnable;
 		}
 
 		private void ResetListener()
@@ -51,7 +51,7 @@ namespace IDosGames
 		{
 			bool enabled = true;
 
-			var titleData = UserDataService.GetCachedTitleData(TitleDataKey.system_state);
+			var titleData = UserDataService.GetCachedTitlePublicConfig(TitleDataKey.SystemState);
 
 			if (titleData == string.Empty)
 			{

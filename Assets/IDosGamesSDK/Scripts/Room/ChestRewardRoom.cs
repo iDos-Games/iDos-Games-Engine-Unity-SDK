@@ -37,9 +37,9 @@ namespace IDosGames
 			_chest.SetMaterialByRarity(rarity);
 		}
 
-		private void SetReward(SkinCatalogItem item)
+		private async void SetReward(SkinCatalogItem item)
 		{
-			var icon = Resources.Load<Sprite>(item.ImagePath);
+			var icon = await ImageLoader.GetSpriteAsync(item.ImagePath);
 
 			_rewardCard.Set(item.Rarity, icon, item.DisplayName);
 		}

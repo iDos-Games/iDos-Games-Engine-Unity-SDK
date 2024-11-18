@@ -1,3 +1,4 @@
+using IDosGames.TitlePublicConfiguration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -29,21 +30,18 @@ namespace IDosGames.UserProfile
         public string InspectedSkin => inspectedSkin;
 
         private string temporarilyRemovedSkin = null;
-        private JObject _startedData = null;
+        private DefaultAvatarSkin _startedData = null;
 
-        public void Init(JToken data)
+        public void Init(DefaultAvatarSkin data)
         {
             inspectedSkin = null;
 
             castamizationElements.Clear();
             _equippedSkins.Clear();
 
-            JObject json = (JObject)data;
+            _startedData = data;
+            _gender = data.Gender;
 
-            _startedData = json;
-            var gender = json.GetValue("Gender").Value<string>();
-            Enum.TryParse(gender, out Gender avatarGender);
-            _gender = avatarGender;
             if (_gender == Gender.Male)
             {
                 castamizationElements = FindAllCustomizationElements(_male.transform);
@@ -68,13 +66,19 @@ namespace IDosGames.UserProfile
                 _male.SetActive(false);
             }
 
+            var items = new Dictionary<ClothingType, string>
+            {
+                { ClothingType.Body, _startedData.Data.Body },
+                { ClothingType.Pants, _startedData.Data.Pants },
+                { ClothingType.Shoes, _startedData.Data.Shoes },
+                { ClothingType.Torso, _startedData.Data.Torso },
+                { ClothingType.Glasses, _startedData.Data.Glasses },
+                { ClothingType.Hands, _startedData.Data.Hands },
+                { ClothingType.Hat, _startedData.Data.Hat },
+                { ClothingType.Mask, _startedData.Data.Mask }
+            };
 
-            var jArray = json.GetValue("Data").Value<JArray>();
-
-
-            Dictionary<string, string> resultDictionary = jArray
-                .Select(item => (JProperty)item.First)
-                .ToDictionary(property => property.Name, property => property.Value.ToString());
+            var resultDictionary = items.Where(item => !string.IsNullOrEmpty(item.Value)).ToDictionary(item => item.Key.ToString(), item => item.Value);
 
             foreach (var item in resultDictionary)
             {
@@ -95,18 +99,19 @@ namespace IDosGames.UserProfile
 
         public void ChangeAvatarGender(Gender gender)
         {
-
             if (inspectedSkin != null)
             {
                 UnequipInspectSkin();
             }
+
             if (temporarilyRemovedSkin != null)
             {
                 EquipRemovedSkin();
             }
-            castamizationElements.Clear();
 
+            castamizationElements.Clear();
             _gender = gender;
+
             if (_gender == Gender.Male)
             {
                 castamizationElements = FindAllCustomizationElements(_male.transform);
@@ -127,28 +132,15 @@ namespace IDosGames.UserProfile
                 _female.SetActive(true);
                 _male.SetActive(false);
             }
-            Dictionary<ClothingType, string> coppiedSkins = new Dictionary<ClothingType, string>();
-            foreach (var item in _tempEquippedSkins)
-            {
-                coppiedSkins.Add(item.Key, item.Value);
-            }
-            foreach (var item in coppiedSkins)
+
+            Dictionary<ClothingType, string> copiedSkins = new Dictionary<ClothingType, string>(_tempEquippedSkins);
+            foreach (var item in copiedSkins)
             {
                 if (item.Key == ClothingType.Body)
                 {
-
-
-                    var titleData = UserDataService.GetCachedTitleData(TitleDataKey.default_avatar_skin);
-                    JObject data = JsonConvert.DeserializeObject<JObject>(titleData);
-                    JArray jArray = data.GetValue("Data").Value<JArray>();
-                    string bodyItemID = jArray
-                .Select(item => (JProperty)item.First)
-                .Where(property => property.Name == "Body")
-                .Select(property => property.Value.ToString())
-                .FirstOrDefault();
-
+                    // Используем данные из _startedData  
+                    string bodyItemID = _startedData.Data.Body;
                     EquipSkin(bodyItemID);
-
                 }
                 EquipSkin(item.Value);
             }
@@ -157,7 +149,6 @@ namespace IDosGames.UserProfile
         public void EquipSkin(string itemID)
         {
             var skinItem = UserDataService.GetAvatarSkinItem(itemID);
-
 
             if (_tempEquippedSkins.ContainsKey(skinItem.ClothingType))
             {
@@ -188,6 +179,7 @@ namespace IDosGames.UserProfile
             {
                 castamozationElement.SetTexture(skinItem.FemaleTexturePath);
             }
+
             _tempEquippedSkins.Add(skinItem.ClothingType, itemID);
             OnEquippedAvatarSkin?.Invoke(itemID);
         }
@@ -230,6 +222,7 @@ namespace IDosGames.UserProfile
             inspectedSkin = itemID;
             OnInspectAvatarSkin?.Invoke(itemID);
         }
+
         public bool IsSkinEquippedInTemp(string itemID)
         {
             foreach (var item in _tempEquippedSkins.Values)
@@ -241,16 +234,19 @@ namespace IDosGames.UserProfile
             }
             return false;
         }
+
         public bool IsSkinEquipAsInspect(string itemID)
         {
             return itemID == inspectedSkin;
         }
+
         public List<CustomizationElement> FindAllCustomizationElements(Transform transform)
         {
             List<CustomizationElement> customizationElements = new List<CustomizationElement>();
             FindCustomizationElementsRecursive(customizationElements, transform);
             return customizationElements;
         }
+
         private static void FindCustomizationElementsRecursive(List<CustomizationElement> elements, Transform parent)
         {
             foreach (Transform child in parent)
@@ -269,32 +265,56 @@ namespace IDosGames.UserProfile
         {
             UnequipInspectSkin();
             EquipRemovedSkin();
-            var updatedData = GetUpdateData();
 
-            bool areEqual = JToken.DeepEquals(_startedData, updatedData);
+            var originalData = new JObject
+            {
+                { "Gender", _startedData.Gender.ToString() },
+                { ClothingType.Body.ToString(), _startedData.Data.Body },
+                { ClothingType.Glasses.ToString(), _startedData.Data.Glasses },
+                { ClothingType.Hands.ToString(), _startedData.Data.Hands },
+                { ClothingType.Hat.ToString(), _startedData.Data.Hat },
+                { ClothingType.Mask.ToString(), _startedData.Data.Mask },
+                { ClothingType.Pants.ToString(), _startedData.Data.Pants },
+                { ClothingType.Shoes.ToString(), _startedData.Data.Shoes },
+                { ClothingType.Torso.ToString(), _startedData.Data.Torso }
+            };
+
+            var currentData = new JObject
+            {
+                { "Gender", _gender.ToString() },
+                { ClothingType.Body.ToString(), _tempEquippedSkins.GetValueOrDefault(ClothingType.Body) },
+                { ClothingType.Glasses.ToString(), _tempEquippedSkins.GetValueOrDefault(ClothingType.Glasses) },
+                { ClothingType.Hands.ToString(), _tempEquippedSkins.GetValueOrDefault(ClothingType.Hands) },
+                { ClothingType.Hat.ToString(), _tempEquippedSkins.GetValueOrDefault(ClothingType.Hat) },
+                { ClothingType.Mask.ToString(), _tempEquippedSkins.GetValueOrDefault(ClothingType.Mask) },
+                { ClothingType.Pants.ToString(), _tempEquippedSkins.GetValueOrDefault(ClothingType.Pants) },
+                { ClothingType.Shoes.ToString(), _tempEquippedSkins.GetValueOrDefault(ClothingType.Shoes) },
+                { ClothingType.Torso.ToString(), _tempEquippedSkins.GetValueOrDefault(ClothingType.Torso) }
+            };
+
+            bool areEqual = JToken.DeepEquals(originalData, currentData);
             return !areEqual;
         }
 
-        public JObject GetUpdateData()
+        public DefaultAvatarSkin GetUpdateData()
         {
-            JArray jArray = new JArray();
-            foreach (var item in _tempEquippedSkins)
+            var data = new DefaultAvatarSkinData
             {
-                JObject keyValuePairs = new JObject
-            {
-                { item.Key.ToString(), item.Value }
+                Body = _tempEquippedSkins.GetValueOrDefault(ClothingType.Body),
+                Glasses = _tempEquippedSkins.GetValueOrDefault(ClothingType.Glasses),
+                Hands = _tempEquippedSkins.GetValueOrDefault(ClothingType.Hands),
+                Hat = _tempEquippedSkins.GetValueOrDefault(ClothingType.Hat),
+                Mask = _tempEquippedSkins.GetValueOrDefault(ClothingType.Mask),
+                Pants = _tempEquippedSkins.GetValueOrDefault(ClothingType.Pants),
+                Shoes = _tempEquippedSkins.GetValueOrDefault(ClothingType.Shoes),
+                Torso = _tempEquippedSkins.GetValueOrDefault(ClothingType.Torso)
             };
 
-                jArray.Add(keyValuePairs);
-            }
-
-            JObject updateData = new JObject()
-        {
-            { "Gender",_gender.ToString() },
-            { "Data",jArray }
-        };
-
-            return updateData;
+            return new DefaultAvatarSkin
+            {
+                Gender = _gender,
+                Data = data
+            };
         }
 
         public void UnequipInspectSkin()
@@ -320,6 +340,7 @@ namespace IDosGames.UserProfile
             }
             temporarilyRemovedSkin = null;
         }
+
         private ClothingType ConvertToClothingType(string value)
         {
             if (Enum.IsDefined(typeof(ClothingType), value))
@@ -330,9 +351,9 @@ namespace IDosGames.UserProfile
             return ClothingType.None;
 
         }
+
         public void RefreshAvatar()
         {
-
             if (inspectedSkin != null)
             {
                 var inspectedSkinItem = UserDataService.GetAvatarSkinItem(inspectedSkin);

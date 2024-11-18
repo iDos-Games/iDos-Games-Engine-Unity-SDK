@@ -1,3 +1,4 @@
+using IDosGames.TitlePublicConfiguration;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
 using UnityEngine.UI;
@@ -42,7 +43,7 @@ namespace IDosGames.UserProfile
         private void OnEnable()
         {
             _closeButton.onClick.AddListener(TryCLoseRoom);
-            UserDataService.CustomReadOnlyDataUpdated += OnCustomUpdated;
+            UserDataService.ClientModifyCustomUserDataUpdated += OnCustomUpdated;
             _userAvatar.OnEquippedAvatarSkin += OnEquipSkin;
             _userAvatar.OnUnequippedAvatarSkin += OnUnequipSkin;
             _userAvatar.OnInspectAvatarSkin += OnSkinInspect;
@@ -51,7 +52,7 @@ namespace IDosGames.UserProfile
         private void OnDisable()
         {
             _closeButton.onClick.RemoveAllListeners();
-            UserDataService.CustomReadOnlyDataUpdated -= OnCustomUpdated;
+            UserDataService.ClientModifyCustomUserDataUpdated -= OnCustomUpdated;
             _userAvatar.OnEquippedAvatarSkin -= OnEquipSkin;
             _userAvatar.OnUnequippedAvatarSkin -= OnUnequipSkin;
             _userAvatar.OnInspectAvatarSkin -= OnSkinInspect;
@@ -73,7 +74,7 @@ namespace IDosGames.UserProfile
 
         private void OnCustomUpdated(string key, CustomUpdateResult result)
         {
-            if (key == UserReadOnlyDataKey.equipped_avatar_skins.ToString() || result == CustomUpdateResult.SUCCESS)
+            if (key == CustomUserDataKey.equipped_avatar_skins.ToString() || result == CustomUpdateResult.SUCCESS)
             {
                 _popUpChanges.gameObject.SetActive(false);
                 Loading.HideAllPanels();
@@ -121,7 +122,8 @@ namespace IDosGames.UserProfile
         {
             Loading.ShowTransparentPanel();
             var saveData = _userAvatar.GetUpdateData();
-            UserDataService.UpdateCustomReadOnlyData(UserReadOnlyDataKey.equipped_avatar_skins.ToString(), saveData); 
+            UserProfileRoom._equipedAvatarSkins = saveData;
+            UserDataService.UpdateCustomUserData(CustomUserDataKey.equipped_avatar_skins.ToString(), saveData);
         }
 
         public void MoveCameraTo(ClothingType clothingType)
@@ -154,7 +156,8 @@ namespace IDosGames.UserProfile
                     break;
             }
         }
-        public void Init(string playfabID, JToken data)
+
+        public void Init(string playfabID, DefaultAvatarSkin data)
         {
             _cameraMovement.SetTarget(_cameraPositionOnOtherPlayer);
             if (playfabID == AuthService.UserID)
@@ -172,9 +175,6 @@ namespace IDosGames.UserProfile
             _userID = playfabID;
 
             _userAvatar.Init(data);
-
-
-
         }
 
         public void ChangeGender(Gender gender)

@@ -39,11 +39,15 @@ namespace IDosGames
             EditorGUILayout.HelpBox("To make the solution work, you need to make Server Settings! To start Configuration, you must first fill in the fields below - Title ID, Server Connection String and Developer Secret Key.", MessageType.None);
             GUILayout.Space(5);
 
+            EditorGUI.BeginDisabledGroup(true);
             settings.ServerLink = EditorGUILayout.TextField("Server Link", settings.ServerLink);
+            EditorGUI.EndDisabledGroup();
+
             GUILayout.Space(5);
             settings.DeveloperSecretKey = EditorGUILayout.TextField("Developer Secret Key", settings.DeveloperSecretKey);
             settings.TitleID = EditorGUILayout.TextField("Title ID", settings.TitleID);
-            
+            settings.TitleTemplateID = EditorGUILayout.TextField("Title ID", settings.TitleTemplateID);
+
             GUILayout.Space(10);
 
             EditorGUI.BeginDisabledGroup(true);
@@ -111,19 +115,6 @@ namespace IDosGames
                 }
             }
             EditorGUILayout.EndHorizontal();
-
-            GUILayout.Space(10);
-            if (!string.IsNullOrEmpty(settings.TitleID) && !string.IsNullOrEmpty(settings.DeveloperSecretKey) && !string.IsNullOrEmpty(settings.ServerLink))
-            {
-                if (GUILayout.Button("Upload Server Data"))
-                {
-                    GUILayout.Space(5);
-
-                    ServerDataUploader.UploadData();
-
-                    GUILayout.Space(5);
-                }
-            }
 
             GUILayout.Space(10);
             EditorGUILayout.BeginHorizontal();

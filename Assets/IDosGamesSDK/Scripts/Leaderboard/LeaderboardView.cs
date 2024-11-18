@@ -1,4 +1,5 @@
 using IDosGames.ClientModels;
+using IDosGames.TitlePublicConfiguration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,14 +28,9 @@ namespace IDosGames
 			_valueName.text = name;
 		}
 
-		public void SetTimer(string frequencyData)
+		public void SetTimer(StatisticResetFrequency frequencyData)
 		{
-			if (frequencyData == null)
-			{
-				return;
-			}
-
-			bool isCorrectFrequency = Enum.TryParse(frequencyData.ToLower(), out LeaderboardUpdateFrequency frequency);
+            bool isCorrectFrequency = true;
 
 			_timer.gameObject.SetActive(isCorrectFrequency);
 
@@ -43,7 +39,7 @@ namespace IDosGames
 				return;
 			}
 
-			_timer.UpdateTimer(frequency);
+			_timer.UpdateTimer(frequencyData);
 		}
 
 		public void SetRows(List<PlayerLeaderboardEntry> leaderboard)

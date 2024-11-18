@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json.Linq;
-using System;
 using System.Collections.Generic;
 
 namespace IDosGames
@@ -22,6 +21,8 @@ namespace IDosGames
         public string LeaderboardID { get; set; }
         public string SecretKey { get; set; }
         public bool DevBuild { get; set; }
+        public string WebAppLink { get; set; }
+        public int UsageTime { get; set; }
 
         // Telegram
         public string WebhookLink { get; set; }

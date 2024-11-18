@@ -10,7 +10,8 @@ namespace IDosGames
 		public MarketplacePanel Panel { get; set; }
 
 		public string TitleID { get; set; }
-		public string UserID { get; set; }
+        public string WebAppLink { get; set; }
+        public string UserID { get; set; }
         public string ClientSessionTicket { get; set; }
         public string EntityToken { get; set; }
 

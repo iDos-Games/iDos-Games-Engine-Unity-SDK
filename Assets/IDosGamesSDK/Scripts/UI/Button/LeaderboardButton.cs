@@ -20,12 +20,12 @@ namespace IDosGames
 
 		private void OnEnable()
 		{
-			UserDataService.TitleDataUpdated += SetEnable;
+			UserDataService.TitlePublicConfigurationUpdated += SetEnable;
 		}
 
 		private void OnDisable()
 		{
-			UserDataService.TitleDataUpdated -= SetEnable;
+			UserDataService.TitlePublicConfigurationUpdated -= SetEnable;
 		}
 
 		private void ResetListener()
@@ -44,29 +44,26 @@ namespace IDosGames
 			gameObject.SetActive(GetEnableState());
 		}
 
-		private bool GetEnableState()
-		{
-			bool enabled = true;
+        private bool GetEnableState()
+        {
+            bool enabled = true;
 
-			var titleData = UserDataService.GetCachedTitleData(TitleDataKey.system_state);
+            var titleData = UserDataService.GetCachedTitlePublicConfig(TitleDataKey.SystemState);
 
-			if (titleData == string.Empty)
-			{
-				return enabled;
-			}
+            if (string.IsNullOrEmpty(titleData))
+            {
+                return enabled;
+            }
 
-			var systemStateData = JsonConvert.DeserializeObject<JObject>(titleData);
+            JObject systemStateData = JsonConvert.DeserializeObject<JObject>(titleData);
 
-			string leaderboardState = $"{systemStateData[JsonProperty.LEADERBOARD]}";
+            if (systemStateData.TryGetValue(JsonProperty.LEADERBOARDS, out JToken leaderboardStateToken) &&
+                leaderboardStateToken.Type == JTokenType.Boolean)
+            {
+                enabled = leaderboardStateToken.ToObject<bool>();
+            }
 
-			if (leaderboardState == string.Empty)
-			{
-				return enabled;
-			}
-
-			enabled = leaderboardState == JsonProperty.ENABLED_VALUE;
-
-			return enabled;
-		}
-	}
+            return enabled;
+        }
+    }
 }

@@ -9,6 +9,7 @@ namespace IDosGames
         private static string startAppParameter;
         private static string initDataUnsafe;
         public static string platform;
+        public static string webAppLink;
 
 #if UNITY_WEBGL
         [DllImport("__Internal")]
@@ -85,6 +86,60 @@ namespace IDosGames
         public static void PasteTextFromClipboard()
         {
             PasteFromClipboard();
+        }
+
+        [DllImport("__Internal")]
+        private static extern string GetFullURL();
+        public static void FetchFullURL()
+        {
+            webAppLink = GetFullURL();
+        }
+
+        [DllImport("__Internal")]
+        private static extern void CacheSaveData(string key, byte[] data, int length);
+
+        public static void SaveDataToCache(string key, byte[] data)
+        {
+            CacheSaveData(key, data, data.Length);
+        }
+
+        [DllImport("__Internal")]
+        private static extern void CacheLoadData(string key, IntPtr callback);
+
+        [AOT.MonoPInvokeCallback(typeof(Action<IntPtr, int>))]
+        private static void OnCacheLoadData(IntPtr dataPtr, int length)
+        {
+            byte[] data = null;
+            if (length > 0)
+            {
+                data = new byte[length];
+                Marshal.Copy(dataPtr, data, 0, length);
+            }
+            cacheLoadDataCallback?.Invoke(data);
+        }
+
+        private static Action<byte[]> cacheLoadDataCallback;
+
+        public static void LoadDataFromCache(string key, Action<byte[]> callback)
+        {
+            cacheLoadDataCallback = callback;
+            CacheLoadData(key, Marshal.GetFunctionPointerForDelegate((Action<IntPtr, int>)OnCacheLoadData));
+        }
+
+        [DllImport("__Internal")]
+        private static extern void CacheDeleteData(string key);
+
+        public static void DeleteDataFromCache(string key)
+        {
+            CacheDeleteData(key);
+        }
+
+        [DllImport("__Internal")]
+        private static extern void CacheClear();
+
+        public static void ClearCache()
+        {
+            CacheClear();
         }
 
 #endif

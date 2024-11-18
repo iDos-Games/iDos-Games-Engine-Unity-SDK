@@ -13,7 +13,7 @@ namespace IDosGames
 		public static float IGT { get; private set; }
 		public static float IGC { get; private set; }
 
-		private static int _exchangeDivider = 1;
+		private static float _exchangeDivider = 1;
 
 		public static float ExchangeRate { get; private set; }
 
@@ -23,7 +23,7 @@ namespace IDosGames
 		{
 			_instance = this;
 
-			UserDataService.TitleDataUpdated += InitializePrices;
+			UserDataService.TitlePublicConfigurationUpdated += InitializePrices;
 		}
 
 		[RuntimeInitializeOnLoadMethod]
@@ -34,32 +34,32 @@ namespace IDosGames
 
 		private void InitializePrices()
 		{
-			var pricesData = UserDataService.GetCachedTitleData(TitleDataKey.cryptocurrency_prices);
+			var currencyData = IGSUserData.Currency;
 
-			if (pricesData == string.Empty)
-			{
-				return;
-			}
+            foreach (var currency in currencyData.CurrencyData)
+            {
+                switch (currency.CurrencyCode)
+                {
+                    case "CO":
+                        IGC = (float)currency.ValueInUSD * currency.ValueInUSDMultiplier;
+                        break;
 
-			var prices = JsonConvert.DeserializeObject<JObject>(pricesData);
+                    case "IG":
+                        IGT = (float)currency.ValueInUSD * currency.ValueInUSDMultiplier;
+                        _exchangeDivider = currency.ValueInUSDMultiplier;
+                        break;
 
-			if (prices == null)
-			{
-				return;
-			}
-
-			float.TryParse(prices[JsonProperty.IGC].ToString(), NumberStyles.Any, CultureInfo.InvariantCulture, out float igc);
-			IGC = igc;
-			float.TryParse(prices[JsonProperty.IGT].ToString(), NumberStyles.Any, CultureInfo.InvariantCulture, out float igt);
-			IGT = igt;
-			int.TryParse(prices[JsonProperty.EXCHANCE_DIVIDER].ToString(), out _exchangeDivider);
+                    default:
+                        break;
+                }
+            }
 
 			ExchangeRate = GetExchangeRate();
 
 			PricesUpdated?.Invoke();
 		}
 
-		private float GetExchangeRate()
+        private float GetExchangeRate()
 		{
 			if (IGT > 0 && IGC > 0)
 			{
