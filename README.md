@@ -1,10 +1,10 @@
-[![iDos Games Engine](https://idosgames.com/wp-content/uploads/2024/08/1-min.png)](https://azuremarketplace.microsoft.com/en-us/marketplace/apps/idosgames.sdk)
+[![iDos Games Engine](https://idosgames.com/wp-content/uploads/2024/08/1-min.png)](https://platform.idosgames.com)
 
-iDos Games Engine is LiveOps, AI, mobile tools and backed solution for your cross-platform games and apps hosted on Microsoft Azure. All in One solution that improves user Retention and increases revenue per user (LTV).
+iDos Games Engine is LiveOps, AI, mobile tools and backed solution for your cross-platform games and apps. All in One solution that improves user Retention and increases revenue per user (LTV).
 
 Our iDos Games Engine has a detailed meta-game and each module is tightly connected to each other, which is good for long-term retention and LTV. But it's up to you to decide which modules to enable and which to disable.
 
-**Deploy Backend Engine: [iDos Games Engine](https://azuremarketplace.microsoft.com/en-us/marketplace/apps/idosgames.sdk)**
+**START FOR FREE: [iDos Games Engine](https://platform.idosgames.com)**
 
 Documentation: [iDosGames.com](https://idosgames.com/docs/developers/quick-start/ige-unity-sdk/)
 
