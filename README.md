@@ -1,4 +1,4 @@
-[![iDos Games Engine](https://idosgames.com/wp-content/uploads/2024/08/1-min.png)](https://platform.idosgames.com)
+[![iDos Games Engine](https://raw.githubusercontent.com/iDos-Games/iDos-Games-Engine-Unity-SDK/refs/heads/main/ige.png)](https://platform.idosgames.com)
 
 iDos Games Engine is LiveOps, AI, mobile tools and backed solution for your cross-platform games and apps. All in One solution that improves user Retention and increases revenue per user (LTV).
 
