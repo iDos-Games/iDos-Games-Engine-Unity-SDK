@@ -13,7 +13,7 @@ namespace IDosGames
     {
         public static event Action<Action> ConnectionError;
 
-        private static readonly string URL_ADDITIONAL_IAP_VALIDATE = IDosGamesSDKSettings.Instance.AdditionalIAPValidateLink;
+        private static readonly string URL_PURCHASE = IDosGamesSDKSettings.Instance.PurchaseLink;
 
         public static async Task<string> CreateTelegramInvoice(string title, string description, string payload, string providerToken, string currency, int amount)
         {
@@ -37,7 +37,7 @@ namespace IDosGames
                 CreateInvoice = createInvoiceRequest
             };
 
-            return await SendPostRequest(URL_ADDITIONAL_IAP_VALIDATE, requestBody);
+            return await SendPostRequest(URL_PURCHASE + ServerFunctionHandlers.CreateTelegramInvoice.ToString(), requestBody);
         }
 
         private static async Task<string> SendPostRequest(string functionURL, IGSRequest request)

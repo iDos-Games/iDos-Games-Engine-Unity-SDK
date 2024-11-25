@@ -51,9 +51,8 @@ namespace IDosGames
             GUILayout.Space(10);
 
             EditorGUI.BeginDisabledGroup(true);
-            EditorGUILayout.TextField("IGS Admin API Link", settings.IgsAdminApiLink);
-            EditorGUILayout.TextField("IGS Client API Link", settings.IgsClientApiLink);
-            EditorGUILayout.TextField("Telegram Webhook Link", settings.TelegramWebhookLink);
+            EditorGUILayout.TextField("Admin API Link", settings.IgsAdminApiLink);
+            EditorGUILayout.TextField("User Data Link", settings.UserDataSystemLink);
             EditorGUI.EndDisabledGroup();
 
             GUILayout.Space(10);
