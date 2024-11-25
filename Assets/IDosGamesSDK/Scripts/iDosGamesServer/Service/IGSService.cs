@@ -12,11 +12,10 @@ namespace IDosGames
     {
         public static event Action<Action> ConnectionError;
 
-        public static string URL_IGS_CLIENT_API = IDosGamesSDKSettings.Instance.IgsClientApiLink;
-        public static string URL_LOGIN_SYSTEM = IDosGamesSDKSettings.Instance.LoginSystemLink;
+        public static string URL_LOGIN_SYSTEM = IDosGamesSDKSettings.Instance.AuthenticationLink;
         public static string URL_USER_DATA_SYSTEM = IDosGamesSDKSettings.Instance.UserDataSystemLink;
         public static string URL_WALLET_MAKE_TRANSACTION = IDosGamesSDKSettings.Instance.CryptoWalletLink;
-        public static string URL_MARKETPLACE_DO_ACTION = IDosGamesSDKSettings.Instance.MarketplaceActionsLink;
+        public static string URL_MARKETPLACE_DO_ACTION = IDosGamesSDKSettings.Instance.MarketplaceLink;
         public static string URL_MARKETPLACE_GET_DATA = IDosGamesSDKSettings.Instance.MarketplaceDataLink;
         public static string URL_VALIDATE_IAP_SUBSCRIPTION = IDosGamesSDKSettings.Instance.ValidateIAPSubscriptionLink;
 
@@ -32,7 +31,7 @@ namespace IDosGames
                 UsageTime = IDosGamesSDKSettings.Instance.PlayTime,
             };
 
-            string responseString = await SendPostRequest(URL_IGS_CLIENT_API, requestBody);
+            string responseString = await SendPostRequest(URL_USER_DATA_SYSTEM + nameof(GetUserAllData), requestBody);
             var response = JsonConvert.DeserializeObject<GetAllUserDataResult>(responseString);
 
             if (response != null ) { IDosGamesSDKSettings.Instance.PlayTime = 0; }
@@ -60,7 +59,7 @@ namespace IDosGames
                 UsageTime = IDosGamesSDKSettings.Instance.PlayTime,
             };
 
-            string response = await SendPostRequest(URL_LOGIN_SYSTEM, requestBody);
+            string response = await SendPostRequest(URL_LOGIN_SYSTEM + nameof(LoginWithDeviceID), requestBody);
             
             // Десериализация строки в объект GetAllUserDataResult  
             GetAllUserDataResult result = JsonConvert.DeserializeObject<GetAllUserDataResult>(response);
@@ -152,7 +151,7 @@ namespace IDosGames
                 Password = password
             };
 
-            string response = await SendPostRequest(URL_LOGIN_SYSTEM, requestBody);
+            string response = await SendPostRequest(URL_LOGIN_SYSTEM + nameof(LoginWithEmail), requestBody);
 
             GetAllUserDataResult result = JsonConvert.DeserializeObject<GetAllUserDataResult>(response);
 
@@ -174,7 +173,7 @@ namespace IDosGames
                 ClientSessionTicket = clientSessionTicket
             };
 
-            return await SendPostRequest(URL_LOGIN_SYSTEM, requestBody);
+            return await SendPostRequest(URL_LOGIN_SYSTEM + nameof(AddEmailAndPassword), requestBody);
         }
 
         public static async Task<GetAllUserDataResult> RegisterUserByEmail(string email, string password)
@@ -192,7 +191,7 @@ namespace IDosGames
                 DeviceID = SystemInfo.deviceUniqueIdentifier
             };
 
-            string response = await SendPostRequest(URL_LOGIN_SYSTEM, requestBody);
+            string response = await SendPostRequest(URL_LOGIN_SYSTEM + nameof(RegisterUserByEmail), requestBody);
 
             GetAllUserDataResult result = JsonConvert.DeserializeObject<GetAllUserDataResult>(response);
 
@@ -214,7 +213,7 @@ namespace IDosGames
                 ClientSessionTicket = clientSessionTicket
             };
 
-            return await SendPostRequest(URL_USER_DATA_SYSTEM, requestBody);
+            return await SendPostRequest(URL_USER_DATA_SYSTEM + ServerFunctionHandlers.GetUserInventory.ToString(), requestBody);
         }
         
         public static async Task<string> RequestCustomUserData(string userID, string clientSessionTicket)
@@ -228,7 +227,7 @@ namespace IDosGames
                 ClientSessionTicket = clientSessionTicket
             };
 
-            return await SendPostRequest(URL_USER_DATA_SYSTEM, requestBody);
+            return await SendPostRequest(URL_USER_DATA_SYSTEM + ServerFunctionHandlers.GetCustomUserData.ToString(), requestBody);
         }
 
         public static async Task<string> RequestTitlePublicConfiguration(string userID, string clientSessionTicket)
@@ -242,7 +241,7 @@ namespace IDosGames
                 ClientSessionTicket = clientSessionTicket,
             };
 
-            return await SendPostRequest(URL_USER_DATA_SYSTEM, requestBody);
+            return await SendPostRequest(URL_USER_DATA_SYSTEM + ServerFunctionHandlers.GetTitlePublicConfiguration.ToString(), requestBody);
         }
 
         public static async Task<string> RequestCatalogItems(string catalogVersion, string userID, string clientSessionTicket)
@@ -257,7 +256,7 @@ namespace IDosGames
                 CatalogVersion = catalogVersion
             };
 
-            return await SendPostRequest(URL_USER_DATA_SYSTEM, requestBody);
+            return await SendPostRequest(URL_USER_DATA_SYSTEM + ServerFunctionHandlers.GetCatalogItems.ToString(), requestBody);
         }
         // ------------------------ Inventory END ------------------------ //
 
@@ -287,7 +286,7 @@ namespace IDosGames
                 LeaderboardID = leaderboardID
             };
 
-            return await SendPostRequest(URL_USER_DATA_SYSTEM, requestBody);
+            return await SendPostRequest(URL_USER_DATA_SYSTEM + ServerFunctionHandlers.GetLeaderboard.ToString(), requestBody);
         }
 
 #if IDOSGAMES_MARKETPLACE
@@ -301,7 +300,7 @@ namespace IDosGames
 
             var requestBody = (JObject)JToken.FromObject(request);
 
-            return await SendJObjectRequest(URL_MARKETPLACE_GET_DATA, requestBody);
+            return await SendJObjectRequest(URL_MARKETPLACE_GET_DATA + request.Panel.ToString(), requestBody);
         }
 
         public static async Task<string> TryDoMarketplaceAction(MarketplaceActionRequest request)
@@ -313,7 +312,7 @@ namespace IDosGames
 
             var requestBody = (JObject)JToken.FromObject(request);
 
-            return await SendJObjectRequest(URL_MARKETPLACE_DO_ACTION, requestBody);
+            return await SendJObjectRequest(URL_MARKETPLACE_DO_ACTION + request.Action.ToString(), requestBody);
         }
 
 #endif

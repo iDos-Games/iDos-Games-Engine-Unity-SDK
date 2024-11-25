@@ -23,7 +23,7 @@ namespace IDosGames.Friends
                 UserID = AuthService.UserID
             };
 
-            return await SendRequest(URL, requestBody);
+            return await SendRequest(URL + FriendActionType.GetMyFriends.ToString(), requestBody);
         }
 
         public static async Task<string> GetRecommendedFriends()
@@ -37,7 +37,7 @@ namespace IDosGames.Friends
                 UserID = AuthService.UserID
             };
 
-            return await SendRequest(URL, requestBody);
+            return await SendRequest(URL + FriendActionType.GetRecommendedFriends.ToString(), requestBody);
         }
 
         public static async Task<string> GetFriendRequests()
@@ -51,7 +51,7 @@ namespace IDosGames.Friends
                 UserID = AuthService.UserID
             };
 
-            return await SendRequest(URL, requestBody);
+            return await SendRequest(URL + FriendActionType.GetPendingFriendRequests.ToString(), requestBody);
         }
 
         public static async Task<string> SendRequestToAdd(IGSRequest request)
@@ -62,7 +62,7 @@ namespace IDosGames.Friends
             request.TitleID = IDosGamesSDKSettings.Instance.TitleID;
             request.WebAppLink = WebSDK.webAppLink;
 
-            return await SendRequest(URL, request);
+            return await SendRequest(URL + FriendActionType.AdditionRequest.ToString(), request);
         }
 
         public static async Task<string> AcceptRequest(IGSRequest request)
@@ -73,7 +73,7 @@ namespace IDosGames.Friends
             request.TitleID = IDosGamesSDKSettings.Instance.TitleID;
             request.WebAppLink = WebSDK.webAppLink;
 
-            return await SendRequest(URL, request);
+            return await SendRequest(URL + FriendActionType.AcceptRequest.ToString(), request);
         }
 
         public static async Task<string> RejectRequest(IGSRequest request)
@@ -84,7 +84,7 @@ namespace IDosGames.Friends
             request.TitleID = IDosGamesSDKSettings.Instance.TitleID;
             request.WebAppLink = WebSDK.webAppLink;
 
-            return await SendRequest(URL, request);
+            return await SendRequest(URL + FriendActionType.RejectRequest.ToString(), request);
         }
 
         public static async Task<string> DeleteFriend(IGSRequest request)
@@ -95,7 +95,7 @@ namespace IDosGames.Friends
             request.TitleID = IDosGamesSDKSettings.Instance.TitleID;
             request.WebAppLink = WebSDK.webAppLink;
 
-            return await SendRequest(URL, request);
+            return await SendRequest(URL + FriendActionType.RemoveFriend.ToString(), request);
         }
 
         private static async Task<string> SendRequest(string functionURL, IGSRequest request)

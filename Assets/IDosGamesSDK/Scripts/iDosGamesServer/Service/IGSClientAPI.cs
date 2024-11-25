@@ -165,7 +165,7 @@ namespace IDosGames
                 FunctionParameter = functionParameter // Установите дополнительные параметры
             };
 
-            string functionURL = GetFunctionURL(functionName);
+            string functionURL = GetFunctionURL(functionName) + functionName.ToString();
 
             ServerFunctionCalled?.Invoke();
 
