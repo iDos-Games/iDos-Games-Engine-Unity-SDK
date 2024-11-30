@@ -71,7 +71,7 @@
 
     function getInitDataUnsafe() {  
         if (platform === "telegram") {  
-            return JSON.stringify(Telegram.WebApp.initDataUnsafe);  
+            return Telegram.WebApp.initData;  
         }  
         return null;  
     }

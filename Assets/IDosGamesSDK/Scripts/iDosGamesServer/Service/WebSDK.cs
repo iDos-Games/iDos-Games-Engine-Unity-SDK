@@ -7,7 +7,7 @@ namespace IDosGames
     public static class WebSDK
     {
         private static string startAppParameter;
-        private static string initDataUnsafe;
+        public static string initDataUnsafe;
         public static string platform;
         public static string webAppLink;
 

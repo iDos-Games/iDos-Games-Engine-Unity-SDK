@@ -69,7 +69,7 @@ namespace IDosGames
             return result;
         }
 
-        public static async Task<GetAllUserDataResult> LoginWithTelegram(InitData telegramInitData)
+        public static async Task<GetAllUserDataResult> LoginWithTelegram(string telegramInitData)
         {
             var requestBody = new IGSRequest
             {
@@ -94,21 +94,14 @@ namespace IDosGames
             string deviceID;
 
 #if UNITY_WEBGL
-            if (AuthService.WebGLPlatform == WebGLPlatform.Telegram)
-            {
-                deviceID = AuthService.TelegramInitData.user.id.ToString();
-            }
-            else
-            {
-                deviceID = PlayerPrefs.GetString("DeviceID", null);
+            deviceID = PlayerPrefs.GetString("DeviceID", null);
 
-                if (string.IsNullOrEmpty(deviceID))
-                {
-                    deviceID = Guid.NewGuid().ToString();
+            if (string.IsNullOrEmpty(deviceID))
+            {
+                deviceID = Guid.NewGuid().ToString();
 
-                    PlayerPrefs.SetString("DeviceID", deviceID);
-                    PlayerPrefs.Save();
-                }
+                PlayerPrefs.SetString("DeviceID", deviceID);
+                PlayerPrefs.Save();
             }
 
 #else
@@ -124,7 +117,7 @@ namespace IDosGames
 #if UNITY_WEBGL
             if (AuthService.WebGLPlatform == WebGLPlatform.Telegram)
             {
-                userName = AuthService.TelegramInitData.user.username;
+                //userName = AuthService.TelegramInitData.user.username;
             }
 #endif
             return userName;

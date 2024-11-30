@@ -25,7 +25,7 @@ namespace IDosGames
         public static string EntityToken { get; private set; }
         public static IGSAuthenticationContext AuthContext { get; private set; }
 
-        public static InitData TelegramInitData { get; set; }
+        public static string TelegramInitData { get; set; }
 
         private static AuthService _instance;
 

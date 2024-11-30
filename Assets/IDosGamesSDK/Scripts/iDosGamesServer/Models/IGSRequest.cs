@@ -55,7 +55,7 @@ namespace IDosGames
         public string SkinID { get; set; }
 
         public FunctionParameters FunctionParameter { get; set; }
-        public InitData TelegramInitData { get; set; }
+        public string TelegramInitData { get; set; }
 
 #if UNITY_EDITOR
         // For Admin API

@@ -73,7 +73,7 @@ namespace IDosGames
                 IDosGamesSDKSettings.Instance.BuildForPlatform = Platforms.Telegram;
 
                 WebSDK.FetchInitDataUnsafe();
-                AuthService.TelegramInitData = WebSDK.ParseInitDataUnsafe();
+                AuthService.TelegramInitData = WebSDK.initDataUnsafe;
             }
 
 #endif

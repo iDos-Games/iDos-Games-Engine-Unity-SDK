@@ -128,7 +128,6 @@ namespace IDosGames
         public string DealOfferSystemLink => $"{_serverLink}/api/{_titleTemplateID}/{_titleID}/Client/DealOffer/".Trim();
         public string ValidateIAPLink => $"{_serverLink}/api/{_titleTemplateID}/{_titleID}/Client/ValidateIAP".Trim();
         public string PurchaseLink => $"{_serverLink}/api/{_titleTemplateID}/{_titleID}/Client/Purchase/".Trim();
-        public string TelegramWebhookLink => $"{_serverLink}/api/{_titleTemplateID}/{_titleID}/Server/TelegramWebhook".Trim();
 
         [Space(5)]
         [Header("In App Purchasing")]
