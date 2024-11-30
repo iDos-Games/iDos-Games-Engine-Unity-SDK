@@ -69,19 +69,19 @@ namespace IDosGames
             _iapProcessedProductID = ID;
 
 #if UNITY_WEBGL
-            BuyForTelegramStars();
+            BuyWithPlatformCurrency();
 #endif
         }
 
 #if UNITY_WEBGL
-        public static async void BuyForTelegramStars()
+        public static async void BuyWithPlatformCurrency()
         {
-            if (AuthService.WebGLPlatform == WebGLPlatform.Telegram)
+            if (IDosGamesSDKSettings.Instance.BuildForPlatform == Platforms.Telegram)
             {
                 Loading.ShowTransparentPanel();
 
                 Product product = UserDataService.GetProductForRealMoney(_iapProcessedProductID);
-                float starPrice = UserDataService.GetTelegramStarPrice();
+                float starPrice = (float)IDosGamesSDKSettings.Instance.PlatformCurrencyPriceInCent;
 
                 int priceRM = int.Parse(product.PriceRM);
                 int price = (int)Math.Round(priceRM / starPrice);

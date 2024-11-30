@@ -69,6 +69,26 @@ namespace IDosGames
             return result;
         }
 
+        public static async Task<GetAllUserDataResult> LoginWithTelegram(InitData telegramInitData)
+        {
+            var requestBody = new IGSRequest
+            {
+                TitleID = IDosGamesSDKSettings.Instance.TitleID,
+                WebAppLink = WebSDK.webAppLink,
+                UsageTime = IDosGamesSDKSettings.Instance.PlayTime,
+                TelegramInitData = telegramInitData,
+            };
+
+            string response = await SendPostRequest(URL_LOGIN_SYSTEM + ServerFunctionHandlers.LoginWithTelegram.ToString(), requestBody);
+
+            // Десериализация строки в объект GetAllUserDataResult  
+            GetAllUserDataResult result = JsonConvert.DeserializeObject<GetAllUserDataResult>(response);
+
+            if (result != null) { IDosGamesSDKSettings.Instance.PlayTime = 0; }
+
+            return result;
+        }
+
         private static string GetOrCreateDeviceID()
         {
             string deviceID;

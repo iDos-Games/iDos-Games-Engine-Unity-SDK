@@ -59,6 +59,7 @@ namespace IDosGames
         ClearWebGL,
         CreateTelegramInvoice,
         CheckTelegramInvoice,
-        RegisterTelegramWebhook
+        RegisterTelegramWebhook,
+        LoginWithTelegram,
     }
 }

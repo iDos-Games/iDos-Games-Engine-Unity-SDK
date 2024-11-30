@@ -97,24 +97,6 @@ namespace IDosGames
             }
             EditorGUILayout.EndHorizontal();
 
-            EditorGUILayout.BeginHorizontal();
-            EditorGUI.BeginDisabledGroup(true);
-            EditorGUILayout.TextField("Do not forget to register Telegram Webhook");
-            EditorGUI.EndDisabledGroup();
-
-            if (!string.IsNullOrEmpty(settings.TitleID) && !string.IsNullOrEmpty(settings.DeveloperSecretKey) && !string.IsNullOrEmpty(settings.ServerLink))
-            {
-                if (GUILayout.Button("Register Telegram Webhook"))
-                {
-                    GUILayout.Space(5);
-
-                    ServerDataUploader.RegisterTelegramWebhook();
-
-                    GUILayout.Space(5);
-                }
-            }
-            EditorGUILayout.EndHorizontal();
-
             GUILayout.Space(10);
             EditorGUILayout.BeginHorizontal();
 

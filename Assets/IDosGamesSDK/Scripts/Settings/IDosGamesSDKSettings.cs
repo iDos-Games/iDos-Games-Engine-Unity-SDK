@@ -70,7 +70,11 @@ namespace IDosGames
 
         [Space(5)]
         [SerializeField] private Platforms _buildForPlatform = Platforms.GooglePlay;
-        public Platforms BuildForPlatform => _buildForPlatform;
+        public Platforms BuildForPlatform
+        {
+            get => _buildForPlatform;
+            set => _buildForPlatform = value;
+        }
 
         public bool DevBuild { get; set; } = false;
 
@@ -201,7 +205,7 @@ namespace IDosGames
             set => _developerSecretKey = value;
         }
 
-        [HideInInspector][SerializeField] public string IgsAdminApiLink => $"{_serverLink}/api/{_titleTemplateID}/{_titleID}/Admin/IGSAdminApi".Trim();
+        [HideInInspector][SerializeField] public string IgsAdminApiLink => $"{_serverLink}/api/{_titleTemplateID}/{_titleID}/Admin/".Trim();
 
         [HideInInspector] public string WebGLBuildPath = "Assets/WebGLBuild/";
 
