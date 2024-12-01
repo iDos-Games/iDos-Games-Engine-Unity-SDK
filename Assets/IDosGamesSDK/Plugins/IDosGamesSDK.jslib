@@ -128,5 +128,29 @@ mergeInto(LibraryManager.library, {
         window.cacheClear()  
             .then(() => console.log('Cache cleared successfully'))  
             .catch(err => console.error("Cache clear failed", err));  
+    },
+
+    OnWindowFocus: function() {  
+        if (typeof window.onWindowFocus === 'function') {  
+            window.onWindowFocus();  
+        } else {  
+            console.warn("onWindowFocus function is not defined");  
+        }  
+    },  
+  
+    OnWindowBlur: function() {  
+        if (typeof window.onWindowBlur === 'function') {  
+            window.onWindowBlur();  
+        } else {  
+            console.warn("onWindowBlur function is not defined");  
+        }  
+    },  
+  
+    OnWindowBeforeUnload: function() {  
+        if (typeof window.onWindowBeforeUnload === 'function') {  
+            window.onWindowBeforeUnload();  
+        } else {  
+            console.warn("onWindowBeforeUnload function is not defined");  
+        }  
     }
 });  

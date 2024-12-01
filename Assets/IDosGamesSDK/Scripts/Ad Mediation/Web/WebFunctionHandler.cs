@@ -11,6 +11,11 @@ namespace IDosGames
         public event AdEventHandler OnAdCompleteEvent;
         public event AdEventHandler OnAdErrorEvent;
 
+        public delegate void FocusEventHandler();
+        public event FocusEventHandler OnWebAppFocusTrueEvent;
+        public event FocusEventHandler OnWebAppFocusFalseEvent;
+        public event FocusEventHandler OnWebAppQuitEvent;
+
         private string _args;
         public string _clipboardText;
 
@@ -53,6 +58,21 @@ namespace IDosGames
         public void OnPasteFromClipboard(string text)
         {
             _clipboardText = text;
+        }
+
+        public void OnWebAppFocusTrue()
+        {
+            OnWebAppFocusTrueEvent?.Invoke();
+        }
+
+        public void OnWebAppFocusFalse()
+        {
+            OnWebAppFocusFalseEvent?.Invoke();
+        }
+
+        public void OnWebAppQuit()
+        {
+            OnWebAppQuitEvent?.Invoke();
         }
 #endif
     }

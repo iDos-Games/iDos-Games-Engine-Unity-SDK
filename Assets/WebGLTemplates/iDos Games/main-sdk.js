@@ -71,7 +71,7 @@
 
     function getInitDataUnsafe() {  
         if (platform === "telegram") {  
-            return Telegram.WebApp.initData;  
+            return Telegram.WebApp.initData;
         }  
         return null;  
     }
@@ -161,6 +161,31 @@
     function cacheClear() {  
         return caches.delete(cacheName);  
     }
+
+    function onWindowFocus() {
+        console.log("Window has gained focus");
+        if (typeof window.igcInstance !== 'undefined') {
+            window.igcInstance.SendMessage('WebFunctionHandler', 'OnWebAppFocusTrue');
+        }
+    }
+    
+    function onWindowBlur() {
+        console.log("Window has lost focus");
+        if (typeof window.igcInstance !== 'undefined') {
+            window.igcInstance.SendMessage('WebFunctionHandler', 'OnWebAppFocusFalse');
+        }
+    }
+
+    function onWindowBeforeUnload(event) {
+        console.log("Window is about to be closed or reloaded");
+        if (typeof window.igcInstance !== 'undefined') {
+            window.igcInstance.SendMessage('WebFunctionHandler', 'OnWebAppQuit');
+        }
+    }
+
+    window.addEventListener('focus', onWindowFocus);
+    window.addEventListener('blur', onWindowBlur);
+    window.addEventListener('beforeunload', onWindowBeforeUnload);
     
     window.cacheSaveData = cacheSaveData;
     window.cacheLoadData = cacheLoadData;
