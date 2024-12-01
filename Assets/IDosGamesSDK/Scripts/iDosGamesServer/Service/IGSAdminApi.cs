@@ -14,32 +14,6 @@ namespace IDosGames
         public static event Action<Action> ConnectionError;
         public static string URL_IGS_ADMIN_API = IDosGamesSDKSettings.Instance.IgsAdminApiLink;
 
-        public static async Task<string> GetFunctionLinks()
-        {
-            var requestBody = new IGSRequest
-            {
-                TitleID = IDosGamesSDKSettings.Instance.TitleID,
-                FunctionName = ServerFunctionHandlers.GetFunctionLinks.ToString(),
-                WebAppLink = WebSDK.webAppLink,
-                SecretKey = IDosGamesSDKSettings.Instance.DeveloperSecretKey
-            };
-
-            return await SendPostRequest(URL_IGS_ADMIN_API, requestBody);
-        }
-
-        public static async Task<string> UploadTitleDataFiles(List<FileUpload> files)
-        {
-            var requestBody = new IGSRequest
-            {
-                TitleID = IDosGamesSDKSettings.Instance.TitleID,
-                FunctionName = ServerFunctionHandlers.UploadTitleData.ToString(),
-                WebAppLink = WebSDK.webAppLink,
-                SecretKey = IDosGamesSDKSettings.Instance.DeveloperSecretKey,
-                Files = files
-            };
-            return await SendPostRequest(URL_IGS_ADMIN_API, requestBody);
-        }
-
         public static async Task<string> UploadWebGL(List<FileUpload> files)
         {
             var requestBody = new IGSRequest
@@ -51,7 +25,7 @@ namespace IDosGames
                 Files = files,
                 DevBuild = IDosGamesSDKSettings.Instance.DevBuild
             };
-            return await SendPostRequest(URL_IGS_ADMIN_API, requestBody);
+            return await SendPostRequest(URL_IGS_ADMIN_API + ServerFunctionHandlers.UploadWebGL.ToString(), requestBody);
         }
 
         public static async Task<string> ClearWebGL()
@@ -65,21 +39,7 @@ namespace IDosGames
                 DevBuild = IDosGamesSDKSettings.Instance.DevBuild
             };
 
-            return await SendPostRequest(URL_IGS_ADMIN_API, requestBody);
-        }
-
-        public static async Task<string> RegisterTelegramWebhook()
-        {
-            var requestBody = new IGSRequest
-            {
-                TitleID = IDosGamesSDKSettings.Instance.TitleID,
-                FunctionName = ServerFunctionHandlers.RegisterTelegramWebhook.ToString(),
-                WebAppLink = WebSDK.webAppLink,
-                SecretKey = IDosGamesSDKSettings.Instance.DeveloperSecretKey,
-                WebhookLink = IDosGamesSDKSettings.Instance.TelegramWebhookLink
-            };
-
-            return await SendPostRequest(URL_IGS_ADMIN_API, requestBody);
+            return await SendPostRequest(URL_IGS_ADMIN_API + ServerFunctionHandlers.ClearWebGL.ToString(), requestBody);
         }
 
         private static async Task<string> SendPostRequest(string functionURL, IGSRequest request)

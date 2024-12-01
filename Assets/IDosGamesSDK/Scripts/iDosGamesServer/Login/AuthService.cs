@@ -25,7 +25,7 @@ namespace IDosGames
         public static string EntityToken { get; private set; }
         public static IGSAuthenticationContext AuthContext { get; private set; }
 
-        public static InitData TelegramInitData { get; set; }
+        public static string TelegramInitData { get; set; }
 
         private static AuthService _instance;
 
@@ -51,7 +51,16 @@ namespace IDosGames
             RequestSent?.Invoke();
             try
             {
-                GetAllUserDataResult result = await IGSService.LoginWithDeviceID();
+                GetAllUserDataResult result = null;
+
+                if (IDosGamesSDKSettings.Instance.BuildForPlatform == Platforms.Telegram)
+                {
+                    result = await IGSService.LoginWithTelegram(TelegramInitData);
+                }
+                else
+                {
+                    result = await IGSService.LoginWithDeviceID();
+                }
 
                 if (result != null) //&& result.AuthContext != null && !string.IsNullOrEmpty(result.AuthContext.ClientSessionTicket)
                 {

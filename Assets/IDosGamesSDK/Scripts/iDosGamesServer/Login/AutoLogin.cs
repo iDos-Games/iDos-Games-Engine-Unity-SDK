@@ -65,13 +65,15 @@ namespace IDosGames
             if (WebSDK.platform == "web")
             {
                 AuthService.WebGLPlatform = WebGLPlatform.Web;
+                IDosGamesSDKSettings.Instance.BuildForPlatform = Platforms.Web;
             }
             else if (WebSDK.platform == "telegram")
             {
                 AuthService.WebGLPlatform = WebGLPlatform.Telegram;
+                IDosGamesSDKSettings.Instance.BuildForPlatform = Platforms.Telegram;
 
                 WebSDK.FetchInitDataUnsafe();
-                AuthService.TelegramInitData = WebSDK.ParseInitDataUnsafe();
+                AuthService.TelegramInitData = WebSDK.initDataUnsafe;
             }
 
 #endif

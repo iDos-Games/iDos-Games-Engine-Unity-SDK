@@ -69,26 +69,39 @@ namespace IDosGames
             return result;
         }
 
+        public static async Task<GetAllUserDataResult> LoginWithTelegram(string telegramInitData)
+        {
+            var requestBody = new IGSRequest
+            {
+                TitleID = IDosGamesSDKSettings.Instance.TitleID,
+                WebAppLink = WebSDK.webAppLink,
+                UsageTime = IDosGamesSDKSettings.Instance.PlayTime,
+                TelegramInitData = telegramInitData,
+            };
+
+            string response = await SendPostRequest(URL_LOGIN_SYSTEM + ServerFunctionHandlers.LoginWithTelegram.ToString(), requestBody);
+
+            // Десериализация строки в объект GetAllUserDataResult  
+            GetAllUserDataResult result = JsonConvert.DeserializeObject<GetAllUserDataResult>(response);
+
+            if (result != null) { IDosGamesSDKSettings.Instance.PlayTime = 0; }
+
+            return result;
+        }
+
         private static string GetOrCreateDeviceID()
         {
             string deviceID;
 
 #if UNITY_WEBGL
-            if (AuthService.WebGLPlatform == WebGLPlatform.Telegram)
-            {
-                deviceID = AuthService.TelegramInitData.user.id.ToString();
-            }
-            else
-            {
-                deviceID = PlayerPrefs.GetString("DeviceID", null);
+            deviceID = PlayerPrefs.GetString("DeviceID", null);
 
-                if (string.IsNullOrEmpty(deviceID))
-                {
-                    deviceID = Guid.NewGuid().ToString();
+            if (string.IsNullOrEmpty(deviceID))
+            {
+                deviceID = Guid.NewGuid().ToString();
 
-                    PlayerPrefs.SetString("DeviceID", deviceID);
-                    PlayerPrefs.Save();
-                }
+                PlayerPrefs.SetString("DeviceID", deviceID);
+                PlayerPrefs.Save();
             }
 
 #else
@@ -104,7 +117,7 @@ namespace IDosGames
 #if UNITY_WEBGL
             if (AuthService.WebGLPlatform == WebGLPlatform.Telegram)
             {
-                userName = AuthService.TelegramInitData.user.username;
+                //userName = AuthService.TelegramInitData.user.username;
             }
 #endif
             return userName;

@@ -70,7 +70,11 @@ namespace IDosGames
 
         [Space(5)]
         [SerializeField] private Platforms _buildForPlatform = Platforms.GooglePlay;
-        public Platforms BuildForPlatform => _buildForPlatform;
+        public Platforms BuildForPlatform
+        {
+            get => _buildForPlatform;
+            set => _buildForPlatform = value;
+        }
 
         public bool DevBuild { get; set; } = false;
 
@@ -124,7 +128,6 @@ namespace IDosGames
         public string DealOfferSystemLink => $"{_serverLink}/api/{_titleTemplateID}/{_titleID}/Client/DealOffer/".Trim();
         public string ValidateIAPLink => $"{_serverLink}/api/{_titleTemplateID}/{_titleID}/Client/ValidateIAP".Trim();
         public string PurchaseLink => $"{_serverLink}/api/{_titleTemplateID}/{_titleID}/Client/Purchase/".Trim();
-        public string TelegramWebhookLink => $"{_serverLink}/api/{_titleTemplateID}/{_titleID}/Server/TelegramWebhook".Trim();
 
         [Space(5)]
         [Header("In App Purchasing")]
@@ -201,7 +204,7 @@ namespace IDosGames
             set => _developerSecretKey = value;
         }
 
-        [HideInInspector][SerializeField] public string IgsAdminApiLink => $"{_serverLink}/api/{_titleTemplateID}/{_titleID}/Admin/IGSAdminApi".Trim();
+        [HideInInspector][SerializeField] public string IgsAdminApiLink => $"{_serverLink}/api/{_titleTemplateID}/{_titleID}/Admin/".Trim();
 
         [HideInInspector] public string WebGLBuildPath = "Assets/WebGLBuild/";
 
