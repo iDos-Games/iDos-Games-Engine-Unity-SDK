@@ -46,18 +46,14 @@ namespace IDosGames
         private void CheckReferral()
         {
 #if UNITY_WEBGL
-            if (AuthService.WebGLPlatform != WebGLPlatform.None)
+            WebSDK.FetchStartAppParameter();
+            string startAppValue = WebSDK.GetStartAppParameterValue();
+
+            if (!string.IsNullOrEmpty(startAppValue))
             {
-                WebSDK.FetchStartAppParameter();
-                string startAppValue = WebSDK.GetStartAppParameterValue();
-
-                if (!string.IsNullOrEmpty(startAppValue))
-                {
-                    ActivateReferralCode(startAppValue);
-                    //Message.Show(startAppValue);
-                }
+                ActivateReferralCode(startAppValue);
+                //Message.Show(startAppValue);
             }
-
 #endif
         }
 
@@ -109,23 +105,26 @@ namespace IDosGames
             Message.Show(MessageCode.SOMETHING_WENT_WRONG);
         }
 
-        [Obsolete]
         private void CreateReferralLink()
         {
-            if(AuthService.WebGLPlatform == WebGLPlatform.Web)
+            string baseLink;
+            if (AuthService.WebGLPlatform == WebGLPlatform.Web)
             {
-                ReferralLink = IDosGamesSDKSettings.Instance.WebGLUrl + "?startapp=" + AuthService.UserID;
+                baseLink = IDosGamesSDKSettings.Instance.ReferralTrackerLink;
             }
             else if (AuthService.WebGLPlatform == WebGLPlatform.Telegram)
             {
-                ReferralLink = IDosGamesSDKSettings.Instance.TelegramWebAppLink + "?startapp=" + AuthService.UserID;
+                baseLink = IDosGamesSDKSettings.Instance.TelegramWebAppLink;
             }
             else
             {
-                // Android and iOS link needs to be implemented here
-                ReferralLink = IDosGamesSDKSettings.Instance.ReferralTrackerLink + "?startapp=" + AuthService.UserID;
+                // Android and iOS link needs to be implemented here  
+                baseLink = IDosGamesSDKSettings.Instance.ReferralTrackerLink;
             }
 
+            // Check if the base link already contains parameters  
+            char separator = baseLink.Contains("?") ? '&' : '?';
+            ReferralLink = $"{baseLink}{separator}startapp={AuthService.UserID}";
         }
 
         public static void Share()
