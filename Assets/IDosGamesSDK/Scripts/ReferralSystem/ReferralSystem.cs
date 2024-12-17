@@ -45,7 +45,7 @@ namespace IDosGames
 
         private void CheckReferral()
         {
-#if UNITY_WEBGL
+#if UNITY_WEBGL && !UNITY_EDITOR
             WebSDK.FetchStartAppParameter();
             string startAppValue = WebSDK.GetStartAppParameterValue();
 
