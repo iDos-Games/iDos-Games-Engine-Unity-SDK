@@ -41,11 +41,11 @@ namespace IDosGames
 
             if (IDosGamesSDKSettings.Instance.DevBuild)
             {
-                IDosGamesSDKSettings.Instance.WebGLUrl = "https://cloud.idosgames.com/drive/" + IDosGamesSDKSettings.Instance.TitleID + "-dev/index.html";
+                IDosGamesSDKSettings.Instance.WebGLUrl = "https://cloud.idosgames.com/drive/app/" + IDosGamesSDKSettings.Instance.TitleID + "-dev/index.html";
             }
             else
             {
-                IDosGamesSDKSettings.Instance.WebGLUrl = "https://cloud.idosgames.com/drive/" + IDosGamesSDKSettings.Instance.TitleID + "/index.html";
+                IDosGamesSDKSettings.Instance.WebGLUrl = "https://cloud.idosgames.com/drive/app/" + IDosGamesSDKSettings.Instance.TitleID + "/index.html";
             }
             
             Debug.Log("WebGL URL: " + IDosGamesSDKSettings.Instance.WebGLUrl);
