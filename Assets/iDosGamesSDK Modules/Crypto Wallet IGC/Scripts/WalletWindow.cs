@@ -20,10 +20,21 @@ namespace IDosGames
 			if (direction == TransactionDirection.Game)
 			{
                 Loading.ShowTransparentPanel();
-                transferResult = await WalletService.TransferTokenToGame(virtualCurrencyID, amount);
-				transactionHash = WalletService.TransactionHashAfterTransactionToGame;
-                Loading.HideAllPanels();
 
+				bool balance = await WalletService.HasSufficientBalanceForGas();
+				if (balance)
+				{
+                    transferResult = await WalletService.TransferTokenToGame(virtualCurrencyID, amount);
+                    transactionHash = WalletService.TransactionHashAfterTransactionToGame;
+                    Loading.HideAllPanels();
+                }
+				else
+				{
+                    Message.Show(MessageCode.INSUFFICIENT_BALANCE);
+                    Loading.HideAllPanels();
+                    return null;
+				}
+                
                 if (string.IsNullOrEmpty(transactionHash))
 				{
 					return transferResult; // User cancelled
@@ -32,10 +43,21 @@ namespace IDosGames
 			else if (direction == TransactionDirection.UsersCryptoWallet)
 			{
 				Loading.ShowTransparentPanel();
-				string signatureString = await WalletService.GetTokenWithdrawalSignature(virtualCurrencyID, amount);
-                var signature = JsonConvert.DeserializeObject<WithdrawalSignatureResult>(signatureString);
-                transactionHash = await WalletService.TransferTokenToUser(signature);
-				Loading.HideAllPanels();
+
+                bool balance = await WalletService.HasSufficientBalanceForGas();
+                if (balance)
+				{
+                    string signatureString = await WalletService.GetTokenWithdrawalSignature(virtualCurrencyID, amount);
+                    var signature = JsonConvert.DeserializeObject<WithdrawalSignatureResult>(signatureString);
+                    transactionHash = await WalletService.TransferTokenToUser(signature);
+                    Loading.HideAllPanels();
+                }
+				else
+				{
+                    Message.Show(MessageCode.INSUFFICIENT_BALANCE);
+                    Loading.HideAllPanels();
+                    return null;
+                }
             }
 
 			if(IDosGamesSDKSettings.Instance.DebugLogging)

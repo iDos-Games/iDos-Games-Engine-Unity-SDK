@@ -203,6 +203,26 @@ namespace IDosGames
 
 			return isReady;
 		}
-	}
+
+        public static async Task<bool> HasSufficientBalanceForGas(decimal gas = 300000)
+        {
+            if (!IsWalletReady())
+            {
+                return false;
+            }
+
+            decimal balance = await GetNativeTokenBalance();
+            decimal gasPrice = (decimal)BlockchainSettings.GasPrice;
+            decimal requiredGas = gas * gasPrice;
+
+            if (balance >= requiredGas)
+            {
+                return true;
+            }
+
+            Debug.LogWarning("Insufficient balance for gas.");
+            return false;
+        }
+    }
 }
 #endif
