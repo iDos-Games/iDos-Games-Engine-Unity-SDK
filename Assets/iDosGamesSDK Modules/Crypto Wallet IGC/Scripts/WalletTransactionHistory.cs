@@ -6,7 +6,7 @@ namespace IDosGames
 {
 	public class WalletTransactionHistory
 	{
-		public const int MAX_AMOUNT_OF_HISTORY_ITEMS = 10;
+		public const int MAX_AMOUNT_OF_HISTORY_ITEMS = 500;
 		public const string PLAYER_PREFS_WALLET_TRANSACTION_HISTORY = "WALLET_TRANSACTION_HISTORY";
 
 		public static void SaveNewItem(int chainID, string hash, TransactionDirection direction, string itemName, int amount, string imagePath)

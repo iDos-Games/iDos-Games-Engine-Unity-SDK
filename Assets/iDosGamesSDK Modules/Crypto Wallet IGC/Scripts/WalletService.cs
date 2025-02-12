@@ -17,10 +17,27 @@ namespace IDosGames
 				return null;
 			}
 
-			var companyWalletAddress = BlockchainSettings.HotWalletAddress;
+			string platformPoolAddress = BlockchainSettings.PlatformPoolContractAddress;
 
-			var transactionHash = await WalletBlockchainService.TransferERC20TokenAndGetHash(WalletManager.WalletAddress, companyWalletAddress, virtualCurrencyID, amount, WalletManager.PrivateKey);
+			string tokenAddress = BlockchainSettings.GetTokenContractAddress(virtualCurrencyID);
 
+			string approveHash = await WalletBlockchainService.ApproveERC20Token(tokenAddress, platformPoolAddress, amount.ToString(), WalletManager.PrivateKey, BlockchainSettings.ChainID);
+
+            if (string.IsNullOrEmpty(approveHash))
+            {
+                Debug.LogWarning("Approve transaction failed.");
+                return null;
+            }
+
+            // Дожидаемся подтверждения транзакции approve  
+            bool isApproved = await WalletBlockchainService.WaitForTransactionReceipt(approveHash);
+            if (!isApproved)
+            {
+                Debug.LogWarning("Approve transaction was not confirmed.");
+                return null;
+            }
+
+            var transactionHash = await WalletBlockchainService.DepositERC20Token(tokenAddress, platformPoolAddress, amount.ToString(), AuthService.UserID, WalletManager.PrivateKey, BlockchainSettings.ChainID);
 
             TransactionHashAfterTransactionToGame = transactionHash;
 
@@ -42,7 +59,28 @@ namespace IDosGames
 			return await IGSService.TryMakeTransaction(request);
 		}
 
-		public static async Task<string> TransferNFTToGame(BigInteger nftID, int amount)
+        public static async Task<string> TransferTokenToUser(WithdrawalSignatureResult signature)
+        {
+            if (!IsWalletReady())
+            {
+                return null;
+            }
+
+			var transactionHash = await WalletBlockchainService.WithdrawERC20Token(signature, WalletManager.PrivateKey, BlockchainSettings.ChainID);
+
+            TransactionHashAfterTransactionToGame = transactionHash;
+
+            if (string.IsNullOrEmpty(TransactionHashAfterTransactionToGame))
+            {
+                return null;
+            }
+
+            Message.Show(TransactionHashAfterTransactionToGame);
+
+            return TransactionHashAfterTransactionToGame;
+        }
+
+        public static async Task<string> TransferNFTToGame(BigInteger nftID, int amount)
 		{
 			if (!IsWalletReady())
 			{
@@ -73,7 +111,7 @@ namespace IDosGames
 			return await IGSService.TryMakeTransaction(request);
 		}
 
-		public static async Task<string> TransferTokenToUsersCryptoWallet(VirtualCurrencyID virtualCurrencyID, int amount)
+		public static async Task<string> GetTokenWithdrawalSignature(VirtualCurrencyID virtualCurrencyID, int amount)
 		{
 			if (!IsWalletReady())
 			{
@@ -90,7 +128,7 @@ namespace IDosGames
 				ConnectedWalletAddress = WalletManager.WalletAddress
             };
 
-			Message.Show(MessageCode.TRANSACTION_BEING_PROCESSED);
+			//Message.Show(MessageCode.TRANSACTION_BEING_PROCESSED);
 
 			return await IGSService.TryMakeTransaction(request);
 		}

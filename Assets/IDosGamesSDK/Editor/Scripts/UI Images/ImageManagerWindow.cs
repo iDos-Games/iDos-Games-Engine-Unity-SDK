@@ -8,7 +8,7 @@ namespace IDosGames
         private Vector2 _scrollPosition;
         private ImageData[] _allImageData;
 
-        [MenuItem("Tools/iDos Games SDK/3. UI Image Manager")]
+        [MenuItem("iDos Games/3. UI Image Manager")]
         public static void ShowWindow()
         {
             GetWindow<ImageManagerWindow>("Image Manager");

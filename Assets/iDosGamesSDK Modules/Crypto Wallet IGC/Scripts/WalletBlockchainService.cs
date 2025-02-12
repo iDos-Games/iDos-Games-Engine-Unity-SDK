@@ -15,14 +15,202 @@ using Nethereum.Web3.Accounts;
 using Nethereum.Contracts.Standards.ERC1155;
 using Nethereum.Contracts;
 using Nethereum.Signer;
+using Nethereum.ABI.Model;
+using Nethereum.ABI.FunctionEncoding.Attributes;
 
 using BalanceOfERC20Function = Nethereum.Contracts.Standards.ERC20.ContractDefinition.BalanceOfFunction;
 using TransferFunction = Nethereum.Contracts.Standards.ERC20.ContractDefinition.TransferFunction;
+using Nethereum.Contracts.Standards.ERC20.ContractDefinition;
+using Nethereum.RPC.Eth.DTOs;
 
 namespace IDosGames
 {
     public static class WalletBlockchainService
     {
+        public static async Task<string> ApproveERC20Token(string tokenAddress, string spenderAddress, string amountInEth, string privateKey, int chainID)
+        {
+            try
+            {
+                var account = new Account(privateKey);
+                var fromAddress = account.Address;
+                var tokenAmountInWei = Web3.Convert.ToWei(decimal.Parse(amountInEth));
+
+                var approveFunction = new ApproveFunction
+                {
+                    Spender = spenderAddress,
+                    Value = tokenAmountInWei,
+                    GasPrice = new HexBigInteger(Web3.Convert.ToWei(BlockchainSettings.GasPrice, UnitConversion.EthUnit.Gwei)),
+                    FromAddress = fromAddress
+                };
+
+                approveFunction.Gas = new HexBigInteger(100000); // Обумовлено контрактом или эмпирически
+
+                var nonce = await GetTransactionCountAsync(fromAddress);
+
+                var callData = approveFunction.GetCallData().ToHex();
+                var gasPrice = approveFunction.GasPrice.Value;
+                var gasLimit = approveFunction.Gas.Value;
+
+                var signer = new LegacyTransactionSigner();
+
+                BigInteger chainIdBigInt = new BigInteger(chainID);
+
+                string signedTx = signer.SignTransaction(
+                    privateKey,
+                    chainIdBigInt,
+                    tokenAddress,
+                    BigInteger.Zero,
+                    nonce.Value,
+                    gasPrice,
+                    gasLimit,
+                    callData
+                );
+
+                var txHash = await SendRawTransaction("0x" + signedTx);
+                return txHash;
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning($"Approve ERC20 Error: {ex.Message}");
+                return null;
+            }
+        }
+
+        public static async Task<string> DepositERC20Token(string tokenAddress, string contractAddress, string amountInEth, string userID, string privateKey, int chainID)
+        {
+            try
+            {
+                var account = new Account(privateKey);
+                var fromAddress = account.Address;
+                var tokenAmountInWei = Web3.Convert.ToWei(decimal.Parse(amountInEth));
+
+                var depositMessage = new DepositERC20Function
+                {
+                    Token = tokenAddress,
+                    Amount = tokenAmountInWei,
+                    UserID = userID,
+                    GasPrice = new HexBigInteger(Web3.Convert.ToWei(BlockchainSettings.GasPrice, UnitConversion.EthUnit.Gwei)),
+                    FromAddress = fromAddress
+                };
+
+                depositMessage.Gas = new HexBigInteger(200000);
+
+                var nonce = await GetTransactionCountAsync(fromAddress);
+
+                var callData = depositMessage.GetCallData().ToHex();
+                var gasPrice = depositMessage.GasPrice.Value;
+                var gasLimit = depositMessage.Gas.Value;
+
+                var signer = new LegacyTransactionSigner();
+
+                BigInteger chainIdBigInt = new BigInteger(chainID);
+
+                string signedTx = signer.SignTransaction(
+                    privateKey,
+                    chainIdBigInt,
+                    contractAddress,
+                    BigInteger.Zero,
+                    nonce.Value,
+                    gasPrice,
+                    gasLimit,
+                    callData
+                );
+
+                var txHash = await SendRawTransaction("0x" + signedTx);
+                return txHash;
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning($"Deposit ERC20 Error: {ex.Message}");
+                return null;
+            }
+        }
+
+        public static async Task<string> WithdrawERC20Token(WithdrawalSignatureResult withdrawalData, string privateKey, int chainID)
+        {
+            try
+            {
+                var account = new Account(privateKey);
+                var fromAddress = account.Address;
+
+                var withdrawMessage = new WithdrawERC20Function
+                {
+                    Token = withdrawalData.TokenAddress,
+                    To = withdrawalData.WalletAddress,
+                    Amount = BigInteger.Parse(withdrawalData.Amount),
+                    Nonce = BigInteger.Parse(withdrawalData.Nonce),
+                    Signature = HexStringToByteArray(withdrawalData.Signature),
+                    GasPrice = new HexBigInteger(Web3.Convert.ToWei(BlockchainSettings.GasPrice, UnitConversion.EthUnit.Gwei)),
+                    FromAddress = fromAddress
+                };
+
+                withdrawMessage.Gas = new HexBigInteger(200000);
+
+                var nonce = await GetTransactionCountAsync(fromAddress);
+
+                var callData = withdrawMessage.GetCallData().ToHex();
+                var gasPrice = withdrawMessage.GasPrice.Value;
+                var gasLimit = withdrawMessage.Gas.Value;
+
+                var signer = new LegacyTransactionSigner();
+
+                BigInteger chainIdBigInt = new BigInteger(chainID);
+
+                Debug.Log($"ChainID: {chainID}, ContractAddress: {withdrawalData.ContractAddress}, Nonce: {nonce.Value}, GasPrice: {gasPrice}, GasLimit: {gasLimit}, CallData: {callData}");
+
+                string signedTx = signer.SignTransaction(
+                    privateKey,
+                    chainIdBigInt,
+                    withdrawalData.ContractAddress,
+                    BigInteger.Zero,
+                    nonce.Value,
+                    gasPrice,
+                    gasLimit,
+                    callData
+                    );
+
+                Debug.Log($"Signed Transaction: {signedTx}");
+
+                var txHash = await SendRawTransaction("0x" + signedTx);
+                Debug.Log($"txHash: {txHash}");
+
+                return txHash;
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning($"Withdraw ERC20 Error: {ex.Message}");
+                return null;
+            }
+        }
+
+        private static async Task<string> SendRawTransaction(string signedTx)
+        {
+            var data = new
+            {
+                jsonrpc = "2.0",
+                method = "eth_sendRawTransaction",
+                @params = new[] { signedTx },
+                id = 1
+            };
+
+            var response = await SendUnityWebRequest(BlockchainSettings.RpcUrl, JsonConvert.SerializeObject(data));
+            return JsonConvert.DeserializeObject<JsonRpcResponse<string>>(response).Result;
+        }
+
+        private static string ToHex(this byte[] bytes)
+        {
+            return "0x" + BitConverter.ToString(bytes).Replace("-", "").ToLower();
+        }
+
+        private static byte[] HexStringToByteArray(string hex)
+        {
+            hex = hex.StartsWith("0x") ? hex.Substring(2) : hex;
+            byte[] bytes = new byte[hex.Length / 2];
+            for (int i = 0; i < hex.Length; i += 2)
+                bytes[i / 2] = Convert.ToByte(hex.Substring(i, 2), 16);
+            return bytes;
+        }
+
         public static async Task<decimal> GetNativeTokenBalance(string walletAddress)
         {
             try
@@ -496,5 +684,90 @@ namespace IDosGames
 
             return new HexBigInteger(jsonRpcResponse.Result);
         }
+
+        public static async Task<bool> WaitForTransactionReceipt(string transactionHash)
+        {
+            const int delayBetweenChecks = 3000;
+            int maxAttempts = 20;
+            int attempts = 0;
+
+            while (attempts < maxAttempts)
+            {
+                var receipt = await GetTransactionReceipt(transactionHash);
+
+                if (receipt != null)
+                {
+                    // Проверяем статус транзакции; если статус 1, значит успешно    
+                    return receipt.Status != null && receipt.Status.Value == BigInteger.One;
+                }
+
+                attempts++;
+                await Task.Delay(delayBetweenChecks);
+            }
+
+            // Если предел попыток достигнут, и статус не получен  
+            Debug.LogWarning($"Transaction {transactionHash} not confirmed after {maxAttempts} attempts.");
+            return false;
+        }
+
+        private static async Task<TransactionReceipt> GetTransactionReceipt(string transactionHash)
+        {
+            var data = new
+            {
+                jsonrpc = "2.0",
+                method = "eth_getTransactionReceipt",
+                @params = new[] { transactionHash },
+                id = 1
+            };
+
+            var jsonData = JsonConvert.SerializeObject(data);
+            string responseText = await SendUnityWebRequest(BlockchainSettings.RpcUrl, jsonData);
+
+            if (string.IsNullOrEmpty(responseText))
+            {
+                return null;
+            }
+
+            var jsonRpcResponse = JsonConvert.DeserializeObject<JsonRpcResponse<TransactionReceipt>>(responseText);
+            if (jsonRpcResponse.Error != null)
+            {
+                Debug.LogWarning("JSON-RPC Error: " + jsonRpcResponse.Error.Message);
+                return null;
+            }
+
+            return jsonRpcResponse.Result;
+        }
+    }
+
+    [Function("withdrawERC20", "bool")]
+    public class WithdrawERC20Function : FunctionMessage
+    {
+        [Parameter("address", "token", 1)]
+        public string Token { get; set; }
+
+        [Parameter("address", "to", 2)]
+        public string To { get; set; }
+
+        [Parameter("uint256", "amount", 3)]
+        public BigInteger Amount { get; set; }
+
+        [Parameter("uint256", "nonce", 4)]
+        public BigInteger Nonce { get; set; }
+
+        [Parameter("bytes", "signature", 5)]
+        public byte[] Signature { get; set; }
+    }
+
+    [Function("depositERC20", "bool")]
+    public class DepositERC20Function : FunctionMessage
+    {
+        [Parameter("address", "token", 1)]
+        public string Token { get; set; }
+
+        [Parameter("uint256", "amount", 2)]
+        public BigInteger Amount { get; set; }
+
+        [Parameter("string", "userID", 3)]
+        public string UserID { get; set; }
     }
 }

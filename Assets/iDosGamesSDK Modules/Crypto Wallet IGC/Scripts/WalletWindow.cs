@@ -19,42 +19,44 @@ namespace IDosGames
 
 			if (direction == TransactionDirection.Game)
 			{
-				transferResult = await WalletService.TransferTokenToGame(virtualCurrencyID, amount);
+                Loading.ShowTransparentPanel();
+                transferResult = await WalletService.TransferTokenToGame(virtualCurrencyID, amount);
 				transactionHash = WalletService.TransactionHashAfterTransactionToGame;
+                Loading.HideAllPanels();
 
-				if (string.IsNullOrEmpty(transactionHash))
+                if (string.IsNullOrEmpty(transactionHash))
 				{
 					return transferResult; // User cancelled
 				}
 			}
 			else if (direction == TransactionDirection.UsersCryptoWallet)
 			{
-				transferResult = await WalletService.TransferTokenToUsersCryptoWallet(virtualCurrencyID, amount);
-				transactionHash = GetTransactionHashFromResultMessage(transferResult);
-			}
+				Loading.ShowTransparentPanel();
+				string signatureString = await WalletService.GetTokenWithdrawalSignature(virtualCurrencyID, amount);
+                var signature = JsonConvert.DeserializeObject<WithdrawalSignatureResult>(signatureString);
+                transactionHash = await WalletService.TransferTokenToUser(signature);
+				Loading.HideAllPanels();
+            }
 
 			if(IDosGamesSDKSettings.Instance.DebugLogging)
 			{
-                Debug.Log("TransferResult: " + transferResult);
+                Debug.Log("Transaction Hash: " + transactionHash);
             }
-			
-			ProcessResultMessage(transferResult);
 
-			if (transferResult != null)
-			{
-				if (transactionHash != null && transactionHash != string.Empty)
-				{
-					int chainID = BlockchainSettings.ChainID;
-					WalletTransactionHistory.SaveNewItem(chainID, transactionHash, direction,
-						GetTokenName(virtualCurrencyID), amount,
-						GetTokenImagePath(virtualCurrencyID));
+            //ProcessResultMessage(transferResult);
 
-					_walletManager.RefreshWalletBalance();
-					UserDataService.RequestUserAllData();
-				}
-			}
+            if (transactionHash != null && transactionHash != string.Empty)
+            {
+                int chainID = BlockchainSettings.ChainID;
+                WalletTransactionHistory.SaveNewItem(chainID, transactionHash, direction,
+                    GetTokenName(virtualCurrencyID), amount,
+                    GetTokenImagePath(virtualCurrencyID));
 
-			return transferResult;
+                _walletManager.RefreshWalletBalance();
+                UserDataService.RequestUserAllData();
+            }
+
+            return transferResult;
 		}
 
 		public async Task<string> TransferNFT(TransactionDirection direction, string skinID, int amount)

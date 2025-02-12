@@ -40,7 +40,7 @@ namespace IDosGames
                 privateKey = Decrypt(encryptedPrivateKey, password);
                 if (IDosGamesSDKSettings.Instance.DebugLogging)
                 {
-                    Debug.Log("Decoded PrivateKey: " + privateKey);
+                    //Debug.Log("Decoded PrivateKey: " + privateKey);
                 }
             }
             catch
@@ -63,7 +63,7 @@ namespace IDosGames
                 seedPhrase = Decrypt(encryptedSeedPhrase, password);
                 if (IDosGamesSDKSettings.Instance.DebugLogging)
                 {
-                    Debug.Log("Decoded SeedPhrase: " + seedPhrase);
+                    //Debug.Log("Decoded SeedPhrase: " + seedPhrase);
                 }
             }
             catch

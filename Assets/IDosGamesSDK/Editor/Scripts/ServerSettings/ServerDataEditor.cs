@@ -10,7 +10,7 @@ namespace IDosGames
 
         private IDosGamesSDKSettings settings;
 
-        [MenuItem("Tools/iDos Games SDK/1. Server Settings")]
+        [MenuItem("iDos Games/1. Server Settings")]
         public static void ShowWindow()
         {
             GetWindow<ServerDataEditor>("Server Settings");

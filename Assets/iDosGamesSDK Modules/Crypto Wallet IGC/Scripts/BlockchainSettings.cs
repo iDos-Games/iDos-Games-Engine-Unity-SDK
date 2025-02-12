@@ -1,18 +1,25 @@
 using IDosGames.TitlePublicConfiguration;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Networking;
 
 namespace IDosGames
 {
     public static class BlockchainSettings
     {
         public const int DEFAULT_VALUE_IN_NATIVE_TOKEN = 0;
+
+        public static ChainConfig ChainConfigs {  get; set; }
+        public static EvmChainConfig ChainConfig { get; set; }
+
         public static string ChainType { get; private set; }
         public static string RpcUrl { get; private set; }
         public static int ChainID { get; private set; }
         public static string BlockchainExplorerUrl { get; private set; }
 
+        public static string PlatformPoolContractAddress { get; private set; }
         public static string HotWalletAddress { get; private set; }
 
         public static string SoftTokenTicker { get; private set; }
@@ -34,11 +41,13 @@ namespace IDosGames
             UserDataService.TitlePublicConfigurationUpdated += SetWallet;
         }
 
-        public static void SetWallet()
+        public static async void SetWallet()
         {
 #if IDOSGAMES_CRYPTO_WALLET
             
             string titleData = UserDataService.GetCachedTitlePublicConfig(TitleDataKey.CryptoWallet);
+
+            
 
             List<CryptoWallet> cryptoWallets = JsonConvert.DeserializeObject<List<CryptoWallet>>(titleData);
 
@@ -64,6 +73,10 @@ namespace IDosGames
                 NftContractAbi = firstChain.NftContractAbi;
 
                 HotWalletAddress = firstChain.HotWalletAddress;
+
+                ChainConfigs = await GetChainConfigs();
+                ChainConfig = ChainConfigs.TryGetValue(ChainID.ToString(), out var config) ? config : null;
+                PlatformPoolContractAddress = ChainConfig.platformPoolContractAddress;
             }
             else
             {
@@ -105,6 +118,33 @@ namespace IDosGames
             }
 
             return contractAddress;
+        }
+
+        public static async Task<ChainConfig> GetChainConfigs()
+        {
+            ChainConfig chainConfigs = new ChainConfig();
+            string url = "https://cloud.idosgames.com/sdk/evm-chain-config.json";
+
+            UnityWebRequest request = UnityWebRequest.Get(url);
+            var operation = request.SendWebRequest();
+
+            while (!operation.isDone)
+            {
+                await Task.Yield();
+            }
+
+            if (request.result == UnityWebRequest.Result.Success)
+            {
+                string config = request.downloadHandler.text;
+                chainConfigs = JsonConvert.DeserializeObject<ChainConfig>(config);
+
+            }
+            else
+            {
+                Debug.LogError($"Failed to download JSON: {request.error}");
+            }
+
+            return chainConfigs;
         }
     }
 }

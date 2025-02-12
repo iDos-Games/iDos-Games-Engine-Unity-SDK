@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using UnityEngine;
@@ -25,6 +27,8 @@ namespace IDosGames
         private static Dictionary<string, CachedImageInfo> CachedImageInfos;
         private const long MaxCacheSize = 1024 * 1024 * 1024;
         private const string CacheKey = "ImageCache";
+
+        private static readonly ConcurrentDictionary<string, SemaphoreSlim> UrlLocks = new ConcurrentDictionary<string, SemaphoreSlim>();
 
         static ImageLoader()
         {
@@ -74,56 +78,86 @@ namespace IDosGames
                 return cachedImage;
             }
 
-            byte[] imageBytes;
+            var semaphore = UrlLocks.GetOrAdd(url, new SemaphoreSlim(1, 1));
+
+            await semaphore.WaitAsync();
+            try
+            {
+                if (ImageCache.TryGetValue(url, out cachedImage))
+                {
+                    UpdateLastAccessedTime(url);
+                    return cachedImage;
+                }
+
+                byte[] imageBytes;
 
 #if UNITY_WEBGL && !UNITY_EDITOR
-            var loadTaskSource = new TaskCompletionSource<byte[]>();
-
-            WebSDK.LoadDataFromCache(url, (data) =>
-            {
-                loadTaskSource.SetResult(data);
-            });
-
-            var cachedData = await loadTaskSource.Task;
-
-            if (cachedData != null)
-            {
-                imageBytes = cachedData;
-            }
-            else
-            {
-                imageBytes = await DownloadImageBytes(url);
-                WebSDK.SaveDataToCache(url, imageBytes);
-            }
-
-            CreateSpriteFromBytes(url, imageBytes);
+                var loadTaskSource = new TaskCompletionSource<byte[]>();  
+  
+                WebSDK.LoadDataFromCache(url, (data) =>  
+                {  
+                    loadTaskSource.SetResult(data);  
+                });  
+  
+                var cachedData = await loadTaskSource.Task;  
+  
+                if (cachedData != null)  
+                {  
+                    imageBytes = cachedData;  
+                }  
+                else  
+                {  
+                    imageBytes = await DownloadImageBytes(url);  
+                    WebSDK.SaveDataToCache(url, imageBytes);  
+                }  
+  
+                CreateSpriteFromBytes(url, imageBytes);  
 #else
-            // Стандартное сохранение изображения на файловой системе для остальных платформ
-            if (CachedImageInfos.TryGetValue(url, out var cachedInfo) && cachedInfo != null && File.Exists(cachedInfo.LocalPath))
-            {
-                imageBytes = await File.ReadAllBytesAsync(cachedInfo.LocalPath);
-            }
-            else
-            {
-                imageBytes = await DownloadImageBytes(url);
-                string localPath = Path.Combine(Application.persistentDataPath, Path.GetFileName(url));
-                await File.WriteAllBytesAsync(localPath, imageBytes);
-
-                CachedImageInfos[url] = new CachedImageInfo
+                if (CachedImageInfos.TryGetValue(url, out var cachedInfo) && cachedInfo != null && File.Exists(cachedInfo.LocalPath))
                 {
-                    Url = url,
-                    LocalPath = localPath,
-                    LastAccessed = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
-                };
-        
-                SaveCache();
-                CleanupCache();
-            }
+                    imageBytes = await File.ReadAllBytesAsync(cachedInfo.LocalPath);
+                }
+                else
+                {
+                    imageBytes = await DownloadImageBytes(url);
+                    string localPath = Path.Combine(Application.persistentDataPath, Path.GetFileName(url));
 
-            CreateSpriteFromBytes(url, imageBytes);
+                    using (var fs = new FileStream(localPath, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 4096, useAsync: true))
+                    {
+                        await fs.WriteAsync(imageBytes, 0, imageBytes.Length);
+                    }
+
+                    CachedImageInfos[url] = new CachedImageInfo
+                    {
+                        Url = url,
+                        LocalPath = localPath,
+                        LastAccessed = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+                    };
+
+                    SaveCache();
+                    CleanupCache();
+                }
+
+                CreateSpriteFromBytes(url, imageBytes);
 #endif
 
-            return ImageCache[url];
+                return ImageCache.ContainsKey(url) ? ImageCache[url] : null;
+            }
+            catch (IOException ioEx)
+            {
+                Debug.LogError($"IO Exception when accessing file for URL {url}: {ioEx.Message}");
+                return null;
+            }
+            finally
+            {
+                semaphore.Release();
+
+                if (UrlLocks.TryGetValue(url, out var existingSemaphore) && existingSemaphore.CurrentCount == 1)
+                {
+                    UrlLocks.TryRemove(url, out _);
+                    existingSemaphore.Dispose();
+                }
+            }
         }
 
         private static async Task<byte[]> DownloadImageBytes(string url)
@@ -218,17 +252,38 @@ namespace IDosGames
 
         private static void CleanupCache()
         {
-            long totalSize = CachedImageInfos.Values.Sum(info => new FileInfo(info.LocalPath).Length);
+            long totalSize = CachedImageInfos.Values.Sum(info =>
+            {
+                try
+                {
+                    return new FileInfo(info.LocalPath).Length;
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError($"Error getting file size for {info.LocalPath}: {ex.Message}");
+                    return 0;
+                }
+            });
+
             if (totalSize <= MaxCacheSize) return;
 
             var orderedInfos = CachedImageInfos.Values.OrderBy(info => info.LastAccessed).ToList();
             foreach (var info in orderedInfos)
             {
-                if (File.Exists(info.LocalPath))
+                try
                 {
-                    totalSize -= new FileInfo(info.LocalPath).Length;
-                    File.Delete(info.LocalPath);
+                    if (File.Exists(info.LocalPath))
+                    {
+                        long fileSize = new FileInfo(info.LocalPath).Length;
+                        File.Delete(info.LocalPath);
+                        totalSize -= fileSize;
+                    }
                 }
+                catch (Exception ex)
+                {
+                    Debug.LogError($"Error deleting file {info.LocalPath}: {ex.Message}");
+                }
+
                 CachedImageInfos.Remove(info.Url);
                 if (totalSize <= MaxCacheSize) break;
             }

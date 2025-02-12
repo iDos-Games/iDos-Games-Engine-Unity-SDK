@@ -260,13 +260,13 @@ namespace IDosGames
             return allDefinesString.Split(';').Where(d => !exceptSymbolsSet.Contains(d)).ToList();
         }
 
-        [MenuItem("Tools/iDos Games SDK/2. General Settings")]
+        [MenuItem("iDos Games/2. General Settings")]
         private static void OpenSettings()
         {
             Selection.activeObject = Instance;
         }
 
-        [MenuItem("Tools/iDos Games SDK/4. Object Inspection Data")]
+        [MenuItem("iDos Games/4. Object Inspection Data")]
         private static void SelectObjectInspection()
         {
             string configPath = "Assets/IDosGamesSDK/Resources/Data/ObjectInspection.asset";
