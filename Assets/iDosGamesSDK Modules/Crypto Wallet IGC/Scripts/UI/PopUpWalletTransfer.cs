@@ -97,8 +97,14 @@ namespace IDosGames
 			{
 				var tokenInput = _view.GetTokenInput();
 				var tokenName = tokenInput == VirtualCurrencyID.IG ? JsonProperty.IGT.ToUpper() : JsonProperty.IGC.ToUpper();
-				itemIcon = Resources.Load<Sprite>($"Sprites/Currency/{tokenName}");
-				itemDescription = $"<color=white>{tokenName}</color> {_view.TransactionType}";
+                var tokenTicker = tokenInput == VirtualCurrencyID.IG ? BlockchainSettings.HardTokenTicker.ToUpper() : BlockchainSettings.SoftTokenTicker.ToUpper();
+
+                string imagePath = $"Sprites/Currency/{tokenName}";
+                string iconPath = (imagePath == JsonProperty.TOKEN_IMAGE_PATH) ? IGSUserData.Currency.CurrencyData.Find(c => c.CurrencyCode == "IG")?.ImageUrl ?? JsonProperty.TOKEN_IMAGE_PATH : imagePath;
+
+                itemIcon = await ImageLoader.GetSpriteAsync(iconPath);
+
+                itemDescription = $"<color=white>{tokenTicker}</color> {_view.TransactionType}";
 			}
 			else if (_view.TransactionType == CryptoTransactionType.NFT)
 			{

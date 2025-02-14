@@ -119,7 +119,11 @@ namespace IDosGames
 				if (reward != null)
 				{
 					var item = _inviteRewardsView.Rewards.First(x => x.FollowersAmount == (int)rewards[i][JsonProperty.REFERRAL_FOLLOWERS_AMOUNT]);
-					item.Set((string)reward[JsonProperty.IMAGE_PATH], (int)reward[JsonProperty.AMOUNT]);
+
+                    string imagePath = reward[JsonProperty.IMAGE_PATH].ToString();
+                    var iconPath = (imagePath == JsonProperty.TOKEN_IMAGE_PATH) ? IGSUserData.Currency.CurrencyData.Find(c => c.CurrencyCode == "IG")?.ImageUrl ?? JsonProperty.TOKEN_IMAGE_PATH : imagePath;
+
+                    item.Set(iconPath, (int)reward[JsonProperty.AMOUNT]);
 				}
 			}
 

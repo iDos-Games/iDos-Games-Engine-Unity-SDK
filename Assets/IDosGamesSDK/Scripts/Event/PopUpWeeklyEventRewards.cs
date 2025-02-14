@@ -118,9 +118,12 @@ namespace IDosGames
 				currencyID = $"{reward[JsonProperty.CURRENCY_ID]}";
 				itemAmount = int.Parse($"{reward[JsonProperty.AMOUNT]}");
 
-				if (_imagePathes.ContainsKey(currencyID) == false)
+                string imagePath = reward[JsonProperty.IMAGE_PATH].ToString();
+                string iconPath = (imagePath == JsonProperty.TOKEN_IMAGE_PATH) ? IGSUserData.Currency.CurrencyData.Find(c => c.CurrencyCode == "IG")?.ImageUrl ?? JsonProperty.TOKEN_IMAGE_PATH : imagePath;
+
+                if (_imagePathes.ContainsKey(currencyID) == false)
 				{
-					_imagePathes[currencyID] = $"{reward[JsonProperty.IMAGE_PATH]}";
+					_imagePathes[currencyID] = iconPath;
 				}
 
 				if (_virtualCurrencies.ContainsKey(currencyID))
@@ -137,9 +140,12 @@ namespace IDosGames
 				itemID = $"{reward[JsonProperty.ITEM_ID]}";
 				itemAmount = int.Parse($"{reward[JsonProperty.AMOUNT]}");
 
-				if (_imagePathes.ContainsKey(itemID) == false)
+                string imagePath = reward[JsonProperty.IMAGE_PATH].ToString();
+                string iconPath = (imagePath == JsonProperty.TOKEN_IMAGE_PATH) ? IGSUserData.Currency.CurrencyData.Find(c => c.CurrencyCode == "IG")?.ImageUrl ?? JsonProperty.TOKEN_IMAGE_PATH : imagePath;
+
+                if (_imagePathes.ContainsKey(itemID) == false)
 				{
-					_imagePathes[itemID] = $"{reward[JsonProperty.IMAGE_PATH]}";
+					_imagePathes[itemID] = iconPath;
 				}
 
 				if (_items.ContainsKey(itemID))

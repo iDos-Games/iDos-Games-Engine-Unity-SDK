@@ -23,7 +23,8 @@ namespace IDosGames
 
         private async void SetIcon(string imagePath)
         {
-            var sprite = await ImageLoader.GetSpriteAsync(imagePath);
+            string iconPath = (imagePath == JsonProperty.TOKEN_IMAGE_PATH) ? IGSUserData.Currency.CurrencyData.Find(c => c.CurrencyCode == "IG")?.ImageUrl ?? JsonProperty.TOKEN_IMAGE_PATH : imagePath;
+            var sprite = await ImageLoader.GetSpriteAsync(iconPath);
             if (sprite != null)
             {
                 _icon.sprite = sprite;

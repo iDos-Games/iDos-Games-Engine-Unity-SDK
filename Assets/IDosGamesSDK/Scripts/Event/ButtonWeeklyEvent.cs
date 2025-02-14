@@ -45,7 +45,7 @@ namespace IDosGames
 			_slider.value = WeeklyEventSystem.SliderValue;
 		}
 
-		private void UpdateFollowingReward()
+		private async void UpdateFollowingReward()
 		{
 			if (WeeklyEventSystem.FollowingReward == null)
 			{
@@ -57,8 +57,11 @@ namespace IDosGames
 				WeeklyEventSystem.FollowingReward[JsonProperty.STANDARD];
 
 			_rewardAmount.text = $"{reward[JsonProperty.AMOUNT]}";
-			_rewardIcon.sprite = Resources.Load<Sprite>($"{reward[JsonProperty.IMAGE_PATH]}");
-		}
+
+            string imagePath = reward[JsonProperty.IMAGE_PATH].ToString();
+            string iconPath = (imagePath == JsonProperty.TOKEN_IMAGE_PATH) ? IGSUserData.Currency.CurrencyData.Find(c => c.CurrencyCode == "IG")?.ImageUrl ?? JsonProperty.TOKEN_IMAGE_PATH : imagePath;
+            _rewardIcon.sprite = await ImageLoader.GetSpriteAsync(iconPath);
+        }
 
 		private void UpdateTimer()
 		{

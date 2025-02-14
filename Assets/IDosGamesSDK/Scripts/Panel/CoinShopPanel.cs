@@ -1,5 +1,7 @@
 using System;
 using UnityEngine;
+using static QRCoder.Base64QRCode;
+using static UnityEditor.Progress;
 
 namespace IDosGames
 {
@@ -10,7 +12,7 @@ namespace IDosGames
 		[SerializeField] private ShopItem _itemPrefab;
 		[SerializeField] private Transform _content;
 
-		public override void InitializePanel()
+		public override async void InitializePanel()
 		{
 			var products = ShopSystem.ProductsForVirtualCurrency;
 
@@ -39,13 +41,17 @@ namespace IDosGames
 
 				var price = GetPriceInRealMoney($"{product[JsonProperty.PRICE_RM]}");
 
-				var icon = Resources.Load<Sprite>(product[JsonProperty.IMAGE_PATH].ToString());
+                string imagePath = product[JsonProperty.IMAGE_PATH].ToString();
+                var iconPath = (imagePath == JsonProperty.TOKEN_IMAGE_PATH) ? IGSUserData.Currency.CurrencyData.Find(c => c.CurrencyCode == "IG")?.ImageUrl ?? JsonProperty.TOKEN_IMAGE_PATH : imagePath;
+                var icon = await ImageLoader.GetSpriteAsync(iconPath);
 
-				var title = VirtualCurrencyPrices.ConverRMtoIGC(price).ToString("N0") + " Coin";
+                var title = VirtualCurrencyPrices.ConverRMtoIGC(price).ToString("N0") + " Coin";
 
-				var currencyIcon = Resources.Load<Sprite>(product[JsonProperty.CURRENCY_IMAGE_PATH].ToString());
+                string currencyImagePath = product[JsonProperty.CURRENCY_IMAGE_PATH].ToString();
+                var currencyIconPath = (currencyImagePath == JsonProperty.TOKEN_IMAGE_PATH) ? IGSUserData.Currency.CurrencyData.Find(c => c.CurrencyCode == "IG")?.ImageUrl ?? JsonProperty.TOKEN_IMAGE_PATH : currencyImagePath;
+				var currencyIcon = await ImageLoader.GetSpriteAsync(currencyIconPath);
 
-				var currencyID = GetVirtualCurrencyID($"{product[JsonProperty.CURRENCY_ID]}");
+                var currencyID = GetVirtualCurrencyID($"{product[JsonProperty.CURRENCY_ID]}");
 
 				price = GetPriceInVirtualCurrency(price, currencyID);
 

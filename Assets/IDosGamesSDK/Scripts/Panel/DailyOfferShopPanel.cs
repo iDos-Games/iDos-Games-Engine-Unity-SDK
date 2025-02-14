@@ -40,7 +40,7 @@ namespace IDosGames
             InitializePaidProducts(products);
         }
 
-        private void InitializeFreeProducts(JArray products)
+        private async void InitializeFreeProducts(JArray products)
         {
             var playerData = UserDataService.GetCachedCustomUserData(CustomUserDataKey.shop_daily_free_products);
 
@@ -61,7 +61,9 @@ namespace IDosGames
 
                 var itemID = $"{product[JsonProperty.ITEM_ID]}";
 
-                var icon = Resources.Load<Sprite>(product[JsonProperty.IMAGE_PATH].ToString());
+                string imagePath = product[JsonProperty.IMAGE_PATH].ToString();
+                var iconPath = (imagePath == JsonProperty.TOKEN_IMAGE_PATH) ? IGSUserData.Currency.CurrencyData.Find(c => c.CurrencyCode == "IG")?.ImageUrl ?? JsonProperty.TOKEN_IMAGE_PATH : imagePath;
+                var icon = await ImageLoader.GetSpriteAsync(iconPath);
 
                 var title = $"{product[JsonProperty.NAME]}";
 
@@ -218,7 +220,7 @@ namespace IDosGames
             return false;
         }
 
-        private void InitializePaidProducts(JToken products)
+        private async void InitializePaidProducts(JToken products)
         {
             foreach (var product in products)
             {
@@ -228,11 +230,15 @@ namespace IDosGames
 
                 var price = GetPriceInRealMoney($"{product[JsonProperty.PRICE_RM]}");
 
-                var icon = Resources.Load<Sprite>(product[JsonProperty.IMAGE_PATH].ToString());
+                string imagePath = product[JsonProperty.IMAGE_PATH].ToString();
+                var iconPath = (imagePath == JsonProperty.TOKEN_IMAGE_PATH) ? IGSUserData.Currency.CurrencyData.Find(c => c.CurrencyCode == "IG")?.ImageUrl ?? JsonProperty.TOKEN_IMAGE_PATH : imagePath;
+                var icon = await ImageLoader.GetSpriteAsync(iconPath);
 
                 var title = $"{product[JsonProperty.NAME]}";
 
-                var currencyIcon = Resources.Load<Sprite>(product[JsonProperty.CURRENCY_IMAGE_PATH].ToString());
+                string currencyImagePath = product[JsonProperty.CURRENCY_IMAGE_PATH].ToString();
+                var currencyIconPath = (currencyImagePath == JsonProperty.TOKEN_IMAGE_PATH) ? IGSUserData.Currency.CurrencyData.Find(c => c.CurrencyCode == "IG")?.ImageUrl ?? JsonProperty.TOKEN_IMAGE_PATH : currencyImagePath;
+                var currencyIcon = await ImageLoader.GetSpriteAsync(currencyIconPath);
 
                 var currencyID = GetVirtualCurrencyID($"{product[JsonProperty.CURRENCY_ID]}");
 

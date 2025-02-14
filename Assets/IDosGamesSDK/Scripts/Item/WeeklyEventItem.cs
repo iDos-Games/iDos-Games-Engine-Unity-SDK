@@ -19,27 +19,29 @@ namespace IDosGames
 		[SerializeField] private Image _vipRewardCheckMark;
 		[SerializeField] private Image _lockIcon;
 
-		public void Set(JToken Reward)
-		{
-			int rewardPoints = int.Parse($"{Reward[JsonProperty.POINTS]}");
-			bool isCompleted = WeeklyEventSystem.PlayerPoints >= rewardPoints;
+        public void Set(JToken Reward)
+        {
+            int rewardPoints = int.Parse($"{Reward[JsonProperty.POINTS]}");
+            bool isCompleted = WeeklyEventSystem.PlayerPoints >= rewardPoints;
 
-			JToken standardReward = Reward[JsonProperty.STANDARD];
-			JToken premiumReward = Reward[JsonProperty.PREMIUM];
+            JToken standardReward = Reward[JsonProperty.STANDARD];
+            JToken premiumReward = Reward[JsonProperty.PREMIUM];
 
-			_freeRewardItem.Set($"{standardReward[JsonProperty.IMAGE_PATH]}",
-				int.Parse($"{standardReward[JsonProperty.AMOUNT]}"));
+            string standardImagePath = standardReward[JsonProperty.IMAGE_PATH].ToString();
+            string standardIconPath = (standardImagePath == JsonProperty.TOKEN_IMAGE_PATH) ? IGSUserData.Currency.CurrencyData.Find(c => c.CurrencyCode == "IG")?.ImageUrl ?? JsonProperty.TOKEN_IMAGE_PATH : standardImagePath;
 
-			_freeRewardCheckMark.gameObject.SetActive(isCompleted);
+            _freeRewardItem.Set(standardIconPath, int.Parse($"{standardReward[JsonProperty.AMOUNT]}"));
+            _freeRewardCheckMark.gameObject.SetActive(isCompleted);
 
-			_vipRewardItem.Set($"{premiumReward[JsonProperty.IMAGE_PATH]}",
-				int.Parse($"{premiumReward[JsonProperty.AMOUNT]}"));
+            string premiumImagePath = premiumReward[JsonProperty.IMAGE_PATH].ToString();
+            string premiumIconPath = (premiumImagePath == JsonProperty.TOKEN_IMAGE_PATH) ? IGSUserData.Currency.CurrencyData.Find(c => c.CurrencyCode == "IG")?.ImageUrl ?? JsonProperty.TOKEN_IMAGE_PATH : premiumImagePath;
 
-			_vipRewardCheckMark.gameObject.SetActive(isCompleted && UserInventory.HasVIPStatus);
-			_lockIcon.gameObject.SetActive(UserInventory.HasVIPStatus == false);
+            _vipRewardItem.Set(premiumIconPath, int.Parse($"{premiumReward[JsonProperty.AMOUNT]}"));
+            _vipRewardCheckMark.gameObject.SetActive(isCompleted && UserInventory.HasVIPStatus);
 
-			_levelSlider.value = isCompleted ? 1 : 0;
-			_levelText.text = $"{Reward[JsonProperty.ID]}";
-		}
-	}
+            _lockIcon.gameObject.SetActive(!UserInventory.HasVIPStatus);
+            _levelSlider.value = isCompleted ? 1 : 0;
+            _levelText.text = $"{Reward[JsonProperty.ID]}";
+        }
+    }
 }

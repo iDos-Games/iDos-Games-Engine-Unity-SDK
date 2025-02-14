@@ -25,10 +25,12 @@ namespace IDosGames
         public static string SoftTokenTicker { get; private set; }
         public static string SoftTokenContractAddress { get; private set; }
         public static string SoftTokenContractAbi { get; private set; }
+        public static string SoftTokenImagePath { get; private set; }
 
         public static string HardTokenTicker { get; private set; }
         public static string HardTokenContractAddress { get; private set; }
         public static string HardTokenContractAbi { get; private set; }
+        public static string HardTokenImagePath { get; private set; }
 
         public static string NftContractAddress { get; private set; }
         public static string NftContractAbi { get; private set; }
@@ -46,8 +48,6 @@ namespace IDosGames
 #if IDOSGAMES_CRYPTO_WALLET
             
             string titleData = UserDataService.GetCachedTitlePublicConfig(TitleDataKey.CryptoWallet);
-
-            
 
             List<CryptoWallet> cryptoWallets = JsonConvert.DeserializeObject<List<CryptoWallet>>(titleData);
 

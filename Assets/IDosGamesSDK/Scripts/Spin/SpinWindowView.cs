@@ -64,10 +64,13 @@ namespace IDosGames
 			{
 				int sectorIndex = _spinSectorItems[i].SectorIndex - 1;
 				var rewardData = rewards[sectorIndex];
-				string imagePath = rewardData[JsonProperty.IMAGE_PATH].ToString();
-				int amount = (int)rewardData[JsonProperty.AMOUNT];
 
-				_spinSectorItems[i].Set(imagePath, amount);
+				string imagePath = rewardData[JsonProperty.IMAGE_PATH].ToString();
+                var iconPath = (imagePath == JsonProperty.TOKEN_IMAGE_PATH) ? IGSUserData.Currency.CurrencyData.Find(c => c.CurrencyCode == "IG")?.ImageUrl ?? JsonProperty.TOKEN_IMAGE_PATH : imagePath;
+
+                int amount = (int)rewardData[JsonProperty.AMOUNT];
+
+				_spinSectorItems[i].Set(iconPath, amount);
 			}
 		}
 
@@ -93,9 +96,11 @@ namespace IDosGames
 			var currentView = _spinViewSwitcher.CurrentSpinView;
 			var rewards = currentView == SpinTicketType.Standard ? _standardRewards : _premiumRewards;
 			var imagePath = rewards[currentSectorIndex][JsonProperty.IMAGE_PATH].ToString();
-			var amount = "x" + rewards[currentSectorIndex][JsonProperty.AMOUNT].ToString();
+            var iconPath = (imagePath == JsonProperty.TOKEN_IMAGE_PATH) ? IGSUserData.Currency.CurrencyData.Find(c => c.CurrencyCode == "IG")?.ImageUrl ?? JsonProperty.TOKEN_IMAGE_PATH : imagePath;
 
-			Message.ShowReward(amount, imagePath);
+            var amount = "x" + rewards[currentSectorIndex][JsonProperty.AMOUNT].ToString();
+
+			Message.ShowReward(amount, iconPath);
 		}
 	}
 }

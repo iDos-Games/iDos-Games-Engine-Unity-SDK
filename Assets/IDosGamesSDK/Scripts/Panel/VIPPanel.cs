@@ -48,7 +48,7 @@ namespace IDosGames
 			}
 		}
 
-		private void InitializeVCProduct(JArray VCProducts)
+		private async void InitializeVCProduct(JArray VCProducts)
 		{
 			foreach (var product in VCProducts)
 			{
@@ -63,9 +63,11 @@ namespace IDosGames
 
 				var price = GetPriceInRealMoney($"{product[JsonProperty.PRICE_RM]}");
 
-				var currencyIcon = Resources.Load<Sprite>(product[JsonProperty.CURRENCY_IMAGE_PATH].ToString());
+                string currencyImagePath = product[JsonProperty.CURRENCY_IMAGE_PATH].ToString();
+                var currencyIconPath = (currencyImagePath == JsonProperty.TOKEN_IMAGE_PATH) ? IGSUserData.Currency.CurrencyData.Find(c => c.CurrencyCode == "IG")?.ImageUrl ?? JsonProperty.TOKEN_IMAGE_PATH : currencyImagePath;
+                var currencyIcon = await ImageLoader.GetSpriteAsync(currencyIconPath);
 
-				var currencyID = GetVirtualCurrencyID($"{product[JsonProperty.CURRENCY_ID]}");
+                var currencyID = GetVirtualCurrencyID($"{product[JsonProperty.CURRENCY_ID]}");
 
 				price = GetPriceInVirtualCurrency(price, currencyID);
 

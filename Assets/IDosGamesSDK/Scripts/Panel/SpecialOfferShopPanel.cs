@@ -25,7 +25,7 @@ namespace IDosGames
 			yield return null;
         }
 
-        public override void InitializePanel()
+        public override async void InitializePanel()
 		{
 			var products = ShopSystem.SpecialOfferProducts;
 
@@ -81,13 +81,17 @@ namespace IDosGames
 
 				var price = GetPriceInRealMoney($"{product[JsonProperty.PRICE_RM]}");
 
-				var icon = Resources.Load<Sprite>(product[JsonProperty.IMAGE_PATH].ToString());
+                string imagePath = product[JsonProperty.IMAGE_PATH].ToString();
+                var iconPath = (imagePath == JsonProperty.TOKEN_IMAGE_PATH) ? IGSUserData.Currency.CurrencyData.Find(c => c.CurrencyCode == "IG")?.ImageUrl ?? JsonProperty.TOKEN_IMAGE_PATH : imagePath;
+                var icon = await ImageLoader.GetSpriteAsync(iconPath);
 
-				var title = $"{product[JsonProperty.NAME]}";
+                var title = $"{product[JsonProperty.NAME]}";
 
-				var currencyIcon = Resources.Load<Sprite>(product[JsonProperty.CURRENCY_IMAGE_PATH].ToString());
+                string currencyImagePath = product[JsonProperty.CURRENCY_IMAGE_PATH].ToString();
+                var currencyIconPath = (currencyImagePath == JsonProperty.TOKEN_IMAGE_PATH) ? IGSUserData.Currency.CurrencyData.Find(c => c.CurrencyCode == "IG")?.ImageUrl ?? JsonProperty.TOKEN_IMAGE_PATH : currencyImagePath;
+                var currencyIcon = await ImageLoader.GetSpriteAsync(currencyIconPath);
 
-				var currencyID = GetVirtualCurrencyID($"{product[JsonProperty.CURRENCY_ID]}");
+                var currencyID = GetVirtualCurrencyID($"{product[JsonProperty.CURRENCY_ID]}");
 
 				price = GetPriceInVirtualCurrency(price, currencyID);
 

@@ -25,7 +25,9 @@ namespace IDosGames
 		public const string OBJECT_TYPE = "ObjectType";
 		public const string AUTHOR_ID = "AuthorID";
 
-		public const string QUANTITY_LIMIT = "QuantityLimit";
+        public const string TOKEN_IMAGE_PATH = "Sprites/Currency/IGT";
+
+        public const string QUANTITY_LIMIT = "QuantityLimit";
 		public const string PRODUCTS = "Products";
 
 		public const string END_DATE = "EndDate";

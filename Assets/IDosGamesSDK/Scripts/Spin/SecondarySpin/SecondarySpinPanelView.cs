@@ -64,10 +64,12 @@ namespace IDosGames
 				int sectorIndex = _spinSectorItems[i].SectorIndex - 1;
 				var rewardData = rewards[sectorIndex];
 
-				string imagePath = rewardData[JsonProperty.IMAGE_PATH].ToString();
-				int amount = (int)rewardData[JsonProperty.AMOUNT];
+                string imagePath = rewardData[JsonProperty.IMAGE_PATH].ToString();
+                var iconPath = (imagePath == JsonProperty.TOKEN_IMAGE_PATH) ? IGSUserData.Currency.CurrencyData.Find(c => c.CurrencyCode == "IG")?.ImageUrl ?? JsonProperty.TOKEN_IMAGE_PATH : imagePath;
 
-				_spinSectorItems[i].Set(imagePath, amount);
+                int amount = (int)rewardData[JsonProperty.AMOUNT];
+
+				_spinSectorItems[i].Set(iconPath, amount);
 			}
 		}
 
@@ -82,10 +84,12 @@ namespace IDosGames
 
 		private void ShowRewardMessage(int currentSectorIndex)
 		{
-			var imagePath = _rewards[currentSectorIndex][JsonProperty.IMAGE_PATH].ToString();
+            var imagePath = _rewards[currentSectorIndex][JsonProperty.IMAGE_PATH].ToString();
+            var iconPath = (imagePath == JsonProperty.TOKEN_IMAGE_PATH) ? IGSUserData.Currency.CurrencyData.Find(c => c.CurrencyCode == "IG")?.ImageUrl ?? JsonProperty.TOKEN_IMAGE_PATH : imagePath;
+
 			var amount = "x" + _rewards[currentSectorIndex][JsonProperty.AMOUNT].ToString();
 
-			Message.ShowReward(amount, imagePath);
+			Message.ShowReward(amount, iconPath);
 		}
 
 		private bool IsNeedToShowAd(int ticketsAmount, int maxTickets)

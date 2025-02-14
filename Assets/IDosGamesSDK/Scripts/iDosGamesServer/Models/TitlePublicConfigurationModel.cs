@@ -251,9 +251,11 @@ namespace IDosGames.TitlePublicConfiguration
         public string SoftTokenTicker { get; set; }
         public string SoftTokenContractAddress { get; set; }
         public string SoftTokenContractAbi { get; set; }
+        public string SoftTokenImagePath { get; set; }
         public string HardTokenTicker { get; set; }
         public string HardTokenContractAddress { get; set; }
         public string HardTokenContractAbi { get; set; }
+        public string HardTokenImagePath { get; set; }
         public string NftContractAddress { get; set; }
         public string NftContractAbi { get; set; }
         public string HotWalletAddress { get; set; }
