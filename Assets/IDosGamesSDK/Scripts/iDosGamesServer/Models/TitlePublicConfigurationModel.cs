@@ -30,8 +30,20 @@ namespace IDosGames.TitlePublicConfiguration
         public SmartOffers SmartOffers { get; set; }
         public CurrentSmartOffers CurrentSmartOffers { get; set; }
         public List<CryptoWallet> CryptoWallet { get; set; }
+        public AiPublicSettings AiSettings { get; set; }
         public Dictionary<string, string> ImageData { get; set; }
         public Dictionary<string, string> AssetBundle { get; set; }
+    }
+
+    public class AiPublicSettings
+    {
+        public string SystemInstructions { get; set; }
+        public int LastMessages { get; set; }
+        public string AiRequestCurrency { get; set; }
+        public int AiRequestCurrencyAmount { get; set; }
+        public string AiName { get; set; }
+        public string AiAvatarUrl { get; set; }
+        public string AiWelcomeMessage { get; set; }
     }
 
     public class CommissionRoyaltyPercentage

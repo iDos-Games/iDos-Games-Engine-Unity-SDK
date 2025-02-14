@@ -56,12 +56,24 @@ namespace IDosGames
 
         public FunctionParameters FunctionParameter { get; set; }
         public string TelegramInitData { get; set; }
+        public AIRequest AIRequest { get; set; }
 
 #if UNITY_EDITOR
         // For Admin API
         public List<FileUpload> Files { get; set; }
 #endif
 
+    }
+
+    public class AIRequest
+    {
+        public List<MessageAI> Messages { get; set; }
+    }
+
+    public class MessageAI
+    {
+        public string Role { get; set; }
+        public string Content { get; set; }
     }
 
 #if UNITY_EDITOR
@@ -80,7 +92,7 @@ namespace IDosGames
 
     public class FunctionParameters
     {
-        
+
         // UpdateCustomReadOnlyData  
         public string Key { get; set; }
         public object Value { get; set; }

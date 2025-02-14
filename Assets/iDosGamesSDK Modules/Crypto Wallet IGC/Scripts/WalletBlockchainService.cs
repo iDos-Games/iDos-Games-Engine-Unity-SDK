@@ -752,7 +752,7 @@ namespace IDosGames
         public BigInteger Amount { get; set; }
 
         [Parameter("uint256", "nonce", 4)]
-        public BigInteger Nonce { get; set; }
+        public new BigInteger Nonce { get; set; }
 
         [Parameter("bytes", "signature", 5)]
         public byte[] Signature { get; set; }

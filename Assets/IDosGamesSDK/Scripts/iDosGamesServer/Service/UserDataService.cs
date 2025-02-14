@@ -1,4 +1,5 @@
 using IDosGames.ClientModels;
+using IDosGames.TitlePublicConfiguration;
 using IDosGames.UserProfile;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -33,6 +34,7 @@ namespace IDosGames
         public static event Action CustomUserDataUpdated;
         public static event Action SkinCatalogItemsUpdated;
         public static event Action EquippedSkinsUpdated;
+        public static event Action VirtualCurrencyUpdated;
 
         public static event Action<string, CustomUpdateResult> ClientModifyCustomUserDataUpdated;
 
@@ -59,6 +61,8 @@ namespace IDosGames
         private static UserDataService _instance;
 
         private static bool _continueRequestAllDataSequence;
+
+        public static TitlePublicConfigurationModel TitlePublicConfiguration;
 
         public static UserDataService Instance => _instance;
 
@@ -96,6 +100,7 @@ namespace IDosGames
 
             UserInventoryReceived?.Invoke(userDataResult.UserInventoryResult);
             IGSUserData.UserInventory = userDataResult.UserInventoryResult;
+            VirtualCurrencyUpdated?.Invoke();
 
             OnTitlePublicConfigurationReceived(userDataResult.TitlePublicConfiguration);
             IGSUserData.TitlePublicConfiguration = userDataResult.TitlePublicConfiguration;
@@ -119,6 +124,11 @@ namespace IDosGames
                 _firstTimeDataUpdated = true;
                 FirstTimeDataUpdated?.Invoke();
             }
+        }
+
+        public static void VirtualCurrencyUpdatedInvoke()
+        {
+            VirtualCurrencyUpdated?.Invoke();
         }
 
         public static void RequestUserAllData()
@@ -167,7 +177,7 @@ namespace IDosGames
                 }
                 );
         }
-        
+
         public static void RequestCustomUserData()
         {
             IGSClientAPI.GetCustomUserData
@@ -355,7 +365,7 @@ namespace IDosGames
             {
                 Debug.Log(JsonConvert.SerializeObject(parameter));
             }
-            
+
             _ = IGSClientAPI.ExecuteFunction(
 
                 functionName: ServerFunctionHandlers.UpdateCustomUserData,
@@ -418,6 +428,8 @@ namespace IDosGames
         private static void OnTitlePublicConfigurationReceived(JObject result)
         {
             TitlePublicConfigurationReceived?.Invoke(result);
+
+            TitlePublicConfiguration = JsonConvert.DeserializeObject<TitlePublicConfigurationModel>(result.ToString());
 
             UpdateCachedTitlePublicConfiguration(result);
         }

@@ -211,11 +211,12 @@ namespace IDosGames
                 return false;
             }
 
-            decimal balance = await GetNativeTokenBalance();
-            decimal gasPrice = (decimal)BlockchainSettings.GasPrice;
-            decimal requiredGas = gas * gasPrice;
+            decimal balanceInEther = await GetNativeTokenBalance();
+            decimal gasPriceInGwei = (decimal)BlockchainSettings.GasPrice;
+            decimal gasPriceInEther = gasPriceInGwei * 1e-9m;
+            decimal requiredGasInEther = gas * gasPriceInEther;
 
-            if (balance >= requiredGas)
+            if (balanceInEther >= requiredGasInEther)
             {
                 return true;
             }
