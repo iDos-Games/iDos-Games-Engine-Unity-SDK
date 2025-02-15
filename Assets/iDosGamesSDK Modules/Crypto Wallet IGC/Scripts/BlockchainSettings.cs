@@ -137,7 +137,6 @@ namespace IDosGames
             {
                 string config = request.downloadHandler.text;
                 chainConfigs = JsonConvert.DeserializeObject<ChainConfig>(config);
-
             }
             else
             {
