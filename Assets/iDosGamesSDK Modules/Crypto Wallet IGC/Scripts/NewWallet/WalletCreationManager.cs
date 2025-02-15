@@ -148,7 +148,7 @@ namespace IDosGames
             }
             
             WalletManager.WalletAddress = address;
-            PlayerPrefs.SetString("WalletAddress", address);
+            PlayerPrefs.SetString(WalletManager.PLAYER_PREFS_WALLET_ADDRESS, address);
             PlayerPrefs.Save();
             PrivateKeyManager.SaveSeedPhrase(mnemonic, privateKey, firstPassword);
 

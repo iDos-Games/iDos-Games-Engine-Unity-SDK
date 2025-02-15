@@ -11,7 +11,7 @@ namespace IDosGames
     {
         public static string ReferralLink { get; private set; }
 
-        private const string ReferralCodeKey = "ReferralCodeActivated";
+        private static string ReferralCodeKey = "ReferralCodeActivated" + AuthService.UserID;
         private bool ReferralCodeActivated;
 
         public string firebaseBaseDynamicLink;

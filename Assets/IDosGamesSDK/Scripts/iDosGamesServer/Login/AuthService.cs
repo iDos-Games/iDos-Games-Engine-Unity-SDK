@@ -10,9 +10,9 @@ namespace IDosGames
         private const int PASSWORD_MAX_LENGTH = 100;
         private const string EMAIL_REGEX = @"^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$";
 
-        private const string SAVED_AUTH_TYPE_KEY = "Saved_AuthType";
-        private const string SAVED_AUTH_EMAIL_KEY = "Saved_Auth_Email";
-        private const string SAVED_AUTH_PASSWORD_KEY = "Saved_Auth_Password";
+        private static string SAVED_AUTH_TYPE_KEY = "Saved_AuthType" + IDosGamesSDKSettings.Instance.TitleID;
+        private static string SAVED_AUTH_EMAIL_KEY = "Saved_Auth_Email" + IDosGamesSDKSettings.Instance.TitleID;
+        private static string SAVED_AUTH_PASSWORD_KEY = "Saved_Auth_Password" + IDosGamesSDKSettings.Instance.TitleID;
 
         public static WebGLPlatform WebGLPlatform { get; set; }
         public static AuthType LastAuthType => (AuthType)PlayerPrefs.GetInt(SAVED_AUTH_TYPE_KEY, (int)AuthType.None);

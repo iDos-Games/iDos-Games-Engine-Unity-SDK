@@ -13,14 +13,15 @@ namespace IDosGames
 		[SerializeField] private TMP_Text _itemName;
 		[SerializeField] private TMP_Text _directionTo;
 
-		public void Set(string hash, TransactionDirection direction, string itemName, int amount, string imagePath, string urlToOpen)
+		public async void Set(string hash, TransactionDirection direction, string itemName, int amount, string imagePath, string urlToOpen)
 		{
-			ResetButton(urlToOpen);
+            string iconPath = (imagePath == JsonProperty.TOKEN_IMAGE_PATH) ? IGSUserData.Currency.CurrencyData.Find(c => c.CurrencyCode == "IG")?.ImageUrl ?? JsonProperty.TOKEN_IMAGE_PATH : imagePath;
+            ResetButton(urlToOpen);
 
 			_transactionash.text = hash;
 			_itemAmount.text = amount.ToString();
-			_itemIcon.sprite = Resources.Load<Sprite>(imagePath);
-			_itemName.text = itemName;
+			_itemIcon.sprite = await ImageLoader.GetSpriteAsync(iconPath);
+            _itemName.text = itemName;
 			_directionTo.text = GetDirectionText(direction);
 		}
 

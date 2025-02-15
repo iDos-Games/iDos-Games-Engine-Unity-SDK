@@ -20,10 +20,11 @@ namespace IDosGames
 
         public static string PrivateKey { get; set; }
         public static string SeedPhrase { get; set; }
+        public static string PLAYER_PREFS_WALLET_ADDRESS = "WalletAddress" + AuthService.UserID;
 
         private void OnEnable()
         {
-            WalletAddress = PlayerPrefs.GetString("WalletAddress", null);
+            WalletAddress = PlayerPrefs.GetString(PLAYER_PREFS_WALLET_ADDRESS, null);
 
             if(string.IsNullOrEmpty(WalletAddress))
             {
@@ -101,7 +102,7 @@ namespace IDosGames
         public void Disconnect()
         {
             WalletAddress = null;
-            PlayerPrefs.SetString("WalletAddress", null);
+            PlayerPrefs.SetString(PLAYER_PREFS_WALLET_ADDRESS, null);
             OpenDisconnectedPanel();
         }
 

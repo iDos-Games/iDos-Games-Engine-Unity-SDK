@@ -19,13 +19,23 @@ namespace IDosGames
 
         private void UpdateAddresses()
         {
-            _igtAddress.text = $"{BlockchainSettings.HardTokenContractAddress[..6]}...{BlockchainSettings.HardTokenContractAddress[^4..]}";
-            _igcAddress.text = $"{BlockchainSettings.SoftTokenContractAddress[..6]}...{BlockchainSettings.SoftTokenContractAddress[^4..]}";
-            _nftAddress.text = $"{BlockchainSettings.NftContractAddress[..6]}...{BlockchainSettings.NftContractAddress[^4..]}";
+            UpdateAddress(BlockchainSettings.HardTokenContractAddress, _igtAddress, _igtFullAddress);
+            UpdateAddress( BlockchainSettings.SoftTokenContractAddress, _igcAddress, _igcFullAddress);
+            UpdateAddress(BlockchainSettings.NftContractAddress, _nftAddress, _nftFullAddress);
+        }
 
-            _igtFullAddress.text = BlockchainSettings.HardTokenContractAddress;
-            _igcFullAddress.text = BlockchainSettings.SoftTokenContractAddress;
-            _nftFullAddress.text = BlockchainSettings.NftContractAddress;
+        private void UpdateAddress(string contractAddress, TMP_Text shortText, TMP_Text fullText)
+        {
+            if (!string.IsNullOrEmpty(contractAddress))
+            {
+                shortText.text = $"{contractAddress[..6]}...{contractAddress[^4..]}";
+                fullText.text = contractAddress;
+            }
+            else
+            {
+                shortText.text = "N/A";
+                fullText.text = "N/A";
+            }
         }
     }
 }

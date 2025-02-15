@@ -165,7 +165,7 @@ namespace IDosGames
 
         private void SavePassword()
         {
-            PlayerPrefs.SetString("WalletAddress", temporaryAddress);
+            PlayerPrefs.SetString(WalletManager.PLAYER_PREFS_WALLET_ADDRESS, temporaryAddress);
             PlayerPrefs.Save();
 
             PrivateKeyManager.SaveSeedPhrase(temporarySeedPhrase, temporaryPrivateKey, firstPassword);

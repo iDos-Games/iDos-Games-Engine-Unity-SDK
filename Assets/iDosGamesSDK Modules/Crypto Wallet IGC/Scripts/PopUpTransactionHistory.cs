@@ -20,9 +20,20 @@ namespace IDosGames
         {
             JArray historyArray = WalletTransactionHistory.GetHistoryArray();
 
+            // Check if historyArray is null  
+            if (historyArray == null)
+            {
+                Debug.Log("History array is null.");
+                SetActivateVoidText(true);
+                return;
+            }
+
             foreach (Transform child in _historyItemParent)
             {
-                Destroy(child.gameObject);
+                if (child != null)
+                {
+                    Destroy(child.gameObject);
+                }
             }
 
             SetActivateVoidText(historyArray.Count < 1);
@@ -34,19 +45,54 @@ namespace IDosGames
 
             foreach (var historyItem in historyArray)
             {
+                if (historyItem == null)
+                {
+                    Debug.Log("Encountered a null history item.");
+                    continue;
+                }
+
                 var item = Instantiate(_historyItemPrefab, _historyItemParent);
 
-                var direction = (TransactionDirection)Enum.Parse(typeof(TransactionDirection), historyItem[JsonProperty.DIRECTION].ToString());
-                int amount = int.Parse(historyItem[JsonProperty.AMOUNT].ToString());
-                int chainID = int.Parse(historyItem[JsonProperty.CHAIN_ID].ToString());
+                if (item == null)
+                {
+                    Debug.LogError("Failed to instantiate history item prefab.");
+                    continue;
+                }
+
+                // Check and parse transaction direction  
+                TransactionDirection direction;
+                string directionString = historyItem[JsonProperty.DIRECTION]?.ToString();
+                if (!Enum.TryParse(directionString, out direction))
+                {
+                    Debug.Log($"Invalid transaction direction: {directionString}");
+                    continue;
+                }
+
+                // Parse amount and chain ID safely  
+                int amount = 0;
+                int.TryParse(historyItem[JsonProperty.AMOUNT]?.ToString(), out amount);
+
+                int chainID = 0;
+                int.TryParse(historyItem[JsonProperty.CHAIN_ID]?.ToString(), out chainID);
+
+                // Check and set item properties  
+                string hash = historyItem[JsonProperty.HASH]?.ToString();
+                string itemName = historyItem[JsonProperty.NAME]?.ToString();
+                string imagePath = historyItem[JsonProperty.IMAGE_PATH]?.ToString();
+
+                if (string.IsNullOrEmpty(hash) || string.IsNullOrEmpty(itemName) || string.IsNullOrEmpty(imagePath))
+                {
+                    Debug.Log("Incomplete transaction data.");
+                    continue;
+                }
 
                 item.Set(
-                    hash: GetTransactionHashShortcut(historyItem[JsonProperty.HASH].ToString()),
+                    hash: GetTransactionHashShortcut(hash),
                     direction: direction,
-                    itemName: historyItem[JsonProperty.NAME].ToString(),
+                    itemName: itemName,
                     amount: amount,
-                    imagePath: historyItem[JsonProperty.IMAGE_PATH].ToString(),
-                    urlToOpen: GetURLToTransactionExplorer(historyItem[JsonProperty.HASH].ToString())
+                    imagePath: imagePath,
+                    urlToOpen: GetURLToTransactionExplorer(hash)
                 );
             }
         }
