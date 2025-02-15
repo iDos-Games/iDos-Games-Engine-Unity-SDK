@@ -37,7 +37,7 @@ namespace IDosGames
         {
             LoadReferralCodeStatus();
             CreateReferralLink();
-            if(!ReferralCodeActivated)
+            if (!ReferralCodeActivated)
             {
                 CheckReferral();
             }
@@ -110,7 +110,7 @@ namespace IDosGames
             string baseLink;
             if (AuthService.WebGLPlatform == WebGLPlatform.Web)
             {
-                baseLink = IDosGamesSDKSettings.Instance.ReferralTrackerLink;
+                baseLink = "https://idosgames.com/en/app/?id=" + IDosGamesSDKSettings.Instance.TitleID;
             }
             else if (AuthService.WebGLPlatform == WebGLPlatform.Telegram)
             {
@@ -119,7 +119,7 @@ namespace IDosGames
             else
             {
                 // Android and iOS link needs to be implemented here  
-                baseLink = IDosGamesSDKSettings.Instance.ReferralTrackerLink;
+                baseLink = "https://idosgames.com/en/app/?id=" + IDosGamesSDKSettings.Instance.TitleID; //IDosGamesSDKSettings.Instance.ReferralTrackerLink;
             }
 
             // Check if the base link already contains parameters  

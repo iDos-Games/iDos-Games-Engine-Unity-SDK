@@ -43,7 +43,7 @@ namespace IDosGames
                     FromAddress = fromAddress
                 };
 
-                approveFunction.Gas = new HexBigInteger(100000); // Обумовлено контрактом или эмпирически
+                approveFunction.Gas = new HexBigInteger(100000);
 
                 var nonce = await GetTransactionCountAsync(fromAddress);
 
@@ -697,7 +697,6 @@ namespace IDosGames
 
                 if (receipt != null)
                 {
-                    // Проверяем статус транзакции; если статус 1, значит успешно    
                     return receipt.Status != null && receipt.Status.Value == BigInteger.One;
                 }
 
@@ -705,7 +704,6 @@ namespace IDosGames
                 await Task.Delay(delayBetweenChecks);
             }
 
-            // Если предел попыток достигнут, и статус не получен  
             Debug.LogWarning($"Transaction {transactionHash} not confirmed after {maxAttempts} attempts.");
             return false;
         }

@@ -29,7 +29,6 @@ namespace IDosGames
                 return null;
             }
 
-            // Дожидаемся подтверждения транзакции approve  
             bool isApproved = await WalletBlockchainService.WaitForTransactionReceipt(approveHash);
             if (!isApproved)
             {
