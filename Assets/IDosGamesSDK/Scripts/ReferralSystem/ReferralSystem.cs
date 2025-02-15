@@ -10,8 +10,7 @@ namespace IDosGames
     public class ReferralSystem : MonoBehaviour
     {
         public static string ReferralLink { get; private set; }
-
-        private static string ReferralCodeKey = "ReferralCodeActivated" + AuthService.UserID;
+        private static string ReferralCodeKey { get; set; }
         private bool ReferralCodeActivated;
 
         public string firebaseBaseDynamicLink;
@@ -35,6 +34,7 @@ namespace IDosGames
         [Obsolete]
         private void Start()
         {
+            ReferralCodeKey = "ReferralCodeActivated" + AuthService.UserID;
             LoadReferralCodeStatus();
             CreateReferralLink();
             if (!ReferralCodeActivated)

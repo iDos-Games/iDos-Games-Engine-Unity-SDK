@@ -11,7 +11,7 @@ namespace IDosGames
     {
         private static ShopSystem _instance;
 
-        private static string PLAYER_PREFS_AFTER_IAP_NOT_GRANTED_PRODUCT = "NOT_GRANTED_IAP_PRODUCT" + AuthService.UserID;
+        private static string PLAYER_PREFS_AFTER_IAP_NOT_GRANTED_PRODUCT { get; set; }
         private const int MAX_ATTEMPTS_COUNT_FOR_GRANT_IAP_ITEMS = 3;
         private static int _attemptsCountForGrantIAPItemsAfterError = 0;
 
@@ -36,6 +36,7 @@ namespace IDosGames
                 DontDestroyOnLoad(gameObject);
             }
 
+            PLAYER_PREFS_AFTER_IAP_NOT_GRANTED_PRODUCT = "NOT_GRANTED_IAP_PRODUCT" + AuthService.UserID;
             CheckForItemsGrantedAfterIAPPurchase();
         }
 

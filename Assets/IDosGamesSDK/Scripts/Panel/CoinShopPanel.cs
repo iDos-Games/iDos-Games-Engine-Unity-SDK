@@ -1,7 +1,5 @@
 using System;
 using UnityEngine;
-using static QRCoder.Base64QRCode;
-using static UnityEditor.Progress;
 
 namespace IDosGames
 {
