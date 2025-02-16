@@ -63,44 +63,62 @@ namespace IDosGames
 
         public static async Task<Sprite> LoadExternalImageAsync(string url)
         {
-            if (string.IsNullOrEmpty(url))
-            {
-                return null;
-            }
+            if (string.IsNullOrEmpty(url)) return null;
 
-            if (ImageCache.TryGetValue(url, out var cachedImage))
+            if (ImageCache.TryGetValue(url, out var cachedSprite))
             {
                 UpdateLastAccessedTime(url);
-                return cachedImage;
+                return cachedSprite;
             }
 
-            byte[] imageBytes;
+#if UNITY_WEBGL && !UNITY_EDITOR
+            var sprite = await DownloadAndCacheSpriteWebGL(url);
+            return sprite;
+#else
+            return await DownloadAndCacheSpriteOtherPlatforms(url);
+#endif
+        }
 
 #if UNITY_WEBGL && !UNITY_EDITOR
-            var loadTaskSource = new TaskCompletionSource<byte[]>();
-                
-                    WebSDK.LoadDataFromCache(url, (data) =>
-                    {
-                        loadTaskSource.SetResult(data);
-                    });
-                    
-                    var cachedData = await loadTaskSource.Task;
-                    
-                    if (cachedData != null)
-                    {
-                        imageBytes = cachedData;
-                    }
-                    else
-                    {
-                        imageBytes = await DownloadImageBytes(url);
-                        WebSDK.SaveDataToCache(url, imageBytes);
-                    }
+        private static async Task<Sprite> DownloadAndCacheSpriteWebGL(string url)
+        {
+            byte[] imageBytes = await DownloadImageBytes(url);
+            if (imageBytes == null) return null;
 
-                CreateSpriteFromBytes(url, imageBytes);
+            var sprite = CreateSpriteFromBytes(url, imageBytes);
+            UpdateLastAccessedTime(url);
+            CleanupWebGLCache();
+
+            return sprite;
+        }
+
+        private static void CleanupWebGLCache()
+        {
+            long totalMemory = ImageCache.Values.Sum(s =>
+                s.texture.width * s.texture.height * 4);
+
+            if (totalMemory <= MaxCacheSize) return;
+
+            var toRemove = CachedImageInfos
+                .OrderBy(x => x.Value.LastAccessed)
+                .Take(ImageCache.Count / 4)
+                .ToList();
+
+            foreach (var item in toRemove)
+            {
+                ImageCache.Remove(item.Key);
+                CachedImageInfos.Remove(item.Key);
+            }
+
+            Debug.Log($"WebGL cache cleaned. Removed {toRemove.Count} entries");
+            SaveCache();
+        }
 #else
+        private static async Task<Sprite> DownloadAndCacheSpriteOtherPlatforms(string url)
+        {
+            byte[] imageBytes;
 
-            if (CachedImageInfos.TryGetValue(url, out var cachedInfo) && cachedInfo != null && File.Exists(cachedInfo.LocalPath))
-
+            if (CachedImageInfos.TryGetValue(url, out var cachedInfo) && File.Exists(cachedInfo.LocalPath))
             {
                 imageBytes = await File.ReadAllBytesAsync(cachedInfo.LocalPath);
             }
@@ -120,10 +138,10 @@ namespace IDosGames
                 SaveCache();
                 CleanupCache();
             }
-            CreateSpriteFromBytes(url, imageBytes);
-#endif
-            return ImageCache[url];
+
+            return CreateSpriteFromBytes(url, imageBytes);
         }
+#endif
 
         private static async Task<byte[]> DownloadImageBytes(string url)
         {
@@ -144,18 +162,23 @@ namespace IDosGames
             }
         }
 
-        private static void CreateSpriteFromBytes(string url, byte[] imageBytes)
+        private static Sprite CreateSpriteFromBytes(string url, byte[] imageBytes)
         {
-            if (imageBytes != null)
-            {
-                Texture2D texture = new Texture2D(2, 2);
-                if (texture.LoadImage(imageBytes))
-                {
-                    var sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero);
-                    ImageCache[url] = sprite;
-                    ImagesUpdated?.Invoke();
-                }
-            }
+            if (imageBytes == null || imageBytes.Length == 0) return null;
+
+            Texture2D texture = new Texture2D(2, 2);
+            if (!texture.LoadImage(imageBytes)) return null;
+
+            var sprite = Sprite.Create(
+                texture,
+                new Rect(0, 0, texture.width, texture.height),
+                Vector2.zero
+            );
+
+            ImageCache[url] = sprite;
+            ImagesUpdated?.Invoke();
+
+            return sprite;
         }
 
         public static Sprite LoadLocalImage(string imagePath)
