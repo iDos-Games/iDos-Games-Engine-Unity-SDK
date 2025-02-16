@@ -108,9 +108,11 @@ namespace IDosGames
         private void CreateReferralLink()
         {
             string baseLink;
+            string titleID = AuthService.GetTitleID();
+
             if (AuthService.WebGLPlatform == WebGLPlatform.Web)
             {
-                baseLink = "https://idosgames.com/en/app/?id=" + IDosGamesSDKSettings.Instance.TitleID;
+                baseLink = "https://idosgames.com/en/app/?id=" + titleID;
             }
             else if (AuthService.WebGLPlatform == WebGLPlatform.Telegram)
             {
@@ -119,10 +121,10 @@ namespace IDosGames
             else
             {
                 // Android and iOS link needs to be implemented here  
-                baseLink = "https://idosgames.com/en/app/?id=" + IDosGamesSDKSettings.Instance.TitleID; //IDosGamesSDKSettings.Instance.ReferralTrackerLink;
+                baseLink = "https://idosgames.com/en/app/?id=" + titleID; //IDosGamesSDKSettings.Instance.ReferralTrackerLink;
             }
 
-            // Check if the base link already contains parameters  
+            // Check if the base link already contains parameters
             char separator = baseLink.Contains("?") ? '&' : '?';
             ReferralLink = $"{baseLink}{separator}startapp={AuthService.UserID}";
         }
