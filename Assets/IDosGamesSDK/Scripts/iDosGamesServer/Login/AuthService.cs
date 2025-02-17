@@ -10,9 +10,9 @@ namespace IDosGames
         private const int PASSWORD_MAX_LENGTH = 100;
         private const string EMAIL_REGEX = @"^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$";
 
-        private static string SAVED_AUTH_TYPE_KEY = "Saved_AuthType" + GetTitleID();
-        private static string SAVED_AUTH_EMAIL_KEY = "Saved_Auth_Email" + GetTitleID();
-        private static string SAVED_AUTH_PASSWORD_KEY = "Saved_Auth_Password" + GetTitleID();
+        private static string SAVED_AUTH_TYPE_KEY => "Saved_AuthType" + GetTitleID();
+        private static string SAVED_AUTH_EMAIL_KEY => "Saved_Auth_Email" + GetTitleID();
+        private static string SAVED_AUTH_PASSWORD_KEY => "Saved_Auth_Password" + GetTitleID();
 
         public static WebGLPlatform WebGLPlatform { get; set; }
         public static AuthType LastAuthType => (AuthType)PlayerPrefs.GetInt(SAVED_AUTH_TYPE_KEY, (int)AuthType.None);
@@ -48,37 +48,42 @@ namespace IDosGames
 
         public static string GetTitleID()
         {
-            string titleID = IDosGamesSDKSettings.Instance.TitleID;
+            var settings = IDosGamesSDKSettings.Instance;
+            if (settings == null)
+            {
+                Debug.LogWarning("IDosGamesSDKSettings is not initialized properly.");
+                return "0";
+            }
+
+            string titleID = settings.TitleID;
 
             if (titleID == "0")
             {
-
 #if UNITY_WEBGL
                 string fullUrl = WebSDK.webAppLink;
-                int queryStartIndex = fullUrl.IndexOf('?');
-                if (queryStartIndex != -1 && queryStartIndex < fullUrl.Length - 1)
+                if (!string.IsNullOrEmpty(fullUrl))
                 {
-                    string queryString = fullUrl.Substring(queryStartIndex + 1);
-                    string[] queryParams = queryString.Split('&');
-
-                    foreach (string param in queryParams)
+                    int queryStartIndex = fullUrl.IndexOf('?');
+                    if (queryStartIndex != -1 && queryStartIndex < fullUrl.Length - 1)
                     {
-                        string[] keyValue = param.Split('=');
-                        if (keyValue.Length == 2 && keyValue[0] == "titleID")
+                        string queryString = fullUrl.Substring(queryStartIndex + 1);
+                        string[] queryParams = queryString.Split('&');
+
+                        foreach (string param in queryParams)
                         {
-                            titleID = keyValue[1];
-                            break;
+                            string[] keyValue = param.Split('=');
+                            if (keyValue.Length == 2 && keyValue[0] == "titleID")
+                            {
+                                titleID = keyValue[1];
+                                break;
+                            }
                         }
                     }
                 }
 #endif
+            }
 
-                return titleID;
-            }
-            else
-            {
-                return titleID;
-            }
+            return titleID;
         }
 
         public async void LoginWithDeviceID(Action<GetAllUserDataResult> resultCallback = null, Action<string> errorCallback = null, Action retryCallback = null)
