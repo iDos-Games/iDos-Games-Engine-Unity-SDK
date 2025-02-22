@@ -169,12 +169,12 @@ namespace IDosGames
 			{
 				if (tokenInput == VirtualCurrencyID.IG)
 				{
-					amount = _cryptoTokenBalance.BalanceOfIGT;
-				}
+                    amount = _cryptoTokenBalance.GetTokenAmount(tokenInput);
+                }
 				else if (tokenInput == VirtualCurrencyID.CO)
 				{
-					amount = _cryptoTokenBalance.BalanceOfIGC;
-				}
+                    amount = _cryptoTokenBalance.GetTokenAmount(tokenInput);
+                }
 			}
 
 			_amountInputField.UpdateAvailableAmount(amount);

@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Numerics;
 using TMPro;
@@ -12,15 +11,14 @@ namespace IDosGames
 
 		public const int TOKEN_DIGITS_AMOUNT_AFTER_DOT = 0;
 		public readonly string TOKEN_AMOUNT_FORMAT = $"N{TOKEN_DIGITS_AMOUNT_AFTER_DOT}";
-		public const int Native_TOKEN_DIGITS_AMOUNT_AFTER_DOT = 5;
-		public readonly string NATIVE_TOKEN_AMOUNT_FORMAT = $"N{Native_TOKEN_DIGITS_AMOUNT_AFTER_DOT}";
+		public const int Native_TOKEN_DIGITS_AMOUNT_AFTER_DOT = 8;
 
-		public int BalanceOfIGT { get; private set; }
-		public int BalanceOfIGC { get; private set; }
-		public int BalanceOfNFT { get; private set; }
-		public decimal BalanceOfNativeToken { get; private set; }
+		public BigInteger HardTokenBalanceInWei { get; private set; }
+		public BigInteger SoftTokenBalanceInWei { get; private set; }
+		public BigInteger NativeTokenBalanceInWei { get; private set; }
+        public int BalanceOfNFT { get; private set; }
 
-		private readonly Dictionary<int, int> _eachNFTAmount = new();
+        private readonly Dictionary<int, int> _eachNFTAmount = new();
 
 		[SerializeField] private GameObject _loading;
 		[SerializeField] private GameObject _buttonRefresh;
@@ -39,9 +37,9 @@ namespace IDosGames
 		{
 			SetActivateLoading(true);
 
-			BalanceOfIGT = (int)await WalletService.GetTokenBalance(VirtualCurrencyID.IG);
-			BalanceOfIGC = (int)await WalletService.GetTokenBalance(VirtualCurrencyID.CO);
-			BalanceOfNativeToken = await WalletService.GetNativeTokenBalance();
+			HardTokenBalanceInWei = await WalletService.GetTokenBalance(VirtualCurrencyID.IG);
+			SoftTokenBalanceInWei = await WalletService.GetTokenBalance(VirtualCurrencyID.CO);
+			NativeTokenBalanceInWei = await WalletService.GetNativeTokenBalanceInWei();
 
 			var balanceNFTList = await WalletService.GetNFTBalance(new(UserDataService.NFTIDs));
 			UpdateNFTBalance(balanceNFTList);
@@ -93,23 +91,66 @@ namespace IDosGames
 
 		private void UpdateUI()
 		{
-			UpdateIGTAmountUI(BalanceOfIGT.ToString(TOKEN_AMOUNT_FORMAT));
-			UpdateIGCAmountUI(BalanceOfIGC.ToString(TOKEN_AMOUNT_FORMAT));
+			UpdateIGTAmountUI(GetTokenAmountInEth(HardTokenBalanceInWei, TOKEN_DIGITS_AMOUNT_AFTER_DOT));
+			UpdateIGCAmountUI(GetTokenAmountInEth(SoftTokenBalanceInWei, TOKEN_DIGITS_AMOUNT_AFTER_DOT));
 			UpdateNFTAmountUI(BalanceOfNFT.ToString(TOKEN_AMOUNT_FORMAT));
-			UpdateNativeTokenAmountUI(GetNativeTokenAmountString());
+			UpdateNativeTokenAmountUI(GetTokenAmountInEth(NativeTokenBalanceInWei, Native_TOKEN_DIGITS_AMOUNT_AFTER_DOT));
 		}
 
-		private string GetNativeTokenAmountString()
+        private string GetTokenAmountInEth(BigInteger tokenBalance, int decimalPlaces)
+        {
+            const int decimals = 18;
+            BigInteger divisor = BigInteger.Pow(10, decimals - decimalPlaces);
+
+            if (divisor == 0)
+                return "0".PadRight(decimalPlaces + 2, '0');
+
+            BigInteger scaledValue = tokenBalance / divisor;
+            string result = scaledValue.ToString();
+
+            if (result.Length <= decimalPlaces)
+            {
+                result = result.PadLeft(decimalPlaces + 1, '0');
+            }
+
+            string withDot = result.Insert(result.Length - decimalPlaces, ".");
+
+            string[] parts = withDot.Split('.');
+            string integerPart = parts[0].TrimStart('0');
+            string fractionalPart = parts[1].TrimEnd('0');
+
+            if (string.IsNullOrEmpty(integerPart))
+            {
+                integerPart = "0";
+            }
+
+            if (fractionalPart.Length > 0)
+            {
+                return $"{integerPart}.{fractionalPart}";
+            }
+            else
+            {
+                return integerPart;
+            }
+        }
+
+        public int GetTokenAmount(VirtualCurrencyID currencyID)
 		{
-			if (BalanceOfNativeToken * (decimal)Math.Pow(10, Native_TOKEN_DIGITS_AMOUNT_AFTER_DOT) <= 0)
+            if (currencyID == VirtualCurrencyID.IG)
+            {
+				return int.Parse(GetTokenAmountInEth(HardTokenBalanceInWei, TOKEN_DIGITS_AMOUNT_AFTER_DOT));
+            }
+            else if (currencyID == VirtualCurrencyID.CO)
+            {
+                return int.Parse(GetTokenAmountInEth(SoftTokenBalanceInWei, TOKEN_DIGITS_AMOUNT_AFTER_DOT));
+            }
+			else
 			{
-				return "0";
+				return 0;
 			}
+        }
 
-			return BalanceOfNativeToken.ToString(NATIVE_TOKEN_AMOUNT_FORMAT);
-		}
-
-		private void UpdateIGTAmountUI(string text)
+        private void UpdateIGTAmountUI(string text)
 		{
 			_amountIGT.text = text;
 		}

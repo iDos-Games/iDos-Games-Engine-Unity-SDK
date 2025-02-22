@@ -20,14 +20,14 @@ namespace IDosGames
 
         public static string PrivateKey { get; set; }
         public static string SeedPhrase { get; set; }
-        public static string PLAYER_PREFS_WALLET_ADDRESS {  get; set; }
+        public static string PLAYER_PREFS_WALLET_ADDRESS { get; set; }
 
         private void OnEnable()
         {
             PLAYER_PREFS_WALLET_ADDRESS = "WalletAddress" + AuthService.UserID;
             WalletAddress = PlayerPrefs.GetString(PLAYER_PREFS_WALLET_ADDRESS, null);
 
-            if(string.IsNullOrEmpty(WalletAddress))
+            if (string.IsNullOrEmpty(WalletAddress))
             {
                 OpenDisconnectedPanel();
             }

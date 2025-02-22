@@ -21,7 +21,7 @@ namespace IDosGames
 			{
                 Loading.ShowTransparentPanel();
 
-				bool balance = await WalletService.HasSufficientBalanceForGas();
+				bool balance = await WalletService.HasSufficientBalanceForGas(150000);
 				if (balance)
 				{
                     transferResult = await WalletService.TransferTokenToGame(virtualCurrencyID, amount);
@@ -44,7 +44,7 @@ namespace IDosGames
 			{
 				Loading.ShowTransparentPanel();
 
-                bool balance = await WalletService.HasSufficientBalanceForGas();
+                bool balance = await WalletService.HasSufficientBalanceForGas(150000);
                 if (balance)
 				{
                     string signatureString = await WalletService.GetTokenWithdrawalSignature(virtualCurrencyID, amount);
