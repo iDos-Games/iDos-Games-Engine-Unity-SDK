@@ -47,13 +47,13 @@ namespace IDosGames.Friends
 
         public void RefreshData()
         {
-            if (string.IsNullOrEmpty(IGSUserData.FriendRequests))
+            if (IGSUserData.FriendRequests == null)
             {
                 Refresh();
             }
             else
             {
-                string friendRequests = IGSUserData.FriendRequests;
+                List<string> friendRequests = IGSUserData.FriendRequests;
                 ProcessRequestResult(friendRequests);
                 IsNeedUpdate = false;
             }
@@ -67,11 +67,11 @@ namespace IDosGames.Friends
             IsNeedUpdate = false;
         }
 
-        private async Task<string> RequestData()
+        private async Task<List<string>> RequestData()
         {
             Loading.ShowTransparentPanel();
 
-            var result = await FriendAzureService.GetFriendRequests();
+            var result = await FriendAzureService.GetPendingFriendRequests();
 
             IGSUserData.FriendRequests = result;
 
@@ -80,7 +80,7 @@ namespace IDosGames.Friends
             return result;
         }
 
-        private void ProcessRequestResult(string result)
+        private void ProcessRequestResult(List<string> result)
         {
             if (result == null)
             {
@@ -88,16 +88,7 @@ namespace IDosGames.Friends
                 Message.Show(MessageCode.FAILED_TO_LOAD_DATA);
             }
 
-            var jObjectResult = JsonConvert.DeserializeObject<JObject>(result);
-
-            if (jObjectResult.ContainsKey("Message"))
-            {
-                Loading.HideAllPanels();
-                Message.Show(jObjectResult["Message"].ToString());
-                return;
-            }
-
-            _friends = JsonConvert.DeserializeObject<List<string>>(jObjectResult[FriendKeys.PendingFriendRequests.ToString()].ToString());
+            _friends = result;
 
             if (_friends.Count == 0)
             {

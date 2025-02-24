@@ -1,3 +1,5 @@
+using IDosGames.ClientModels;
+using IDosGames.TitlePublicConfiguration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -243,7 +245,7 @@ namespace IDosGames
             return await SendPostRequest(URL_USER_DATA_SYSTEM + ServerFunctionHandlers.GetCustomUserData.ToString(), requestBody);
         }
 
-        public static async Task<string> RequestTitlePublicConfiguration(string userID, string clientSessionTicket)
+        public static async Task<TitlePublicConfigurationModel> RequestTitlePublicConfiguration(string userID, string clientSessionTicket)
         {
             var requestBody = new IGSRequest
             {
@@ -254,10 +256,14 @@ namespace IDosGames
                 ClientSessionTicket = clientSessionTicket,
             };
 
-            return await SendPostRequest(URL_USER_DATA_SYSTEM + ServerFunctionHandlers.GetTitlePublicConfiguration.ToString(), requestBody);
+            string response = await SendPostRequest(URL_USER_DATA_SYSTEM + ServerFunctionHandlers.GetTitlePublicConfiguration.ToString(), requestBody);
+
+            TitlePublicConfigurationModel result = JsonConvert.DeserializeObject<TitlePublicConfigurationModel>(response);
+
+            return result;
         }
 
-        public static async Task<string> RequestCatalogItems(string catalogVersion, string userID, string clientSessionTicket)
+        public static async Task<GetCatalogItemsResult> RequestCatalogItems(string catalogVersion, string userID, string clientSessionTicket)
         {
             var requestBody = new IGSRequest
             {
@@ -269,7 +275,11 @@ namespace IDosGames
                 CatalogVersion = catalogVersion
             };
 
-            return await SendPostRequest(URL_USER_DATA_SYSTEM + ServerFunctionHandlers.GetCatalogItems.ToString(), requestBody);
+            string response = await SendPostRequest(URL_USER_DATA_SYSTEM + ServerFunctionHandlers.GetCatalogItems.ToString(), requestBody);
+
+            GetCatalogItemsResult result = JsonConvert.DeserializeObject<GetCatalogItemsResult>(response);
+
+            return result;
         }
         // ------------------------ Inventory END ------------------------ //
 

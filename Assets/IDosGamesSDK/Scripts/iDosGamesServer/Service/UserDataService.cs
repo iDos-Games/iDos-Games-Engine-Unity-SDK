@@ -26,7 +26,7 @@ namespace IDosGames
         public static bool _firstTimeDataUpdated = false;
 
         public static event Action<GetUserInventoryResult> UserInventoryReceived;
-        public static event Action<JObject> TitlePublicConfigurationReceived;
+        public static event Action<TitlePublicConfigurationModel> TitlePublicConfigurationReceived;
         public static event Action<GetCustomUserDataResult> CustomUserDataReceived;
         public static event Action<GetCatalogItemsResult> SkinCatalogReceived;
 
@@ -77,9 +77,9 @@ namespace IDosGames
 
             IAPValidator.VIPSubscriptionValidated += OnVIPSubscriptionValidated;
             UserInventory.InventoryUpdated += CheckForEquippedSkinInInventory;
-            // UserInventory.InventoryUpdated += CheckForEquippedAvatarSkin;
             CustomUserDataUpdated += SetEquippedSkinsList;
-            FirstTimeDataUpdated += RequestSkinCatalogItems;
+            // UserInventory.InventoryUpdated += CheckForEquippedAvatarSkin;
+            //FirstTimeDataUpdated += RequestSkinCatalogItems;
 
             UserInventoryReceived += (result) => _continueRequestAllDataSequence = true;
             TitlePublicConfigurationReceived += (result) => _continueRequestAllDataSequence = true;
@@ -105,14 +105,17 @@ namespace IDosGames
             OnTitlePublicConfigurationReceived(userDataResult.TitlePublicConfiguration);
             IGSUserData.TitlePublicConfiguration = userDataResult.TitlePublicConfiguration;
 
+            OnCatalogItemsReceived(userDataResult.CatalogItemsResult);
+            IGSUserData.CatalogItemsResult = userDataResult.CatalogItemsResult;
+
             OnCustomUserDataReceived(userDataResult.CustomUserDataResult);
             IGSUserData.CustomUserData = userDataResult.CustomUserDataResult;
 
             IGSUserData.Leaderboard = userDataResult.LeaderboardResult;
 
-            IGSUserData.Friends = userDataResult.GetFriends.ToString();
-            IGSUserData.FriendRequests = userDataResult.GetFriendRequests.ToString();
-            IGSUserData.RecommendedFriends = userDataResult.GetRecommendedFriends.ToString();
+            IGSUserData.Friends = userDataResult.GetFriends;
+            IGSUserData.FriendRequests = userDataResult.GetFriendRequests;
+            IGSUserData.RecommendedFriends = userDataResult.GetRecommendedFriends;
 
             IGSUserData.Currency = userDataResult.GetCurrencyData;
 
@@ -197,7 +200,7 @@ namespace IDosGames
             IGSClientAPI.GetCatalogItems
             (
                 catalogVersion: CATALOG_SKIN,
-                resultCallback: OnSkinCatalogItemsReceived,
+                resultCallback: OnCatalogItemsReceived,
                 notConnectionErrorCallback: OnRequestSkinCatalogItemsError, //OnRequestSkinCatalogItemsError
                 connectionErrorCallback: () =>
                 {
@@ -425,18 +428,19 @@ namespace IDosGames
             OnVIPSubscriptionValidated();
         }
 
-        private static void OnTitlePublicConfigurationReceived(JObject result)
+        private static void OnTitlePublicConfigurationReceived(TitlePublicConfigurationModel result)
         {
             TitlePublicConfigurationReceived?.Invoke(result);
 
-            TitlePublicConfiguration = JsonConvert.DeserializeObject<TitlePublicConfigurationModel>(result.ToString());
+            TitlePublicConfiguration = result;
 
             UpdateCachedTitlePublicConfiguration(result);
         }
 
-        private static void UpdateCachedTitlePublicConfiguration(JObject result)
+        private static void UpdateCachedTitlePublicConfiguration(TitlePublicConfigurationModel result)
         {
-            Dictionary<string, string> dataDictionary = ConvertJObjectToDictionary(result);
+            JObject jsonObject = JObject.FromObject(result);
+            Dictionary<string, string> dataDictionary = ConvertJObjectToDictionary(jsonObject);
             foreach (var data in dataDictionary)
             {
                 _titleDataRaw[data.Key] = data.Value;
@@ -522,13 +526,13 @@ namespace IDosGames
             CheckForEquippedSkinInInventory();
         }
 
-        private static void OnSkinCatalogItemsReceived(GetCatalogItemsResult result)
+        private static void OnCatalogItemsReceived(GetCatalogItemsResult result)
         {
             SkinCatalogReceived?.Invoke(result);
 
             UpdateCachedSkinItems(result);
 
-            IGSUserData.SkinCatalogItems = result;
+            IGSUserData.CatalogItemsResult = result;
         }
 
         private static void UpdateCachedSkinItems(GetCatalogItemsResult result)

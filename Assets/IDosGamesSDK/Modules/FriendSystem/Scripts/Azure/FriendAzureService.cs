@@ -1,5 +1,7 @@
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -12,7 +14,7 @@ namespace IDosGames.Friends
         public static event Action<Action> ConnectionError;
         public static string URL = IDosGamesSDKSettings.Instance.FriendSystemLink;
 
-        public static async Task<string> GetMyFriend()
+        public static async Task<List<string>> GetMyFriend()
         {
             var requestBody = new IGSRequest
             {
@@ -23,10 +25,12 @@ namespace IDosGames.Friends
                 UserID = AuthService.UserID
             };
 
-            return await SendRequest(URL + FriendActionType.GetMyFriends.ToString(), requestBody);
+            string result = await SendRequest(URL + FriendActionType.GetMyFriends.ToString(), requestBody);
+
+            return JsonConvert.DeserializeObject<List<string>>(result) ?? new List<string>();
         }
 
-        public static async Task<string> GetRecommendedFriends()
+        public static async Task<List<string>> GetRecommendedFriends()
         {
             var requestBody = new IGSRequest
             {
@@ -37,10 +41,12 @@ namespace IDosGames.Friends
                 UserID = AuthService.UserID
             };
 
-            return await SendRequest(URL + FriendActionType.GetRecommendedFriends.ToString(), requestBody);
+            string result = await SendRequest(URL + FriendActionType.GetRecommendedFriends.ToString(), requestBody);
+
+            return JsonConvert.DeserializeObject<List<string>>(result) ?? new List<string>();
         }
 
-        public static async Task<string> GetFriendRequests()
+        public static async Task<List<string>> GetPendingFriendRequests()
         {
             var requestBody = new IGSRequest
             {
@@ -51,7 +57,9 @@ namespace IDosGames.Friends
                 UserID = AuthService.UserID
             };
 
-            return await SendRequest(URL + FriendActionType.GetPendingFriendRequests.ToString(), requestBody);
+            string result = await SendRequest(URL + FriendActionType.GetPendingFriendRequests.ToString(), requestBody);
+
+            return JsonConvert.DeserializeObject<List<string>>(result) ?? new List<string>();
         }
 
         public static async Task<string> SendRequestToAdd(IGSRequest request)

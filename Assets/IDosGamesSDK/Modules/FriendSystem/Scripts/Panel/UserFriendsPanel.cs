@@ -56,13 +56,13 @@ namespace IDosGames.Friends
 
         public void RefreshData()
         {
-            if(string.IsNullOrEmpty(IGSUserData.Friends))
+            if(IGSUserData.Friends == null)
             {
                 Refresh();
             }
             else
             {
-                string friends = IGSUserData.Friends;
+                List<string> friends = IGSUserData.Friends;
                 ProcessRequestResult(friends);
                 IsNeedUpdate = false;
             }
@@ -76,7 +76,7 @@ namespace IDosGames.Friends
             IsNeedUpdate = false;
         }
 
-        private async Task<string> RequestData()
+        private async Task<List<string>> RequestData()
         {
             Loading.ShowTransparentPanel();
 
@@ -89,7 +89,7 @@ namespace IDosGames.Friends
             return result;
         }
 
-        private void ProcessRequestResult(string result)
+        private void ProcessRequestResult(List<string> result)
         {
 
             if (result == null)
@@ -98,16 +98,7 @@ namespace IDosGames.Friends
                 Message.Show(MessageCode.FAILED_TO_LOAD_DATA);
             }
 
-            var jObjectResult = JsonConvert.DeserializeObject<JObject>(result);
-
-            if (jObjectResult.ContainsKey("Message"))
-            {
-                Loading.HideAllPanels();
-                Message.Show(jObjectResult["Message"].ToString());
-                return;
-            }
-
-            _friends = JsonConvert.DeserializeObject<List<string>>(jObjectResult[FriendKeys.Friends.ToString()].ToString());
+            _friends = result;
 
             if (_friends.Count == 0)
             {

@@ -241,19 +241,20 @@ namespace IDosGames
 
             void UpdateProperty<T>(T resultProperty, Action<T> updateAction) => updateAction?.Invoke(resultProperty);
 
+            UpdateProperty(result.CatalogItemsResult, value => IGSUserData.CatalogItemsResult = value);
             UpdateProperty(result.UserInventoryResult, value => IGSUserData.UserInventory = value);
             UpdateProperty(result.TitlePublicConfiguration, value => IGSUserData.TitlePublicConfiguration = value);
             UpdateProperty(result.CustomUserDataResult, value => IGSUserData.CustomUserData = value);
             UpdateProperty(result.LeaderboardResult, value => IGSUserData.Leaderboard = value);
-            UpdateProperty(result.GetFriends, value => IGSUserData.Friends = value?.ToString());
-            UpdateProperty(result.GetFriendRequests, value => IGSUserData.FriendRequests = value?.ToString());
-            UpdateProperty(result.GetRecommendedFriends, value => IGSUserData.RecommendedFriends = value?.ToString());
-            UpdateProperty(result.GetMarketplaceGroupedOffers, value => IGSUserData.MarketplaceGroupedOffers = value?.ToString());
-            UpdateProperty(result.GetMarketplaceActiveOffers, value => IGSUserData.MarketplaceActiveOffers = value?.ToString());
-            UpdateProperty(result.GetMarketplaceHistory, value => IGSUserData.MarketplaceHistory = value?.ToString());
+            UpdateProperty(result.GetFriends, value => IGSUserData.Friends = value);
+            UpdateProperty(result.GetFriendRequests, value => IGSUserData.FriendRequests = value);
+            UpdateProperty(result.GetRecommendedFriends, value => IGSUserData.RecommendedFriends = value);
             UpdateProperty(result.GetCurrencyData, value => IGSUserData.Currency = value);
             UpdateProperty(result.PlatformSettings, value => IGSUserData.PlatformSettings = value);
             UpdateProperty(result.ImageData, value => IGSUserData.ImageData = value);
+            //UpdateProperty(result.GetMarketplaceGroupedOffers, value => IGSUserData.MarketplaceGroupedOffers = value?.ToString());
+            //UpdateProperty(result.GetMarketplaceActiveOffers, value => IGSUserData.MarketplaceActiveOffers = value?.ToString());
+            //UpdateProperty(result.GetMarketplaceHistory, value => IGSUserData.MarketplaceHistory = value?.ToString());
 
             SetPlatformSettings();
         }

@@ -1,4 +1,5 @@
 using IDosGames.ClientModels;
+using IDosGames.TitlePublicConfiguration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -64,7 +65,7 @@ namespace IDosGames
             }
         }
 
-        public static async void GetTitlePublicConfiguration(Action<JObject> resultCallback, Action<string> notConnectionErrorCallback = null, Action connectionErrorCallback = null)
+        public static async void GetTitlePublicConfiguration(Action<TitlePublicConfigurationModel> resultCallback, Action<string> notConnectionErrorCallback = null, Action connectionErrorCallback = null)
         {
             if (!AuthService.AuthContext.IsClientLoggedIn()) throw new IGSException(IGSExceptionCode.NotLoggedIn, "Must be logged in to call this method");
 
@@ -72,11 +73,10 @@ namespace IDosGames
 
             try
             {
-                string response = await IGSService.RequestTitlePublicConfiguration(AuthService.UserID, AuthService.ClientSessionTicket);
-                if (!string.IsNullOrEmpty(response))
+                var response = await IGSService.RequestTitlePublicConfiguration(AuthService.UserID, AuthService.ClientSessionTicket);
+                if (response != null)
                 {
-                    var resultData = JsonConvert.DeserializeObject<JObject>(response);
-                    resultCallback?.Invoke(resultData);
+                    resultCallback?.Invoke(response);
                     ServerFunctionResponsed?.Invoke();
                 }
             }
@@ -117,11 +117,10 @@ namespace IDosGames
 
             try
             {
-                string response = await IGSService.RequestCatalogItems(catalogVersion, AuthService.UserID, AuthService.ClientSessionTicket);
-                if (!string.IsNullOrEmpty(response))
+                var response = await IGSService.RequestCatalogItems(catalogVersion, AuthService.UserID, AuthService.ClientSessionTicket);
+                if (response != null)
                 {
-                    var resultData = JsonConvert.DeserializeObject<GetCatalogItemsResult>(response);
-                    resultCallback?.Invoke(resultData);
+                    resultCallback?.Invoke(response);
                     ServerFunctionResponsed?.Invoke();
                 }
             }
