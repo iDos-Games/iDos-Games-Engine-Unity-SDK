@@ -1,60 +1,51 @@
 using Newtonsoft.Json;
-using System.Collections.Generic;
 
 namespace IDosGames
 {
     public class ClaimRewardSystem
     {
-        private static int _currentRewardValue = 0;
+        // For VIP
+        public static void ClaimTokenReward(int value, int point)
+        {
+            if (UserInventory.HasVIPStatus)
+            {
+                ExecuteClaimFunction(value, ServerFunctionHandlers.ClaimTokenReward, point);
+            }
+            Loading.HideAllPanels();
+        }
+
+        public static void ClaimSkinProfit()
+        {
+            if (GetSkinProfitAmount() > 0 && UserInventory.HasVIPStatus)
+            {
+                ExecuteClaimFunction(0, ServerFunctionHandlers.GrantSkinProfitFromEquippedSkins);
+            }
+            Loading.HideAllPanels();
+        }
+        // For VIP End
 
         public static void ClaimCoinReward(int value, int point)
         {
-            _currentRewardValue = value + GetSkinProfitAmount();
-
-            if (GetSkinProfitAmount() == 0)
-            {
-                ExecuteClaimFunction(value, ServerFunctionHandlers.ClaimCoinReward, point);
-            }
-            else
-            {
-                ExecuteClaimFunction(value, ServerFunctionHandlers.ClaimCoinWithSkinReward, point);
-            }
+            ExecuteClaimFunction(value, ServerFunctionHandlers.ClaimCoinReward, point);
             Loading.HideAllPanels();
         }
 
         public static void ClaimX3CoinReward(int value, int point)
         {
-            _currentRewardValue = (value + GetSkinProfitAmount()) * 3;
-
-            if (GetSkinProfitAmount() == 0)
-            {
-                ExecuteClaimFunction(value, ServerFunctionHandlers.ClaimX3CoinReward, point);
-            }
-            else
-            {
-                ExecuteClaimFunction(value, ServerFunctionHandlers.ClaimX3CoinWithSkinReward, point);
-            }
+            ExecuteClaimFunction(value, ServerFunctionHandlers.ClaimX3CoinReward, point);
             Loading.HideAllPanels();
         }
 
         public static void ClaimX5CoinReward(int value, int point)
         {
-            _currentRewardValue = (value + GetSkinProfitAmount()) * 5;
-
-            if (GetSkinProfitAmount() == 0)
-            {
-                ExecuteClaimFunction(value, ServerFunctionHandlers.ClaimX5CoinReward, point);
-            }
-            else
-            {
-                ExecuteClaimFunction(value, ServerFunctionHandlers.ClaimX5CoinWithSkinReward, point);
-            }
+            ExecuteClaimFunction(value, ServerFunctionHandlers.ClaimX5CoinReward, point);
             Loading.HideAllPanels();
         }
 
         public static void ClaimRewardWithoutSkinProfit(int value)
         {
             ExecuteClaimFunction(value, ServerFunctionHandlers.ClaimCoinReward);
+            Loading.HideAllPanels();
         }
 
         public static void ClaimX3RewardWithoutSkinProfit(int value)

@@ -200,6 +200,7 @@ namespace IDosGames
                 case ServerFunctionHandlers.GetSecondarySpinReward:
                 case ServerFunctionHandlers.GetSecondarySpinRewardForVC:
                     return IDosGamesSDKSettings.Instance.SpinSystemLink;
+                case ServerFunctionHandlers.ClaimTokenReward:
                 case ServerFunctionHandlers.ClaimCoinReward:
                 case ServerFunctionHandlers.ClaimX3CoinReward:
                 case ServerFunctionHandlers.ClaimX5CoinReward:
