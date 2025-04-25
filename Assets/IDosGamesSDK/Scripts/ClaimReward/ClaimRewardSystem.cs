@@ -4,14 +4,21 @@ namespace IDosGames
 {
     public class ClaimRewardSystem
     {
+        public static string tokenLimitCurrencyID = "TL";
+
         // For VIP
         public static void ClaimTokenReward(int value, int point)
         {
             if (UserInventory.HasVIPStatus)
             {
+                //Debug.Log($"Daily Token Limit: {UserInventory.GetVirtualCurrencyAmount(tokenLimitCurrencyID)}");
                 ExecuteClaimFunction(value, ServerFunctionHandlers.ClaimTokenReward, point);
             }
-            Loading.HideAllPanels();
+            else
+            {
+                //Debug.Log($"Daily Token Limit: {UserInventory.GetVirtualCurrencyAmount(tokenLimitCurrencyID)}");
+                ShopSystem.PopUpSystem.ShowVIPPopUp();
+            }
         }
 
         public static void ClaimSkinProfit()
@@ -20,7 +27,6 @@ namespace IDosGames
             {
                 ExecuteClaimFunction(0, ServerFunctionHandlers.GrantSkinProfitFromEquippedSkins);
             }
-            Loading.HideAllPanels();
         }
         // For VIP End
 

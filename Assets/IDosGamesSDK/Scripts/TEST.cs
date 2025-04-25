@@ -4,14 +4,9 @@ namespace IDosGames
 {
     public class TEST : MonoBehaviour
     {
-        private void Start()
-        {
-            
-        }
-
         public void Test()
         {
-            GetValue();
+            
         }
 
         public void SaveValueToServer()
@@ -23,6 +18,11 @@ namespace IDosGames
         {
             string value = UserDataService.GetCachedCustomUserData("test");
             Debug.Log(value);
+        }
+
+        public void GetToken()
+        {
+            ClaimRewardSystem.ClaimTokenReward(10, 1);
         }
     }
 }

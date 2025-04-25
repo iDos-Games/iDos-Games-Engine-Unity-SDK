@@ -10698,6 +10698,26 @@ PrefabInstance:
       propertyPath: m_Name
       value: ActiveSkins
       objectReference: {fileID: 0}
+    - target: {fileID: 8726843383588744451, guid: c0514125e4761c84586801dc88a9f270,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8726843383588744451, guid: c0514125e4761c84586801dc88a9f270,
+        type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8726843383588744451, guid: c0514125e4761c84586801dc88a9f270,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8726843383588744451, guid: c0514125e4761c84586801dc88a9f270,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8734395288919866936, guid: c0514125e4761c84586801dc88a9f270,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
