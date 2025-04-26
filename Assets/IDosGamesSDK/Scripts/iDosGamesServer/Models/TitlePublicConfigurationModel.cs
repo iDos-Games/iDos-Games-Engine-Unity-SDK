@@ -31,8 +31,15 @@ namespace IDosGames.TitlePublicConfiguration
         public CurrentSmartOffers CurrentSmartOffers { get; set; }
         public List<CryptoWallet> CryptoWallet { get; set; }
         public AiPublicSettings AiSettings { get; set; }
+        public List<AiCustomSetting> AiCustomSettings { get; set; }
         public Dictionary<string, string> ImageData { get; set; }
         public Dictionary<string, string> AssetBundle { get; set; }
+    }
+
+    public class AiCustomSetting
+    {
+        public string Name { get; set; }
+        public AiPublicSettings AiSettings { get; set; }
     }
 
     public class AiPublicSettings
