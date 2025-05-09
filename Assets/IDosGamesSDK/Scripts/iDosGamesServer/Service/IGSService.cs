@@ -214,6 +214,33 @@ namespace IDosGames
 
             return result;
         }
+
+        public static async Task<string> ForgotPassword(string email)
+        {
+            var requestBody = new IGSRequest
+            {
+                TitleID = IDosGamesSDKSettings.Instance.TitleID,
+                FunctionName = ServerFunctionHandlers.ForgotPassword.ToString(),
+                WebAppLink = WebSDK.webAppLink,
+                Email = email,
+            };
+
+            return await SendPostRequest(URL_LOGIN_SYSTEM + ServerFunctionHandlers.ForgotPassword.ToString(), requestBody);
+        }
+
+        public static async Task<string> ResetPassword(string resetToken, string password)
+        {
+            var requestBody = new IGSRequest
+            {
+                TitleID = IDosGamesSDKSettings.Instance.TitleID,
+                FunctionName = ServerFunctionHandlers.ResetPassword.ToString(),
+                WebAppLink = WebSDK.webAppLink,
+                ResetToken = resetToken,
+                Password = password,
+            };
+
+            return await SendPostRequest(URL_LOGIN_SYSTEM + ServerFunctionHandlers.ResetPassword.ToString(), requestBody);
+        }
         // ------------------ Login / Registration END ------------------ //
 
         // ------------------------ Inventory ------------------------ //

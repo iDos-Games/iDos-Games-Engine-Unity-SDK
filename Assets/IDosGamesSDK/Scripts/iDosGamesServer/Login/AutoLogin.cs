@@ -12,7 +12,7 @@ namespace IDosGames
         private void Start()
         {
             CheckPlatform();
-            Login();
+            //Login();
         }
 
         public void Login()
@@ -29,12 +29,12 @@ namespace IDosGames
             }
         }
 
-        private void AutoLoginWithEmail()
+        public void AutoLoginWithEmail()
         {
             AuthService.Instance.LoginWithEmailAddress(_savedEmail, _savedPassword, OnSuccessAutoLogin, OnErrorAutoLogin, OnRetryAutoLogin);
         }
 
-        private void AutoLoginWithDeviceID()
+        public void AutoLoginWithDeviceID()
         {
             AuthService.Instance.LoginWithDeviceID(OnSuccessAutoLogin, OnErrorAutoLogin, OnRetryAutoLogin);
         }

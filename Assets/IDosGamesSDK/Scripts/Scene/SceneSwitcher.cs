@@ -31,7 +31,12 @@ namespace IDosGames
 			StartLoad(sceneIndex);
 		}
 
-		private void StartLoad(int scenebuildIndex)
+        public void SwitchToLoginScene()
+        {
+            StartLoad(0);
+        }
+
+        private void StartLoad(int scenebuildIndex)
 		{
 			OnStartLoad();
 

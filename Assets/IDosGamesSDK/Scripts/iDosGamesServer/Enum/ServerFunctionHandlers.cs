@@ -62,5 +62,7 @@ namespace IDosGames
         CheckTelegramInvoice,
         RegisterTelegramWebhook,
         LoginWithTelegram,
+        ForgotPassword,
+        ResetPassword,
     }
 }

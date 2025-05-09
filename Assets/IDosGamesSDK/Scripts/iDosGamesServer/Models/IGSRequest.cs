@@ -23,6 +23,7 @@ namespace IDosGames
         public bool DevBuild { get; set; }
         public string WebAppLink { get; set; }
         public int UsageTime { get; set; }
+        public string ResetToken { get; set; }
 
         // Telegram
         public string WebhookLink { get; set; }
