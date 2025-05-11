@@ -35,7 +35,7 @@ namespace IDosGames
         public static string NftContractAddress { get; private set; }
         public static string NftContractAbi { get; private set; }
 
-        public static float GasPrice { get; private set; }
+        public static decimal GasPrice { get; private set; }
 
         [RuntimeInitializeOnLoadMethod]
         private static void Initialize()

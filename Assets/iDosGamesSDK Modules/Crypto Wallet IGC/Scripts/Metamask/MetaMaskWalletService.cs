@@ -59,9 +59,11 @@ namespace IDosGames
             {
                 Debug.LogWarning("Metamask is not available, please install it");
                 tcs.SetException(new Exception("Metamask is not available"));
+                yield break;
             }
 #else
             tcs.SetException(new Exception("MetaMask is only available in WebGL"));
+            yield break;
 #endif
         }
 
@@ -189,6 +191,7 @@ namespace IDosGames
                 yield break;
             }
 
+#if IDOSGAMES_CRYPTO_WALLET
             var request = new WalletTransactionRequest
             {
                 ChainID = (int)_chainId,
@@ -211,6 +214,10 @@ namespace IDosGames
             {
                 tcs.SetResult(task.Result);
             }
+#else
+            Debug.Log("Crypto wallet not enabled. Transaction hash: " + transactionHash);
+            tcs.SetResult(transactionHash);
+#endif
         }
 
         private IUnityRpcRequestClientFactory GetUnityRpcRequestClientFactory()

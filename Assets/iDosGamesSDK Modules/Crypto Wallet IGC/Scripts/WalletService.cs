@@ -237,7 +237,7 @@ namespace IDosGames
             BigInteger balanceInWei = await GetNativeTokenBalanceInWei();
 
             BigInteger gasBigInt = new BigInteger(gas);
-            decimal gasPriceInGwei = (decimal)BlockchainSettings.GasPrice;
+            decimal gasPriceInGwei = BlockchainSettings.GasPrice;
             BigInteger gasPriceInWei = new BigInteger(gasPriceInGwei * 1_000_000_000m);
             BigInteger requiredGasInWei = gasBigInt * gasPriceInWei;
 
