@@ -68,6 +68,7 @@ namespace IDosGames
 
     public class AIRequest
     {
+        public string Name { get; set; }
         public List<MessageAI> Messages { get; set; }
     }
 
