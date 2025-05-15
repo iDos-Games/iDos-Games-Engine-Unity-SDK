@@ -31,6 +31,7 @@ namespace IDosGames
                     //Debug.Log($"Uploading file: {file.FilePath}");
                 }
                 await IGSAdminApi.UploadWebGL(batch);
+                await Task.Delay(1000);
                 Debug.Log($"... Uploaded batch {i / batchSize + 1}");
             }
 
