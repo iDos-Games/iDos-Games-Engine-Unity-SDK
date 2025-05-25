@@ -64,5 +64,6 @@ namespace IDosGames
         LoginWithTelegram,
         ForgotPassword,
         ResetPassword,
+        ClaimTournamentReward,
     }
 }

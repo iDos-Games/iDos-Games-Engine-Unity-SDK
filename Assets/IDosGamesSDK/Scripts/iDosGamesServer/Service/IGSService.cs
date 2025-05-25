@@ -20,6 +20,7 @@ namespace IDosGames
         public static string URL_MARKETPLACE_DO_ACTION = IDosGamesSDKSettings.Instance.MarketplaceLink;
         public static string URL_MARKETPLACE_GET_DATA = IDosGamesSDKSettings.Instance.MarketplaceDataLink;
         public static string URL_VALIDATE_IAP_SUBSCRIPTION = IDosGamesSDKSettings.Instance.ValidateIAPSubscriptionLink;
+        public static string URL_TOURNAMENT = IDosGamesSDKSettings.Instance.TournamentLink;
 
         public static async Task<GetAllUserDataResult> GetUserAllData(string userID, string clientSessionTicket)
         {
@@ -337,6 +338,21 @@ namespace IDosGames
             };
 
             return await SendPostRequest(URL_USER_DATA_SYSTEM + ServerFunctionHandlers.GetLeaderboard.ToString(), requestBody);
+        }
+
+        public static async Task<string> ClaimTournamentReward(string statisticName, string userID, string clientSessionTicket)
+        {
+            var requestBody = new IGSRequest
+            {
+                TitleID = IDosGamesSDKSettings.Instance.TitleID,
+                FunctionName = ServerFunctionHandlers.ClaimTournamentReward.ToString(),
+                WebAppLink = WebSDK.webAppLink,
+                UserID = userID,
+                ClientSessionTicket = clientSessionTicket,
+                StatisticName = statisticName
+            };
+
+            return await SendPostRequest(URL_TOURNAMENT + ServerFunctionHandlers.ClaimTournamentReward.ToString(), requestBody);
         }
 
 #if IDOSGAMES_MARKETPLACE

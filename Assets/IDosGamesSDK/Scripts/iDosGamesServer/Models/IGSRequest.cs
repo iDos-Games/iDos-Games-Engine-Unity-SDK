@@ -19,6 +19,7 @@ namespace IDosGames
         public string CatalogVersion { get; set; }
         public string FriendID { get; set; }
         public string LeaderboardID { get; set; }
+        public string StatisticName { get; set; }
         public string SecretKey { get; set; }
         public bool DevBuild { get; set; }
         public string WebAppLink { get; set; }
