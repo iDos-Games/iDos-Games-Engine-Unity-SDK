@@ -109,5 +109,7 @@ namespace IDosGames
         INVALID_SESSION_TICKET,
         REGISTRATION_FAILED,
         INSUFFICIENT_BALANCE,
+        PASSWORD_UPDATED,
+        PASSWORD_VERY_SHORT,
     }
 }

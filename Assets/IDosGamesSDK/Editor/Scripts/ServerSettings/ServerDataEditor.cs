@@ -47,6 +47,7 @@ namespace IDosGames
             settings.DeveloperSecretKey = EditorGUILayout.TextField("Developer Secret Key", settings.DeveloperSecretKey);
             settings.TitleID = EditorGUILayout.TextField("Title ID", settings.TitleID);
             settings.TitleTemplateID = EditorGUILayout.TextField("Title Template ID", settings.TitleTemplateID);
+            settings.BuildKey = EditorGUILayout.TextField("Build Key", settings.BuildKey);
 
             GUILayout.Space(10);
 

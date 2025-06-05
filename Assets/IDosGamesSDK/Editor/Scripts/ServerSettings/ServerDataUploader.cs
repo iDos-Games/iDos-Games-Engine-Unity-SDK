@@ -14,11 +14,8 @@ namespace IDosGames
         {
             Debug.Log("Uploading Start ...");
 
-            if(IDosGamesSDKSettings.Instance.ClearDirectory)
-            {
-                await IGSAdminApi.ClearWebGL();
-            }
-            
+            await IGSAdminApi.ClearWebGL();
+
             if (!Directory.Exists(directoryPath))
             {
                 return;
@@ -34,6 +31,7 @@ namespace IDosGames
                     //Debug.Log($"Uploading file: {file.FilePath}");
                 }
                 await IGSAdminApi.UploadWebGL(batch);
+                await Task.Delay(1000);
                 Debug.Log($"... Uploaded batch {i / batchSize + 1}");
             }
 
@@ -98,7 +96,6 @@ namespace IDosGames
 
         public static void DeleteAllSettings()
         {
-            IDosGamesSDKSettings.Instance.ServerLink = null;
             IDosGamesSDKSettings.Instance.DeveloperSecretKey = null;
             IDosGamesSDKSettings.Instance.WebGLUrl = null;
             IDosGamesSDKSettings.Instance.TitleID = "";

@@ -8,5 +8,11 @@ namespace IDosGames
 		{
 			gameObject.SetActive(false);
 		}
-	}
+
+        public void LogOut()
+        {
+            Loading.SwitchToLoginScene();
+        }
+
+    }
 }

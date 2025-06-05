@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -32,31 +33,33 @@ namespace IDosGames
         {
             try
             {
-                var allowanceFunction = new AllowanceFunction
+                string functionSelector = "0xdd62ed3e";
+
+                string ownerPadded = ownerAddress.Substring(2).PadLeft(64, '0');
+                string spenderPadded = spenderAddress.Substring(2).PadLeft(64, '0');
+
+                string data = functionSelector + ownerPadded + spenderPadded;
+
+                var callData = new
                 {
-                    Owner = ownerAddress,
-                    Spender = spenderAddress
+                    to = tokenAddress,
+                    data = data
                 };
 
-                var callInput = allowanceFunction.CreateCallInput(tokenAddress);
-
-                var data = new
+                var request = new
                 {
                     jsonrpc = "2.0",
                     method = "eth_call",
-                    @params = new object[]
-                    {
-                        new { to = tokenAddress, data = callInput.Data },
-                        "latest"
-                    },
+                    @params = new object[] { callData, "latest" },
                     id = 1
                 };
 
-                var jsonData = JsonConvert.SerializeObject(data);
+                var jsonData = JsonConvert.SerializeObject(request);
                 string responseText = await SendUnityWebRequest(BlockchainSettings.RpcUrl, jsonData);
 
                 if (string.IsNullOrEmpty(responseText))
                 {
+                    Debug.LogWarning("Empty response from RPC");
                     return BigInteger.Zero;
                 }
 
@@ -67,7 +70,21 @@ namespace IDosGames
                     return BigInteger.Zero;
                 }
 
-                return HexToBigInteger(jsonRpcResponse.Result);
+                //Debug.Log($"Raw allowance response: {jsonRpcResponse.Result}");
+
+                string hexResult = jsonRpcResponse.Result;
+                if (hexResult.StartsWith("0x"))
+                {
+                    hexResult = hexResult.Substring(2);
+                }
+
+                byte[] bytes = HexStringToByteArray(hexResult);
+
+                BigInteger allowance = new BigInteger(bytes, isUnsigned: true, isBigEndian: true);
+
+                Debug.Log($"Parsed allowance: {allowance}");
+
+                return allowance;
             }
             catch (Exception ex)
             {
@@ -736,7 +753,7 @@ namespace IDosGames
 
         public static async Task<bool> WaitForTransactionReceipt(string transactionHash)
         {
-            const int delayBetweenChecks = 3000;
+            const int delayBetweenChecks = 3;
             int maxAttempts = 20;
             int attempts = 0;
 
@@ -750,11 +767,24 @@ namespace IDosGames
                 }
 
                 attempts++;
-                await Task.Delay(delayBetweenChecks);
+                await DelayAsync(delayBetweenChecks);
             }
 
             Debug.LogWarning($"Transaction {transactionHash} not confirmed after {maxAttempts} attempts.");
             return false;
+        }
+
+        private static Task DelayAsync(float seconds)
+        {
+            var tcs = new TaskCompletionSource<bool>();
+            CoroutineRunner.Instance.StartCoroutine(DelayCoroutine(seconds, () => tcs.SetResult(true)));
+            return tcs.Task;
+        }
+
+        private static IEnumerator DelayCoroutine(float seconds, Action onComplete)
+        {
+            yield return new WaitForSecondsRealtime(seconds);
+            onComplete?.Invoke();
         }
 
         private static async Task<TransactionReceipt> GetTransactionReceipt(string transactionHash)

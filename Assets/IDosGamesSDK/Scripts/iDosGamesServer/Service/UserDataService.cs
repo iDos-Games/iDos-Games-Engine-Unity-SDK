@@ -121,6 +121,8 @@ namespace IDosGames
 
             IGSUserData.ImageData = userDataResult.ImageData;
 
+            IGSUserData.LeaderboardData = userDataResult.LeaderboardData;
+
             DataUpdated?.Invoke();
             if (!_firstTimeDataUpdated)
             {
@@ -201,7 +203,7 @@ namespace IDosGames
             (
                 catalogVersion: CATALOG_SKIN,
                 resultCallback: OnCatalogItemsReceived,
-                notConnectionErrorCallback: OnRequestSkinCatalogItemsError, //OnRequestSkinCatalogItemsError
+                notConnectionErrorCallback: OnRequestSkinCatalogItemsError,
                 connectionErrorCallback: () =>
                 {
                     RequestSkinCatalogItems();

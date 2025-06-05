@@ -11,8 +11,9 @@ namespace IDosGames
 		public string ClientSessionTicket { get; set; }
 		public string EntityToken { get; set; }
 		public string AuthContext { get; set; }
+        public string BuildKey { get; set; }
 
-		public int ChainID { get; set; }
+        public int ChainID { get; set; }
 
 		[JsonProperty("WalletAddress")]
 		public string ConnectedWalletAddress { get; set; }

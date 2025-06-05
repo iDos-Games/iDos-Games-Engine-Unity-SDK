@@ -142,7 +142,17 @@ namespace IDosGames
 			_instance._sceneSwitcher.SwitchToPreviousScene();
 		}
 
-		public static void BlockTouch()
+        public static void SwitchToLoginScene()
+        {
+            if (_instance == null)
+            {
+                return;
+            }
+
+            _instance._sceneSwitcher.SwitchToLoginScene();
+        }
+
+        public static void BlockTouch()
 		{
 			if (_instance == null)
 			{

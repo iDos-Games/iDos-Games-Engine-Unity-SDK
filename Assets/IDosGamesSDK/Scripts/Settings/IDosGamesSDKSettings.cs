@@ -73,6 +73,14 @@ namespace IDosGames
         }
 
         [Space(5)]
+        [SerializeField] private string _buildKey;
+        public string BuildKey
+        {
+            get => _buildKey.Trim();
+            set => _buildKey = value.Trim();
+        }
+
+        [Space(5)]
         [SerializeField] private Platforms _buildForPlatform = Platforms.GooglePlay;
         public Platforms BuildForPlatform
         {
@@ -133,6 +141,7 @@ namespace IDosGames
         public string ValidateIAPLink => $"{_serverLink}/api/{_titleTemplateID}/{_titleID}/Client/ValidateIAP".Trim();
         public string PurchaseLink => $"{_serverLink}/api/{_titleTemplateID}/{_titleID}/Client/Purchase/".Trim();
         public string AILink => $"{_serverLink}/api/{_titleTemplateID}/{_titleID}/Client/AI/".Trim();
+        public string TournamentLink => $"{_serverLink}/api/{_titleTemplateID}/{_titleID}/Client/Tournament/".Trim();
 
         [Space(5)]
         [Header("In App Purchasing")]

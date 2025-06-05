@@ -18,7 +18,7 @@ namespace IDosGames
         {
             GUIUtility.systemCopyBuffer = privateKeyText.text;
 
-#if UNITY_WEBGL
+#if UNITY_WEBGL && !UNITY_EDITOR
             WebSDK.CopyTextToClipboard(privateKeyText.text);
 #endif
 

@@ -31,8 +31,15 @@ namespace IDosGames.TitlePublicConfiguration
         public CurrentSmartOffers CurrentSmartOffers { get; set; }
         public List<CryptoWallet> CryptoWallet { get; set; }
         public AiPublicSettings AiSettings { get; set; }
+        public List<AiCustomSetting> AiCustomSettings { get; set; }
         public Dictionary<string, string> ImageData { get; set; }
         public Dictionary<string, string> AssetBundle { get; set; }
+    }
+
+    public class AiCustomSetting
+    {
+        public string Name { get; set; }
+        public AiPublicSettings AiSettings { get; set; }
     }
 
     public class AiPublicSettings
@@ -258,7 +265,7 @@ namespace IDosGames.TitlePublicConfiguration
         public string ChainType { get; set; }
         public int ChainID { get; set; }
         public string RpcUrl { get; set; }
-        public float GasPrice { get; set; }
+        public decimal GasPrice { get; set; }
         public string BlockchainExplorerUrl { get; set; }
         public string SoftTokenTicker { get; set; }
         public string SoftTokenContractAddress { get; set; }

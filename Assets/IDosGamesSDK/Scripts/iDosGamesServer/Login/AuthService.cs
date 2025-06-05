@@ -6,7 +6,7 @@ namespace IDosGames
 {
     public class AuthService
     {
-        private const int PASSWORD_MIN_LENGTH = 6;
+        private const int PASSWORD_MIN_LENGTH = 8;
         private const int PASSWORD_MAX_LENGTH = 100;
         private const string EMAIL_REGEX = @"^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$";
 
@@ -106,14 +106,14 @@ namespace IDosGames
                 {
                     SetCredentials(result);
                     SaveAuthType(AuthType.Device);
-                    ClearEmailAndPassword();
+                    //ClearEmailAndPassword();
 
                     resultCallback?.Invoke(result);
                     LoggedIn?.Invoke();
                 }
                 else
                 {
-                    IGSClientAPI.OnIGSError("Invalid result", errorCallback, retryCallback);
+                    IGSClientAPI.OnIGSError("Invalid result: " + result.Message, errorCallback, retryCallback);
                 }
             }
             catch (Exception ex)
@@ -122,9 +122,9 @@ namespace IDosGames
             }
         }
 
-        public void LogOut(Action<GetAllUserDataResult> resultCallback = null, Action<string> errorCallback = null, Action retryCallback = null)
+        public void LogOut()
         {
-            LoginWithDeviceID(resultCallback, errorCallback, retryCallback);
+            Loading.SwitchToLoginScene(); //LoginWithDeviceID(resultCallback, errorCallback, retryCallback);
         }
 
         public async void LoginWithEmailAddress(string email, string password, Action<GetAllUserDataResult> resultCallback = null, Action<string> errorCallback = null, Action retryCallback = null)
@@ -138,14 +138,14 @@ namespace IDosGames
                 {
                     SetCredentials(result);
                     SaveAuthType(AuthType.Device);
-                    ClearEmailAndPassword();
+                    SaveEmailAndPassword(email, password);
 
                     resultCallback?.Invoke(result);
                     LoggedIn?.Invoke();
                 }
                 else
                 {
-                    IGSClientAPI.OnIGSError("Invalid result", errorCallback, retryCallback);
+                    IGSClientAPI.OnIGSError("Invalid result: " + result.Message, errorCallback, retryCallback);
                 }
             }
             catch (Exception ex)
@@ -185,14 +185,14 @@ namespace IDosGames
                 {
                     SetCredentials(result);
                     SaveAuthType(AuthType.Device);
-                    ClearEmailAndPassword();
+                    SaveEmailAndPassword(email, password);
 
                     resultCallback?.Invoke(result);
                     LoggedIn?.Invoke();
                 }
                 else
                 {
-                    IGSClientAPI.OnIGSError("Invalid result", errorCallback, retryCallback);
+                    IGSClientAPI.OnIGSError("Invalid result: " + result.Message, errorCallback, retryCallback);
                 }
             }
             catch (Exception ex)
@@ -201,22 +201,34 @@ namespace IDosGames
             }
         }
 
-        public void SendAccountRecoveryEmail(string email, Action<string> resultCallback = null, Action<string> errorCallback = null) //SendAccountRecoveryEmailResult, PlayFabError
+        public async void SendAccountRecoveryEmail(string email, Action<string> resultCallback = null, Action<string> errorCallback = null)
         {
-            /*
             RequestSent?.Invoke();
 
-            IGSClientAPI.SendAccountRecoveryEmail
-            (
-                request: new SendAccountRecoveryEmailRequest()
-                {
-                    TitleId = PlayFabSettings.TitleId,
-                    Email = email
-                },
-                resultCallback: (result) => resultCallback?.Invoke(result),
-                errorCallback: (error) => IGServerAPI.OnPlayFabError(error, errorCallback)
-            );
-            */
+            string result = await IGSService.ForgotPassword(email);
+            if (!string.IsNullOrEmpty(result))
+            {
+                resultCallback?.Invoke(result);
+            }
+            else
+            {
+                IGSClientAPI.OnIGSError(result, errorCallback);
+            }
+        }
+
+        public async void SendResetPassword(string resetToken, string password, Action<string> resultCallback = null, Action<string> errorCallback = null)
+        {
+            RequestSent?.Invoke();
+
+            string result = await IGSService.ResetPassword(resetToken, password);
+            if (!string.IsNullOrEmpty(result))
+            {
+                resultCallback?.Invoke(result);
+            }
+            else
+            {
+                IGSClientAPI.OnIGSError(result, errorCallback);
+            }
         }
 
         public void DeleteTitlePlayerAccount(Action resultCallback = null)

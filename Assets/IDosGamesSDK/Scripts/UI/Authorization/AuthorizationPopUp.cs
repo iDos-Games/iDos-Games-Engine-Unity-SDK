@@ -16,7 +16,9 @@ namespace IDosGames
 		{
 			ResetLogInButton();
 			ResetSignUpButton();
-		}
+            _emailInputField.text = AuthService.SavedEmail;
+            _passwordInputField.text = AuthService.SavedPassword;
+        }
 
 		private void ResetLogInButton()
 		{
@@ -47,7 +49,7 @@ namespace IDosGames
 
 		private void LogIn()
 		{
-			AuthService.Instance.LoginWithEmailAddress(GetEmailInput(), GetPasswordInput(), OnLogInSuccess, AuthService.ShowErrorMessage);
+			AuthService.Instance.LoginWithEmailAddress(GetEmailInput(), GetPasswordInput(), OnLogInSuccess, ShowError);
 		}
 
 		private void TrySignUp()
@@ -58,11 +60,11 @@ namespace IDosGames
 
 			if (isEmailInputCorrect && isPasswordInputCorrect && isPasswordsMatch)
 			{
-				if (AuthService.AuthContext == null)
-				{
-					Message.Show(MessageCode.MUST_BE_LOGGED_IN_TO_CALL_THIS_FUNCTION);
-					return;
-				}
+				//if (AuthService.AuthContext == null)
+				//{
+				//	Message.Show(MessageCode.MUST_BE_LOGGED_IN_TO_CALL_THIS_FUNCTION);
+				//	return;
+				//}
 
 				SignUp();
 			}
@@ -74,10 +76,20 @@ namespace IDosGames
 
 		private void SignUp()
 		{
-			AuthService.Instance.AddUsernamePassword(GetEmailInput(), GetPasswordInput(), OnSignUpSuccess, AuthService.ShowErrorMessage);
+			AuthService.Instance.RegisterUserByEmail(GetEmailInput(), GetPasswordInput(), OnSignUpSuccess, ShowError);
 		}
 
-		private void ShowErrorMessage(bool isEmailInputCorrect, bool isPasswordInputCorrect, bool isPasswordsMatch = true)
+		private void AddEmailAndPassword()
+		{
+            AuthService.Instance.AddUsernamePassword(GetEmailInput(), GetPasswordInput(), OnEmailAndPasswordAdded, ShowError);
+        }
+
+		private void ShowError(string error)
+		{
+            Message.Show(error);
+		}
+
+        private void ShowErrorMessage(bool isEmailInputCorrect, bool isPasswordInputCorrect, bool isPasswordsMatch = true)
 		{
 			string message = GenerateErrorMessage(isEmailInputCorrect, isPasswordInputCorrect, isPasswordsMatch);
 			Message.Show(message);
@@ -128,16 +140,23 @@ namespace IDosGames
 
 		private void OnLogInSuccess(GetAllUserDataResult result)
 		{
-			Message.Show(MessageCode.SUCCESS_LOGGED_IN);
-			UserDataService.RequestUserAllData();
-		}
+			//Message.Show(MessageCode.SUCCESS_LOGGED_IN);
+			UserDataService.ProcessingAllData(result);
+            Loading.SwitchToNextScene();
+        }
 
-		private void OnSignUpSuccess(string result)
+		private void OnSignUpSuccess(GetAllUserDataResult result)
 		{
-			Message.Show(MessageCode.SUCCESS_LINK_ACCOUNT_TO_EMAIL);
-		}
+            UserDataService.ProcessingAllData(result);
+            Loading.SwitchToNextScene();
+        }
 
-		public string GetEmailInput()
+        private void OnEmailAndPasswordAdded(string result)
+        {
+            Message.Show(MessageCode.SUCCESS_LINK_ACCOUNT_TO_EMAIL);
+        }
+
+        public string GetEmailInput()
 		{
 			return _emailInputField.text;
 		}

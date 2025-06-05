@@ -12,8 +12,9 @@ namespace IDosGames
         public string ClientSessionTicket { get; set; }
         public string EntityToken { get; set; }
         public string AuthContext { get; set; }
+        public string BuildKey { get; set; }
 
-		[JsonProperty("MarketplaceAction"), JsonConverter(typeof(StringEnumConverter))]
+        [JsonProperty("MarketplaceAction"), JsonConverter(typeof(StringEnumConverter))]
 		public MarketplaceAction Action { get; set; }
 
 		[JsonProperty("VirtualCurrencyID"), JsonConverter(typeof(StringEnumConverter))]

@@ -20,5 +20,6 @@ namespace IDosGames
         public PlatformSettingsModel PlatformSettings { get; set; }
         public Dictionary<string, string> ImageData { get; set; }
         public Dictionary<string, string> AssetBundle { get; set; }
+        public Dictionary<string, PlayerLeaderboardData> LeaderboardData { get; set; }
     }
 }

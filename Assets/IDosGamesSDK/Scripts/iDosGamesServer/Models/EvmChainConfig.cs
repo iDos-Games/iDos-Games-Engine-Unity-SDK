@@ -20,7 +20,7 @@ namespace IDosGames
         public string teamFee { get; set; }
         public string liquidityETHAmount { get; set; }
         public string defaultAntiSnipeAmount { get; set; }
-        public int gasPrice { get; set; }
+        public decimal gasPrice { get; set; }
         public string rpcUrl { get; set; }
         public string wssRpcUrl { get; set; }
         public string openRpcUrl { get; set; }

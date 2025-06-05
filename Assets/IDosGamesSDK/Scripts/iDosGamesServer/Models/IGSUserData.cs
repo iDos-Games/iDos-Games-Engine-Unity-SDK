@@ -22,5 +22,6 @@ namespace IDosGames
         public static PlatformSettingsModel PlatformSettings { get; set; }
         public static Dictionary<string, string> ImageData { get; set; }
         public static Dictionary<string, string> AssetBundle { get; set; }
+        public static Dictionary<string, PlayerLeaderboardData> LeaderboardData { get; set; }
     }
 }

@@ -19,10 +19,13 @@ namespace IDosGames
         public string CatalogVersion { get; set; }
         public string FriendID { get; set; }
         public string LeaderboardID { get; set; }
+        public string StatisticName { get; set; }
         public string SecretKey { get; set; }
+        public string BuildKey { get; set; }
         public bool DevBuild { get; set; }
         public string WebAppLink { get; set; }
         public int UsageTime { get; set; }
+        public string ResetToken { get; set; }
 
         // Telegram
         public string WebhookLink { get; set; }
@@ -67,6 +70,7 @@ namespace IDosGames
 
     public class AIRequest
     {
+        public string Name { get; set; }
         public List<MessageAI> Messages { get; set; }
     }
 

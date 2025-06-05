@@ -152,12 +152,35 @@ namespace IDosGames
             }
         }
 
+        public static async void ClaimTournamentReward(string statisticName, Action<UserLeaderboardRewards> resultCallback, Action<string> notConnectionErrorCallback = null, Action connectionErrorCallback = null)
+        {
+            if (!AuthService.AuthContext.IsClientLoggedIn()) throw new IGSException(IGSExceptionCode.NotLoggedIn, "Must be logged in to call this method");
+
+            ServerFunctionCalled?.Invoke();
+
+            try
+            {
+                string response = await IGSService.ClaimTournamentReward(statisticName, AuthService.UserID, AuthService.ClientSessionTicket);
+                if (!string.IsNullOrEmpty(response))
+                {
+                    var resultData = JsonConvert.DeserializeObject<UserLeaderboardRewards>(response);
+                    resultCallback?.Invoke(resultData);
+                    ServerFunctionResponsed?.Invoke();
+                }
+            }
+            catch (Exception ex)
+            {
+                OnIGSError(ex.Message, notConnectionErrorCallback, connectionErrorCallback);
+            }
+        }
+
         public static async Task ExecuteFunction(ServerFunctionHandlers functionName, Action<string> resultCallback = null, Action<string> notConnectionErrorCallback = null, Action connectionErrorCallback = null, FunctionParameters functionParameter = null)
         {
             var request = new IGSRequest
             {
                 FunctionName = functionName.ToString(),
                 TitleID = IDosGamesSDKSettings.Instance.TitleID,
+                BuildKey = IDosGamesSDKSettings.Instance.BuildKey,
                 WebAppLink = WebSDK.webAppLink,
                 UserID = AuthService.UserID,
                 ClientSessionTicket = AuthService.ClientSessionTicket,
@@ -200,6 +223,7 @@ namespace IDosGames
                 case ServerFunctionHandlers.GetSecondarySpinReward:
                 case ServerFunctionHandlers.GetSecondarySpinRewardForVC:
                     return IDosGamesSDKSettings.Instance.SpinSystemLink;
+                case ServerFunctionHandlers.GrantSkinProfitFromEquippedSkins:
                 case ServerFunctionHandlers.ClaimTokenReward:
                 case ServerFunctionHandlers.ClaimCoinReward:
                 case ServerFunctionHandlers.ClaimX3CoinReward:
