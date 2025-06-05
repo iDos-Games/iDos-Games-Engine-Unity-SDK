@@ -73,6 +73,14 @@ namespace IDosGames
         }
 
         [Space(5)]
+        [SerializeField] private string _buildKey;
+        public string BuildKey
+        {
+            get => _buildKey.Trim();
+            set => _buildKey = value.Trim();
+        }
+
+        [Space(5)]
         [SerializeField] private Platforms _buildForPlatform = Platforms.GooglePlay;
         public Platforms BuildForPlatform
         {

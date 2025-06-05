@@ -19,6 +19,7 @@ namespace IDosGames
             var requestBody = new IGSRequest
             {
                 TitleID = IDosGamesSDKSettings.Instance.TitleID,
+                BuildKey = IDosGamesSDKSettings.Instance.BuildKey,
                 FunctionName = ServerFunctionHandlers.UploadWebGL.ToString(),
                 WebAppLink = WebSDK.webAppLink,
                 SecretKey = IDosGamesSDKSettings.Instance.DeveloperSecretKey,
@@ -33,6 +34,7 @@ namespace IDosGames
             var requestBody = new IGSRequest
             {
                 TitleID = IDosGamesSDKSettings.Instance.TitleID,
+                BuildKey = IDosGamesSDKSettings.Instance.BuildKey,
                 FunctionName = ServerFunctionHandlers.ClearWebGL.ToString(),
                 WebAppLink = WebSDK.webAppLink,
                 SecretKey = IDosGamesSDKSettings.Instance.DeveloperSecretKey,

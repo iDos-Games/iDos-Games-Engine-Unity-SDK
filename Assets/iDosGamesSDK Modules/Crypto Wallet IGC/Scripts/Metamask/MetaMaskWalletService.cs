@@ -1,3 +1,4 @@
+#if UNITY_WEBGL && IDOSGAMES_CRYPTO_WALLET
 using Nethereum.ABI.FunctionEncoding.Attributes;
 using Nethereum.Contracts;
 using Nethereum.Contracts.Standards.ERC20.ContractDefinition;
@@ -9,6 +10,7 @@ using System;
 using System.Collections;
 using System.Numerics;
 using System.Threading.Tasks;
+using TMPro;
 using UnityEngine;
 
 namespace IDosGames
@@ -17,6 +19,9 @@ namespace IDosGames
     {
         private static MetaMaskWalletService _instance;
         public static MetaMaskWalletService Instance => _instance;
+
+        public event Action OnEthereumEnabled;
+        public event Action OnAccountChanged;
 
         private void Awake()
         {
@@ -32,8 +37,9 @@ namespace IDosGames
         }
 
         private bool _isConnected = false;
+        public BigInteger _currentChainID;
         private string _selectedAccountAddress;
-        private BigInteger _chainId;
+        [SerializeField] private TMP_Text _accountAddressText;
 
         public string TransactionHashAfterTransactionToGame { get; private set; }
 
@@ -48,7 +54,7 @@ namespace IDosGames
 
         private IEnumerator ConnectCoroutine(TaskCompletionSource<bool> tcs)
         {
-#if UNITY_WEBGL
+#if !UNITY_EDITOR
             if (MetamaskWebglInterop.IsMetamaskAvailable())
             {
                 MetamaskWebglInterop.EnableEthereum(gameObject.name, nameof(EthereumEnabled), nameof(DisplayError));
@@ -57,14 +63,13 @@ namespace IDosGames
             }
             else
             {
-                Debug.LogWarning("Metamask is not available, please install it");
+                Message.Show("Metamask is not available, please install it");
                 tcs.SetException(new Exception("Metamask is not available"));
                 yield break;
             }
-#else
-            tcs.SetException(new Exception("MetaMask is only available in WebGL"));
-            yield break;
 #endif
+            Message.Show("Metamask is not available, please install it");
+            yield break;
         }
 
         public void EthereumEnabled(string addressSelected)
@@ -73,18 +78,23 @@ namespace IDosGames
             MetamaskWebglInterop.GetChainId(gameObject.name, nameof(ChainChanged), nameof(DisplayError));
             NewAccountSelected(addressSelected);
             _isConnected = true;
+            OnEthereumEnabled?.Invoke();
+        }
+
+        public void ChainChanged(string chainId)
+        {
+            _currentChainID = new HexBigInteger(chainId).Value;
+            Debug.Log($"MetaMask chain changed: {_currentChainID}");
+            OnAccountChanged?.Invoke();
         }
 
         public void NewAccountSelected(string accountAddress)
         {
             _selectedAccountAddress = accountAddress;
+            _accountAddressText.text = accountAddress;
+            MetamaskWebglInterop.GetChainId(gameObject.name, nameof(ChainChanged), nameof(DisplayError));
             Debug.Log($"MetaMask account selected: {accountAddress}");
-        }
-
-        public void ChainChanged(string chainId)
-        {
-            _chainId = new HexBigInteger(chainId).Value;
-            Debug.Log($"Chain ID changed to: {_chainId}");
+            OnAccountChanged?.Invoke();
         }
 
         public void DisplayError(string errorMessage)
@@ -92,7 +102,7 @@ namespace IDosGames
             Debug.LogError($"MetaMask Error: {errorMessage}");
         }
 
-        public async Task<string> TransferTokenToGame(VirtualCurrencyID virtualCurrencyID, int amount)
+        public async Task<string> TransferTokenToGame(int amount)
         {
             if (!IsConnected)
             {
@@ -101,14 +111,14 @@ namespace IDosGames
             }
 
             var tcs = new TaskCompletionSource<string>();
-            StartCoroutine(TransferTokenToGameCoroutine(virtualCurrencyID, amount, tcs));
+            StartCoroutine(TransferTokenToGameCoroutine(amount, tcs));
             return await tcs.Task;
         }
 
-        private IEnumerator TransferTokenToGameCoroutine(VirtualCurrencyID virtualCurrencyID, int amount, TaskCompletionSource<string> tcs)
+        private IEnumerator TransferTokenToGameCoroutine(int amount, TaskCompletionSource<string> tcs)
         {
             string platformPoolAddress = BlockchainSettings.PlatformPoolContractAddress;
-            string tokenAddress = BlockchainSettings.GetTokenContractAddress(virtualCurrencyID);
+            string tokenAddress = BlockchainSettings.HardTokenContractAddress;
             BigInteger requiredAmountWei = Web3.Convert.ToWei(amount);
 
             // Get current allowance
@@ -191,10 +201,9 @@ namespace IDosGames
                 yield break;
             }
 
-#if IDOSGAMES_CRYPTO_WALLET
             var request = new WalletTransactionRequest
             {
-                ChainID = (int)_chainId,
+                ChainID = BlockchainSettings.ChainID,
                 TransactionType = CryptoTransactionType.Token,
                 Direction = TransactionDirection.Game,
                 TransactionHash = transactionHash
@@ -212,12 +221,9 @@ namespace IDosGames
             }
             else
             {
+                Message.Show(MessageCode.SUCCESS);
                 tcs.SetResult(task.Result);
             }
-#else
-            Debug.Log("Crypto wallet not enabled. Transaction hash: " + transactionHash);
-            tcs.SetResult(transactionHash);
-#endif
         }
 
         private IUnityRpcRequestClientFactory GetUnityRpcRequestClientFactory()
@@ -227,6 +233,7 @@ namespace IDosGames
     }
 
     // Function definitions
+    [Function("depositERC20")]
     public class DepositFunction : FunctionMessage
     {
         [Parameter("address", "token", 1)]
@@ -239,6 +246,7 @@ namespace IDosGames
         public string UserID { get; set; }
     }
 
+    [Function("allowance", "uint256")]
     public class AllowanceFunction : FunctionMessage
     {
         [Parameter("address", "owner", 1)]
@@ -248,9 +256,11 @@ namespace IDosGames
         public string Spender { get; set; }
     }
 
+    [FunctionOutput]
     public class AllowanceOutputDTO : IFunctionOutputDTO
     {
         [Parameter("uint256", "allowance", 1)]
         public BigInteger Allowance { get; set; }
     }
 }
+#endif

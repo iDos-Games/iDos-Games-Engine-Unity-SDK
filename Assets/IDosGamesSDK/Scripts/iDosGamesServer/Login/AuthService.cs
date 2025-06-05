@@ -122,9 +122,9 @@ namespace IDosGames
             }
         }
 
-        public void LogOut(Action<GetAllUserDataResult> resultCallback = null, Action<string> errorCallback = null, Action retryCallback = null)
+        public void LogOut()
         {
-            LoginWithDeviceID(resultCallback, errorCallback, retryCallback);
+            Loading.SwitchToLoginScene(); //LoginWithDeviceID(resultCallback, errorCallback, retryCallback);
         }
 
         public async void LoginWithEmailAddress(string email, string password, Action<GetAllUserDataResult> resultCallback = null, Action<string> errorCallback = null, Action retryCallback = null)

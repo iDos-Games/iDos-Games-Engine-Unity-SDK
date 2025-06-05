@@ -14,6 +14,7 @@ namespace IDosGames
         public string UserID { get; set; }
         public string ClientSessionTicket { get; set; }
         public string EntityToken { get; set; }
+		public string BuildKey { get; set; }
 
         [JsonProperty("MaxItemCount")]
 		public int ItemsInOnePage { get; set; }

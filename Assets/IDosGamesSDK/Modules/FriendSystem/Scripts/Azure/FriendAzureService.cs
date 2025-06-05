@@ -19,6 +19,7 @@ namespace IDosGames.Friends
             var requestBody = new IGSRequest
             {
                 TitleID = IDosGamesSDKSettings.Instance.TitleID,
+                BuildKey = IDosGamesSDKSettings.Instance.BuildKey,
                 FunctionName = FriendActionType.GetMyFriends.ToString(),
                 WebAppLink = WebSDK.webAppLink,
                 ClientSessionTicket = AuthService.ClientSessionTicket,
@@ -35,6 +36,7 @@ namespace IDosGames.Friends
             var requestBody = new IGSRequest
             {
                 TitleID = IDosGamesSDKSettings.Instance.TitleID,
+                BuildKey = IDosGamesSDKSettings.Instance.BuildKey,
                 FunctionName = FriendActionType.GetRecommendedFriends.ToString(),
                 WebAppLink = WebSDK.webAppLink,
                 ClientSessionTicket = AuthService.ClientSessionTicket,
@@ -51,6 +53,7 @@ namespace IDosGames.Friends
             var requestBody = new IGSRequest
             {
                 TitleID = IDosGamesSDKSettings.Instance.TitleID,
+                BuildKey = IDosGamesSDKSettings.Instance.BuildKey,
                 FunctionName = FriendActionType.GetPendingFriendRequests.ToString(),
                 WebAppLink = WebSDK.webAppLink,
                 ClientSessionTicket = AuthService.ClientSessionTicket,
@@ -65,6 +68,7 @@ namespace IDosGames.Friends
         public static async Task<string> SendRequestToAdd(IGSRequest request)
         {
             request.ClientSessionTicket = AuthService.ClientSessionTicket;
+            request.BuildKey = IDosGamesSDKSettings.Instance.BuildKey;
             request.UserID = AuthService.UserID;
             request.FunctionName = FriendActionType.AdditionRequest.ToString();
             request.TitleID = IDosGamesSDKSettings.Instance.TitleID;
@@ -76,6 +80,7 @@ namespace IDosGames.Friends
         public static async Task<string> AcceptRequest(IGSRequest request)
         {
             request.ClientSessionTicket = AuthService.ClientSessionTicket;
+            request.BuildKey = IDosGamesSDKSettings.Instance.BuildKey;
             request.UserID = AuthService.UserID;
             request.FunctionName = FriendActionType.AcceptRequest.ToString();
             request.TitleID = IDosGamesSDKSettings.Instance.TitleID;
@@ -87,6 +92,7 @@ namespace IDosGames.Friends
         public static async Task<string> RejectRequest(IGSRequest request)
         {
             request.ClientSessionTicket = AuthService.ClientSessionTicket;
+            request.BuildKey = IDosGamesSDKSettings.Instance.BuildKey;
             request.UserID = AuthService.UserID;
             request.FunctionName = FriendActionType.RejectRequest.ToString();
             request.TitleID = IDosGamesSDKSettings.Instance.TitleID;
@@ -98,6 +104,7 @@ namespace IDosGames.Friends
         public static async Task<string> DeleteFriend(IGSRequest request)
         {
             request.ClientSessionTicket = AuthService.ClientSessionTicket;
+            request.BuildKey = IDosGamesSDKSettings.Instance.BuildKey;
             request.UserID = AuthService.UserID;
             request.FunctionName = FriendActionType.RemoveFriend.ToString();
             request.TitleID = IDosGamesSDKSettings.Instance.TitleID;

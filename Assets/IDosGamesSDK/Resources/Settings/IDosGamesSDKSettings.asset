@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _titleID: 0
   _titleTemplateID: default
+  _buildKey: 
   _buildForPlatform: 2
   _debugLogging: 0
   _showLoadingOnExecuteServerFunction: 1

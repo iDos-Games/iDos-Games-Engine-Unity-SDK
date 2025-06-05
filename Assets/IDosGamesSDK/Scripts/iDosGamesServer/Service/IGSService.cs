@@ -27,6 +27,7 @@ namespace IDosGames
             var requestBody = new IGSRequest
             {
                 TitleID = IDosGamesSDKSettings.Instance.TitleID,
+                BuildKey = IDosGamesSDKSettings.Instance.BuildKey,
                 FunctionName = ServerFunctionHandlers.GetUserAllData.ToString(),
                 WebAppLink = WebSDK.webAppLink,
                 UserID = userID,
@@ -53,6 +54,7 @@ namespace IDosGames
             var requestBody = new IGSRequest
             {
                 TitleID = IDosGamesSDKSettings.Instance.TitleID,
+                BuildKey = IDosGamesSDKSettings.Instance.BuildKey,
                 FunctionName = ServerFunctionHandlers.LoginWithDeviceID.ToString(),
                 WebAppLink = WebSDK.webAppLink,
                 Platform = platform,
@@ -77,6 +79,7 @@ namespace IDosGames
             var requestBody = new IGSRequest
             {
                 TitleID = IDosGamesSDKSettings.Instance.TitleID,
+                BuildKey = IDosGamesSDKSettings.Instance.BuildKey,
                 WebAppLink = WebSDK.webAppLink,
                 UsageTime = IDosGamesSDKSettings.Instance.PlayTime,
                 TelegramInitData = telegramInitData,
@@ -160,6 +163,7 @@ namespace IDosGames
             var requestBody = new IGSRequest
             {
                 TitleID = IDosGamesSDKSettings.Instance.TitleID,
+                BuildKey = IDosGamesSDKSettings.Instance.BuildKey,
                 FunctionName = ServerFunctionHandlers.LoginWithEmail.ToString(),
                 WebAppLink = WebSDK.webAppLink,
                 UsageTime = IDosGamesSDKSettings.Instance.PlayTime,
@@ -181,6 +185,7 @@ namespace IDosGames
             var requestBody = new IGSRequest
             {
                 TitleID = IDosGamesSDKSettings.Instance.TitleID,
+                BuildKey = IDosGamesSDKSettings.Instance.BuildKey,
                 FunctionName = ServerFunctionHandlers.AddEmailAndPassword.ToString(),
                 WebAppLink = WebSDK.webAppLink,
                 UserID = userID,
@@ -197,6 +202,7 @@ namespace IDosGames
             var requestBody = new IGSRequest
             {
                 TitleID = IDosGamesSDKSettings.Instance.TitleID,
+                BuildKey = IDosGamesSDKSettings.Instance.BuildKey,
                 FunctionName = ServerFunctionHandlers.RegisterUserByEmail.ToString(),
                 UsageTime = IDosGamesSDKSettings.Instance.PlayTime,
                 WebAppLink = WebSDK.webAppLink,
@@ -221,6 +227,7 @@ namespace IDosGames
             var requestBody = new IGSRequest
             {
                 TitleID = IDosGamesSDKSettings.Instance.TitleID,
+                BuildKey = IDosGamesSDKSettings.Instance.BuildKey,
                 FunctionName = ServerFunctionHandlers.ForgotPassword.ToString(),
                 WebAppLink = WebSDK.webAppLink,
                 Email = email,
@@ -234,6 +241,7 @@ namespace IDosGames
             var requestBody = new IGSRequest
             {
                 TitleID = IDosGamesSDKSettings.Instance.TitleID,
+                BuildKey = IDosGamesSDKSettings.Instance.BuildKey,
                 FunctionName = ServerFunctionHandlers.ResetPassword.ToString(),
                 WebAppLink = WebSDK.webAppLink,
                 ResetToken = resetToken,
@@ -250,6 +258,7 @@ namespace IDosGames
             var requestBody = new IGSRequest
             {
                 TitleID = IDosGamesSDKSettings.Instance.TitleID,
+                BuildKey = IDosGamesSDKSettings.Instance.BuildKey,
                 FunctionName = ServerFunctionHandlers.GetUserInventory.ToString(),
                 WebAppLink = WebSDK.webAppLink,
                 UserID = userID,
@@ -264,6 +273,7 @@ namespace IDosGames
             var requestBody = new IGSRequest
             {
                 TitleID = IDosGamesSDKSettings.Instance.TitleID,
+                BuildKey = IDosGamesSDKSettings.Instance.BuildKey,
                 FunctionName = ServerFunctionHandlers.GetCustomUserData.ToString(),
                 WebAppLink = WebSDK.webAppLink,
                 UserID = userID,
@@ -278,6 +288,7 @@ namespace IDosGames
             var requestBody = new IGSRequest
             {
                 TitleID = IDosGamesSDKSettings.Instance.TitleID,
+                BuildKey = IDosGamesSDKSettings.Instance.BuildKey,
                 FunctionName = ServerFunctionHandlers.GetTitlePublicConfiguration.ToString(),
                 WebAppLink = WebSDK.webAppLink,
                 UserID = userID,
@@ -296,6 +307,7 @@ namespace IDosGames
             var requestBody = new IGSRequest
             {
                 TitleID = IDosGamesSDKSettings.Instance.TitleID,
+                BuildKey = IDosGamesSDKSettings.Instance.BuildKey,
                 FunctionName = ServerFunctionHandlers.GetCatalogItems.ToString(),
                 WebAppLink = WebSDK.webAppLink,
                 UserID = userID,
@@ -316,6 +328,7 @@ namespace IDosGames
             var requestBody = new JObject
             {
 				{ "TitleID", IDosGamesSDKSettings.Instance.TitleID },
+                { "BuildKey", IDosGamesSDKSettings.Instance.BuildKey },
                 { "WebAppLink", WebSDK.webAppLink },
                 { "UserID", AuthService.UserID },
                 { "ClientSessionTicket", AuthService.ClientSessionTicket },
@@ -330,6 +343,7 @@ namespace IDosGames
             var requestBody = new IGSRequest
             {
                 TitleID = IDosGamesSDKSettings.Instance.TitleID,
+                BuildKey = IDosGamesSDKSettings.Instance.BuildKey,
                 FunctionName = ServerFunctionHandlers.GetLeaderboard.ToString(),
                 WebAppLink = WebSDK.webAppLink,
                 UserID = userID,
@@ -345,6 +359,7 @@ namespace IDosGames
             var requestBody = new IGSRequest
             {
                 TitleID = IDosGamesSDKSettings.Instance.TitleID,
+                BuildKey = IDosGamesSDKSettings.Instance.BuildKey,
                 FunctionName = ServerFunctionHandlers.ClaimTournamentReward.ToString(),
                 WebAppLink = WebSDK.webAppLink,
                 UserID = userID,
@@ -360,7 +375,8 @@ namespace IDosGames
         public static async Task<string> GetDataFromMarketplace(MarketplaceGetDataRequest request)
         {
             request.TitleID = IDosGamesSDKSettings.Instance.TitleID;
-            request.UserID = AuthService.UserID; //AuthService.PlayerID;
+            request.BuildKey = IDosGamesSDKSettings.Instance.BuildKey;
+            request.UserID = AuthService.UserID;
             request.ClientSessionTicket = AuthService.ClientSessionTicket;
             request.WebAppLink = WebSDK.webAppLink;
 
@@ -372,6 +388,7 @@ namespace IDosGames
         public static async Task<string> TryDoMarketplaceAction(MarketplaceActionRequest request)
         {
             request.TitleID = IDosGamesSDKSettings.Instance.TitleID;
+            request.BuildKey = IDosGamesSDKSettings.Instance.BuildKey;
             request.UserID = AuthService.UserID;
             request.ClientSessionTicket = AuthService.ClientSessionTicket;
             request.WebAppLink = WebSDK.webAppLink;
@@ -388,6 +405,7 @@ namespace IDosGames
         public static async Task<string> TryMakeTransaction(WalletTransactionRequest request)
         {
             request.TitleID = IDosGamesSDKSettings.Instance.TitleID;
+            request.BuildKey = IDosGamesSDKSettings.Instance.BuildKey;
             request.UserID = AuthService.UserID;
             request.ClientSessionTicket = AuthService.ClientSessionTicket;
             request.WebAppLink = WebSDK.webAppLink;

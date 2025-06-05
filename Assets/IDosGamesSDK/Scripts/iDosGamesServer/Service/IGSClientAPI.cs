@@ -180,6 +180,7 @@ namespace IDosGames
             {
                 FunctionName = functionName.ToString(),
                 TitleID = IDosGamesSDKSettings.Instance.TitleID,
+                BuildKey = IDosGamesSDKSettings.Instance.BuildKey,
                 WebAppLink = WebSDK.webAppLink,
                 UserID = AuthService.UserID,
                 ClientSessionTicket = AuthService.ClientSessionTicket,

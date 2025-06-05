@@ -30,6 +30,7 @@ namespace IDosGames
             var requestBody = new IGSRequest
             {
                 TitleID = IDosGamesSDKSettings.Instance.TitleID,
+                BuildKey = IDosGamesSDKSettings.Instance.BuildKey,
                 FunctionName = ServerFunctionHandlers.CreateTelegramInvoice.ToString(),
                 WebAppLink = WebSDK.webAppLink,
                 UserID = AuthService.UserID,

@@ -21,6 +21,7 @@ namespace IDosGames
         public string LeaderboardID { get; set; }
         public string StatisticName { get; set; }
         public string SecretKey { get; set; }
+        public string BuildKey { get; set; }
         public bool DevBuild { get; set; }
         public string WebAppLink { get; set; }
         public int UsageTime { get; set; }

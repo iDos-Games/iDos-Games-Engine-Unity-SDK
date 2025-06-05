@@ -46,13 +46,7 @@ namespace IDosGames
 
 		private void LogOut()
 		{
-			AuthService.Instance.LogOut(OnLogOutSuccess);
-		}
-
-		private void OnLogOutSuccess(GetAllUserDataResult obj)
-		{
-			Message.Show(MessageCode.SUCCESS_LOGGED_OUT);
-			UserDataService.RequestUserAllData();
+			AuthService.Instance.LogOut();
 		}
 
 		private void UpdateView()
@@ -82,7 +76,7 @@ namespace IDosGames
 		{
 			Message.Show(MessageCode.ACCOUNT_SUCCESS_DELETED);
 			SetActiveDeleteAccountPopUp(false);
-			AuthService.Instance.LogOut((result) => UserDataService.RequestUserAllData());
+			AuthService.Instance.LogOut();
 		}
 
 		private void SetActiveDeleteAccountPopUp(bool active)
