@@ -74,10 +74,7 @@ namespace IDosGames
             }
             EditorGUILayout.EndHorizontal();
 
-            EditorGUILayout.BeginHorizontal();
             settings.DevBuild = EditorGUILayout.Toggle("Development Build", settings.DevBuild);
-            settings.ClearDirectory = EditorGUILayout.Toggle("Clear Directory Before Uploading", settings.ClearDirectory);
-            EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.BeginHorizontal();
 

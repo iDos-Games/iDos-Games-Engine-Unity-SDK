@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
@@ -14,27 +15,27 @@ namespace IDosGames
         {
             Debug.Log("Uploading Start ...");
 
-            await IGSAdminApi.ClearWebGL();
-
             if (!Directory.Exists(directoryPath))
             {
+                Debug.LogError("Directory does not exist: " + directoryPath);
                 return;
             }
 
             var allFiles = await AddFilesFromDirectory(directoryPath, directoryPath);
 
-            for (int i = 0; i < allFiles.Count; i += batchSize)
+            string[] requiredEndings = new string[] { ".loader.js", ".data.unityweb", ".framework.js.unityweb", ".wasm.unityweb" };
+            var uploadedFiles = allFiles.ToDictionary(
+                f => requiredEndings.FirstOrDefault(ending => f.FilePath.EndsWith(ending, StringComparison.OrdinalIgnoreCase)),
+                f => f
+            );
+
+            if (uploadedFiles.Count != requiredEndings.Length || uploadedFiles.Any(kvp => kvp.Key == null))
             {
-                var batch = allFiles.GetRange(i, Math.Min(batchSize, allFiles.Count - i));
-                foreach (var file in batch)
-                {
-                    //Debug.Log($"Uploading file: {file.FilePath}");
-                }
-                await IGSAdminApi.UploadWebGL(batch);
-                await Task.Delay(1000);
-                Debug.Log($"... Uploaded batch {i / batchSize + 1}");
+                Debug.LogError("Missing required WebGL build files. Required: .loader.js, .data.unityweb, .framework.js.unityweb, .wasm.unityweb");
+                return;
             }
 
+            await IGSAdminApi.UploadWebGLBuild(allFiles);
             Debug.Log("All Files Upload Completed!");
 
             if (IDosGamesSDKSettings.Instance.DevBuild)
@@ -45,7 +46,7 @@ namespace IDosGames
             {
                 IDosGamesSDKSettings.Instance.WebGLUrl = "https://cloud.idosgames.com/drive/app/" + IDosGamesSDKSettings.Instance.TitleID + "/index.html";
             }
-            
+
             Debug.Log("WebGL URL: " + IDosGamesSDKSettings.Instance.WebGLUrl);
         }
 
@@ -54,31 +55,27 @@ namespace IDosGames
             List<FileUpload> filesToUpload = new List<FileUpload>();
             string[] files = Directory.GetFiles(currentDirectory);
 
+            string[] requiredEndings = new string[] { ".loader.js", ".data.unityweb", ".framework.js.unityweb", ".wasm.unityweb" };
+
             foreach (string file in files)
             {
-                if (Path.GetExtension(file).Equals(".meta", StringComparison.OrdinalIgnoreCase))
+                if (requiredEndings.Any(ending => file.EndsWith(ending, StringComparison.OrdinalIgnoreCase)))
                 {
-                    //Debug.Log($"Skipping .meta file: {file}");
-                    continue;
-                }
+                    byte[] fileData = await ReadFileAsync(file);
+                    if (fileData == null || fileData.Length == 0)
+                    {
+                        Debug.LogWarning($"Failed to read file or file is empty: {file}");
+                        continue;
+                    }
 
-                byte[] fileData = await ReadFileAsync(file);
-                if (fileData == null || fileData.Length == 0)
+                    string relativePath = Path.GetRelativePath(rootDirectory, file);
+                    filesToUpload.Add(new FileUpload(relativePath, fileData));
+                    Debug.Log($"File is uploading: {relativePath}");
+                }
+                else
                 {
-                    Debug.LogWarning($"Failed to read file or file is empty: {file}");
-                    continue;
+                    Debug.Log($"Skipping file: {file}");
                 }
-
-                string relativePath = Path.GetRelativePath(rootDirectory, file);
-                filesToUpload.Add(new FileUpload(relativePath, fileData));
-                //Debug.Log($"File added: {relativePath}");
-            }
-
-            string[] directories = Directory.GetDirectories(currentDirectory);
-            foreach (string directory in directories)
-            {
-                var subDirectoryFiles = await AddFilesFromDirectory(directory, rootDirectory);
-                filesToUpload.AddRange(subDirectoryFiles);
             }
 
             return filesToUpload;
