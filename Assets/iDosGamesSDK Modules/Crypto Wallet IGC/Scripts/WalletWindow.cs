@@ -30,7 +30,7 @@ namespace IDosGames
                 }
 				else
 				{
-                    Message.Show(MessageCode.INSUFFICIENT_BALANCE);
+                    Message.Show(MessageCode.INSUFFICIENT_BALANCE_FOR_GAS);
                     Loading.HideAllPanels();
                     return null;
 				}
@@ -54,7 +54,7 @@ namespace IDosGames
                 }
 				else
 				{
-                    Message.Show(MessageCode.INSUFFICIENT_BALANCE);
+                    Message.Show(MessageCode.INSUFFICIENT_BALANCE_FOR_GAS);
                     Loading.HideAllPanels();
                     return null;
                 }

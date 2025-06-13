@@ -14,19 +14,19 @@ namespace IDosGames
         public static event Action<Action> ConnectionError;
         public static string URL_IGS_ADMIN_API = IDosGamesSDKSettings.Instance.IgsAdminApiLink;
 
-        public static async Task<string> UploadWebGL(List<FileUpload> files)
+        public static async Task<string> UploadWebGLBuild(List<FileUpload> files)
         {
             var requestBody = new IGSRequest
             {
                 TitleID = IDosGamesSDKSettings.Instance.TitleID,
                 BuildKey = IDosGamesSDKSettings.Instance.BuildKey,
-                FunctionName = ServerFunctionHandlers.UploadWebGL.ToString(),
+                FunctionName = ServerFunctionHandlers.UploadWebGLBuild.ToString(),
                 WebAppLink = WebSDK.webAppLink,
                 SecretKey = IDosGamesSDKSettings.Instance.DeveloperSecretKey,
                 Files = files,
                 DevBuild = IDosGamesSDKSettings.Instance.DevBuild
             };
-            return await SendPostRequest(URL_IGS_ADMIN_API + ServerFunctionHandlers.UploadWebGL.ToString(), requestBody);
+            return await SendPostRequest(URL_IGS_ADMIN_API + ServerFunctionHandlers.UploadWebGLBuild.ToString(), requestBody);
         }
 
         public static async Task<string> ClearWebGL()
