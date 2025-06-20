@@ -4,7 +4,7 @@ iDos Games Engine is LiveOps, AI, mobile tools and backed solution for your cros
 
 Our iDos Games Engine has a detailed meta-game and each module is tightly connected to each other, which is good for long-term retention and LTV. But it's up to you to decide which modules to enable and which to disable.
 
-**START FOR FREE: [iDos Games Engine](https://platform.idosgames.com)**
+**START FOR FREE: [iDos Games Platform](https://idosgames.com/en/)**
 
 Documentation: [docs.iDosGames.com](https://docs.idosgames.com/start/quick-start-unity-sdk)
 
