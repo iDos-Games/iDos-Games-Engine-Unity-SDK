@@ -6,7 +6,7 @@ Our iDos Games Engine has a detailed meta-game and each module is tightly connec
 
 **START FOR FREE: [iDos Games Engine](https://platform.idosgames.com)**
 
-Documentation: [iDosGames.com](https://idosgames.com/docs/developers/quick-start/ige-unity-sdk/)
+Documentation: [docs.iDosGames.com](https://docs.idosgames.com/start/quick-start-unity-sdk)
 
 To get textures for a 3D avatar you need the [https://u3d.as/3hMF](https://u3d.as/3hMF) package.
 
