@@ -10,6 +10,7 @@ namespace IDosGames
 
 		[SerializeField] private TMP_Text _fromText;
 		[SerializeField] private TMP_Text _toText;
+        [SerializeField] private GameObject _externalAddress;
 
 		public event Action ValueChanged;
 
@@ -36,21 +37,42 @@ namespace IDosGames
 			Switch();
 		}
 
-		private void SwitchDirection()
-		{
-			if (Direction == TransactionDirection.Game)
-			{
-				Direction = TransactionDirection.UsersCryptoWallet;
-			}
-			else if (Direction == TransactionDirection.UsersCryptoWallet)
-			{
-				Direction = TransactionDirection.Game;
-			}
-		}
+        private void SwitchDirection()
+        {
+            switch (Direction)
+            {
+                case TransactionDirection.Game:
+                    Direction = TransactionDirection.UsersCryptoWallet;
+                    break;
+                case TransactionDirection.UsersCryptoWallet:
+                    Direction = TransactionDirection.ExternalWalletAddress;
+                    break;
+                case TransactionDirection.ExternalWalletAddress:
+                    Direction = TransactionDirection.Game;
+                    break;
+            }
+        }
 
-		private void ReplaceText()
+        private void ReplaceText()
 		{
-			(_toText.text, _fromText.text) = (_fromText.text, _toText.text);
-		}
+            switch (Direction)
+            {
+                case TransactionDirection.Game:
+                    _fromText.text = "Crypto Wallet";
+                    _toText.text = "Game";
+                    _externalAddress.SetActive(false);
+                    break;
+                case TransactionDirection.UsersCryptoWallet:
+                    _fromText.text = "Game ";
+                    _toText.text = "Crypto Wallet";
+                    _externalAddress.SetActive(false);
+                    break;
+                case TransactionDirection.ExternalWalletAddress:
+                    _fromText.text = "Crypto Wallet";
+                    _toText.text = "External Address";
+                    _externalAddress.SetActive(true);
+                    break;
+            }
+        }
 	}
 }

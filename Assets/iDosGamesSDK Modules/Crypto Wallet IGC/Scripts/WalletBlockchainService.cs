@@ -23,6 +23,7 @@ using Nethereum.Hex.HexTypes;
 using Nethereum.Hex.HexConvertors;
 
 using BalanceOfERC20Function = Nethereum.Contracts.Standards.ERC20.ContractDefinition.BalanceOfFunction;
+using TransferFunction = Nethereum.Contracts.Standards.ERC20.ContractDefinition.TransferFunction;
 
 namespace IDosGames
 {
@@ -498,6 +499,69 @@ namespace IDosGames
             catch (Exception)
             {
                 return new List<BigInteger>();
+            }
+        }
+
+        public static async Task<string> TransferERC20TokenAndGetHash(string fromAddress, string toAddress, VirtualCurrencyID tokenID, int amount, string privateKey, int chainID)
+        {
+            try
+            {
+                var account = new Account(privateKey);
+                var web3 = new Web3(account, BlockchainSettings.RpcUrl);
+                var contractAddress = BlockchainSettings.GetTokenContractAddress(tokenID);
+                var transferFunction = new TransferFunction
+                {
+                    FromAddress = fromAddress,
+                    To = toAddress,
+                    Value = new HexBigInteger(Web3.Convert.ToWei(amount, UnitConversion.EthUnit.Ether)),
+                    GasPrice = new HexBigInteger(Web3.Convert.ToWei(BlockchainSettings.GasPrice, UnitConversion.EthUnit.Gwei)),
+                    Gas = 100000,
+                    AmountToSend = new HexBigInteger(BlockchainSettings.DEFAULT_VALUE_IN_NATIVE_TOKEN)
+                };
+
+                var nonce = await GetTransactionCountAsync(fromAddress);
+                if (nonce == null)
+                {
+                    return null;
+                }
+
+                var transactionInput = transferFunction.CreateTransactionInput(contractAddress);
+                var transactionSigner = new LegacyTransactionSigner();
+                var chainIdBigInt = new BigInteger(chainID);
+                var signedTransaction = transactionSigner.SignTransaction(privateKey, chainIdBigInt, transactionInput.To, transactionInput.Value, nonce, transactionInput.GasPrice, transactionInput.Gas, transactionInput.Data);
+
+                var data = new
+                {
+                    jsonrpc = "2.0",
+                    method = "eth_sendRawTransaction",
+                    @params = new object[]
+                    {
+                        "0x" + signedTransaction
+                    },
+                    id = 1
+                };
+
+                var jsonData = JsonConvert.SerializeObject(data);
+                string responseText = await SendUnityWebRequest(BlockchainSettings.RpcUrl, jsonData);
+
+                if (string.IsNullOrEmpty(responseText))
+                {
+                    return null;
+                }
+
+                var jsonRpcResponse = JsonConvert.DeserializeObject<JsonRpcResponse<string>>(responseText);
+                if (jsonRpcResponse.Error != null)
+                {
+                    Debug.LogWarning("JSON-RPC Error: " + jsonRpcResponse.Error.Message);
+                    return null;
+                }
+
+                return jsonRpcResponse.Result;
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning("Transfer Error: " + ex.Message);
+                return null;
             }
         }
 

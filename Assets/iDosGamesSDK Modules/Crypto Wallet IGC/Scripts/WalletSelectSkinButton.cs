@@ -54,7 +54,7 @@ namespace IDosGames
 
 		private void OpenInventory()
 		{
-			var isFromCryptoWallet = _transferDirection.Direction == TransactionDirection.Game;
+			var isFromCryptoWallet = _transferDirection.Direction == TransactionDirection.Game || _transferDirection.Direction == TransactionDirection.ExternalWalletAddress;
 
 			List<SkinCatalogItem> skins = new();
 

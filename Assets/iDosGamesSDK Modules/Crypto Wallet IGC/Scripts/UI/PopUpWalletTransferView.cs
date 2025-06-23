@@ -165,7 +165,7 @@ namespace IDosGames
 			{
 				amount = UserInventory.GetVirtualCurrencyAmount(tokenInput.ToString());
 			}
-			else if (direction == TransactionDirection.Game)
+			else
 			{
 				if (tokenInput == VirtualCurrencyID.IG)
 				{
@@ -194,7 +194,7 @@ namespace IDosGames
 				{
 					amount = UserInventory.GetItemAmount(skinInput.ItemID);
 				}
-				else if (direction == TransactionDirection.Game)
+				else
 				{
 					amount = _cryptoTokenBalance.GetNFTAmount(skinInput.NFTID);
 				}
@@ -205,8 +205,8 @@ namespace IDosGames
 
 		private void UpdateIconVisibilityOnTransferBtn()
 		{
-			_transferButton.SetActivateIcon(GetTransferDirection() == TransactionDirection.UsersCryptoWallet);
-		}
+			_transferButton.SetActivateIcon(false); //GetTransferDirection() == TransactionDirection.UsersCryptoWallet
+        }
 #endif
 
     }

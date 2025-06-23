@@ -11,6 +11,7 @@ namespace IDosGames
 	{
 		public static string TransactionHashAfterTransactionToGame { get; private set; }
         public static string TransactionHashAfterTransferToUser { get; private set; }
+        public static string TransactionHashAfterTransferToExternalAddress { get; private set; }
 
         public static async Task<string> TransferTokenToGame(VirtualCurrencyID virtualCurrencyID, int amount)
 		{
@@ -153,6 +154,48 @@ namespace IDosGames
             return TransactionHashAfterTransferToUser;
         }
 
+        public static async Task<string> TransferTokenToExternalAddress(VirtualCurrencyID virtualCurrencyID, int amount, string toAddress)
+        {
+            if (!IsWalletReady())
+            {
+                return null;
+            }
+
+            var transactionHash = await WalletBlockchainService.TransferERC20TokenAndGetHash(WalletManager.WalletAddress, toAddress, virtualCurrencyID, amount, WalletManager.PrivateKey, BlockchainSettings.ChainID);
+
+            TransactionHashAfterTransferToExternalAddress = transactionHash;
+
+            if (string.IsNullOrEmpty(TransactionHashAfterTransferToExternalAddress))
+            {
+                return null;
+            }
+
+            Message.Show(TransactionHashAfterTransferToExternalAddress);
+
+            return TransactionHashAfterTransferToExternalAddress;
+        }
+
+        public static async Task<string> TransferNFTToExternalAddress(BigInteger nftID, int amount, string toAddress)
+        {
+            if (!IsWalletReady())
+            {
+                return null;
+            }
+
+            var transactionHash = await WalletBlockchainService.TransferNFT1155AndGetHash(WalletManager.WalletAddress, toAddress, nftID, amount, WalletManager.PrivateKey, BlockchainSettings.ChainID);
+
+            TransactionHashAfterTransactionToGame = transactionHash;
+
+            if (string.IsNullOrEmpty(TransactionHashAfterTransactionToGame))
+            {
+                return null;
+            }
+
+            Message.Show(TransactionHashAfterTransferToExternalAddress);
+
+            return TransactionHashAfterTransferToExternalAddress;
+        }
+
         public static async Task<string> GetTokenWithdrawalSignature(VirtualCurrencyID virtualCurrencyID, int amount)
 		{
 			if (!IsWalletReady())
@@ -240,7 +283,7 @@ namespace IDosGames
 
 			if (!isReady)
 			{
-				Debug.LogWarning("WalletConnect is not ready.");
+				Debug.LogWarning("Crypto Wallet is not ready.");
 			}
 
 			return isReady;

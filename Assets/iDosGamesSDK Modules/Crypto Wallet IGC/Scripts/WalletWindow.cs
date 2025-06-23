@@ -1,5 +1,4 @@
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -54,6 +53,24 @@ namespace IDosGames
                 }
 				else
 				{
+                    Message.Show(MessageCode.INSUFFICIENT_BALANCE_FOR_GAS);
+                    Loading.HideAllPanels();
+                    return null;
+                }
+            }
+            else if (direction == TransactionDirection.ExternalWalletAddress)
+            {
+                Loading.ShowTransparentPanel();
+
+                bool balance = await WalletService.HasSufficientBalanceForGas(150000);
+                if (balance)
+                {
+                    transferResult = await WalletService.TransferTokenToExternalAddress(virtualCurrencyID, amount, WalletManager.ToAddress);
+                    transactionHash = WalletService.TransactionHashAfterTransferToExternalAddress;
+                    Loading.HideAllPanels();
+                }
+                else
+                {
                     Message.Show(MessageCode.INSUFFICIENT_BALANCE_FOR_GAS);
                     Loading.HideAllPanels();
                     return null;
@@ -130,6 +147,25 @@ namespace IDosGames
                     return null;
                 }
             }
+            else if (direction == TransactionDirection.ExternalWalletAddress)
+            {
+                Loading.ShowTransparentPanel();
+
+                bool balance = await WalletService.HasSufficientBalanceForGas(150000);
+                if (balance)
+                {
+                    var nftID = UserDataService.GetCachedSkinItem(skinID).NFTID;
+                    transferResult = await WalletService.TransferNFTToExternalAddress(nftID, amount, WalletManager.ToAddress);
+                    transactionHash = WalletService.TransactionHashAfterTransferToExternalAddress;
+                    Loading.HideAllPanels();
+                }
+                else
+                {
+                    Message.Show(MessageCode.INSUFFICIENT_BALANCE_FOR_GAS);
+                    Loading.HideAllPanels();
+                    return null;
+                }
+            }
 
             if (IDosGamesSDKSettings.Instance.DebugLogging)
 			{
@@ -150,48 +186,6 @@ namespace IDosGames
             }
 
             return transferResult;
-		}
-
-		private static void ProcessResultMessage(string result)
-		{
-			if (result == null)
-			{
-				Message.Show(MessageCode.SOMETHING_WENT_WRONG);
-				return;
-			}
-
-			var resultJson = JsonConvert.DeserializeObject<JObject>(result);
-
-			if (resultJson.ContainsKey(JsonProperty.MESSAGE_KEY))
-			{
-				Message.Show(resultJson[JsonProperty.MESSAGE_KEY].ToString());
-			}
-			else
-			{
-				Message.Show(MessageCode.SOMETHING_WENT_WRONG);
-			}
-		}
-
-		private static string GetTransactionHashFromResultMessage(string result)
-		{
-			if (result == null)
-			{
-				Message.Show(MessageCode.SOMETHING_WENT_WRONG);
-				return result;
-			}
-
-			var resultJson = JsonConvert.DeserializeObject<JObject>(result);
-
-			if (resultJson.ContainsKey("TransactionHash"))
-			{
-				return resultJson["TransactionHash"].ToString();
-			}
-			else
-			{
-				Message.Show(MessageCode.SOMETHING_WENT_WRONG);
-			}
-
-			return null;
 		}
 
 		private string GetTokenName(VirtualCurrencyID currencyID)
