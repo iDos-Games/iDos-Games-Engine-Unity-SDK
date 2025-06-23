@@ -6,7 +6,7 @@ namespace IDosGames
 {
     public class MetaMaskConnectButton : MonoBehaviour
     {
-#if UNITY_WEBGL
+#if UNITY_WEBGL && IDOSGAMES_CRYPTO_WALLET
         [SerializeField] private Button _connectButton;
         [SerializeField] private GameObject _chainChangeInfo;
         [SerializeField] private GameObject _depositTokenInfo;

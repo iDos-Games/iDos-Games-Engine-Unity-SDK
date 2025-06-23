@@ -110,9 +110,7 @@ namespace IDosGames
 				return null;
 			}
 
-			var companyWalletAddress = BlockchainSettings.HotWalletAddress;
-
-			var transactionHash = await WalletBlockchainService.TransferNFT1155AndGetHash(WalletManager.WalletAddress, companyWalletAddress, nftID, amount, WalletManager.PrivateKey);
+			var transactionHash = await WalletBlockchainService.TransferNFT1155AndGetHash(WalletManager.WalletAddress, BlockchainSettings.PlatformPoolContractAddress, nftID, amount, WalletManager.PrivateKey, BlockchainSettings.ChainID);
 
 			TransactionHashAfterTransactionToGame = transactionHash;
 
@@ -134,7 +132,28 @@ namespace IDosGames
 			return await IGSService.TryMakeTransaction(request);
 		}
 
-		public static async Task<string> GetTokenWithdrawalSignature(VirtualCurrencyID virtualCurrencyID, int amount)
+        public static async Task<string> TransferNFTToUser(WithdrawalSignatureResult signature)
+        {
+            if (!IsWalletReady())
+            {
+                return null;
+            }
+
+            var transactionHash = await WalletBlockchainService.WithdrawERC1155Token(signature, WalletManager.PrivateKey, BlockchainSettings.ChainID);
+
+            TransactionHashAfterTransferToUser = transactionHash;
+
+            if (string.IsNullOrEmpty(TransactionHashAfterTransferToUser))
+            {
+                return null;
+            }
+
+            Message.Show(TransactionHashAfterTransferToUser);
+
+            return TransactionHashAfterTransferToUser;
+        }
+
+        public static async Task<string> GetTokenWithdrawalSignature(VirtualCurrencyID virtualCurrencyID, int amount)
 		{
 			if (!IsWalletReady())
 			{
@@ -156,7 +175,7 @@ namespace IDosGames
 			return await IGSService.TryMakeTransaction(request);
 		}
 
-		public static async Task<string> TransferNFTToUsersCryptoWallet(string skinID, int amount)
+		public static async Task<string> GetNFTWithdrawalSignature(string skinID, int amount)
 		{
 			if (!IsWalletReady())
 			{

@@ -95,7 +95,9 @@ namespace IDosGames
         {
             IDosGamesSDKSettings.Instance.DeveloperSecretKey = null;
             IDosGamesSDKSettings.Instance.WebGLUrl = null;
-            IDosGamesSDKSettings.Instance.TitleID = "";
+            IDosGamesSDKSettings.Instance.TitleID = "0";
+            IDosGamesSDKSettings.Instance.TitleTemplateID = "default";
+            IDosGamesSDKSettings.Instance.BuildKey = "";
             PlayerPrefs.DeleteAll();
         }
     }
