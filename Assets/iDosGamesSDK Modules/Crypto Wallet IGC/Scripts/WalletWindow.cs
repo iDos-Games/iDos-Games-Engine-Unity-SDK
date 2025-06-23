@@ -1,5 +1,4 @@
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -59,6 +58,24 @@ namespace IDosGames
                     return null;
                 }
             }
+            else if (direction == TransactionDirection.ExternalWalletAddress)
+            {
+                Loading.ShowTransparentPanel();
+
+                bool balance = await WalletService.HasSufficientBalanceForGas(150000);
+                if (balance)
+                {
+                    transferResult = await WalletService.TransferTokenToExternalAddress(virtualCurrencyID, amount, WalletManager.ToAddress);
+                    transactionHash = WalletService.TransactionHashAfterTransferToExternalAddress;
+                    Loading.HideAllPanels();
+                }
+                else
+                {
+                    Message.Show(MessageCode.INSUFFICIENT_BALANCE_FOR_GAS);
+                    Loading.HideAllPanels();
+                    return null;
+                }
+            }
 
 			if(IDosGamesSDKSettings.Instance.DebugLogging)
 			{
@@ -89,86 +106,86 @@ namespace IDosGames
 
 			if (direction == TransactionDirection.Game)
 			{
-				var nftID = UserDataService.GetCachedSkinItem(skinID).NFTID;
+                Loading.ShowTransparentPanel();
 
-				transferResult = await WalletService.TransferNFTToGame(nftID, amount);
-				transactionHash = WalletService.TransactionHashAfterTransactionToGame;
+                bool balance = await WalletService.HasSufficientBalanceForGas(150000);
+				if (balance)
+				{
+                    var nftID = UserDataService.GetCachedSkinItem(skinID).NFTID;
+                    transferResult = await WalletService.TransferNFTToGame(nftID, amount);
+                    transactionHash = WalletService.TransactionHashAfterTransactionToGame;
+                    Loading.HideAllPanels();
+                }
+                else
+                {
+                    Message.Show(MessageCode.INSUFFICIENT_BALANCE_FOR_GAS);
+                    Loading.HideAllPanels();
+                    return null;
+                }
 
-				if (string.IsNullOrEmpty(transactionHash))
+                if (string.IsNullOrEmpty(transactionHash))
 				{
 					return transferResult; // User cancelled
 				}
 			}
 			else if (direction == TransactionDirection.UsersCryptoWallet)
 			{
-				transferResult = await WalletService.TransferNFTToUsersCryptoWallet(skinID, amount);
-				transactionHash = GetTransactionHashFromResultMessage(transferResult);
-			}
+                Loading.ShowTransparentPanel();
+
+                bool balance = await WalletService.HasSufficientBalanceForGas(150000);
+				if (balance)
+				{
+                    string signatureString = await WalletService.GetNFTWithdrawalSignature(skinID, amount);
+                    var signature = JsonConvert.DeserializeObject<WithdrawalSignatureResult>(signatureString);
+                    transactionHash = await WalletService.TransferNFTToUser(signature);
+                    Loading.HideAllPanels();
+                }
+				else
+				{
+                    Message.Show(MessageCode.INSUFFICIENT_BALANCE_FOR_GAS);
+                    Loading.HideAllPanels();
+                    return null;
+                }
+            }
+            else if (direction == TransactionDirection.ExternalWalletAddress)
+            {
+                Loading.ShowTransparentPanel();
+
+                bool balance = await WalletService.HasSufficientBalanceForGas(150000);
+                if (balance)
+                {
+                    var nftID = UserDataService.GetCachedSkinItem(skinID).NFTID;
+                    transferResult = await WalletService.TransferNFTToExternalAddress(nftID, amount, WalletManager.ToAddress);
+                    transactionHash = WalletService.TransactionHashAfterTransferToExternalAddress;
+                    Loading.HideAllPanels();
+                }
+                else
+                {
+                    Message.Show(MessageCode.INSUFFICIENT_BALANCE_FOR_GAS);
+                    Loading.HideAllPanels();
+                    return null;
+                }
+            }
 
             if (IDosGamesSDKSettings.Instance.DebugLogging)
 			{
                 Debug.Log("TransferResult: " + transferResult);
             }
 
-			ProcessResultMessage(transferResult);
+            //ProcessResultMessage(transferResult);
 
-			if (transferResult != null)
-			{
-				if (transactionHash != null && transactionHash != string.Empty)
-				{
-					int chainID = BlockchainSettings.ChainID;
-					WalletTransactionHistory.SaveNewItem(chainID, transactionHash, direction,
-						UserDataService.GetCachedSkinItem(skinID).DisplayName, amount,
-						UserDataService.GetCachedSkinItem(skinID).ImagePath);
+            if (transactionHash != null && transactionHash != string.Empty)
+            {
+                int chainID = BlockchainSettings.ChainID;
+                WalletTransactionHistory.SaveNewItem(chainID, transactionHash, direction,
+                    UserDataService.GetCachedSkinItem(skinID).DisplayName, amount,
+                    UserDataService.GetCachedSkinItem(skinID).ImagePath);
 
-					_walletManager.RefreshWalletBalance();
-					UserDataService.RequestUserAllData();
-				}
-			}
+                _walletManager.RefreshWalletBalance();
+                UserDataService.RequestUserAllData();
+            }
 
-			return transferResult;
-		}
-
-		private static void ProcessResultMessage(string result)
-		{
-			if (result == null)
-			{
-				Message.Show(MessageCode.SOMETHING_WENT_WRONG);
-				return;
-			}
-
-			var resultJson = JsonConvert.DeserializeObject<JObject>(result);
-
-			if (resultJson.ContainsKey(JsonProperty.MESSAGE_KEY))
-			{
-				Message.Show(resultJson[JsonProperty.MESSAGE_KEY].ToString());
-			}
-			else
-			{
-				Message.Show(MessageCode.SOMETHING_WENT_WRONG);
-			}
-		}
-
-		private static string GetTransactionHashFromResultMessage(string result)
-		{
-			if (result == null)
-			{
-				Message.Show(MessageCode.SOMETHING_WENT_WRONG);
-				return result;
-			}
-
-			var resultJson = JsonConvert.DeserializeObject<JObject>(result);
-
-			if (resultJson.ContainsKey("TransactionHash"))
-			{
-				return resultJson["TransactionHash"].ToString();
-			}
-			else
-			{
-				Message.Show(MessageCode.SOMETHING_WENT_WRONG);
-			}
-
-			return null;
+            return transferResult;
 		}
 
 		private string GetTokenName(VirtualCurrencyID currencyID)
@@ -195,26 +212,6 @@ namespace IDosGames
 			return string.Empty;
 		}
 
-		private void OnWalletConnected()
-		{
-			Loading.HideAllPanels();
-			_walletManager.UpdateView();
-		}
-
-		private void OnWalletDisconnected()
-		{
-			_walletManager.UpdateView();
-		}
-
-		private void OnInitializationFailed()
-		{
-			//Message.ShowConnectionError(async () => await WalletConnectV2.Instance.Initialize());
-		}
-
-		private void OnFailedToConnectToWallet()
-		{
-			Message.Show(MessageCode.FAILED_TO_CONNECT);
-		}
 #endif
     }
 }

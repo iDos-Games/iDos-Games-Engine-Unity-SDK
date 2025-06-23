@@ -21,6 +21,7 @@ namespace IDosGames
         public static string PrivateKey { get; set; }
         public static string SeedPhrase { get; set; }
         public static string PLAYER_PREFS_WALLET_ADDRESS { get; set; }
+        public static string ToAddress { get; set; }
 
         private void OnEnable()
         {

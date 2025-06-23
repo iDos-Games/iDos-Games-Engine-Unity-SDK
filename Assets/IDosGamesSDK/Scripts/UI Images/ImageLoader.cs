@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using UnityEngine;
@@ -20,6 +21,7 @@ namespace IDosGames
     public static class ImageLoader
     {
         public static event Action ImagesUpdated;
+        private static readonly SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
 
         private static readonly Dictionary<string, Sprite> ImageCache = new Dictionary<string, Sprite>();
         private static Dictionary<string, CachedImageInfo> CachedImageInfos;
@@ -126,7 +128,23 @@ namespace IDosGames
             {
                 imageBytes = await DownloadImageBytes(url);
                 string localPath = Path.Combine(Application.persistentDataPath, Path.GetFileName(url));
-                await File.WriteAllBytesAsync(localPath, imageBytes);
+
+                await semaphore.WaitAsync();
+                try
+                {
+                    if (!File.Exists(localPath))
+                    {
+                        await File.WriteAllBytesAsync(localPath, imageBytes);
+                    }
+                    else
+                    {
+                        imageBytes = await File.ReadAllBytesAsync(localPath);
+                    }
+                }
+                finally
+                {
+                    semaphore.Release();
+                }
 
                 CachedImageInfos[url] = new CachedImageInfo
                 {

@@ -259,6 +259,64 @@ namespace IDosGames
             }
         }
 
+        public static async Task<string> WithdrawERC1155Token(WithdrawalSignatureResult withdrawalData, string privateKey, int chainID)
+        {
+            try
+            {
+                var account = new Account(privateKey);
+                var fromAddress = account.Address;
+
+                var withdrawMessage = new WithdrawERC1155Function
+                {
+                    Token = withdrawalData.TokenAddress,
+                    To = withdrawalData.WalletAddress,
+                    Id = BigInteger.Parse(withdrawalData.TokenId),
+                    Amount = BigInteger.Parse(withdrawalData.Amount),
+                    Nonce = BigInteger.Parse(withdrawalData.Nonce),
+                    Signature = HexStringToByteArray(withdrawalData.Signature),
+                    GasPrice = new HexBigInteger(Web3.Convert.ToWei(BlockchainSettings.GasPrice, UnitConversion.EthUnit.Gwei)),
+                    FromAddress = fromAddress
+                };
+
+                withdrawMessage.Gas = new HexBigInteger(150000);
+
+                var nonce = await GetTransactionCountAsync(fromAddress);
+
+                var callData = withdrawMessage.GetCallData().ToHex();
+                var gasPrice = withdrawMessage.GasPrice.Value;
+                var gasLimit = withdrawMessage.Gas.Value;
+
+                var signer = new LegacyTransactionSigner();
+
+                BigInteger chainIdBigInt = new BigInteger(chainID);
+
+                Debug.Log($"ChainID: {chainID}, ContractAddress: {withdrawalData.ContractAddress}, Nonce: {nonce.Value}, GasPrice: {gasPrice}, GasLimit: {gasLimit}, CallData: {callData}");
+
+                string signedTx = signer.SignTransaction(
+                    privateKey,
+                    chainIdBigInt,
+                    withdrawalData.ContractAddress,
+                    BigInteger.Zero,
+                    nonce.Value,
+                    gasPrice,
+                    gasLimit,
+                    callData
+                    );
+
+                //Debug.Log($"Signed Transaction: {signedTx}");
+
+                var txHash = await SendRawTransaction("0x" + signedTx);
+                Debug.Log($"txHash: {txHash}");
+
+                return txHash;
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning($"Withdraw ERC20 Error: {ex.Message}");
+                return null;
+            }
+        }
+
         private static async Task<string> SendRawTransaction(string signedTx)
         {
             var data = new
@@ -444,7 +502,7 @@ namespace IDosGames
             }
         }
 
-        public static async Task<string> TransferERC20TokenAndGetHash(string fromAddress, string toAddress, VirtualCurrencyID tokenID, int amount, string privateKey)
+        public static async Task<string> TransferERC20TokenAndGetHash(string fromAddress, string toAddress, VirtualCurrencyID tokenID, int amount, string privateKey, int chainID)
         {
             try
             {
@@ -457,16 +515,10 @@ namespace IDosGames
                     To = toAddress,
                     Value = new HexBigInteger(Web3.Convert.ToWei(amount, UnitConversion.EthUnit.Ether)),
                     GasPrice = new HexBigInteger(Web3.Convert.ToWei(BlockchainSettings.GasPrice, UnitConversion.EthUnit.Gwei)),
+                    Gas = 100000,
                     AmountToSend = new HexBigInteger(BlockchainSettings.DEFAULT_VALUE_IN_NATIVE_TOKEN)
                 };
 
-                var estimateGas = await EstimateGasAsync(contractAddress, transferFunction);
-                if (estimateGas == null)
-                {
-                    return null;
-                }
-
-                transferFunction.Gas = estimateGas;
                 var nonce = await GetTransactionCountAsync(fromAddress);
                 if (nonce == null)
                 {
@@ -475,7 +527,8 @@ namespace IDosGames
 
                 var transactionInput = transferFunction.CreateTransactionInput(contractAddress);
                 var transactionSigner = new LegacyTransactionSigner();
-                var signedTransaction = transactionSigner.SignTransaction(privateKey, transactionInput.To, transactionInput.Value, nonce, transactionInput.GasPrice, transactionInput.Gas, transactionInput.Data);
+                var chainIdBigInt = new BigInteger(chainID);
+                var signedTransaction = transactionSigner.SignTransaction(privateKey, chainIdBigInt, transactionInput.To, transactionInput.Value, nonce, transactionInput.GasPrice, transactionInput.Gas, transactionInput.Data);
 
                 var data = new
                 {
@@ -512,7 +565,7 @@ namespace IDosGames
             }
         }
 
-        public static async Task<string> TransferNFT1155AndGetHash(string fromAddress, string toAddress, BigInteger nftID, int amount, string privateKey)
+        public static async Task<string> TransferNFT1155AndGetHash(string fromAddress, string toAddress, BigInteger nftID, int amount, string privateKey, int chainID)
         {
             try
             {
@@ -525,17 +578,11 @@ namespace IDosGames
                     To = toAddress,
                     Id = nftID,
                     Amount = amount,
+                    Gas = 100000,
                     GasPrice = new HexBigInteger(Web3.Convert.ToWei(BlockchainSettings.GasPrice, UnitConversion.EthUnit.Gwei)),
-                    Data = Array.Empty<byte>()
+                    Data = string.IsNullOrEmpty(AuthService.UserID) ? Array.Empty<byte>() : Encoding.UTF8.GetBytes(AuthService.UserID)
                 };
 
-                var estimateGas = await EstimateGasNFTAsync(contractAddress, transferFunction);
-                if (estimateGas == null)
-                {
-                    return null;
-                }
-
-                transferFunction.Gas = estimateGas;
                 var nonce = await GetTransactionCountAsync(fromAddress);
                 if (nonce == null)
                 {
@@ -544,7 +591,20 @@ namespace IDosGames
 
                 var transactionInput = transferFunction.CreateTransactionInput(contractAddress);
                 var transactionSigner = new LegacyTransactionSigner();
-                var signedTransaction = transactionSigner.SignTransaction(privateKey, transactionInput.To, transactionInput.Value, nonce, transactionInput.GasPrice, transactionInput.Gas, transactionInput.Data);
+
+                transactionInput.Value = new HexBigInteger(BigInteger.Zero);
+
+                var chainIdBigInt = new BigInteger(chainID);
+                var signedTransaction = transactionSigner.SignTransaction(
+                    privateKey,
+                    chainIdBigInt,
+                    transactionInput.To,
+                    transactionInput.Value.Value,
+                    nonce.Value,
+                    transactionInput.GasPrice.Value,
+                    transactionInput.Gas.Value,
+                    transactionInput.Data
+                );
 
                 var data = new
                 {
@@ -632,49 +692,6 @@ namespace IDosGames
             }
 
             return balances;
-        }
-
-        public static async Task<HexBigInteger> EstimateGasAsync(string contractAddress, TransferFunction transferFunction)
-        {
-            var web3 = new Web3(BlockchainSettings.RpcUrl);
-            var transferHandler = web3.Eth.GetContractTransactionHandler<TransferFunction>();
-            var callInput = transferFunction.CreateCallInput(contractAddress);
-
-            var data = new
-            {
-                jsonrpc = "2.0",
-                method = "eth_estimateGas",
-                @params = new object[]
-                {
-                    new
-                    {
-                        from = transferFunction.FromAddress,
-                        to = contractAddress,
-                        gas = transferFunction.Gas != null ? transferFunction.Gas.Value.ToString("X") : null, // Convert to hex string if not null  
-                        gasPrice = transferFunction.GasPrice != null ? transferFunction.GasPrice.Value.ToString("X") : null, // Convert to hex string if not null  
-                        value = transferFunction.AmountToSend != null ? transferFunction.AmountToSend.ToString("X") : null, // Convert to hex string if not null  
-                        data = callInput.Data
-                    }
-                },
-                id = 1
-            };
-
-            var jsonData = JsonConvert.SerializeObject(data);
-            string responseText = await SendUnityWebRequest(BlockchainSettings.RpcUrl, jsonData);
-
-            if (string.IsNullOrEmpty(responseText))
-            {
-                return null;
-            }
-
-            var jsonRpcResponse = JsonConvert.DeserializeObject<JsonRpcResponse<string>>(responseText);
-            if (jsonRpcResponse.Error != null)
-            {
-                Debug.LogWarning("JSON-RPC Error: " + jsonRpcResponse.Error.Message);
-                return null;
-            }
-
-            return new HexBigInteger(jsonRpcResponse.Result);
         }
 
         public static async Task<HexBigInteger> EstimateGasNFTAsync(string contractAddress, SafeTransferFromFunction transferFunction)
@@ -846,5 +863,27 @@ namespace IDosGames
 
         [Parameter("string", "userID", 3)]
         public string UserID { get; set; }
+    }
+
+    [Function("withdrawERC1155", "bool")]
+    public class WithdrawERC1155Function : FunctionMessage
+    {
+        [Parameter("address", "token", 1)]
+        public string Token { get; set; }
+
+        [Parameter("address", "to", 2)]
+        public string To { get; set; }
+
+        [Parameter("uint256", "id", 3)]
+        public BigInteger Id { get; set; }
+
+        [Parameter("uint256", "amount", 4)]
+        public BigInteger Amount { get; set; }
+
+        [Parameter("uint256", "nonce", 5)]
+        public new BigInteger Nonce { get; set; }
+
+        [Parameter("bytes", "signature", 6)]
+        public byte[] Signature { get; set; }
     }
 }
