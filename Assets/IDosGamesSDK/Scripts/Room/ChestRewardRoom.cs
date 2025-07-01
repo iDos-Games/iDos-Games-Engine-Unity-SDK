@@ -5,7 +5,8 @@ namespace IDosGames
 {
 	public class ChestRewardRoom : Room
 	{
-		private const float CHANGE_STATE_DELAY = 1.5f;
+        private bool _isChangingState = false;
+        private const float CHANGE_STATE_DELAY = 1.0f;
 		[SerializeField] private Chest _chest;
 		[SerializeField] private ChestRewardCard _rewardCard;
 		[SerializeField] private ButtonContinue _buttonContinue;
@@ -87,18 +88,22 @@ namespace IDosGames
 			SetActiveRoom(false);
 		}
 
-		private IEnumerator ChangeToNextState()
-		{
-			SetActiveContinueButton(false);
+        private IEnumerator ChangeToNextState()
+        {
+            if (_isChangingState)
+                yield break;
 
-			yield return new WaitForSecondsRealtime(CHANGE_STATE_DELAY);
+            _isChangingState = true;
+            SetActiveContinueButton(false);
 
-			_currentState++;
+            yield return new WaitForSecondsRealtime(CHANGE_STATE_DELAY);
 
-			SetActiveContinueButton(true);
-		}
+            _currentState++;
+            SetActiveContinueButton(true);
+            _isChangingState = false;
+        }
 
-		private void SetActiveContinueButton(bool active)
+        private void SetActiveContinueButton(bool active)
 		{
 			_buttonContinue.SetActive(active);
 		}

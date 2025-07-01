@@ -136,7 +136,7 @@ namespace IDosGames
             InstantiateItems(items);
         }
 
-        private void InstantiateItems(List<MarketplaceActiveOffer> items)
+        private async void InstantiateItems(List<MarketplaceActiveOffer> items)
         {
             if (_destoyChildrenOnInstantiate)
             {
@@ -154,7 +154,10 @@ namespace IDosGames
 
                 var currencyName = virtualCurrencyID == VirtualCurrencyID.IG ? JsonProperty.IGT.ToUpper() : JsonProperty.IGC.ToUpper();
 
-                Sprite currencyIcon = Resources.Load<Sprite>(UserDataService.CURRENCY_ICONS_IMAGE_PATH + currencyName);
+                string imagePath = UserDataService.CURRENCY_ICONS_IMAGE_PATH + currencyName;
+                string iconPath = (imagePath == JsonProperty.TOKEN_IMAGE_PATH) ? IGSUserData.Currency.CurrencyData.Find(c => c.CurrencyCode == "IG")?.ImageUrl ?? JsonProperty.TOKEN_IMAGE_PATH : imagePath;
+
+                Sprite currencyIcon = await ImageLoader.GetSpriteAsync(iconPath);
 
                 offer.Fill(() => ShowConfirmationPopUp(item, currencyIcon), item.SellerID, (int)item.Price, currencyIcon);
             }
