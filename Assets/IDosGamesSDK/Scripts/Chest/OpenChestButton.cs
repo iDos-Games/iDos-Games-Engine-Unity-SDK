@@ -18,8 +18,8 @@ namespace IDosGames
 		private void Awake()
 		{
 			_button = GetComponent<Button>();
-			ResetListener();
-		}
+            _button.onClick.AddListener(OnClickOpenButton);
+        }
 
 		private void OnEnable()
 		{
@@ -30,12 +30,6 @@ namespace IDosGames
 		private void OnDisable()
 		{
 			UserInventory.InventoryUpdated -= UpdateUI;
-		}
-
-		private void ResetListener()
-		{
-			_button.onClick.RemoveAllListeners();
-			_button.onClick.AddListener(OnClickOpenButton);
 		}
 
 		private void OnClickOpenButton()

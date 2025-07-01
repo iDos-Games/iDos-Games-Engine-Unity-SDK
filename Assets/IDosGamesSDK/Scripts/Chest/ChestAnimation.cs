@@ -50,7 +50,7 @@ namespace IDosGames
 
         private void PlayAnimation(int stringHashState, float transitionDuration = 0.5f)
         {
-            if (_currentState == stringHashState)
+            if (_currentState == stringHashState || _animator.IsInTransition(0))
             {
                 return;
             }
