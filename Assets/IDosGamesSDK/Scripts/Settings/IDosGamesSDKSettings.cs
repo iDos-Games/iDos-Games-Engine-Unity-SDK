@@ -244,11 +244,11 @@ namespace IDosGames
             NamedBuildTarget.WebGL,
             NamedBuildTarget.XboxOne,
             NamedBuildTarget.PS4,
-            NamedBuildTarget.PS5,
-            NamedBuildTarget.NintendoSwitch,
-            NamedBuildTarget.WindowsStoreApps,
-            NamedBuildTarget.tvOS,
-            NamedBuildTarget.VisionOS
+            //NamedBuildTarget.PS5,
+            //NamedBuildTarget.NintendoSwitch,
+            //NamedBuildTarget.WindowsStoreApps,
+            //NamedBuildTarget.tvOS,
+            //NamedBuildTarget.VisionOS
         };
 
         private void SaveState<TEnum>(TEnum newState, string definePrefix, IEnumerable<TEnum> enumValues) where TEnum : Enum
