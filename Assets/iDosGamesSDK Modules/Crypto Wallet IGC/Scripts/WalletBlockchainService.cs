@@ -25,6 +25,10 @@ using Nethereum.Hex.HexConvertors;
 using BalanceOfERC20Function = Nethereum.Contracts.Standards.ERC20.ContractDefinition.BalanceOfFunction;
 using TransferFunction = Nethereum.Contracts.Standards.ERC20.ContractDefinition.TransferFunction;
 
+#if !UNITY_6000_0_OR_NEWER
+using Nethereum.Unity.Util;
+#endif
+
 namespace IDosGames
 {
     public static class WalletBlockchainService
