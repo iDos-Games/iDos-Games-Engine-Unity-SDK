@@ -21,6 +21,7 @@ namespace IDosGames
         public static string URL_MARKETPLACE_GET_DATA = IDosGamesSDKSettings.Instance.MarketplaceDataLink;
         public static string URL_VALIDATE_IAP_SUBSCRIPTION = IDosGamesSDKSettings.Instance.ValidateIAPSubscriptionLink;
         public static string URL_TOURNAMENT = IDosGamesSDKSettings.Instance.TournamentLink;
+        public static string URL_REWARD = IDosGamesSDKSettings.Instance.RewardAndProfitSystemLink;
 
         public static async Task<GetAllUserDataResult> GetUserAllData(string userID, string clientSessionTicket)
         {
@@ -39,6 +40,50 @@ namespace IDosGames
             var response = JsonConvert.DeserializeObject<GetAllUserDataResult>(responseString);
 
             if (response != null ) { IDosGamesSDKSettings.Instance.PlayTime = 0; }
+
+            return response;
+        }
+
+        public static async Task<GetAllUserDataResult> ClaimCoinReward(string userID, string clientSessionTicket, FunctionParameters functionParameter)
+        {
+            var requestBody = new IGSRequest
+            {
+                TitleID = IDosGamesSDKSettings.Instance.TitleID,
+                BuildKey = IDosGamesSDKSettings.Instance.BuildKey,
+                FunctionName = ServerFunctionHandlers.ClaimCoinReward.ToString(),
+                WebAppLink = WebSDK.webAppLink,
+                UserID = userID,
+                ClientSessionTicket = clientSessionTicket,
+                UsageTime = IDosGamesSDKSettings.Instance.PlayTime,
+                FunctionParameter = functionParameter,
+            };
+
+            string responseString = await SendPostRequest(URL_USER_DATA_SYSTEM + nameof(ClaimCoinReward), requestBody);
+            var response = JsonConvert.DeserializeObject<GetAllUserDataResult>(responseString);
+
+            if (response != null) { IDosGamesSDKSettings.Instance.PlayTime = 0; }
+
+            return response;
+        }
+
+        public static async Task<GetAllUserDataResult> ClaimTokenReward(string userID, string clientSessionTicket, FunctionParameters functionParameter)
+        {
+            var requestBody = new IGSRequest
+            {
+                TitleID = IDosGamesSDKSettings.Instance.TitleID,
+                BuildKey = IDosGamesSDKSettings.Instance.BuildKey,
+                FunctionName = ServerFunctionHandlers.ClaimTokenReward.ToString(),
+                WebAppLink = WebSDK.webAppLink,
+                UserID = userID,
+                ClientSessionTicket = clientSessionTicket,
+                UsageTime = IDosGamesSDKSettings.Instance.PlayTime,
+                FunctionParameter = functionParameter,
+            };
+
+            string responseString = await SendPostRequest(URL_USER_DATA_SYSTEM + nameof(ClaimTokenReward), requestBody);
+            var response = JsonConvert.DeserializeObject<GetAllUserDataResult>(responseString);
+
+            if (response != null) { IDosGamesSDKSettings.Instance.PlayTime = 0; }
 
             return response;
         }

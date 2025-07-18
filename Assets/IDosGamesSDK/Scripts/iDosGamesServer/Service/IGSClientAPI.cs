@@ -1,7 +1,6 @@
 using IDosGames.ClientModels;
 using IDosGames.TitlePublicConfiguration;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -29,6 +28,60 @@ namespace IDosGames
             try
             {
                 GetAllUserDataResult response = await IGSService.GetUserAllData(AuthService.UserID, AuthService.ClientSessionTicket);
+                if (response != null)
+                {
+                    resultCallback?.Invoke(response);
+                    ServerFunctionResponsed?.Invoke();
+                }
+            }
+            catch (Exception ex)
+            {
+                OnIGSError(ex.Message, notConnectionErrorCallback, connectionErrorCallback);
+            }
+        }
+
+        public static async void ClaimCoinReward(int rewardAmount, int eventPoints, Action<GetAllUserDataResult> resultCallback, Action<string> notConnectionErrorCallback, Action connectionErrorCallback = null)
+        {
+            if (!AuthService.AuthContext.IsClientLoggedIn()) throw new IGSException(IGSExceptionCode.NotLoggedIn, "Must be logged in to call this method");
+
+            ServerFunctionCalled?.Invoke();
+
+            FunctionParameters parameters = new()
+            {
+                IntValue = rewardAmount,
+                Points = eventPoints
+            };
+
+            try
+            {
+                GetAllUserDataResult response = await IGSService.ClaimCoinReward(AuthService.UserID, AuthService.ClientSessionTicket, parameters);
+                if (response != null)
+                {
+                    resultCallback?.Invoke(response);
+                    ServerFunctionResponsed?.Invoke();
+                }
+            }
+            catch (Exception ex)
+            {
+                OnIGSError(ex.Message, notConnectionErrorCallback, connectionErrorCallback);
+            }
+        }
+
+        public static async void ClaimTokenReward(int rewardAmount, int eventPoints, Action<GetAllUserDataResult> resultCallback, Action<string> notConnectionErrorCallback, Action connectionErrorCallback = null)
+        {
+            if (!AuthService.AuthContext.IsClientLoggedIn()) throw new IGSException(IGSExceptionCode.NotLoggedIn, "Must be logged in to call this method");
+
+            ServerFunctionCalled?.Invoke();
+
+            FunctionParameters parameters = new()
+            {
+                IntValue = rewardAmount,
+                Points = eventPoints
+            };
+
+            try
+            {
+                GetAllUserDataResult response = await IGSService.ClaimTokenReward(AuthService.UserID, AuthService.ClientSessionTicket, parameters);
                 if (response != null)
                 {
                     resultCallback?.Invoke(response);

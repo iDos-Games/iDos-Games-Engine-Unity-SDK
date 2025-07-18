@@ -122,6 +122,7 @@ namespace IDosGames
             IGSUserData.ImageData = userDataResult.ImageData;
 
             IGSUserData.LeaderboardData = userDataResult.LeaderboardData;
+            IGSUserData.TitlePublicData = userDataResult.TitlePublicData;
 
             DataUpdated?.Invoke();
             if (!_firstTimeDataUpdated)

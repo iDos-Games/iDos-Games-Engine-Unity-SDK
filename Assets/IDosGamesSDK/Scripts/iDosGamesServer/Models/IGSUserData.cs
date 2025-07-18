@@ -23,5 +23,6 @@ namespace IDosGames
         public static Dictionary<string, string> ImageData { get; set; }
         public static Dictionary<string, string> AssetBundle { get; set; }
         public static Dictionary<string, PlayerLeaderboardData> LeaderboardData { get; set; }
+        public static Dictionary<string, object> TitlePublicData { get; set; }
     }
 }

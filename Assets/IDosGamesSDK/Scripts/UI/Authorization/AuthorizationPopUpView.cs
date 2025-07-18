@@ -12,7 +12,7 @@ namespace IDosGames
 		[SerializeField] private GameObject[] _signUpElements;
 		[SerializeField] private Button[] _switchButtons;
 
-		private int _currentView = (int)ViewType.SignUp;
+		private int _currentView = (int)ViewType.LogIn;
 
 		private enum ViewType
 		{
