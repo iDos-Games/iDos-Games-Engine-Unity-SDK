@@ -29,19 +29,20 @@ namespace IDosGames
             return await SendPostRequest(URL_IGS_ADMIN_API + ServerFunctionHandlers.UploadWebGLBuild.ToString(), requestBody);
         }
 
-        public static async Task<string> ClearWebGL()
+        public static async Task<string> UploadWebGL(List<FileUpload> files)
         {
             var requestBody = new IGSRequest
             {
                 TitleID = IDosGamesSDKSettings.Instance.TitleID,
                 BuildKey = IDosGamesSDKSettings.Instance.BuildKey,
-                FunctionName = ServerFunctionHandlers.ClearWebGL.ToString(),
+                FunctionName = ServerFunctionHandlers.UploadWebGL.ToString(),
                 WebAppLink = WebSDK.webAppLink,
                 SecretKey = IDosGamesSDKSettings.Instance.DeveloperSecretKey,
+                Files = files,
                 DevBuild = IDosGamesSDKSettings.Instance.DevBuild
             };
 
-            return await SendPostRequest(URL_IGS_ADMIN_API + ServerFunctionHandlers.ClearWebGL.ToString(), requestBody);
+            return await SendPostRequest(URL_IGS_ADMIN_API + ServerFunctionHandlers.UploadWebGL.ToString(), requestBody);
         }
 
         private static async Task<string> SendPostRequest(string functionURL, IGSRequest request)

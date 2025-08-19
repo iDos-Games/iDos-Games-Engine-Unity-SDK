@@ -76,7 +76,7 @@ namespace IDosGames
 
                 ChainConfigs = await GetChainConfigs();
                 ChainConfig = ChainConfigs.TryGetValue(ChainID.ToString(), out var config) ? config : null;
-                PlatformPoolContractAddress = ChainConfig.platformPoolContractAddress;
+                PlatformPoolContractAddress = ChainConfig?.platformPoolContractAddress ?? "";
             }
             else
             {
