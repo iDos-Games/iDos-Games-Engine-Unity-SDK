@@ -1,4 +1,5 @@
 using Newtonsoft.Json;
+using UnityEngine;
 
 namespace IDosGames
 {
@@ -93,7 +94,16 @@ namespace IDosGames
 
         private static void OnErrorClaimReward(string error)
         {
-            Message.Show(MessageCode.FAILED_TO_CLAIM_REWARD);
+            Debug.LogWarning(error);
+
+            if (error == MessageCode.FAILED_TO_CLAIM_REWARD.ToString())
+            {
+
+            }
+            else
+            {
+                Message.Show(error);
+            }
         }
 
         public static int GetSkinProfitAmount()

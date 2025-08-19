@@ -35,8 +35,29 @@ namespace IDosGames
                 return;
             }
 
+            // StreamingAssets
+            var projectRoot = Directory.GetParent(directoryPath)?.FullName ?? directoryPath;
+            var streamingAssetsPath = Path.Combine(projectRoot, "StreamingAssets");
+
+            List<FileUpload> streamingFiles = new List<FileUpload>();
+            if (Directory.Exists(streamingAssetsPath))
+            {
+                streamingFiles = await AddStreamingAssetsRecursively(streamingAssetsPath);
+                Debug.Log($"StreamingAssets found: {streamingFiles.Count} files");
+            }
+            else
+            {
+                Debug.Log("StreamingAssets directory not found (optional): " + streamingAssetsPath);
+            }
+
             await IGSAdminApi.UploadWebGLBuild(allFiles);
-            Debug.Log("All Files Upload Completed!");
+            Debug.Log("Build Files Upload Completed!");
+
+            if (streamingFiles.Count > 0)
+            {
+                await IGSAdminApi.UploadWebGL(streamingFiles);
+                Debug.Log("StreamingAssets Upload Completed!");
+            }
 
             if (IDosGamesSDKSettings.Instance.DevBuild)
             {
@@ -89,6 +110,42 @@ namespace IDosGames
                 int numRead = await sourceStream.ReadAsync(buffer, 0, buffer.Length);
                 return buffer;
             }
+        }
+
+        private static async Task<List<FileUpload>> AddStreamingAssetsRecursively(string streamingAssetsDirectory)
+        {
+            List<FileUpload> filesToUpload = new List<FileUpload>();
+
+            foreach (var file in Directory.EnumerateFiles(streamingAssetsDirectory, "*", SearchOption.AllDirectories))
+            {
+                if (ShouldSkip(file)) continue;
+
+                byte[] fileData = await ReadFileAsync(file);
+                if (fileData == null || fileData.Length == 0)
+                {
+                    Debug.LogWarning($"Failed to read file or file is empty: {file}");
+                    continue;
+                }
+
+                string relative = Path.GetRelativePath(streamingAssetsDirectory, file);
+                string uploadPath = Path.Combine("StreamingAssets", relative);
+                filesToUpload.Add(new FileUpload(NormalizeUploadPath(uploadPath), fileData));
+                Debug.Log($"StreamingAsset uploading: {uploadPath}");
+            }
+
+            return filesToUpload;
+        }
+
+        private static bool ShouldSkip(string filePath)
+        {
+            return filePath.EndsWith(".meta", StringComparison.OrdinalIgnoreCase)
+                || filePath.EndsWith(".DS_Store", StringComparison.OrdinalIgnoreCase)
+                || filePath.EndsWith("Thumbs.db", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static string NormalizeUploadPath(string path)
+        {
+            return path.Replace('\\', '/');
         }
 
         public static void DeleteAllSettings()
