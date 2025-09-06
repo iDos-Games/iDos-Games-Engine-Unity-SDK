@@ -400,7 +400,6 @@ namespace IDosGames
         {
             try
             {
-                string contractABI = BlockchainSettings.GetTokenContractABI(virtualCurrencyID);
                 string contractAddress = BlockchainSettings.GetTokenContractAddress(virtualCurrencyID);
                 var web3 = new Web3(BlockchainSettings.RpcUrl);
 

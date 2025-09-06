@@ -63,18 +63,18 @@ namespace IDosGames
 
                 SoftTokenTicker = firstChain.SoftTokenTicker;
                 SoftTokenContractAddress = firstChain.SoftTokenContractAddress;
-                SoftTokenContractAbi = firstChain.SoftTokenContractAbi;
+                //SoftTokenContractAbi = firstChain.SoftTokenContractAbi;
 
                 HardTokenTicker = firstChain.HardTokenTicker;
                 HardTokenContractAddress = firstChain.HardTokenContractAddress;
-                HardTokenContractAbi = firstChain.HardTokenContractAbi;
+                //HardTokenContractAbi = firstChain.HardTokenContractAbi;
 
                 NftContractAddress = firstChain.NftContractAddress;
-                NftContractAbi = firstChain.NftContractAbi;
+                //NftContractAbi = firstChain.NftContractAbi;
 
                 HotWalletAddress = firstChain.HotWalletAddress;
 
-                ChainConfigs = await GetChainConfigs();
+                ChainConfigs = await GetEvmChainConfigs();
                 ChainConfig = ChainConfigs.TryGetValue(ChainID.ToString(), out var config) ? config : null;
                 PlatformPoolContractAddress = ChainConfig?.platformPoolContractAddress ?? "";
             }
@@ -84,23 +84,6 @@ namespace IDosGames
             }
 #endif
 
-        }
-
-        public static string GetTokenContractABI(VirtualCurrencyID tokenID)
-        {
-            string contractAddress = string.Empty;
-
-            switch (tokenID)
-            {
-                case VirtualCurrencyID.IG:
-                    contractAddress = HardTokenContractAbi;
-                    break;
-                case VirtualCurrencyID.CO:
-                    contractAddress = SoftTokenContractAbi;
-                    break;
-            }
-
-            return contractAddress;
         }
 
         public static string GetTokenContractAddress(VirtualCurrencyID tokenID)
@@ -120,10 +103,10 @@ namespace IDosGames
             return contractAddress;
         }
 
-        public static async Task<ChainConfig> GetChainConfigs()
+        public static async Task<ChainConfig> GetEvmChainConfigs(int version = 1)
         {
             ChainConfig chainConfigs = new ChainConfig();
-            string url = "https://cloud.idosgames.com/sdk/evm-chain-config.json";
+            string url = $"https://idosgames.com/sdk/v{version}/evm-chain-config.json";
 
             UnityWebRequest request = UnityWebRequest.Get(url);
             var operation = request.SendWebRequest();
