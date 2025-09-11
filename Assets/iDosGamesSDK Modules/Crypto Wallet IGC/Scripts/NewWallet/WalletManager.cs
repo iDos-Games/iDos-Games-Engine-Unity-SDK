@@ -16,8 +16,6 @@ namespace IDosGames
         [SerializeField] private GameObject getPrivateKeyPanel;
 
         public static string WalletAddress { get; set; }
-        public static int ChainID;
-
         public static string PrivateKey { get; set; }
         public static string SeedPhrase { get; set; }
         public static string PLAYER_PREFS_WALLET_ADDRESS { get; set; }
