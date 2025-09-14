@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using Solana.Unity.Rpc.Core.Http;
 using Solana.Unity.Rpc.Models;
 using Solana.Unity.Wallet;
@@ -74,44 +75,98 @@ namespace Solana.Unity.SDK.Example
 
         bool CheckInput()
         {
-            if (string.IsNullOrEmpty(amountTxt.text))
-            {
-                errorTxt.text = "Please input transfer amount";
-                return false;
-            }
-
-            if (string.IsNullOrEmpty(toPublicTxt.text))
+            if (string.IsNullOrWhiteSpace(toPublicTxt.text))
             {
                 errorTxt.text = "Please enter receiver public key";
                 return false;
             }
 
-            if (_transferTokenAccount == null)
+            if (string.IsNullOrWhiteSpace(amountTxt.text))
             {
-                if (float.Parse(amountTxt.text) > _ownedSolAmount)
+                errorTxt.text = "Please input transfer amount";
+                return false;
+            }
+
+            // Нормализуем разделитель для парсинга
+            var normalized = amountTxt.text.Trim().Replace(',', '.');
+
+            if (_transferTokenAccount == null && _nft == null)
+            {
+                // Режим SOL
+                if (!decimal.TryParse(normalized, NumberStyles.Float, CultureInfo.InvariantCulture, out var solAmount))
+                {
+                    errorTxt.text = "Invalid SOL amount";
+                    return false;
+                }
+
+                if (solAmount <= 0 || (double)solAmount > _ownedSolAmount)
                 {
                     errorTxt.text = "Not enough funds for transaction.";
                     return false;
                 }
+            }
+            else if (_nft != null)
+            {
+                // Режим NFT — количество фиксировано = 1, поле отключено
+                // Доп. проверок не требуется
             }
             else
             {
-                if (long.Parse(amountTxt.text) > long.Parse(ownedAmountTxt.text))
+                // Режим SPL-токена
+                var info = _transferTokenAccount.Account.Data.Parsed.Info.TokenAmount;
+
+                if (!decimal.TryParse(normalized, NumberStyles.Float, CultureInfo.InvariantCulture, out var uiAmount))
+                {
+                    errorTxt.text = "Invalid token amount";
+                    return false;
+                }
+
+                var uiBalance = Convert.ToDecimal(info.AmountDecimal, CultureInfo.InvariantCulture);
+
+                if (uiAmount <= 0 || uiAmount > uiBalance)
                 {
                     errorTxt.text = "Not enough funds for transaction.";
                     return false;
                 }
             }
+
             errorTxt.text = "";
             return true;
         }
 
         private async void TransferToken()
         {
-            RequestResult<string> result = await Web3.Instance.WalletBase.Transfer(
+            var info = _transferTokenAccount.Account.Data.Parsed.Info.TokenAmount;
+            int decimals = info.Decimals;
+
+            // Берём ввод пользователя и нормализуем разделитель
+            var rawInput = (amountTxt.text ?? "").Trim();
+            rawInput = rawInput.Replace(',', '.');
+
+            if (!decimal.TryParse(rawInput, NumberStyles.Float, CultureInfo.InvariantCulture, out var uiAmount))
+            {
+                errorTxt.text = "Invalid token amount";
+                return;
+            }
+
+            var uiBalance = Convert.ToDecimal(info.AmountDecimal, CultureInfo.InvariantCulture);
+
+            if (uiAmount <= 0 || uiAmount > uiBalance)
+            {
+                errorTxt.text = "Not enough funds for transaction.";
+                return;
+            }
+
+            // Пересчёт из UI-количества в «сырые» единицы (лампорты токена)
+            var factor = (decimal)Math.Pow(10, decimals);
+            var rawAmount = (ulong)Math.Floor(uiAmount * factor);
+
+            var result = await Web3.Instance.WalletBase.Transfer(
                 new PublicKey(toPublicTxt.text),
                 new PublicKey(_transferTokenAccount.Account.Data.Parsed.Info.Mint),
-                ulong.Parse(amountTxt.text));
+                rawAmount
+            );
+
             HandleResponse(result);
         }
 
@@ -144,31 +199,51 @@ namespace Solana.Unity.SDK.Example
             nftImage.gameObject.SetActive(false);
             nftTitleTxt.gameObject.SetActive(false);
             ownedAmountTxt.gameObject.SetActive(false);
+
             if (data != null && data.GetType() == typeof(Tuple<TokenAccount, string, Texture2D>))
             {
                 var (tokenAccount, tokenDef, texture) = (Tuple<TokenAccount, string, Texture2D>)data;
-                ownedAmountTxt.text = $"{tokenAccount.Account.Data.Parsed.Info.TokenAmount.Amount}";
+
+                // ВАЖНО: сохраняем аккаунт токена, чтобы TryTransfer() пошёл в TransferToken()
+                _transferTokenAccount = tokenAccount;
+
+                // Отобразим баланс токена в человекочитаемом виде
+                var uiBalance = Convert.ToDecimal(tokenAccount.Account.Data.Parsed.Info.TokenAmount.AmountDecimal, CultureInfo.InvariantCulture);
+                ownedAmountTxt.text = uiBalance.ToString(CultureInfo.CurrentCulture);
+                ownedAmountTxt.gameObject.SetActive(true);
+
                 nftTitleTxt.gameObject.SetActive(true);
                 nftImage.gameObject.SetActive(true);
-                nftTitleTxt.text = $"{tokenDef}";
+                nftTitleTxt.text = tokenDef;
                 nftImage.texture = texture;
                 nftImage.color = Color.white;
+
+                // В этом режиме отправляем SPL-токен, поле количества редактируемо
+                amountTxt.interactable = true;
+                amountTxt.text = "";
             }
             else if (data != null && data.GetType() == typeof(Nft.Nft))
             {
+                // Режим NFT (одно изделие, decimals = 0)
                 nftTitleTxt.gameObject.SetActive(true);
                 nftImage.gameObject.SetActive(true);
                 _nft = (Nft.Nft)data;
                 nftTitleTxt.text = $"{_nft.metaplexData.data.offchainData?.name}";
                 nftImage.texture = _nft.metaplexData?.nftImage?.file;
                 nftImage.color = Color.white;
+
                 amountTxt.text = "1";
                 amountTxt.interactable = false;
             }
             else
             {
+                // Режим SOL
                 _ownedSolAmount = await Web3.Instance.WalletBase.GetBalance();
                 ownedAmountTxt.text = $"{_ownedSolAmount}";
+                ownedAmountTxt.gameObject.SetActive(true);
+
+                amountTxt.interactable = true;
+                amountTxt.text = "";
             }
         }
 
@@ -178,6 +253,10 @@ namespace Solana.Unity.SDK.Example
             amountTxt.text = "";
             toPublicTxt.text = "";
             amountTxt.interactable = true;
+
+            // Сбрасываем прошлое состояние режимов перевода
+            _nft = null;
+            _transferTokenAccount = null;
         }
 
         public override void HideScreen()

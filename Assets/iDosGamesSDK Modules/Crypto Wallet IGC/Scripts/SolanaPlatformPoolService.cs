@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
@@ -36,7 +36,7 @@ namespace IDosGames
 
         /// <summary>
         /// SPL deposit: user -> vault_ata (Anchor: deposit_spl(amount, user_id))
-        /// amount � in minimum units (u64)
+        /// amount — in minimum units (u64)
         /// </summary>
         public async Task<RequestResult<string>> DepositSplAsync(
             Account payer,
@@ -91,7 +91,7 @@ namespace IDosGames
 
         /// <summary>
         /// SPL output for server off-chain signature (Anchor: withdraw_spl(amount, nonce, user_id, sig_ix_index)).
-        /// All ed25519 fields (pubkey, message, signature) come from the backend � unchanged.
+        /// All ed25519 fields (pubkey, message, signature) come from the backend — unchanged.
         /// </summary>
         public async Task<RequestResult<string>> WithdrawSplAsync(
             Account payer,
@@ -257,8 +257,8 @@ namespace IDosGames
             if (signature64 == null || signature64.Length != 64) throw new ArgumentException("ed25519 signature must be 64 bytes");
             message ??= Array.Empty<byte>();
 
-            // layout � as in web3.js Ed25519Program.createInstructionWithPublicKey
-            const int headerLen = 1 + 1 + 7 * 2; // 16 ����
+            // layout — as in web3.js Ed25519Program.createInstructionWithPublicKey
+            const int headerLen = 1 + 1 + 7 * 2; // 16 байт
             ushort sigOffset = (ushort)headerLen;
             ushort sigIxIdx = 0;
             ushort pkOffset = (ushort)(sigOffset + 64);
@@ -293,41 +293,64 @@ namespace IDosGames
             };
         }
 
-        // PDA resolver via reflection (if AddressExtensions is in the assembly)
+        // 1) ASCII seeds → bytes
         private static PublicKey ResolvePda(IEnumerable<string> asciiSeeds, PublicKey programId)
-            => ResolvePda(asciiSeeds.Select(s => Encoding.ASCII.GetBytes(s)).ToArray(), programId);
+            => ResolvePda(asciiSeeds is null ? Array.Empty<byte[]>() : asciiSeeds.Select(s => System.Text.Encoding.ASCII.GetBytes(s)).ToArray(), programId);
 
+        // 2) Основной метод derivation
         private static PublicKey ResolvePda(byte[][] seeds, PublicKey programId)
         {
-            // 1) Solana.Unity.Wallet.Utilities.AddressExtensions.FindProgramAddress
-            var t1 = Type.GetType("Solana.Unity.Wallet.Utilities.AddressExtensions, Solana.Unity.Wallet");
-            if (t1 != null)
+            // Попытка №1: если в PublicKey есть TryFindProgramAddress(...)
+            // (в некоторых версиях Solana.Unity / Solnet метод доступен)
+            var tryFind = typeof(PublicKey).GetMethod(
+                "TryFindProgramAddress",
+                System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static,
+                binder: null,
+                types: new[] { typeof(byte[][]), typeof(PublicKey), typeof(PublicKey).MakeByRefType(), typeof(byte).MakeByRefType() },
+                modifiers: null
+            );
+
+            if (tryFind != null)
             {
-                var m = t1.GetMethod("FindProgramAddress", BindingFlags.Public | BindingFlags.Static);
-                if (m != null)
-                {
-                    var pdaObj = m.Invoke(null, new object[] { seeds, programId });
-                    var pdaPubKeyProp = pdaObj.GetType().GetProperty("PublicKey");
-                    return (PublicKey)pdaPubKeyProp.GetValue(pdaObj);
-                }
+                object[] args = new object[] { seeds, programId, null, (byte)0 };
+                var ok = (bool)tryFind.Invoke(null, args);
+                if (ok && args[2] is PublicKey pk) return pk;
+                // если не получилось — падаем в перебор bump
             }
 
-            // 2) Solnet.Wallet.Utilities.AddressExtensions.FindProgramAddress
-            var t2 = Type.GetType("Solnet.Wallet.Utilities.AddressExtensions, Solnet.Wallet");
-            if (t2 != null)
+            // Попытка №2: прямой перебор bump 255..0 через PublicKey.CreateProgramAddress(...)
+            var create = typeof(PublicKey).GetMethod(
+                "CreateProgramAddress",
+                System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static,
+                binder: null,
+                types: new[] { typeof(byte[][]), typeof(PublicKey) },
+                modifiers: null
+            );
+
+            if (create != null)
             {
-                var m = t2.GetMethod("FindProgramAddress", BindingFlags.Public | BindingFlags.Static);
-                if (m != null)
+                for (int bump = 255; bump >= 0; bump--)
                 {
-                    var pdaObj = m.Invoke(null, new object[] { seeds, programId });
-                    var pdaPubKeyProp = pdaObj.GetType().GetProperty("PublicKey");
-                    return (PublicKey)pdaPubKeyProp.GetValue(pdaObj);
+                    var withBump = new byte[seeds.Length + 1][];
+                    if (seeds.Length > 0) Array.Copy(seeds, withBump, seeds.Length);
+                    withBump[seeds.Length] = new[] { (byte)bump };
+
+                    try
+                    {
+                        var addr = (PublicKey)create.Invoke(null, new object[] { withBump, programId });
+                        return addr;
+                    }
+                    catch
+                    {
+                        // on-curve → пробуем следующий bump
+                    }
                 }
             }
 
             throw new InvalidOperationException(
-                "Could not find AddressExtensions.FindProgramAddress. " +
-                "Pass the PDA from the server to the method parameters or connect the package with this method.");
+                "PDA derivation is unavailable in current runtime. " +
+                "Either pass PDAs from the server or include a wallet lib exposing PublicKey.CreateProgramAddress/TryFindProgramAddress."
+            );
         }
     }
 
