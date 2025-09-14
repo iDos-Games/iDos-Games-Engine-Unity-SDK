@@ -1,4 +1,4 @@
-using System;
+п»їusing System;
 using System.Globalization;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -12,57 +12,54 @@ using UnityEngine.UI;
 using Solana.Unity.SDK.Example;
 using Solana.Unity.SDK.Nft;
 using Solana.Unity.SDK;
+using Solana.Unity.Rpc.Types;
 
 // ReSharper disable once CheckNamespace
 
 namespace IDosGames
 {
-    /// <summary>
-    /// Экран работы с программой-пулом: депозит/вывод SPL-токенов в/из смарт-контракта.
-    /// Основан на идее TransferScreen, но использует SolanaPlatformPoolService.
-    /// </summary>
     public class PlatformPoolTransferScreen : SimpleScreen
     {
         [Header("Pool Service Config")]
-        [Tooltip("RPC endpoint, напр. https://api.mainnet-beta.solana.com или Devnet")]
+        [Tooltip("RPC endpoint, РЅР°РїСЂ. https://api.mainnet-beta.solana.com РёР»Рё Devnet")]
         public string rpcUrl = "https://api.devnet.solana.com";
-        [Tooltip("Program ID (base58) вашей Anchor-программы")]
+        [Tooltip("Program ID (base58) РІР°С€РµР№ Anchor-РїСЂРѕРіСЂР°РјРјС‹")]
         public string programIdBase58 = "FWvDZMpUy9SPgRV6rJSa6fju1VtYejPNqshXpgA9BzsG";
 
         [Header("UI")]
-        public TextMeshProUGUI tokenTitleTxt;   // название токена/NFT
-        public TextMeshProUGUI balanceTxt;      // баланс токена (UI, в человекочитаемом виде)
+        public TextMeshProUGUI tokenTitleTxt;   // РЅР°Р·РІР°РЅРёРµ С‚РѕРєРµРЅР°/NFT
+        public TextMeshProUGUI balanceTxt;      // Р±Р°Р»Р°РЅСЃ С‚РѕРєРµРЅР° (UI, РІ С‡РµР»РѕРІРµРєРѕС‡РёС‚Р°РµРјРѕРј РІРёРґРµ)
         public RawImage tokenImage;
 
-        public Toggle depositToggle;             // переключатель "Депозит"
-        public Toggle withdrawToggle;            // переключатель "Вывод"
+        public Toggle depositToggle;             // РїРµСЂРµРєР»СЋС‡Р°С‚РµР»СЊ "Р”РµРїРѕР·РёС‚"
+        public Toggle withdrawToggle;            // РїРµСЂРµРєР»СЋС‡Р°С‚РµР»СЊ "Р’С‹РІРѕРґ"
 
-        public TMP_InputField mintTxt;          // mint address (prefill из входных данных)
-        public TMP_InputField amountTxt;        // сумма в UI-единицах (учитывая decimals)
-        public TMP_InputField userIdTxt;        // userId для deposit_spl
+        public TMP_InputField mintTxt;          // mint address (prefill РёР· РІС…РѕРґРЅС‹С… РґР°РЅРЅС‹С…)
+        public TMP_InputField amountTxt;        // СЃСѓРјРјР° РІ UI-РµРґРёРЅРёС†Р°С… (СѓС‡РёС‚С‹РІР°СЏ decimals)
+        public TMP_InputField userIdTxt;        // userId РґР»СЏ deposit_spl
         [TextArea(3, 6)]
-        public TMP_InputField serverPayloadJsonTxt; // JSON от бэка для withdraw_spl
+        public TMP_InputField serverPayloadJsonTxt; // JSON РѕС‚ Р±СЌРєР° РґР»СЏ withdraw_spl
 
         public TextMeshProUGUI errorTxt;
         public Button actionBtn;
         public Button closeBtn;
 
-        // Входные данные (как в TransferScreen): либо TokenAccount+meta, либо NFT
+        // Р’С…РѕРґРЅС‹Рµ РґР°РЅРЅС‹Рµ (РєР°Рє РІ TransferScreen): Р»РёР±Рѕ TokenAccount+meta, Р»РёР±Рѕ NFT
         private TokenAccount _tokenAccount;
         private Nft _nft;
 
-        // Техническое
+        // РўРµС…РЅРёС‡РµСЃРєРѕРµ
         private IDosGames.SolanaPlatformPoolService _svc;
         private IRpcClient _rpcClient;
         private PublicKey _mintPk;
         private int _decimals = 0;
         private Texture2D _texture;
 
-        private const long SolLamports = 1_000_000_000; // не нужен напрямую, но пусть будет для консистентности
+        private const long SolLamports = 1_000_000_000; // РЅРµ РЅСѓР¶РµРЅ РЅР°РїСЂСЏРјСѓСЋ, РЅРѕ РїСѓСЃС‚СЊ Р±СѓРґРµС‚ РґР»СЏ РєРѕРЅСЃРёСЃС‚РµРЅС‚РЅРѕСЃС‚Рё
 
         private void Awake()
         {
-            // Инициализируем RPC и сервис (можно сделать лениво, но так надёжнее)
+            // РРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј RPC Рё СЃРµСЂРІРёСЃ (РјРѕР¶РЅРѕ СЃРґРµР»Р°С‚СЊ Р»РµРЅРёРІРѕ, РЅРѕ С‚Р°Рє РЅР°РґС‘Р¶РЅРµРµ)
             _rpcClient = ClientFactory.GetClient(rpcUrl);
             _svc = new IDosGames.SolanaPlatformPoolService(_rpcClient, programIdBase58);
         }
@@ -72,7 +69,7 @@ namespace IDosGames
             actionBtn.onClick.AddListener(OnAction);
             closeBtn.onClick.AddListener(() => manager.ShowScreen(this, "wallet_screen"));
 
-            // По умолчанию — депозит
+            // РџРѕ СѓРјРѕР»С‡Р°РЅРёСЋ вЂ” РґРµРїРѕР·РёС‚
             if (depositToggle != null && withdrawToggle != null)
             {
                 depositToggle.isOn = true;
@@ -80,11 +77,11 @@ namespace IDosGames
             }
         }
 
-        public override void ShowScreen(object data = null)
+        public override async void ShowScreen(object data = null)
         {
             base.ShowScreen();
             ResetState();
-            PopulateFromData(data);
+            await PopulateFromData(data);
             gameObject.SetActive(true);
         }
 
@@ -109,7 +106,7 @@ namespace IDosGames
             if (tokenImage != null)
             {
                 tokenImage.texture = null;
-                tokenImage.color = new Color(1, 1, 1, 0); // прозрачно до загрузки
+                tokenImage.color = new Color(1, 1, 1, 0); // РїСЂРѕР·СЂР°С‡РЅРѕ РґРѕ Р·Р°РіСЂСѓР·РєРё
             }
 
             _nft = null;
@@ -120,19 +117,14 @@ namespace IDosGames
 
             if (depositToggle != null && withdrawToggle != null)
             {
-                // при открытии — режим депозит
+                // РїСЂРё РѕС‚РєСЂС‹С‚РёРё вЂ” СЂРµР¶РёРј РґРµРїРѕР·РёС‚
                 depositToggle.isOn = true;
                 withdrawToggle.isOn = false;
             }
         }
 
-        private void PopulateFromData(object data)
+        private async Task PopulateFromData(object data)
         {
-            // Поддерживаем те же формы данных, что и TransferScreen:
-            // 1) Tuple<TokenAccount, string, Texture2D> для фанджибл токенов
-            // 2) Nft.Nft для NFT
-            // 3) string (mint) — опционально, если хочется открыть "пустой" экран по mint
-
             tokenImage?.gameObject.SetActive(true);
             tokenTitleTxt.gameObject.SetActive(true);
             balanceTxt.gameObject.SetActive(true);
@@ -144,7 +136,9 @@ namespace IDosGames
                 _texture = texture;
 
                 _mintPk = new PublicKey(tokenAccount.Account.Data.Parsed.Info.Mint);
-                _decimals = tokenAccount.Account.Data.Parsed.Info.TokenAmount.Decimals;
+
+                // РќР• РґРѕРІРµСЂСЏРµРј С‚РѕР»СЊРєРѕ Р»РѕРєР°Р»СЊРЅС‹Рј РґР°РЅРЅС‹Рј вЂ” РїРѕРґС‚РІРµСЂР¶РґР°РµРј decimals СЃ Р±Р»РѕРєС‡РµР№РЅР°
+                _decimals = await FetchMintDecimalsAsync(_mintPk);
 
                 tokenTitleTxt.text = tokenDef;
                 balanceTxt.text = tokenAccount.Account.Data.Parsed.Info.TokenAmount.AmountDecimal
@@ -174,21 +168,24 @@ namespace IDosGames
                     tokenImage.color = Color.white;
                 }
 
-                // NFT: decimals = 0, amount фиксированный = 1
-                _decimals = 0;
                 _mintPk = new PublicKey(_nft.metaplexData.data.mint);
+
+                // NFT РІСЃРµРіРґР° decimals = 0
+                _decimals = 0;
 
                 balanceTxt.text = "1";
                 mintTxt.text = _mintPk.Key;
 
                 amountTxt.text = "1";
-                amountTxt.interactable = false; // NFT всегда 1 шт.
+                amountTxt.interactable = false;
             }
             else if (data is string mintStr && !string.IsNullOrWhiteSpace(mintStr))
             {
-                // Если открыли экран просто по mint
                 _mintPk = new PublicKey(mintStr);
-                _decimals = 0; // если нужно — можно дозапросить decimals по mint через RPC
+
+                // РџРћР”РўРЇР“РР’РђР•Рњ decimals СЃСЂР°Р·Сѓ
+                _decimals = await FetchMintDecimalsAsync(_mintPk);
+
                 tokenTitleTxt.text = mintStr;
                 balanceTxt.text = "-";
                 mintTxt.text = mintStr;
@@ -197,7 +194,6 @@ namespace IDosGames
             }
             else
             {
-                // Без входных данных экран смысла не имеет — но дадим пользователю самому ввести mint
                 tokenTitleTxt.text = "SPL Token";
                 balanceTxt.text = "-";
                 mintTxt.text = "";
@@ -219,7 +215,7 @@ namespace IDosGames
             }
             else
             {
-                // если тумблеров нет — по умолчанию депозит
+                // РµСЃР»Рё С‚СѓРјР±Р»РµСЂРѕРІ РЅРµС‚ вЂ” РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ РґРµРїРѕР·РёС‚
                 await DoDeposit();
             }
         }
@@ -228,7 +224,7 @@ namespace IDosGames
         {
             try
             {
-                // Валидации
+                // Р’Р°Р»РёРґР°С†РёРё
                 if (string.IsNullOrWhiteSpace(mintTxt.text))
                 {
                     errorTxt.text = "Mint address is required.";
@@ -245,11 +241,19 @@ namespace IDosGames
                     return;
                 }
 
-                // Пересчёт из UI в "сырые" единицы
-                var raw = UiToRaw(uiAmount, _decimals);
+                // РџРµСЂРµСЃС‡С‘С‚ РёР· UI РІ "СЃС‹СЂС‹Рµ" РµРґРёРЅРёС†С‹
                 _mintPk = new PublicKey(mintTxt.text.Trim());
 
-                // Аккаунт-подписант (кошелёк игрока) — берём из Web3
+                // Р’РЎР•Р“Р”Рђ РїРѕРґС‚СЏРіРёРІР°РµРј decimals РёР· СЃРµС‚Рё РїРµСЂРµРґ РѕС‚РїСЂР°РІРєРѕР№
+                _decimals = await FetchMintDecimalsAsync(_mintPk);
+
+                // РўРµРїРµСЂСЊ РєРѕСЂСЂРµРєС‚РЅС‹Р№ РїРµСЂРµСЃС‡С‘С‚ UI в†’ raw (u64)
+                var raw = UiToRaw(uiAmount, _decimals);
+
+                // (РѕРїС†РёРѕРЅР°Р»СЊРЅРѕ) Р±С‹СЃС‚СЂРѕРµ РїСЂРµРІСЊСЋ РІ UI, С‡С‚РѕР±С‹ РіР»Р°Р·Р°РјРё СЃРІРµСЂРёС‚СЊ
+                balanceTxt.text = $"Send preview: {uiAmount.ToString(CultureInfo.InvariantCulture)} в†’ {raw} (10^{_decimals})";
+
+                // РђРєРєР°СѓРЅС‚-РїРѕРґРїРёСЃР°РЅС‚ (РєРѕС€РµР»С‘Рє РёРіСЂРѕРєР°) вЂ” Р±РµСЂС‘Рј РёР· Web3
                 var payer = Web3.Instance.WalletBase.Account;
                 if (payer == null)
                 {
@@ -276,14 +280,14 @@ namespace IDosGames
         {
             try
             {
-                // Для вывода нам нужен JSON-пейлоад с сервера
+                // Р”Р»СЏ РІС‹РІРѕРґР° РЅР°Рј РЅСѓР¶РµРЅ JSON-РїРµР№Р»РѕР°Рґ СЃ СЃРµСЂРІРµСЂР°
                 if (string.IsNullOrWhiteSpace(serverPayloadJsonTxt.text))
                 {
                     errorTxt.text = "Paste server payload JSON for withdrawal.";
                     return;
                 }
 
-                // Опционально: сверим mint из JSON с полем mintTxt (если введено)
+                // РћРїС†РёРѕРЅР°Р»СЊРЅРѕ: СЃРІРµСЂРёРј mint РёР· JSON СЃ РїРѕР»РµРј mintTxt (РµСЃР»Рё РІРІРµРґРµРЅРѕ)
                 var payload = JsonConvert.DeserializeObject<IDosGames.ServerWithdrawPayload>(serverPayloadJsonTxt.text.Trim());
                 if (payload == null)
                 {
@@ -291,7 +295,7 @@ namespace IDosGames
                     return;
                 }
 
-                // Аккаунт-подписант (плательщик комиссий)
+                // РђРєРєР°СѓРЅС‚-РїРѕРґРїРёСЃР°РЅС‚ (РїР»Р°С‚РµР»СЊС‰РёРє РєРѕРјРёСЃСЃРёР№)
                 var payer = Web3.Instance.WalletBase.Account;
                 if (payer == null)
                 {
@@ -322,9 +326,18 @@ namespace IDosGames
 
         private static ulong UiToRaw(decimal uiAmount, int decimals)
         {
-            var factor = (decimal)Math.Pow(10, decimals);
-            var raw = (ulong)Math.Floor(uiAmount * factor);
-            return raw;
+            if (decimals < 0) decimals = 0;
+
+            // Р’С‹С‡РёСЃР»СЏРµРј factor = 10^decimals Р±РµР· double
+            decimal factor = 1m;
+            for (int i = 0; i < decimals; i++) factor *= 10m;
+
+            // РњР°СЃС€С‚Р°Р±РёСЂСѓРµРј Рё В«РѕР±СЂРµР·Р°РµРј Рє РЅСѓР»СЋВ» Р±РµР· MidpointRounding.ToZero:
+            // РїРѕР»РѕР¶РёС‚РµР»СЊРЅС‹Рµ в†’ Floor, РѕС‚СЂРёС†Р°С‚РµР»СЊРЅС‹Рµ в†’ Ceiling (РЅР° РІСЃСЏРєРёР№ СЃР»СѓС‡Р°Р№)
+            var scaled = uiAmount * factor;
+            scaled = scaled >= 0 ? decimal.Floor(scaled) : decimal.Ceiling(scaled);
+
+            return (ulong)scaled;
         }
 
         private void HandleRpcResult(RequestResult<string> res)
@@ -337,7 +350,7 @@ namespace IDosGames
 
             if (!string.IsNullOrEmpty(res.Result))
             {
-                // Успех — закрываем экран в кошелёк (как в TransferScreen)
+                // РЈСЃРїРµС… вЂ” Р·Р°РєСЂС‹РІР°РµРј СЌРєСЂР°РЅ РІ РєРѕС€РµР»С‘Рє (РєР°Рє РІ TransferScreen)
                 errorTxt.text = "";
                 manager.ShowScreen(this, "wallet_screen");
             }
@@ -345,6 +358,35 @@ namespace IDosGames
             {
                 errorTxt.text = res.Reason ?? "Unknown RPC error.";
             }
+        }
+
+        private async Task<int> FetchMintDecimalsAsync(PublicKey mint)
+        {
+            // 1) РћСЃРЅРѕРІРЅРѕР№ РїСѓС‚СЊ: MintInfo в†’ Data.Parsed.Info.Decimals
+            try
+            {
+                var resp = await _rpcClient.GetTokenMintInfoAsync(mint.Key, Commitment.Confirmed);
+                if (resp != null && resp.WasSuccessful)
+                {
+                    var v = resp.Result?.Value;
+                    var info = v?.Data?.Parsed?.Info;
+                    if (info != null)
+                        return (int)info.Decimals; // byte в†’ int
+                }
+            }
+            catch { /* ignore */ }
+
+            // 2) Р¤РѕР»Р»Р±СЌРє: TokenSupply в†’ Value.Decimals
+            try
+            {
+                var sup = await _rpcClient.GetTokenSupplyAsync(mint.Key, Commitment.Confirmed);
+                if (sup != null && sup.WasSuccessful && sup.Result?.Value != null)
+                    return (int)sup.Result.Value.Decimals;
+            }
+            catch { /* ignore */ }
+
+            // 3) РҐСѓР¶Рµ РЅРµ СЃС‚Р°РЅРµС‚ вЂ” СЃС‡РёС‚Р°РµРј 0
+            return 0;
         }
     }
 }
