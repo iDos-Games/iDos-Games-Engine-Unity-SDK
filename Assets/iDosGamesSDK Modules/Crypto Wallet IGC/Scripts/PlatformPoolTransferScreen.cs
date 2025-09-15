@@ -20,7 +20,6 @@ namespace IDosGames
 {
     public class PlatformPoolTransferScreen : SimpleScreen
     {
-        private string rpcUrl = "https://api.devnet.solana.com";
         private string programIdBase58 = "FWvDZMpUy9SPgRV6rJSa6fju1VtYejPNqshXpgA9BzsG";
         private string userID;
         private string mintAddress = "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU";
@@ -49,17 +48,11 @@ namespace IDosGames
 
         private void Start()
         {
-            //rpcUrl = BlockchainSettings.RpcUrl;
-            //programIdBase58 = BlockchainSettings.PlatformPoolContractAddress;
-            //mintAddress = BlockchainSettings.HardTokenContractAddress;
+            programIdBase58 = BlockchainSettings.PlatformPoolContractAddress;
+            mintAddress = BlockchainSettings.HardTokenContractAddress;
             userID = AuthService.UserID;
 
-            Debug.Log("RpcUrp: " + rpcUrl);
-            Debug.Log("programIdBase58: " + programIdBase58);
-            Debug.Log("mintAddress: " + mintAddress);
-            Debug.Log("userID: " + userID);
-
-            _rpcClient = ClientFactory.GetClient(rpcUrl);
+            _rpcClient = Web3.Instance.WalletBase.ActiveRpcClient;
             _svc = new IDosGames.SolanaPlatformPoolService(_rpcClient, programIdBase58);
 
             actionBtn.onClick.AddListener(OnAction);
@@ -180,7 +173,7 @@ namespace IDosGames
             }
             else
             {
-                tokenTitleTxt.text = "SPL Token";
+                tokenTitleTxt.text = "Token";
                 balanceTxt.text = "-";
                 amountTxt.interactable = true;
             }
