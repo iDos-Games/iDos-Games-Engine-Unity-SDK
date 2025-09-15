@@ -176,15 +176,15 @@ namespace IDosGames
 
             var req = new WithdrawRequest
             {
-                Mint = new PublicKey(srv.mint),
-                To = new PublicKey(srv.walletAddress),
-                Amount = ulong.Parse(srv.amount),
-                Nonce = ulong.Parse(srv.nonce),
-                UserId = srv.userID,
-                Ed25519PublicKeyHex = srv.ed25519PublicKey,
-                Ed25519MessageHex = srv.ed25519Message,
-                Ed25519SignatureHex = srv.signatureHex,
-                SigIxIndex = (byte)srv.sigIxIndex
+                Mint = new PublicKey(srv.Mint),
+                To = new PublicKey(srv.WalletAddress),
+                Amount = ulong.Parse(srv.Amount),
+                Nonce = ulong.Parse(srv.Nonce),
+                UserId = srv.UserID,
+                Ed25519PublicKeyHex = srv.Ed25519PublicKey,
+                Ed25519MessageHex = srv.Ed25519Message,
+                Ed25519SignatureHex = srv.SignatureHex,
+                SigIxIndex = (byte)srv.SigIxIndex
             };
 
             return WithdrawSplAsync(payer, req, commitment: commitment);
@@ -370,15 +370,15 @@ namespace IDosGames
 
     public class ServerWithdrawPayload
     {
-        public string mint { get; set; }
-        public string walletAddress { get; set; }
-        public string amount { get; set; }        // "5000000"
-        public string nonce { get; set; }         // "1757111418234"
-        public string programID { get; set; }     // "FWvDZ..."
-        public string signatureHex { get; set; }  // 0x...
-        public int sigIxIndex { get; set; }    // 0
-        public string ed25519PublicKey { get; set; } // 0x...
-        public string ed25519Message { get; set; }   // 0x...
-        public string userID { get; set; }
+        public string Mint { get; set; }
+        public string WalletAddress { get; set; }
+        public string Amount { get; set; }        // "5000000"
+        public string Nonce { get; set; }         // "1757111418234"
+        public string ProgramID { get; set; }     // "FWvDZ..."
+        public string SignatureHex { get; set; }  // 0x...
+        public int SigIxIndex { get; set; }    // 0
+        public string Ed25519PublicKey { get; set; } // 0x...
+        public string Ed25519Message { get; set; }   // 0x...
+        public string UserID { get; set; }
     }
 }

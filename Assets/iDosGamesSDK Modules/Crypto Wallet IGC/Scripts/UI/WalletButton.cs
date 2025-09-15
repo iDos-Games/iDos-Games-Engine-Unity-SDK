@@ -9,7 +9,9 @@ namespace IDosGames
 	public class WalletButton : MonoBehaviour
 	{
 #if IDOSGAMES_CRYPTO_WALLET
-		[SerializeField] private WalletWindow _window;
+		[SerializeField] private WalletWindow _evmWallet;
+        [SerializeField] private GameObject _solanaWallet;
+        private ChainType _chainType = ChainType.EVM;
 #endif
         private Button _button;
 
@@ -17,7 +19,8 @@ namespace IDosGames
 		{
 			_button = GetComponent<Button>();
 			ResetListener();
-		}
+			SetEnable();
+        }
 
 		private void OnEnable()
 		{
@@ -38,13 +41,31 @@ namespace IDosGames
 		private void OpenWalletWindow()
 		{
 #if IDOSGAMES_CRYPTO_WALLET
-			_window.gameObject.SetActive(true);
+            switch (_chainType)
+            {
+                case ChainType.EVM:
+                    if (_evmWallet != null)
+                    {
+                        if (_solanaWallet != null) _solanaWallet.SetActive(false);
+                        _evmWallet.gameObject.SetActive(true);
+                    }
+                    break;
+
+                case ChainType.Solana:
+                    if (_solanaWallet != null)
+                    {
+                        if (_evmWallet != null) _evmWallet.gameObject.SetActive(false);
+                        _solanaWallet.SetActive(true);
+                    }
+                    break;
+            }
 #endif
-		}
+        }
 
 		private void SetEnable()
 		{
-			gameObject.SetActive(GetEnableState());
+            _chainType = ParseChainType(BlockchainSettings.ChainType);
+            gameObject.SetActive(GetEnableState());
 		}
 
 		private bool GetEnableState()
@@ -79,5 +100,19 @@ namespace IDosGames
 
 			return enabled;
 		}
-	}
+
+        private static ChainType ParseChainType(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return ChainType.EVM;
+
+            var s = value.Trim();
+
+            if (s.Equals("EVM", System.StringComparison.OrdinalIgnoreCase))
+                return ChainType.EVM;
+            if (s.Equals("Solana", System.StringComparison.OrdinalIgnoreCase))
+                return ChainType.Solana;
+            return ChainType.EVM;
+        }
+    }
 }

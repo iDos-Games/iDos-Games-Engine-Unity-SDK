@@ -23,9 +23,10 @@ namespace IDosGames
         private string rpcUrl = "https://api.devnet.solana.com";
         private string programIdBase58 = "FWvDZMpUy9SPgRV6rJSa6fju1VtYejPNqshXpgA9BzsG";
         private string userID;
-        private string mintAddress;
+        private string mintAddress = "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU";
 
         [Header("UI")]
+        public TextMeshProUGUI titleTxt;
         public TextMeshProUGUI tokenTitleTxt;   // название токена/NFT
         public TextMeshProUGUI balanceTxt;      // баланс токена (UI, в человекочитаемом виде)
         public RawImage tokenImage;
@@ -33,8 +34,6 @@ namespace IDosGames
         private bool isWithdraw = false;
 
         public TMP_InputField amountTxt;        // сумма в UI-единицах (учитывая decimals)
-        [TextArea(3, 6)]
-        public TMP_InputField serverPayloadJsonTxt; // JSON от бэка для withdraw_spl
 
         public TextMeshProUGUI errorTxt;
         public Button actionBtn;
@@ -50,10 +49,15 @@ namespace IDosGames
 
         private void Start()
         {
-            rpcUrl = BlockchainSettings.RpcUrl;
-            programIdBase58 = BlockchainSettings.PlatformPoolContractAddress;
-            mintAddress = BlockchainSettings.HardTokenContractAddress;
+            //rpcUrl = BlockchainSettings.RpcUrl;
+            //programIdBase58 = BlockchainSettings.PlatformPoolContractAddress;
+            //mintAddress = BlockchainSettings.HardTokenContractAddress;
             userID = AuthService.UserID;
+
+            Debug.Log("RpcUrp: " + rpcUrl);
+            Debug.Log("programIdBase58: " + programIdBase58);
+            Debug.Log("mintAddress: " + mintAddress);
+            Debug.Log("userID: " + userID);
 
             _rpcClient = ClientFactory.GetClient(rpcUrl);
             _svc = new IDosGames.SolanaPlatformPoolService(_rpcClient, programIdBase58);
@@ -65,12 +69,14 @@ namespace IDosGames
         public void OpenAsDeposit()
         {
             isWithdraw = false;
+            titleTxt.text = "Deposit in Game";
             manager.ShowScreen(this, "platform_pool_transfer_screen");
         }
 
         public void OpenAsWithdraw()
         {
             isWithdraw = true;
+            titleTxt.text = "Withdrawal from Game";
             manager.ShowScreen(this, "platform_pool_transfer_screen");
         }
 
@@ -96,7 +102,6 @@ namespace IDosGames
             tokenTitleTxt.text = "";
             balanceTxt.text = "";
             amountTxt.text = "";
-            serverPayloadJsonTxt.text = "";
 
             if (tokenImage != null)
             {
@@ -231,6 +236,17 @@ namespace IDosGames
                     userId: userID.Trim()
                 );
 
+                var request = new WalletTransactionRequest
+                {
+                    ChainType = BlockchainSettings.ChainType,
+                    ChainID = BlockchainSettings.ChainID,
+                    TransactionType = CryptoTransactionType.Token,
+                    Direction = TransactionDirection.Game,
+                    TransactionHash = res.Result
+                };
+
+                var result = await IGSService.TryMakeTransaction(request);
+
                 HandleRpcResult(res);
             }
             catch (Exception ex)
@@ -243,15 +259,38 @@ namespace IDosGames
         {
             try
             {
-                // Для вывода нам нужен JSON-пейлоад с сервера
-                if (string.IsNullOrWhiteSpace(serverPayloadJsonTxt.text))
+                if (!TryParseUiAmount(amountTxt.text, out var uiAmount))
                 {
-                    errorTxt.text = "Paste server payload JSON for withdrawal.";
+                    errorTxt.text = "Invalid amount.";
                     return;
                 }
 
+                decimal floored = Math.Floor(uiAmount);
+
+                if (floored <= 0)
+                {
+                    errorTxt.text = "Amount must be > 0.";
+                    return;
+                }
+                if (floored > int.MaxValue) floored = int.MaxValue;
+
+                int amountInt = (int)floored;
+
+                var request = new WalletTransactionRequest
+                {
+                    ChainType = BlockchainSettings.ChainType,
+                    ChainID = BlockchainSettings.ChainID,
+                    TransactionType = CryptoTransactionType.Token,
+                    Direction = TransactionDirection.UsersCryptoWallet,
+                    CurrencyID = VirtualCurrencyID.IG,
+                    Amount = amountInt,
+                    ConnectedWalletAddress = WalletManager.WalletAddress
+                };
+
+                var result = await IGSService.TryMakeTransaction(request);
+
                 // Опционально: сверим mint из JSON с полем mintTxt (если введено)
-                var payload = JsonConvert.DeserializeObject<IDosGames.ServerWithdrawPayload>(serverPayloadJsonTxt.text.Trim());
+                var payload = JsonConvert.DeserializeObject<IDosGames.ServerWithdrawPayload>(result);
                 if (payload == null)
                 {
                     errorTxt.text = "Invalid payload JSON.";

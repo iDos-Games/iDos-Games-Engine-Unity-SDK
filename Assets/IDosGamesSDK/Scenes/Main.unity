@@ -10226,6 +10226,16 @@ PrefabInstance:
       propertyPath: _window
       value: 
       objectReference: {fileID: 1995158755}
+    - target: {fileID: 8417353006759385144, guid: 217b3338edc4aa043890fde6deed21e5,
+        type: 3}
+      propertyPath: _evmWallet
+      value: 
+      objectReference: {fileID: 1995158755}
+    - target: {fileID: 8417353006759385144, guid: 217b3338edc4aa043890fde6deed21e5,
+        type: 3}
+      propertyPath: _solanaWallet
+      value: 
+      objectReference: {fileID: 1367729627}
     - target: {fileID: 8862920298491119839, guid: 217b3338edc4aa043890fde6deed21e5,
         type: 3}
       propertyPath: m_Pivot.x
@@ -10522,7 +10532,7 @@ PrefabInstance:
     - target: {fileID: 3607644654375535511, guid: c0514125e4761c84586801dc88a9f270,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3607644654375535511, guid: c0514125e4761c84586801dc88a9f270,
         type: 3}

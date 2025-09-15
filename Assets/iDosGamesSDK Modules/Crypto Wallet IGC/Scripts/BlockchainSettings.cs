@@ -129,4 +129,10 @@ namespace IDosGames
             return chainConfigs;
         }
     }
+
+    public enum ChainType
+    {
+        EVM,
+        Solana,
+    }
 }

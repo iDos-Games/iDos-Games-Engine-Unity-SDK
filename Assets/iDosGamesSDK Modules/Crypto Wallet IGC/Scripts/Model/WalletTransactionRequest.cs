@@ -13,6 +13,7 @@ namespace IDosGames
 		public string AuthContext { get; set; }
         public string BuildKey { get; set; }
 
+        public string ChainType { get; set; }
         public int ChainID { get; set; }
 
 		[JsonProperty("WalletAddress")]
