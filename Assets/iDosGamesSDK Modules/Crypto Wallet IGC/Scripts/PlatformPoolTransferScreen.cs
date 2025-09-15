@@ -21,9 +21,7 @@ namespace IDosGames
     public class PlatformPoolTransferScreen : SimpleScreen
     {
         [Header("Pool Service Config")]
-        [Tooltip("RPC endpoint, напр. https://api.mainnet-beta.solana.com или Devnet")]
         public string rpcUrl = "https://api.devnet.solana.com";
-        [Tooltip("Program ID (base58) вашей Anchor-программы")]
         public string programIdBase58 = "FWvDZMpUy9SPgRV6rJSa6fju1VtYejPNqshXpgA9BzsG";
 
         [Header("UI")]

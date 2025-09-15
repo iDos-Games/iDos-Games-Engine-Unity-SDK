@@ -1323,8 +1323,8 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 7676565759404299012}
         m_TargetAssemblyTypeName: Solana.Unity.SDK.Example.LoginScreen, Assembly-CSharp
-        m_MethodName: TryLoginBackPack
-        m_Mode: 1
+        m_MethodName: ShowScreen
+        m_Mode: 4
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine

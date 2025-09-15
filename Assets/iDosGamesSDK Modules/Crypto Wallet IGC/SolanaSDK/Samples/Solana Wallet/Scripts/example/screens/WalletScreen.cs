@@ -74,8 +74,7 @@ namespace Solana.Unity.SDK.Example
             {
                 Web3.Instance.Logout();
                 manager.ShowScreen(this, "login_screen");
-                if(parentManager != null)
-                    parentManager.ShowScreen(this, "[Connect_Wallet_Screen]");
+                //if(parentManager != null) parentManager.ShowScreen(this, "[Connect_Wallet_Screen]");
             });
             
             savePrivateKeyBtn.onClick.AddListener(SavePrivateKeyOnClick);
