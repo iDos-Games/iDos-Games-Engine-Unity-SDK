@@ -1,3 +1,4 @@
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections;
 using UnityEngine;
@@ -132,7 +133,25 @@ namespace IDosGames
 			_instance._connectionErrorPopUp.gameObject.SetActive(false);
 		}
 
-		private void OnAllDataRequestError(string error)
+        public static bool CheckMessage(string serverResponse, MessageCode messageCode)
+        {
+            try
+            {
+                var msg = JObject.Parse(serverResponse)?["Message"]?.ToString();
+                return string.Equals(msg, messageCode.ToString(), StringComparison.OrdinalIgnoreCase);
+            }
+            catch
+            {
+                return false; // кривой JSON
+            }
+        }
+
+		public static string MessageResult(string serverResponse)
+		{
+			return JObject.Parse(serverResponse)?["Message"]?.ToString();
+        }
+
+        private void OnAllDataRequestError(string error)
 		{
 			Show($"<color=red><b>{MessageCode.SOMETHING_WENT_WRONG.ToString()}</b></color> \n\n" +
 				error); //LocalizationSystem

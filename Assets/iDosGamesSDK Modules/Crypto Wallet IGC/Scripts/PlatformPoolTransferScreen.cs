@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if IDOSGAMES_CRYPTO_WALLET
+using System;
 using System.Globalization;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -48,7 +49,7 @@ namespace IDosGames
 
         private void Start()
         {
-            programIdBase58 = BlockchainSettings.PlatformPoolContractAddress;
+            programIdBase58 = string.IsNullOrWhiteSpace(BlockchainSettings.PlatformPoolContractAddress) ? "FWvDZMpUy9SPgRV6rJSa6fju1VtYejPNqshXpgA9BzsG" : BlockchainSettings.PlatformPoolContractAddress;
             mintAddress = BlockchainSettings.HardTokenContractAddress;
             userID = AuthService.UserID;
 
@@ -222,6 +223,8 @@ namespace IDosGames
                     return;
                 }
 
+                Loading.ShowTransparentPanel();
+
                 RequestResult<string> res = await _svc.DepositSplAsync(
                     payer: payer,
                     mint: _mintPk,
@@ -229,18 +232,38 @@ namespace IDosGames
                     userId: userID.Trim()
                 );
 
+                string signature = res.Result.Trim();
+
+                if (IDosGamesSDKSettings.Instance.DebugLogging)
+                {
+                    Debug.Log(signature);
+                }
+                
+                HandleRpcResult(res);
+
                 var request = new WalletTransactionRequest
                 {
-                    ChainType = BlockchainSettings.ChainType,
-                    ChainID = BlockchainSettings.ChainID,
+                    ChainType = "Solana",
+                    ChainID = 0,
                     TransactionType = CryptoTransactionType.Token,
                     Direction = TransactionDirection.Game,
-                    TransactionHash = res.Result
+                    TransactionHash = signature
                 };
 
                 var result = await IGSService.TryMakeTransaction(request);
 
-                HandleRpcResult(res);
+                bool success = Message.CheckMessage(result, MessageCode.TRANSACTION_SUCCESS);
+
+                if (success)
+                {
+                    Message.Show(MessageCode.TRANSACTION_SUCCESS);
+                    UserDataService.RequestUserAllData();
+                }
+                else
+                {
+                    string message = Message.MessageResult(result);
+                    Message.Show(message);
+                }
             }
             catch (Exception ex)
             {
@@ -337,6 +360,7 @@ namespace IDosGames
             if (res == null)
             {
                 errorTxt.text = "Null RPC result.";
+                Loading.HideAllPanels();
                 Message.Show("Null RPC result");
                 return;
             }
@@ -345,12 +369,12 @@ namespace IDosGames
             {
                 // Успех — закрываем экран в кошелёк (как в TransferScreen)
                 errorTxt.text = "";
-                Message.Show("SUCCESS");
                 manager.ShowScreen(this, "wallet_screen");
             }
             else
             {
                 errorTxt.text = res.Reason ?? "Unknown RPC error.";
+                Loading.HideAllPanels();
                 Message.Show($"RPC error: {res.Reason}");
             }
         }
@@ -382,3 +406,4 @@ namespace IDosGames
         }
     }
 }
+#endif

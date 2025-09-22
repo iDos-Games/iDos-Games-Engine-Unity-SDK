@@ -45,7 +45,7 @@ namespace IDosGames
             string userId,
             PublicKey configPda = default,
             PublicKey vaultPda = default,
-            Commitment commitment = Commitment.Confirmed)
+            Commitment commitment = Commitment.Finalized)
         {
             if (payer == null) throw new ArgumentNullException(nameof(payer));
 
@@ -99,7 +99,7 @@ namespace IDosGames
             PublicKey configPda = default,
             PublicKey vaultPda = default,
             PublicKey nonceMarkerPda = default,
-            Commitment commitment = Commitment.Confirmed)
+            Commitment commitment = Commitment.Finalized)
         {
             if (payer == null) throw new ArgumentNullException(nameof(payer));
             if (req == null) throw new ArgumentNullException(nameof(req));
@@ -170,7 +170,7 @@ namespace IDosGames
         public Task<RequestResult<string>> WithdrawSplAsync(
         Account payer,
         ServerWithdrawPayload srv,
-        Commitment commitment = Commitment.Confirmed)
+        Commitment commitment = Commitment.Finalized)
         {
             if (srv == null) throw new ArgumentNullException(nameof(srv));
 

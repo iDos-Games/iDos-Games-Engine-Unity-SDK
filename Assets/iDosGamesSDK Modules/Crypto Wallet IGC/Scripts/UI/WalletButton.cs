@@ -11,11 +11,11 @@ namespace IDosGames
 #if IDOSGAMES_CRYPTO_WALLET
 		[SerializeField] private WalletWindow _evmWallet;
         [SerializeField] private GameObject _solanaWallet;
-        private ChainType _chainType = ChainType.EVM;
 #endif
         private Button _button;
+        private ChainType _chainType = ChainType.EVM;
 
-		private void Awake()
+        private void Awake()
 		{
 			_button = GetComponent<Button>();
 			ResetListener();
