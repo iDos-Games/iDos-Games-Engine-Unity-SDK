@@ -95,8 +95,7 @@ namespace IDosGames
                 UserDataService.RequestUserAllData();
             }
 
-            string message = Message.MessageResult(transferResult);
-            Message.Show(message);
+            Message.Show(transferResult);
 
             return transferResult;
 		}
@@ -188,8 +187,7 @@ namespace IDosGames
                 UserDataService.RequestUserAllData();
             }
 
-            string message = Message.MessageResult(transferResult);
-            Message.Show(message);
+            Message.Show(transferResult);
 
             return transferResult;
 		}
