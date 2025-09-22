@@ -14,6 +14,7 @@ using Solana.Unity.SDK.Example;
 using Solana.Unity.SDK.Nft;
 using Solana.Unity.SDK;
 using Solana.Unity.Rpc.Types;
+using Newtonsoft.Json.Linq;
 
 // ReSharper disable once CheckNamespace
 
@@ -225,6 +226,8 @@ namespace IDosGames
 
                 Loading.ShowTransparentPanel();
 
+                if (!await HasMinSolAsync(10000)) return;
+
                 RequestResult<string> res = await _svc.DepositSplAsync(
                     payer: payer,
                     mint: _mintPk,
@@ -232,43 +235,76 @@ namespace IDosGames
                     userId: userID.Trim()
                 );
 
-                string signature = res.Result.Trim();
-
-                if (IDosGamesSDKSettings.Instance.DebugLogging)
+                // Если RPC неуспешен — показываем причину и выходим
+                if (res == null || !res.WasSuccessful || string.IsNullOrWhiteSpace(res.Result))
                 {
-                    Debug.Log(signature);
+                    HandleRpcResult(res);
+                    return;
                 }
-                
-                HandleRpcResult(res);
 
-                var request = new WalletTransactionRequest
-                {
-                    ChainType = "Solana",
-                    ChainID = 0,
-                    TransactionType = CryptoTransactionType.Token,
-                    Direction = TransactionDirection.Game,
-                    TransactionHash = signature
-                };
+                manager.ShowScreen(this, "wallet_screen");
+                Message.Show(MessageCode.TRANSACTION_BEING_PROCESSED_PLEASE_WAIT);
 
-                var result = await IGSService.TryMakeTransaction(request);
+                // Транзакция в сети успешна — есть сигнатура
+                string signature = res.Result.Trim();
+                if (IDosGamesSDKSettings.Instance.DebugLogging) Debug.Log(signature);
 
-                bool success = Message.CheckMessage(result, MessageCode.TRANSACTION_SUCCESS);
+                // Сообщаем о транзакции нашему бекенду и ждём подтверждения
+                var serverOk = await PostTxToServerWithPolling(signature);
 
-                if (success)
+                Loading.HideAllPanels();
+
+                if (serverOk)
                 {
                     Message.Show(MessageCode.TRANSACTION_SUCCESS);
                     UserDataService.RequestUserAllData();
                 }
                 else
                 {
-                    string message = Message.MessageResult(result);
-                    Message.Show(message);
+                    // Сервер так и не принял хэш за отведённое время — мягкий фолбэк
+                    Message.Show("The transaction was sent on-chain, but the server didn’t confirm it in time. Try verifying the transaction using the Tx Hash.");
                 }
             }
             catch (Exception ex)
             {
                 errorTxt.text = $"Deposit error: {ex.Message}";
             }
+        }
+
+        private async Task<bool> PostTxToServerWithPolling(string signature, int maxWaitSeconds = 50, int pollIntervalSeconds = 5)
+        {
+            var request = new WalletTransactionRequest
+            {
+                ChainType = "Solana",
+                ChainID = 0,
+                TransactionType = CryptoTransactionType.Token,
+                Direction = TransactionDirection.Game,
+                TransactionHash = signature
+            };
+
+            var started = DateTime.UtcNow;
+
+            while ((DateTime.UtcNow - started).TotalSeconds < maxWaitSeconds)
+            {
+                var result = await IGSService.TryMakeTransaction(request);
+                var message = Message.MessageResult(result);
+
+                if (message == MessageCode.TRANSACTION_SUCCESS.ToString())
+                    return true;
+
+                // Если бэкенд говорит, что хэш ещё невалиден/не найден — подождём и попробуем ещё раз.
+                if (message == MessageCode.INCORRECT_HASH.ToString())
+                {
+                    await Task.Delay(TimeSpan.FromSeconds(pollIntervalSeconds));
+                    continue;
+                }
+
+                // Любая другая ошибка — выходим и показываем её.
+                Message.Show(message);
+                return false;
+            }
+
+            return false; // таймаут
         }
 
         private async Task DoWithdraw()
@@ -290,7 +326,13 @@ namespace IDosGames
                 }
                 if (floored > int.MaxValue) floored = int.MaxValue;
 
+                Loading.ShowTransparentPanel();
+
                 int amountInt = (int)floored;
+
+                var userWallet = Web3.Instance.WalletBase.Account.PublicKey;
+
+                if (!await HasMinSolAsync(1500000)) return;
 
                 var request = new WalletTransactionRequest
                 {
@@ -300,7 +342,7 @@ namespace IDosGames
                     Direction = TransactionDirection.UsersCryptoWallet,
                     CurrencyID = VirtualCurrencyID.IG,
                     Amount = amountInt,
-                    ConnectedWalletAddress = WalletManager.WalletAddress
+                    ConnectedWalletAddress = userWallet
                 };
 
                 var result = await IGSService.TryMakeTransaction(request);
@@ -321,12 +363,22 @@ namespace IDosGames
                     return;
                 }
 
+                manager.ShowScreen(this, "wallet_screen");
+                Message.Show(MessageCode.TRANSACTION_BEING_PROCESSED_PLEASE_WAIT);
+
                 RequestResult<string> res = await _svc.WithdrawSplAsync(
                     payer: payer,
                     srv: payload
                 );
 
-                HandleRpcResult(res);
+                // Если RPC неуспешен — показываем причину и выходим
+                if (res == null || !res.WasSuccessful || string.IsNullOrWhiteSpace(res.Result))
+                {
+                    HandleRpcResult(res);
+                    return;
+                }
+
+                UserDataService.RequestUserAllData();
             }
             catch (Exception ex)
             {
@@ -355,28 +407,64 @@ namespace IDosGames
             return (ulong)scaled;
         }
 
+        private string ExplainRpcRaw(string raw)
+        {
+            try
+            {
+                var jo = JObject.Parse(raw);
+                var code = (int?)jo["error"]?["code"];
+                var msg = (string)jo["error"]?["message"];
+                var err = jo["error"]?["data"]?["err"]?.ToString();
+
+                if (err != null && err.Contains("InsufficientFundsForRent"))
+                    return "There wasn't enough SOL for rent when creating an account. Top up your wallet and try again.";
+
+                return !string.IsNullOrWhiteSpace(msg) ? msg : "RPC simulation error";
+            }
+            catch { return null; }
+        }
+
         private void HandleRpcResult(RequestResult<string> res)
         {
-            if (res == null)
+            Loading.HideAllPanels();
+            if (res == null) { errorTxt.text = "Null RPC result."; Message.Show("Null RPC result"); return; }
+
+            if (res.WasSuccessful && !string.IsNullOrEmpty(res.Result))
             {
-                errorTxt.text = "Null RPC result.";
-                Loading.HideAllPanels();
-                Message.Show("Null RPC result");
+                errorTxt.text = "";
+                manager.ShowScreen(this, "wallet_screen");
                 return;
             }
 
-            if (!string.IsNullOrEmpty(res.Result))
+            var reason = string.IsNullOrWhiteSpace(res.Reason) ? "RPC error" : res.Reason;
+            var raw = res.RawRpcResponse;
+            var friendly = !string.IsNullOrEmpty(raw) ? ExplainRpcRaw(raw) : null;
+            var finalMsg = friendly ?? reason;
+
+            Debug.LogError($"RPC error: {finalMsg}\nRAW: {raw}");
+            errorTxt.text = finalMsg;
+            Message.Show(finalMsg);
+        }
+
+        private async Task<bool> HasMinSolAsync(ulong minLamports = 1_000_000) // 0.001 SOL по умолчанию
+        {
+            var payerPk = Web3.Instance.WalletBase.Account.PublicKey;
+            var balResp = await _rpcClient.GetBalanceAsync(payerPk.Key, Commitment.Confirmed);
+            ulong lamports = (ulong)(balResp?.Result?.Value ?? 0UL);
+
+            if (lamports < minLamports)
             {
-                // Успех — закрываем экран в кошелёк (как в TransferScreen)
-                errorTxt.text = "";
-                manager.ShowScreen(this, "wallet_screen");
-            }
-            else
-            {
-                errorTxt.text = res.Reason ?? "Unknown RPC error.";
+                const double LAMPORTS_PER_SOL = 1_000_000_000d;
+                double needSol = minLamports / LAMPORTS_PER_SOL;
+                double haveSol = lamports / LAMPORTS_PER_SOL;
+
+                string error = $"Not enough SOL: needed ≥ {needSol.ToString("0.########", CultureInfo.InvariantCulture)} SOL " +
+                                $"(you have ~{haveSol.ToString("0.########", CultureInfo.InvariantCulture)} SOL)";
+                Message.Show(error);
                 Loading.HideAllPanels();
-                Message.Show($"RPC error: {res.Reason}");
+                return false;
             }
+            return true;
         }
 
         private async Task<int> FetchMintDecimalsAsync(PublicKey mint)

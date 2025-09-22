@@ -8,14 +8,14 @@ public class Loading : MonoBehaviour
     
     public static void StartLoading()
     {
-        _loadingSpinner ??= GameObject.Find("Loading");
+        _loadingSpinner ??= GameObject.Find("Loading2");
         if(_loadingSpinner != null)
             _loadingSpinner.transform.GetChild(0)?.gameObject.SetActive(true);
     }
     
     public static void StopLoading()
     {
-        _loadingSpinner ??= GameObject.Find("Loading");
+        _loadingSpinner ??= GameObject.Find("Loading2");
         if(_loadingSpinner != null)
             _loadingSpinner.transform.GetChild(0)?.gameObject.SetActive(false);
     }

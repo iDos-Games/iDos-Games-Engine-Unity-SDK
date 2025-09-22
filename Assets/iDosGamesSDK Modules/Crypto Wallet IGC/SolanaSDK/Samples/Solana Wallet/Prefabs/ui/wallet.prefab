@@ -11038,7 +11038,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1038961770938831721}
   - component: {fileID: 7886260323246669462}
-  - component: {fileID: 5993498975141774601}
   m_Layer: 5
   m_Name: wallet
   m_TagString: Untagged
@@ -11100,14 +11099,6 @@ MonoBehaviour:
   - {fileID: 6874712895411522344}
   - {fileID: 3970146041899652190}
   - {fileID: 7852279563289077186}
---- !u!222 &5993498975141774601
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3941431648195317650}
-  m_CullTransparentMesh: 1
 --- !u!1 &3970146040517112290
 GameObject:
   m_ObjectHideFlags: 0
@@ -23496,7 +23487,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &6349876232206164466
 RectTransform:
   m_ObjectHideFlags: 0
@@ -23609,12 +23600,6 @@ MonoBehaviour:
   m_Options:
     m_Options:
     - m_Text: Main Net
-      m_Image: {fileID: 0}
-      m_Color: {r: 1, g: 1, b: 1, a: 1}
-    - m_Text: Dev Net
-      m_Image: {fileID: 0}
-      m_Color: {r: 1, g: 1, b: 1, a: 1}
-    - m_Text: Test Net
       m_Image: {fileID: 0}
       m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_OnValueChanged:
