@@ -7,20 +7,20 @@ namespace IDosGames
     public class TransactionCheckUI : MonoBehaviour
     {
         [Header("Switch: Direction (active visuals)")]
-        [SerializeField] private GameObject switchDepositOn;   // active visual for "Deposit"
-        [SerializeField] private GameObject switchWithdrawOn;  // active visual for "Withdraw"
+        [SerializeField] private GameObject switchDepositOn;
+        [SerializeField] private GameObject switchWithdrawOn;
 
         [Header("Switch: Type (active visuals)")]
-        [SerializeField] private GameObject switchTokenOn;     // active visual for "Token"
-        [SerializeField] private GameObject switchNftOn;       // active visual for "NFT"
+        [SerializeField] private GameObject switchTokenOn;
+        [SerializeField] private GameObject switchNftOn;
 
         [Header("UI")]
         [SerializeField] private TMP_InputField hashInput;
         [SerializeField] private TextMeshProUGUI statusTxt;
 
         // Current state
-        private TransactionDirection _direction = TransactionDirection.Game;   // Deposit -> to Game
-        private CryptoTransactionType _txType = CryptoTransactionType.Token; // Default: Token
+        private TransactionDirection _direction = TransactionDirection.Game;
+        private CryptoTransactionType _txType = CryptoTransactionType.Token;
 
         private void OnEnable()
         {
@@ -29,17 +29,16 @@ namespace IDosGames
             SelectToken();
         }
 
-        // ===== PUBLIC METHODS (to be wired in the Inspector OnClick) =====
         public void SelectDeposit()
         {
-            _direction = TransactionDirection.Game; // Deposit = into Game
+            _direction = TransactionDirection.Game;
             SetActiveSafe(switchDepositOn, true);
             SetActiveSafe(switchWithdrawOn, false);
         }
 
         public void SelectWithdraw()
         {
-            _direction = TransactionDirection.UsersCryptoWallet; // Withdraw = to user's wallet
+            _direction = TransactionDirection.UsersCryptoWallet;
             SetActiveSafe(switchDepositOn, false);
             SetActiveSafe(switchWithdrawOn, true);
         }
@@ -79,7 +78,6 @@ namespace IDosGames
                 if (statusTxt) statusTxt.text = $"Error: {e.Message}";
             }
         }
-        // =================================================================
 
         private static void SetActiveSafe(GameObject go, bool value)
         {
