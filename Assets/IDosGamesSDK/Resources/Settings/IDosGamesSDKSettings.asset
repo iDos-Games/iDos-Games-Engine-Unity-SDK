@@ -16,7 +16,7 @@ MonoBehaviour:
   _titleTemplateID: default
   _buildKey: 
   _buildForPlatform: 2
-  _debugLogging: 0
+  _debugLogging: 1
   _showLoadingOnExecuteServerFunction: 1
   _serverLink: https://api.idosgames.com
   _mobileIAPEnabled: 0

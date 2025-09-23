@@ -1,6 +1,7 @@
-using NBitcoin;
-using Nethereum.HdWallet;
+﻿using NBitcoin;
+using Solana.Unity.SDK;
 using System;
+using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -9,6 +10,18 @@ namespace IDosGames
 {
     public class WalletCreationManager : MonoBehaviour
     {
+        private InGameWallet _solanaWallet;
+        private InGameWallet GetSolanaWallet()
+        {
+            // Подставь нужный кластер/URI
+            return _solanaWallet ??= new InGameWallet(
+                rpcCluster: RpcCluster.DevNet,
+                customRpcUri: null,
+                customStreamingRpcUri: null,
+                autoConnectOnStartup: true
+            );
+        }
+
         public Button[] numberButtons;
         public Button deleteButton;
         public Image[] passwordDots;
@@ -130,27 +143,87 @@ namespace IDosGames
             ClearPasswordDots();
         }
 
-        private void CreateWallet()
+        private async void CreateWallet()
         {
-            var wallet = new Wallet(Wordlist.English, WordCount.Twelve);
-            string mnemonic = String.Join(" ", wallet.Words);
+            try
+            {
+                if (string.Equals(BlockchainSettings.ChainType, "Solana", StringComparison.OrdinalIgnoreCase))
+                {
+                    await CreateSolanaWalletAsync();
+                }
+                else if (string.Equals(BlockchainSettings.ChainType, "EVM", StringComparison.OrdinalIgnoreCase))
+                {
+                    CreateEvmWallet();
+                }
+                else
+                {
+                    statusText.text = $"Unsupported chain type: {BlockchainSettings.ChainType}";
+                    ResetPasswords("Create your passcode");
+                    passwordPanel.SetActive(true);
+                    seedPhrasePanel.SetActive(false);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError("[WalletCreationManager] CreateWallet error: " + ex);
+                statusText.text = "Failed to create wallet. Please try again.";
+                ResetPasswords("Create your passcode");
+                passwordPanel.SetActive(true);
+                seedPhrasePanel.SetActive(false);
+            }
+        }
+
+        private void CreateEvmWallet()
+        {
+            var wallet = new Nethereum.HdWallet.Wallet(Wordlist.English, WordCount.Twelve);
+            string mnemonic = string.Join(" ", wallet.Words);
 
             var account = wallet.GetAccount(0);
             string address = account.Address;
             string privateKey = account.PrivateKey;
             seedPhraseText.text = mnemonic;
 
-            if(IDosGamesSDKSettings.Instance.DebugLogging)
+            if (IDosGamesSDKSettings.Instance.DebugLogging)
             {
                 Debug.Log("Mnemonics: " + mnemonic);
                 Debug.Log("Address: " + address);
                 Debug.Log("PrivateKey: " + privateKey);
             }
-            
+
             WalletManager.WalletAddress = address;
             PlayerPrefs.SetString(WalletManager.PLAYER_PREFS_WALLET_ADDRESS, address);
             PlayerPrefs.Save();
             PrivateKeyManager.SaveSeedPhrase(mnemonic, privateKey, firstPassword);
+
+            passwordPanel.SetActive(false);
+            seedPhrasePanel.SetActive(true);
+        }
+
+        private async Task CreateSolanaWalletAsync()
+        {
+            var sol = GetSolanaWallet();
+
+            var account = await sol.CreateAccount(mnemonic: null, password: firstPassword);
+            if (account == null) throw new Exception("Solana account creation returned null.");
+
+            string address = account.PublicKey?.Key;
+            string mnemonic = sol.Mnemonic?.ToString() ?? string.Empty;
+
+            string privateKeyBase64 = Convert.ToBase64String(account.PrivateKey.KeyBytes);
+            PrivateKeyManager.SaveSeedPhrase(mnemonic, privateKeyBase64, firstPassword);
+
+            seedPhraseText.text = mnemonic;
+
+            if (IDosGamesSDKSettings.Instance.DebugLogging)
+            {
+                Debug.Log("Mnemonics (Solana): " + mnemonic);
+                Debug.Log("Address (Solana): " + address);
+                Debug.Log("PrivateKey (Solana, Base64): " + privateKeyBase64);
+            }
+
+            WalletManager.WalletAddress = address;
+            PlayerPrefs.SetString(WalletManager.PLAYER_PREFS_WALLET_ADDRESS, address);
+            PlayerPrefs.Save();
 
             passwordPanel.SetActive(false);
             seedPhrasePanel.SetActive(true);

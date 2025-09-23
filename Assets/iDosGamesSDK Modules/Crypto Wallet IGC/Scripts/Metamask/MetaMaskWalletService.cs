@@ -209,7 +209,7 @@ namespace IDosGames
                 TransactionHash = transactionHash
             };
 
-            Message.Show(MessageCode.TRANSACTION_BEING_PROCESSED);
+            Message.Show(MessageCode.TRANSACTION_BEING_PROCESSED_PLEASE_WAIT);
 
             var task = IGSService.TryMakeTransaction(request);
             yield return new WaitUntil(() => task.IsCompleted);

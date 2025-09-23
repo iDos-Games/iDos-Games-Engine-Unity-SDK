@@ -1,4 +1,5 @@
-using Nethereum.HdWallet;
+﻿using Solana.Unity.SDK;
+using Solana.Unity.Wallet.Bip39;
 using System;
 using System.Collections;
 using TMPro;
@@ -9,6 +10,17 @@ namespace IDosGames
 {
     public class WalletImportManager : MonoBehaviour
     {
+        private InGameWallet _solanaWallet;
+        private InGameWallet GetSolanaWallet()
+        {
+            return _solanaWallet ??= new InGameWallet(
+                rpcCluster: RpcCluster.DevNet,
+                customRpcUri: null,
+                customStreamingRpcUri: null,
+                autoConnectOnStartup: true
+            );
+        }
+
         public WalletManager walletManager;
         public Button[] numberButtons;
         public Button deleteButton;
@@ -56,23 +68,43 @@ namespace IDosGames
 
             try
             {
-                var wallet = new Wallet(seedPhrase, null);
-                var account = wallet.GetAccount(0);
-                temporaryAddress = account.Address;
-                temporarySeedPhrase = seedPhrase;
-                temporaryPrivateKey = account.PrivateKey;
+                if (string.Equals(BlockchainSettings.ChainType, "Solana", StringComparison.OrdinalIgnoreCase))
+                {
+                    // Валидируем мнемонику (бросит исключение, если невалидна)
+                    var m = new Mnemonic(seedPhrase);
 
-                //Debug.Log(temporaryAddress + " / " + temporaryPrivateKey);
+                    // Из мнемоники получаем аккаунт Solana
+                    var solWallet = new Solana.Unity.Wallet.Wallet(m);
+                    var solAccount = solWallet.Account;
+
+                    // Заполняем временные поля — как у тебя сделано для EVM
+                    temporarySeedPhrase = seedPhrase;
+                    temporaryAddress = solAccount.PublicKey.Key;    // base58
+                    temporaryPrivateKey = Convert.ToBase64String(solAccount.PrivateKey.KeyBytes); // Ed25519 -> Base64
+                }
+                else if (string.Equals(BlockchainSettings.ChainType, "EVM", StringComparison.OrdinalIgnoreCase))
+                {
+                    var wallet = new Nethereum.HdWallet.Wallet(seedPhrase, null);
+                    var account = wallet.GetAccount(0);
+                    temporaryAddress = account.Address;
+                    temporarySeedPhrase = seedPhrase;
+                    temporaryPrivateKey = account.PrivateKey;
+                }
+                else
+                {
+                    statusText.text = $"Unsupported chain type: {BlockchainSettings.ChainType}";
+                    return;
+                }
 
                 statusText.text = "Seed phrase imported successfully. Create your passcode.";
                 seedPhrasePanel.SetActive(false);
                 passwordPanel.SetActive(true);
                 EnableButtons(true);
             }
-            catch
+            catch (Exception ex)
             {
                 statusText.text = "Invalid seed phrase. Please try again.";
-                Debug.Log("Invalid seed phrase. Please try again.");
+                Debug.Log("[WalletImportManager] Import error: " + ex);
             }
         }
 

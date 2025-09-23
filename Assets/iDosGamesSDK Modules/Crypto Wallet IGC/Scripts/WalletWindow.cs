@@ -95,6 +95,8 @@ namespace IDosGames
                 UserDataService.RequestUserAllData();
             }
 
+            Message.Show(transferResult);
+
             return transferResult;
 		}
 
@@ -184,6 +186,8 @@ namespace IDosGames
                 _walletManager.RefreshWalletBalance();
                 UserDataService.RequestUserAllData();
             }
+
+            Message.Show(transferResult);
 
             return transferResult;
 		}

@@ -78,7 +78,7 @@ namespace IDosGames
 				TransactionHash = transactionHash
 			};
 
-			Message.Show(MessageCode.TRANSACTION_BEING_PROCESSED);
+			Message.Show(MessageCode.TRANSACTION_BEING_PROCESSED_PLEASE_WAIT);
 
 			return await IGSService.TryMakeTransaction(request);
 		}
@@ -128,7 +128,7 @@ namespace IDosGames
 				TransactionHash = transactionHash
 			};
 
-			Message.Show(MessageCode.TRANSACTION_BEING_PROCESSED);
+			Message.Show(MessageCode.TRANSACTION_BEING_PROCESSED_PLEASE_WAIT);
 
 			return await IGSService.TryMakeTransaction(request);
 		}
@@ -235,7 +235,7 @@ namespace IDosGames
                 ConnectedWalletAddress = WalletManager.WalletAddress
             };
 
-			Message.Show(MessageCode.TRANSACTION_BEING_PROCESSED);
+			Message.Show(MessageCode.TRANSACTION_BEING_PROCESSED_PLEASE_WAIT);
 
 			return await IGSService.TryMakeTransaction(request);
 		}
