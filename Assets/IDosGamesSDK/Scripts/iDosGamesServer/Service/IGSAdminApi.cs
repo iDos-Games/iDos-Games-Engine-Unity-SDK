@@ -14,35 +14,35 @@ namespace IDosGames
         public static event Action<Action> ConnectionError;
         public static string URL_IGS_ADMIN_API = IDosGamesSDKSettings.Instance.IgsAdminApiLink;
 
-        public static async Task<string> UploadWebGLBuild(List<FileUpload> files)
+        public static async Task<string> GetWebGLUploadUrls(List<FileUpload> files)
         {
             var requestBody = new IGSRequest
             {
                 TitleID = IDosGamesSDKSettings.Instance.TitleID,
                 BuildKey = IDosGamesSDKSettings.Instance.BuildKey,
-                FunctionName = ServerFunctionHandlers.UploadWebGLBuild.ToString(),
+                FunctionName = ServerFunctionHandlers.GetWebGLUploadUrls.ToString(),
                 WebAppLink = WebSDK.webAppLink,
                 SecretKey = IDosGamesSDKSettings.Instance.DeveloperSecretKey,
                 Files = files,
                 DevBuild = IDosGamesSDKSettings.Instance.DevBuild
             };
-            return await SendPostRequest(URL_IGS_ADMIN_API + ServerFunctionHandlers.UploadWebGLBuild.ToString(), requestBody);
+            return await SendPostRequest(URL_IGS_ADMIN_API + ServerFunctionHandlers.GetWebGLUploadUrls.ToString(), requestBody);
         }
 
-        public static async Task<string> UploadWebGL(List<FileUpload> files)
+        public static async Task<string> GetUploadUrls(List<FileUpload> files)
         {
             var requestBody = new IGSRequest
             {
                 TitleID = IDosGamesSDKSettings.Instance.TitleID,
                 BuildKey = IDosGamesSDKSettings.Instance.BuildKey,
-                FunctionName = ServerFunctionHandlers.UploadWebGL.ToString(),
+                FunctionName = ServerFunctionHandlers.GetUploadUrls.ToString(),
                 WebAppLink = WebSDK.webAppLink,
                 SecretKey = IDosGamesSDKSettings.Instance.DeveloperSecretKey,
                 Files = files,
                 DevBuild = IDosGamesSDKSettings.Instance.DevBuild
             };
 
-            return await SendPostRequest(URL_IGS_ADMIN_API + ServerFunctionHandlers.UploadWebGL.ToString(), requestBody);
+            return await SendPostRequest(URL_IGS_ADMIN_API + ServerFunctionHandlers.GetUploadUrls.ToString(), requestBody);
         }
 
         private static async Task<string> SendPostRequest(string functionURL, IGSRequest request)

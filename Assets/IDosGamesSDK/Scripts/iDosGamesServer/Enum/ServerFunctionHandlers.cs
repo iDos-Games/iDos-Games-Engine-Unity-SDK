@@ -66,5 +66,7 @@ namespace IDosGames
         ResetPassword,
         ClaimTournamentReward,
         UploadWebGLBuild,
+        GetWebGLUploadUrls,
+        GetUploadUrls,
     }
 }
