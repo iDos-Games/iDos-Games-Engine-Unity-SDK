@@ -50,12 +50,38 @@ namespace IDosGames
                 Debug.Log("StreamingAssets directory not found (optional): " + streamingAssetsPath);
             }
 
-            await IGSAdminApi.UploadWebGLBuild(allFiles);
-            Debug.Log("Build Files Upload Completed!");
+            var result = await IGSAdminApi.GetWebGLUploadUrls(allFiles);
+
+            var localNameToFullPath = allFiles
+                .Select(f => new
+                {
+                    Name = Path.GetFileName(f.FilePath),
+                    Full = Path.Combine(directoryPath, f.FilePath)
+                })
+                .GroupBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
+                .ToDictionary(g => g.Key, g => g.First().Full, StringComparer.OrdinalIgnoreCase);
+
+            await UploadFilesToServer(result, localNameToFullPath, Math.Max(1, batchSize));
+
+            Debug.Log("Upload (build files) completed.");
 
             if (streamingFiles.Count > 0)
             {
-                await IGSAdminApi.UploadWebGL(streamingFiles);
+                var streamingJson = await IGSAdminApi.GetUploadUrls(streamingFiles);
+
+                var localNameToFullPathSA = streamingFiles.ToDictionary(
+                    f => f.FilePath,
+                    f =>
+                    {
+                        var relativeInsideSA = f.FilePath.StartsWith("StreamingAssets/", StringComparison.OrdinalIgnoreCase)
+                            ? f.FilePath.Substring("StreamingAssets/".Length)
+                            : f.FilePath;
+                        return Path.Combine(streamingAssetsPath, relativeInsideSA.Replace('/', Path.DirectorySeparatorChar));
+                    },
+                    StringComparer.OrdinalIgnoreCase
+                );
+
+                await UploadFilesToServer(streamingJson, localNameToFullPathSA, Math.Max(1, batchSize));
                 Debug.Log("StreamingAssets Upload Completed!");
             }
 
@@ -71,27 +97,101 @@ namespace IDosGames
             Debug.Log("WebGL URL: " + IDosGamesSDKSettings.Instance.WebGLUrl);
         }
 
-        private static async Task<List<FileUpload>> AddFilesFromDirectory(string currentDirectory, string rootDirectory)
+        private static async Task UploadFilesToServer(string serverResponseJson, Dictionary<string, string> localNameToFullPath, int batchSize = 1)
         {
-            List<FileUpload> filesToUpload = new List<FileUpload>();
-            string[] files = Directory.GetFiles(currentDirectory);
+            if (string.IsNullOrEmpty(serverResponseJson))
+                throw new ArgumentException("serverResponseJson is empty");
 
-            string[] requiredEndings = new string[] { ".loader.js", ".data.unityweb", ".framework.js.unityweb", ".wasm.unityweb" };
+            if (localNameToFullPath == null || localNameToFullPath.Count == 0)
+                throw new ArgumentException("localNameToFullPath is empty");
+
+            var names = localNameToFullPath.Keys.ToList();
+            var urlByName = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            var typeByName = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var name in names)
+            {
+                string escaped = System.Text.RegularExpressions.Regex.Escape(name);
+                var m = System.Text.RegularExpressions.Regex.Match(
+                    serverResponseJson,
+                    $"\"{escaped}\"\\s*:\\s*{{[^}}]*?\"url\"\\s*:\\s*\"([^\"]+)\"[^}}]*?\"contentType\"\\s*:\\s*\"([^\"]+)\"",
+                    System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.Singleline
+                );
+
+                if (!m.Success)
+                    throw new Exception($"Presigned URL not found in server response for file '{name}'");
+
+                urlByName[name] = m.Groups[1].Value;
+                typeByName[name] = m.Groups[2].Value;
+            }
+
+            int step = Math.Max(1, batchSize);
+            for (int i = 0; i < names.Count; i += step)
+            {
+                var batch = names.Skip(i).Take(step).ToList();
+                var tasks = new List<Task>(batch.Count);
+
+                foreach (var name in batch)
+                {
+                    if (!localNameToFullPath.TryGetValue(name, out var localPath) || string.IsNullOrEmpty(localPath) || !File.Exists(localPath))
+                        throw new FileNotFoundException($"Local file not found for '{name}'", localPath);
+
+                    string url = urlByName[name];
+                    string ct = typeByName[name];
+
+                    tasks.Add(PutOneFile(url, localPath, ct));
+                }
+
+                await Task.WhenAll(tasks);
+                Debug.Log($"Upload batch done: {Math.Min(i + step, names.Count)}/{names.Count}");
+            }
+        }
+
+        private static async Task PutOneFile(string url, string localPath, string contentType)
+        {
+            byte[] data;
+            using (var fs = new FileStream(localPath, FileMode.Open, FileAccess.Read, FileShare.Read))
+            {
+                data = new byte[fs.Length];
+#if UNITY_2021_2_OR_NEWER
+                int read = await fs.ReadAsync(data, 0, data.Length);
+#else
+            int read = await Task.Factory.StartNew(() => fs.Read(data, 0, data.Length));
+#endif
+                if (read != data.Length) Array.Resize(ref data, read);
+            }
+
+            using (var req = new UnityEngine.Networking.UnityWebRequest(url, "PUT"))
+            {
+                req.uploadHandler = new UnityEngine.Networking.UploadHandlerRaw(data);
+                req.downloadHandler = new UnityEngine.Networking.DownloadHandlerBuffer();
+                if (!string.IsNullOrEmpty(contentType))
+                    req.SetRequestHeader("Content-Type", contentType);
+
+                var op = req.SendWebRequest();
+#if UNITY_2020_2_OR_NEWER
+                while (!op.isDone) await Task.Yield();
+#else
+            while (!req.isDone) await Task.Yield();
+#endif
+                if (req.result != UnityEngine.Networking.UnityWebRequest.Result.Success)
+                    throw new Exception($"PUT failed: {req.responseCode} {req.error} ({Path.GetFileName(localPath)})");
+            }
+        }
+
+        private static Task<List<FileUpload>> AddFilesFromDirectory(string currentDirectory, string rootDirectory)
+        {
+            var filesToUpload = new List<FileUpload>();
+            string[] files = Directory.GetFiles(currentDirectory);
+            string[] requiredEndings = { ".loader.js", ".data.unityweb", ".framework.js.unityweb", ".wasm.unityweb" };
 
             foreach (string file in files)
             {
                 if (requiredEndings.Any(ending => file.EndsWith(ending, StringComparison.OrdinalIgnoreCase)))
                 {
-                    byte[] fileData = await ReadFileAsync(file);
-                    if (fileData == null || fileData.Length == 0)
-                    {
-                        Debug.LogWarning($"Failed to read file or file is empty: {file}");
-                        continue;
-                    }
-
                     string relativePath = Path.GetRelativePath(rootDirectory, file);
-                    filesToUpload.Add(new FileUpload(relativePath, fileData));
-                    Debug.Log($"File is uploading: {relativePath}");
+                    filesToUpload.Add(new FileUpload(relativePath, Array.Empty<byte>()));
+                    Debug.Log($"File registered (metadata only): {relativePath}");
                 }
                 else
                 {
@@ -99,41 +199,25 @@ namespace IDosGames
                 }
             }
 
-            return filesToUpload;
+            return Task.FromResult(filesToUpload);
         }
 
-        private static async Task<byte[]> ReadFileAsync(string filePath)
+        private static Task<List<FileUpload>> AddStreamingAssetsRecursively(string streamingAssetsDirectory)
         {
-            using (FileStream sourceStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 1024, useAsync: true))
-            {
-                byte[] buffer = new byte[sourceStream.Length];
-                int numRead = await sourceStream.ReadAsync(buffer, 0, buffer.Length);
-                return buffer;
-            }
-        }
-
-        private static async Task<List<FileUpload>> AddStreamingAssetsRecursively(string streamingAssetsDirectory)
-        {
-            List<FileUpload> filesToUpload = new List<FileUpload>();
+            var filesToUpload = new List<FileUpload>();
 
             foreach (var file in Directory.EnumerateFiles(streamingAssetsDirectory, "*", SearchOption.AllDirectories))
             {
                 if (ShouldSkip(file)) continue;
 
-                byte[] fileData = await ReadFileAsync(file);
-                if (fileData == null || fileData.Length == 0)
-                {
-                    Debug.LogWarning($"Failed to read file or file is empty: {file}");
-                    continue;
-                }
-
                 string relative = Path.GetRelativePath(streamingAssetsDirectory, file);
-                string uploadPath = Path.Combine("StreamingAssets", relative);
-                filesToUpload.Add(new FileUpload(NormalizeUploadPath(uploadPath), fileData));
-                Debug.Log($"StreamingAsset uploading: {uploadPath}");
+                string uploadPath = NormalizeUploadPath(Path.Combine("StreamingAssets", relative));
+
+                filesToUpload.Add(new FileUpload(uploadPath, Array.Empty<byte>()));
+                Debug.Log($"StreamingAsset registered (metadata only): {uploadPath}");
             }
 
-            return filesToUpload;
+            return Task.FromResult(filesToUpload);
         }
 
         private static bool ShouldSkip(string filePath)
@@ -146,6 +230,16 @@ namespace IDosGames
         private static string NormalizeUploadPath(string path)
         {
             return path.Replace('\\', '/');
+        }
+
+        private static async Task<byte[]> ReadFileAsync(string filePath)
+        {
+            using (FileStream sourceStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 1024, useAsync: true))
+            {
+                byte[] buffer = new byte[sourceStream.Length];
+                int numRead = await sourceStream.ReadAsync(buffer, 0, buffer.Length);
+                return buffer;
+            }
         }
 
         public static void DeleteAllSettings()
