@@ -1,10 +1,8 @@
-﻿#if UNITY_WEBGL && !UNITY_EDITOR
+﻿#if UNITY_WEBGL && UNITY_EDITOR
 
 using UnityEngine;
 using UnityEditor;
 using System.IO;
-
-
 
 // <summary>
 // This script exports Prefabs from the package to the Resources folder of the Unity project
@@ -15,7 +13,7 @@ namespace Solana.Unity.SDK.Exporters
 {
     public class PrefabsExporter
     {
-        [UnityEditor.Callbacks.DidReloadScripts]
+        //[UnityEditor.Callbacks.DidReloadScripts]
         private static void OnScriptsReloaded()
         {
             var destinationRootFolder = Path.GetFullPath("Assets/Resources/SolanaUnitySDK/");
@@ -46,4 +44,3 @@ namespace Solana.Unity.SDK.Exporters
 }
 
 #endif
-
