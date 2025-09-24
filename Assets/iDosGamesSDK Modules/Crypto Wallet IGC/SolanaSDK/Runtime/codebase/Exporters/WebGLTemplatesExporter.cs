@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEditor;
 using System.IO;
 
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL && UNITY_EDITOR
 
 /// Inspired by Author: Jonas Hahn, Source: https://github.com/Woody4618/Solana.Unity-SDK/blob/main/Runtime/codebase/WebGLTemplatePostProcessor.cs
 
@@ -20,7 +20,7 @@ using System.IO;
 // ReSharper disable once CheckNamespace
 
 public static class WebGLTemplatesExporter {
-    [UnityEditor.Callbacks.DidReloadScripts]
+    //[UnityEditor.Callbacks.DidReloadScripts]
     private static void OnScriptsReloaded() {
         var destinationRootFolder = Path.GetFullPath("Assets/WebGLTemplates/");
         var sourceRootFolder = Path.GetFullPath("Packages/com.solana.unity_sdk/Runtime/codebase/WebGLTemplates/");
@@ -56,7 +56,7 @@ public static class WebGLTemplatesExporter {
 #if UNITY_EDITOR
 public static class SetDefaultSplashScreen
 {
-    [UnityEditor.Callbacks.DidReloadScripts]
+    //[UnityEditor.Callbacks.DidReloadScripts]
     private static void OnScriptsReloaded()
     {
         // Set Default Splash Screen
