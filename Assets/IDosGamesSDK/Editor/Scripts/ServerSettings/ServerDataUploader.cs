@@ -1,4 +1,5 @@
 #if UNITY_EDITOR
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -23,13 +24,17 @@ namespace IDosGames
 
             var allFiles = await AddFilesFromDirectory(directoryPath, directoryPath);
 
-            string[] requiredEndings = new string[] { ".loader.js", ".data.unityweb", ".framework.js.unityweb", ".wasm.unityweb" };
-            var uploadedFiles = allFiles.ToDictionary(
-                f => requiredEndings.FirstOrDefault(ending => f.FilePath.EndsWith(ending, StringComparison.OrdinalIgnoreCase)),
-                f => f
-            );
+            string[] requiredEndings = { ".loader.js", ".data.unityweb", ".framework.js.unityweb", ".wasm.unityweb" };
 
-            if (uploadedFiles.Count != requiredEndings.Length || uploadedFiles.Any(kvp => kvp.Key == null))
+            var uploadedFiles = new Dictionary<string, FileUpload>(StringComparer.OrdinalIgnoreCase);
+            foreach (var f in allFiles)
+            {
+                var key = requiredEndings.FirstOrDefault(ending => f.FilePath.EndsWith(ending, StringComparison.OrdinalIgnoreCase));
+                if (key != null && !uploadedFiles.ContainsKey(key))
+                    uploadedFiles[key] = f;
+            }
+
+            if (requiredEndings.Any(ext => !uploadedFiles.ContainsKey(ext)))
             {
                 Debug.LogError("Missing required WebGL build files. Required: .loader.js, .data.unityweb, .framework.js.unityweb, .wasm.unityweb");
                 return;
@@ -56,10 +61,9 @@ namespace IDosGames
                 .Select(f => new
                 {
                     Name = Path.GetFileName(f.FilePath),
-                    Full = Path.Combine(directoryPath, f.FilePath)
+                    Full = Path.Combine(directoryPath, f.FilePath.Replace('/', Path.DirectorySeparatorChar))
                 })
-                .GroupBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
-                .ToDictionary(g => g.Key, g => g.First().Full, StringComparer.OrdinalIgnoreCase);
+                .ToDictionary(x => x.Name, x => x.Full, StringComparer.OrdinalIgnoreCase);
 
             await UploadFilesToServer(result, localNameToFullPath, Math.Max(1, batchSize));
 
@@ -101,28 +105,104 @@ namespace IDosGames
         {
             if (string.IsNullOrEmpty(serverResponseJson))
                 throw new ArgumentException("serverResponseJson is empty");
-
             if (localNameToFullPath == null || localNameToFullPath.Count == 0)
                 throw new ArgumentException("localNameToFullPath is empty");
 
+            JObject root;
+            try
+            {
+                root = JObject.Parse(serverResponseJson);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Server JSON parse error: {ex.Message}\nJSON:\n{serverResponseJson}");
+                throw;
+            }
+
+            JToken filesNode = root["files"] ?? root;
+
+            var map = new Dictionary<string, (string url, string contentType)>(StringComparer.OrdinalIgnoreCase);
+
+            if (filesNode is JObject objMap)
+            {
+                if (objMap.TryGetValue("presigned", StringComparison.OrdinalIgnoreCase, out var presignedTok)
+                    && presignedTok is JObject presignedObj)
+                {
+                    objMap = presignedObj;
+                }
+
+                foreach (var prop in objMap.Properties())
+                {
+                    var entry = prop.Value as JObject;
+                    if (entry == null) continue;
+
+                    var url = (string)entry["url"];
+                    var ct = (string)(entry["contentType"] ?? "application/octet-stream");
+                    if (!string.IsNullOrEmpty(url))
+                        map[prop.Name] = (url, ct);
+                }
+            }
+            else if (filesNode is JArray arr)
+            {
+                foreach (var item in arr.OfType<JObject>())
+                {
+                    var name = (string)(item["name"] ?? item["path"] ?? item["key"]);
+                    var url = (string)item["url"];
+                    var ct = (string)(item["contentType"] ?? "application/octet-stream");
+                    if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(url))
+                    {
+                        map[name] = (url, ct);
+                    }
+                }
+            }
+            else
+            {
+                Debug.LogError("Unsupported server JSON shape for presigned URLs.");
+                Debug.Log(serverResponseJson);
+                throw new Exception("Unsupported server JSON shape.");
+            }
+
+            // Диагностика, если что-то не сходится
+            if (map.Count == 0)
+            {
+                Debug.LogError("No presigned URLs found in server response.");
+                Debug.Log(serverResponseJson);
+                throw new Exception("No presigned URLs");
+            }
+
             var names = localNameToFullPath.Keys.ToList();
+
+            var serverKeysPreview = string.Join("\n", map.Keys.Take(10));
+            var clientKeysPreview = string.Join("\n", names.Take(10));
+            Debug.Log($"Server keys sample:\n{serverKeysPreview}");
+            Debug.Log($"Client keys sample:\n{clientKeysPreview}");
+
             var urlByName = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             var typeByName = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
             foreach (var name in names)
             {
-                string escaped = System.Text.RegularExpressions.Regex.Escape(name);
-                var m = System.Text.RegularExpressions.Regex.Match(
-                    serverResponseJson,
-                    $"\"{escaped}\"\\s*:\\s*{{[^}}]*?\"url\"\\s*:\\s*\"([^\"]+)\"[^}}]*?\"contentType\"\\s*:\\s*\"([^\"]+)\"",
-                    System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.Singleline
-                );
+                if (!map.TryGetValue(name, out var info))
+                {
+                    var baseName = System.IO.Path.GetFileName(name);
+                    var candidates = map.Keys.Where(k => string.Equals(System.IO.Path.GetFileName(k), baseName, StringComparison.OrdinalIgnoreCase)).ToList();
 
-                if (!m.Success)
-                    throw new Exception($"Presigned URL not found in server response for file '{name}'");
+                    if (candidates.Count == 1)
+                    {
+                        info = map[candidates[0]];
+                        Debug.LogWarning($"Key '{name}' not found. Fallback to unique basename match: '{candidates[0]}'");
+                    }
+                    else
+                    {
+                        var serverList = string.Join("\n", map.Keys.Take(50));
+                        throw new Exception($"Presigned URL not found in server response for file '{name}'.\n" +
+                                            $"TIP: убедись, что ключ в запросе и ответе совпадает 1:1 (относительный путь с '/').\n" +
+                                            $"Server keys (first 50):\n{serverList}");
+                    }
+                }
 
-                urlByName[name] = m.Groups[1].Value;
-                typeByName[name] = m.Groups[2].Value;
+                urlByName[name] = info.url;
+                typeByName[name] = string.IsNullOrEmpty(info.contentType) ? "application/octet-stream" : info.contentType;
             }
 
             int step = Math.Max(1, batchSize);
@@ -190,15 +270,15 @@ namespace IDosGames
                 if (requiredEndings.Any(ending => file.EndsWith(ending, StringComparison.OrdinalIgnoreCase)))
                 {
                     string relativePath = Path.GetRelativePath(rootDirectory, file);
-                    filesToUpload.Add(new FileUpload(relativePath, Array.Empty<byte>()));
-                    Debug.Log($"File registered (metadata only): {relativePath}");
+                    string normalized = NormalizeUploadPath(relativePath);
+                    filesToUpload.Add(new FileUpload(normalized, Array.Empty<byte>()));
+                    Debug.Log($"File registered (metadata only): {normalized}");
                 }
                 else
                 {
                     Debug.Log($"Skipping file: {file}");
                 }
             }
-
             return Task.FromResult(filesToUpload);
         }
 
