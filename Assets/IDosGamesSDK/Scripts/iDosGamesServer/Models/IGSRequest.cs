@@ -66,6 +66,13 @@ namespace IDosGames
         public List<FileUpload> Files { get; set; }
 #endif
 
+        // Swap API
+        public string TakerPubkey { get; set; }
+        public string TokenMint { get; set; }
+        public ulong AmountLamports { get; set; }     // для покупки (SOL -> TOKEN)
+        public ulong TokenAmountAtomic { get; set; }  // для продажи (TOKEN -> SOL)
+        public string RequestId { get; set; }         // для Execute
+        public string SignedTxBase64 { get; set; }    // для Execute
     }
 
     public class AIRequest

@@ -68,5 +68,8 @@ namespace IDosGames
         UploadWebGLBuild,
         GetWebGLUploadUrls,
         GetUploadUrls,
+        CreateBuyOrderForSolana,
+        CreateSellOrderForSolana,
+        ExecuteOrderForSolana,
     }
 }

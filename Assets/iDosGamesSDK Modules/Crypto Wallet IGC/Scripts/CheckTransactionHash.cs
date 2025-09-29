@@ -6,6 +6,9 @@ namespace IDosGames
     {
         public static async Task<string> CheckHash(string txHash, CryptoTransactionType transactionType, TransactionDirection transactionDirection)
         {
+            string message = string.Empty;
+
+#if IDOSGAMES_CRYPTO_WALLET
             var request = new WalletTransactionRequest
             {
                 ChainType = BlockchainSettings.ChainType,
@@ -17,7 +20,9 @@ namespace IDosGames
 
             var result = await IGSService.TryMakeTransaction(request);
 
-            string message = Message.MessageResult(result);
+            message = Message.MessageResult(result);
+#endif
+
             return message;
         }
     }
