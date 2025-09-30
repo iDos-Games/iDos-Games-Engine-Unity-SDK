@@ -7,6 +7,7 @@ namespace IDosGames
 {
     public static class SolanaSwapClient
     {
+#if UNITY_EDITOR
         public static async UniTask<string> BuyWithSolAsync(string tokenMint, ulong amountLamports)
         {
             EnsureWallet();
@@ -38,6 +39,7 @@ namespace IDosGames
 
             return signature;
         }
+#endif
 
         // ================== Helpers ==================
 

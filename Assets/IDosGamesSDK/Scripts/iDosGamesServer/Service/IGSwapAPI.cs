@@ -12,6 +12,7 @@ namespace IDosGames
         public static string URL_SWAP_API = IDosGamesSDKSettings.Instance.SwapApiLink;
         public static event Action<Action> ConnectionError;
 
+#if UNITY_EDITOR
         public static async Task<string> CreateBuyOrderForSolana(string takerPubkey, string tokenMint, ulong amountLamports)
         {
             var requestBody = new IGSRequest
@@ -60,6 +61,7 @@ namespace IDosGames
             };
             return await SendPostRequest(URL_SWAP_API + ServerFunctionHandlers.ExecuteOrderForSolana.ToString(), requestBody);
         }
+#endif
 
         private static async Task<string> SendPostRequest(string functionURL, IGSRequest request)
         {
