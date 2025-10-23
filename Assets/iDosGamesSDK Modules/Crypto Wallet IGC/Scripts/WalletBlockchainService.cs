@@ -212,47 +212,95 @@ namespace IDosGames
             {
                 var account = new Account(privateKey);
                 var fromAddress = account.Address;
+                string txHash = null;
 
-                var withdrawMessage = new WithdrawERC20Function
+                if (string.IsNullOrEmpty(withdrawalData.UserID))
                 {
-                    Token = withdrawalData.TokenAddress,
-                    To = withdrawalData.WalletAddress,
-                    Amount = BigInteger.Parse(withdrawalData.Amount),
-                    Nonce = BigInteger.Parse(withdrawalData.Nonce),
-                    Signature = HexStringToByteArray(withdrawalData.Signature),
-                    GasPrice = new HexBigInteger(Web3.Convert.ToWei(BlockchainSettings.GasPrice, UnitConversion.EthUnit.Gwei)),
-                    FromAddress = fromAddress
-                };
+                    var withdrawMessage = new WithdrawERC20Function
+                    {
+                        Token = withdrawalData.TokenAddress,
+                        To = withdrawalData.WalletAddress,
+                        Amount = BigInteger.Parse(withdrawalData.Amount),
+                        Nonce = BigInteger.Parse(withdrawalData.Nonce),
+                        Signature = HexStringToByteArray(withdrawalData.Signature),
+                        GasPrice = new HexBigInteger(Web3.Convert.ToWei(BlockchainSettings.GasPrice, UnitConversion.EthUnit.Gwei)),
+                        FromAddress = fromAddress
+                    };
 
-                withdrawMessage.Gas = new HexBigInteger(150000);
+                    withdrawMessage.Gas = new HexBigInteger(150000);
 
-                var nonce = await GetTransactionCountAsync(fromAddress);
+                    var nonce = await GetTransactionCountAsync(fromAddress);
 
-                var callData = withdrawMessage.GetCallData().ToHex();
-                var gasPrice = withdrawMessage.GasPrice.Value;
-                var gasLimit = withdrawMessage.Gas.Value;
+                    var callData = withdrawMessage.GetCallData().ToHex();
+                    var gasPrice = withdrawMessage.GasPrice.Value;
+                    var gasLimit = withdrawMessage.Gas.Value;
 
-                var signer = new LegacyTransactionSigner();
+                    var signer = new LegacyTransactionSigner();
 
-                BigInteger chainIdBigInt = new BigInteger(chainID);
+                    BigInteger chainIdBigInt = new BigInteger(chainID);
 
-                Debug.Log($"ChainID: {chainID}, ContractAddress: {withdrawalData.ContractAddress}, Nonce: {nonce.Value}, GasPrice: {gasPrice}, GasLimit: {gasLimit}, CallData: {callData}");
+                    Debug.Log($"ChainID: {chainID}, ContractAddress: {withdrawalData.ContractAddress}, Nonce: {nonce.Value}, GasPrice: {gasPrice}, GasLimit: {gasLimit}, CallData: {callData}");
 
-                string signedTx = signer.SignTransaction(
-                    privateKey,
-                    chainIdBigInt,
-                    withdrawalData.ContractAddress,
-                    BigInteger.Zero,
-                    nonce.Value,
-                    gasPrice,
-                    gasLimit,
-                    callData
-                    );
+                    string signedTx = signer.SignTransaction(
+                        privateKey,
+                        chainIdBigInt,
+                        withdrawalData.ContractAddress,
+                        BigInteger.Zero,
+                        nonce.Value,
+                        gasPrice,
+                        gasLimit,
+                        callData
+                        );
 
-                //Debug.Log($"Signed Transaction: {signedTx}");
+                    //Debug.Log($"Signed Transaction: {signedTx}");
 
-                var txHash = await SendRawTransaction("0x" + signedTx);
-                Debug.Log($"txHash: {txHash}");
+                    txHash = await SendRawTransaction("0x" + signedTx);
+                    Debug.Log($"txHash: {txHash}");
+                }
+                else
+                {
+                    var withdrawMessage = new WithdrawERC20FunctionV2
+                    {
+                        Token = withdrawalData.TokenAddress,
+                        To = withdrawalData.WalletAddress,
+                        Amount = BigInteger.Parse(withdrawalData.Amount),
+                        Nonce = BigInteger.Parse(withdrawalData.Nonce),
+                        Signature = HexStringToByteArray(withdrawalData.Signature),
+                        UserID = withdrawalData.UserID,
+                        GasPrice = new HexBigInteger(Web3.Convert.ToWei(BlockchainSettings.GasPrice, UnitConversion.EthUnit.Gwei)),
+                        FromAddress = fromAddress
+                    };
+
+                    withdrawMessage.Gas = new HexBigInteger(150000);
+
+                    var nonce = await GetTransactionCountAsync(fromAddress);
+
+                    var callData = withdrawMessage.GetCallData().ToHex();
+                    var gasPrice = withdrawMessage.GasPrice.Value;
+                    var gasLimit = withdrawMessage.Gas.Value;
+
+                    var signer = new LegacyTransactionSigner();
+
+                    BigInteger chainIdBigInt = new BigInteger(chainID);
+
+                    Debug.Log($"ChainID: {chainID}, ContractAddress: {withdrawalData.ContractAddress}, Nonce: {nonce.Value}, GasPrice: {gasPrice}, GasLimit: {gasLimit}, CallData: {callData}");
+
+                    string signedTx = signer.SignTransaction(
+                        privateKey,
+                        chainIdBigInt,
+                        withdrawalData.ContractAddress,
+                        BigInteger.Zero,
+                        nonce.Value,
+                        gasPrice,
+                        gasLimit,
+                        callData
+                        );
+
+                    //Debug.Log($"Signed Transaction: {signedTx}");
+
+                    txHash = await SendRawTransaction("0x" + signedTx);
+                    Debug.Log($"txHash: {txHash}");
+                }
 
                 return txHash;
             }
@@ -269,48 +317,97 @@ namespace IDosGames
             {
                 var account = new Account(privateKey);
                 var fromAddress = account.Address;
+                string txHash = null;
 
-                var withdrawMessage = new WithdrawERC1155Function
+                if (string.IsNullOrEmpty(withdrawalData.UserID))
                 {
-                    Token = withdrawalData.TokenAddress,
-                    To = withdrawalData.WalletAddress,
-                    Id = BigInteger.Parse(withdrawalData.TokenId),
-                    Amount = BigInteger.Parse(withdrawalData.Amount),
-                    Nonce = BigInteger.Parse(withdrawalData.Nonce),
-                    Signature = HexStringToByteArray(withdrawalData.Signature),
-                    GasPrice = new HexBigInteger(Web3.Convert.ToWei(BlockchainSettings.GasPrice, UnitConversion.EthUnit.Gwei)),
-                    FromAddress = fromAddress
-                };
+                    var withdrawMessage = new WithdrawERC1155Function
+                    {
+                        Token = withdrawalData.TokenAddress,
+                        To = withdrawalData.WalletAddress,
+                        Id = BigInteger.Parse(withdrawalData.TokenId),
+                        Amount = BigInteger.Parse(withdrawalData.Amount),
+                        Nonce = BigInteger.Parse(withdrawalData.Nonce),
+                        Signature = HexStringToByteArray(withdrawalData.Signature),
+                        GasPrice = new HexBigInteger(Web3.Convert.ToWei(BlockchainSettings.GasPrice, UnitConversion.EthUnit.Gwei)),
+                        FromAddress = fromAddress
+                    };
 
-                withdrawMessage.Gas = new HexBigInteger(150000);
+                    withdrawMessage.Gas = new HexBigInteger(150000);
 
-                var nonce = await GetTransactionCountAsync(fromAddress);
+                    var nonce = await GetTransactionCountAsync(fromAddress);
 
-                var callData = withdrawMessage.GetCallData().ToHex();
-                var gasPrice = withdrawMessage.GasPrice.Value;
-                var gasLimit = withdrawMessage.Gas.Value;
+                    var callData = withdrawMessage.GetCallData().ToHex();
+                    var gasPrice = withdrawMessage.GasPrice.Value;
+                    var gasLimit = withdrawMessage.Gas.Value;
 
-                var signer = new LegacyTransactionSigner();
+                    var signer = new LegacyTransactionSigner();
 
-                BigInteger chainIdBigInt = new BigInteger(chainID);
+                    BigInteger chainIdBigInt = new BigInteger(chainID);
 
-                Debug.Log($"ChainID: {chainID}, ContractAddress: {withdrawalData.ContractAddress}, Nonce: {nonce.Value}, GasPrice: {gasPrice}, GasLimit: {gasLimit}, CallData: {callData}");
+                    Debug.Log($"ChainID: {chainID}, ContractAddress: {withdrawalData.ContractAddress}, Nonce: {nonce.Value}, GasPrice: {gasPrice}, GasLimit: {gasLimit}, CallData: {callData}");
 
-                string signedTx = signer.SignTransaction(
-                    privateKey,
-                    chainIdBigInt,
-                    withdrawalData.ContractAddress,
-                    BigInteger.Zero,
-                    nonce.Value,
-                    gasPrice,
-                    gasLimit,
-                    callData
-                    );
+                    string signedTx = signer.SignTransaction(
+                        privateKey,
+                        chainIdBigInt,
+                        withdrawalData.ContractAddress,
+                        BigInteger.Zero,
+                        nonce.Value,
+                        gasPrice,
+                        gasLimit,
+                        callData
+                        );
 
-                //Debug.Log($"Signed Transaction: {signedTx}");
+                    //Debug.Log($"Signed Transaction: {signedTx}");
 
-                var txHash = await SendRawTransaction("0x" + signedTx);
-                Debug.Log($"txHash: {txHash}");
+                    txHash = await SendRawTransaction("0x" + signedTx);
+                    Debug.Log($"txHash: {txHash}");
+                }
+                else
+                {
+                    var withdrawMessage = new WithdrawERC1155FunctionV2
+                    {
+                        Token = withdrawalData.TokenAddress,
+                        To = withdrawalData.WalletAddress,
+                        Id = BigInteger.Parse(withdrawalData.TokenId),
+                        Amount = BigInteger.Parse(withdrawalData.Amount),
+                        Nonce = BigInteger.Parse(withdrawalData.Nonce),
+                        Signature = HexStringToByteArray(withdrawalData.Signature),
+                        UserID = withdrawalData.UserID,
+                        GasPrice = new HexBigInteger(Web3.Convert.ToWei(BlockchainSettings.GasPrice, UnitConversion.EthUnit.Gwei)),
+                        FromAddress = fromAddress
+                    };
+
+                    withdrawMessage.Gas = new HexBigInteger(150000);
+
+                    var nonce = await GetTransactionCountAsync(fromAddress);
+
+                    var callData = withdrawMessage.GetCallData().ToHex();
+                    var gasPrice = withdrawMessage.GasPrice.Value;
+                    var gasLimit = withdrawMessage.Gas.Value;
+
+                    var signer = new LegacyTransactionSigner();
+
+                    BigInteger chainIdBigInt = new BigInteger(chainID);
+
+                    Debug.Log($"ChainID: {chainID}, ContractAddress: {withdrawalData.ContractAddress}, Nonce: {nonce.Value}, GasPrice: {gasPrice}, GasLimit: {gasLimit}, CallData: {callData}");
+
+                    string signedTx = signer.SignTransaction(
+                        privateKey,
+                        chainIdBigInt,
+                        withdrawalData.ContractAddress,
+                        BigInteger.Zero,
+                        nonce.Value,
+                        gasPrice,
+                        gasLimit,
+                        callData
+                        );
+
+                    //Debug.Log($"Signed Transaction: {signedTx}");
+
+                    txHash = await SendRawTransaction("0x" + signedTx);
+                    Debug.Log($"txHash: {txHash}");
+                }
 
                 return txHash;
             }
@@ -855,6 +952,28 @@ namespace IDosGames
         public byte[] Signature { get; set; }
     }
 
+    [Function("withdrawERC20", "bool")]
+    public class WithdrawERC20FunctionV2 : FunctionMessage
+    {
+        [Parameter("address", "token", 1)]
+        public string Token { get; set; }
+
+        [Parameter("address", "to", 2)]
+        public string To { get; set; }
+
+        [Parameter("uint256", "amount", 3)]
+        public BigInteger Amount { get; set; }
+
+        [Parameter("uint256", "nonce", 4)]
+        public new BigInteger Nonce { get; set; }
+
+        [Parameter("bytes", "signature", 5)]
+        public byte[] Signature { get; set; }
+
+        [Parameter("string", "userID", 6)]
+        public string UserID { get; set; }
+    }
+
     [Function("depositERC20", "bool")]
     public class DepositERC20Function : FunctionMessage
     {
@@ -888,5 +1007,30 @@ namespace IDosGames
 
         [Parameter("bytes", "signature", 6)]
         public byte[] Signature { get; set; }
+    }
+
+    [Function("withdrawERC1155", "bool")]
+    public class WithdrawERC1155FunctionV2 : FunctionMessage
+    {
+        [Parameter("address", "token", 1)]
+        public string Token { get; set; }
+
+        [Parameter("address", "to", 2)]
+        public string To { get; set; }
+
+        [Parameter("uint256", "id", 3)]
+        public BigInteger Id { get; set; }
+
+        [Parameter("uint256", "amount", 4)]
+        public BigInteger Amount { get; set; }
+
+        [Parameter("uint256", "nonce", 5)]
+        public new BigInteger Nonce { get; set; }
+
+        [Parameter("bytes", "signature", 6)]
+        public byte[] Signature { get; set; }
+
+        [Parameter("string", "userID", 7)]
+        public string UserID { get; set; }
     }
 }
