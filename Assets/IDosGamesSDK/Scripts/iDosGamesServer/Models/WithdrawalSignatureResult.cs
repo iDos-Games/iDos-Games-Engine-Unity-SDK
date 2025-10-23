@@ -9,6 +9,7 @@ namespace IDosGames
         public string TokenId { get; set; }
         public string Nonce { get; set; }
         public string ContractAddress { get; set; }
+        public string UserID { get; set; }
         public string Signature { get; set; }
     }
 }
