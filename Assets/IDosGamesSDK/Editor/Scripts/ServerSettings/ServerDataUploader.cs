@@ -12,6 +12,36 @@ namespace IDosGames
 {
     public class ServerDataUploader : Editor
     {
+        private const int UPLOAD_TIMEOUT_SEC = 600;
+        private const int MAX_RETRIES = 5;
+        private const int BASE_BACKOFF_MS = 800;
+
+        private static bool ShouldRetry(long code, string errorText, string respBody)
+        {
+            if (code == 0) return true;
+            if (code == 429) return true;
+            if (code == 500 || code == 502 || code == 503 || code == 504) return true;
+
+            if (code == 403 && (respBody?.IndexOf("Expired", StringComparison.OrdinalIgnoreCase) >= 0
+                             || respBody?.IndexOf("SlowDown", StringComparison.OrdinalIgnoreCase) >= 0
+                             || respBody?.IndexOf("Signature", StringComparison.OrdinalIgnoreCase) >= 0))
+                return true;
+
+            if (!string.IsNullOrEmpty(errorText) && (
+                errorText.IndexOf("Recv failure", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                errorText.IndexOf("Connection was reset", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                errorText.IndexOf("timed out", StringComparison.OrdinalIgnoreCase) >= 0))
+                return true;
+
+            return false;
+        }
+
+        private static int BackoffDelayMs(int attempt)
+        {
+            var rand = UnityEngine.Random.Range(0, 250);
+            return (int)(Mathf.Min(32000, BASE_BACKOFF_MS * Mathf.Pow(2, attempt))) + rand;
+        }
+
         public static async void UploadDataFromDirectory(string directoryPath, int batchSize = 1)
         {
             Debug.Log("Uploading Start ...");
@@ -65,9 +95,16 @@ namespace IDosGames
                 })
                 .ToDictionary(x => x.Name, x => x.Full, StringComparer.OrdinalIgnoreCase);
 
-            await UploadFilesToServer(result, localNameToFullPath, Math.Max(1, batchSize));
-
-            Debug.Log("Upload (build files) completed.");
+            try
+            {
+                await UploadFilesToServer(result, localNameToFullPath, Math.Max(1, batchSize));
+                Debug.Log("Upload (build files) completed.");
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[Uploader] Build files upload failed: {ex.Message}\n{ex}");
+                throw;
+            }
 
             if (streamingFiles.Count > 0)
             {
@@ -85,8 +122,16 @@ namespace IDosGames
                     StringComparer.OrdinalIgnoreCase
                 );
 
-                await UploadFilesToServer(streamingJson, localNameToFullPathSA, Math.Max(1, batchSize));
-                Debug.Log("StreamingAssets Upload Completed!");
+                try
+                {
+                    await UploadFilesToServer(streamingJson, localNameToFullPathSA, Math.Max(1, batchSize));
+                    Debug.Log("StreamingAssets Upload Completed!");
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError($"[Uploader] StreamingAssets upload failed: {ex.Message}\n{ex}");
+                    throw;
+                }
             }
 
             if (IDosGamesSDKSettings.Instance.DevBuild)
@@ -222,13 +267,31 @@ namespace IDosGames
                     tasks.Add(PutOneFile(url, localPath, ct));
                 }
 
-                await Task.WhenAll(tasks);
+                try
+                {
+                    await Task.WhenAll(tasks);
+                }
+                catch (Exception)
+                {
+                    // Пробегаемся и печатаем фейлы поимённо
+                    for (int ti = 0; ti < tasks.Count; ti++)
+                    {
+                        if (tasks[ti].IsFaulted && tasks[ti].Exception != null)
+                        {
+                            Debug.LogError($"[Uploader] File failed: {batch[ti]} :: {tasks[ti].Exception.GetBaseException().Message}");
+                        }
+                    }
+                    throw; // пусть общий флоу тоже знает, что партия упала
+                }
+
+                await Task.Delay(500);
                 Debug.Log($"Upload batch done: {Math.Min(i + step, names.Count)}/{names.Count}");
             }
         }
 
         private static async Task PutOneFile(string url, string localPath, string contentType)
         {
+            // Читаем файл
             byte[] data;
             using (var fs = new FileStream(localPath, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
@@ -236,27 +299,75 @@ namespace IDosGames
 #if UNITY_2021_2_OR_NEWER
                 int read = await fs.ReadAsync(data, 0, data.Length);
 #else
-            int read = await Task.Factory.StartNew(() => fs.Read(data, 0, data.Length));
+        int read = await Task.Factory.StartNew(() => fs.Read(data, 0, data.Length));
 #endif
                 if (read != data.Length) Array.Resize(ref data, read);
             }
 
-            using (var req = new UnityEngine.Networking.UnityWebRequest(url, "PUT"))
-            {
-                req.uploadHandler = new UnityEngine.Networking.UploadHandlerRaw(data);
-                req.downloadHandler = new UnityEngine.Networking.DownloadHandlerBuffer();
-                if (!string.IsNullOrEmpty(contentType))
-                    req.SetRequestHeader("Content-Type", contentType);
+            string fileName = Path.GetFileName(localPath);
 
-                var op = req.SendWebRequest();
+            for (int attempt = 0; attempt < MAX_RETRIES; attempt++)
+            {
+                using (var req = new UnityEngine.Networking.UnityWebRequest(url, "PUT"))
+                {
+                    req.uploadHandler = new UnityEngine.Networking.UploadHandlerRaw(data);
+                    req.downloadHandler = new UnityEngine.Networking.DownloadHandlerBuffer();
+
+                    if (!string.IsNullOrEmpty(contentType))
+                        req.SetRequestHeader("Content-Type", contentType);
+
+                    req.useHttpContinue = false;
+                    //req.chunkedTransfer = false;
+
+                    req.timeout = UPLOAD_TIMEOUT_SEC;
+
+                    var op = req.SendWebRequest();
 #if UNITY_2020_2_OR_NEWER
-                while (!op.isDone) await Task.Yield();
+                    while (!op.isDone) await Task.Yield();
 #else
             while (!req.isDone) await Task.Yield();
 #endif
-                if (req.result != UnityEngine.Networking.UnityWebRequest.Result.Success)
-                    throw new Exception($"PUT failed: {req.responseCode} {req.error} ({Path.GetFileName(localPath)})");
+                    long code = req.responseCode;
+                    string errorText = req.error;
+                    string body = req.downloadHandler?.text;
+                    string bodyShort = string.IsNullOrEmpty(body) ? "" :
+                                       (body.Length > 600 ? body.Substring(0, 600) + "..." : body);
+
+                    if (req.result == UnityEngine.Networking.UnityWebRequest.Result.Success && (code >= 200 && code < 300))
+                    {
+                        // Успех
+                        return;
+                    }
+
+                    // ЛОГ: код, ошибка, кусок ответа и ключевые заголовки
+                    Debug.LogError(
+                        $"[PUT ERROR] {fileName} -> {code} {errorText}\n" +
+                        $"Response (short): {bodyShort}\n" +
+                        $"Headers: {DumpHeaders(req)}");
+
+                    // Решаем — ретраить или падать
+                    if (attempt < MAX_RETRIES - 1 && ShouldRetry(code, errorText, body))
+                    {
+                        int delay = BackoffDelayMs(attempt);
+                        Debug.LogWarning($"Retry {attempt + 1}/{MAX_RETRIES - 1} in {delay} ms for {fileName}...");
+                        await Task.Delay(delay);
+                        continue;
+                    }
+
+                    throw new Exception($"PUT failed: {code} {errorText} ({fileName})");
+                }
             }
+        }
+
+        private static string DumpHeaders(UnityEngine.Networking.UnityWebRequest req)
+        {
+            try
+            {
+                var headers = req.GetResponseHeaders();
+                if (headers == null || headers.Count == 0) return "(no headers)";
+                return string.Join("; ", headers.Select(kv => kv.Key + "=" + kv.Value).ToArray());
+            }
+            catch { return "(headers unavailable)"; }
         }
 
         private static Task<List<FileUpload>> AddFilesFromDirectory(string currentDirectory, string rootDirectory)

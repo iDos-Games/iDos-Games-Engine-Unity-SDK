@@ -19,7 +19,10 @@ namespace IDosGames
 
 		private void Start()
 		{
-			AlarmSystem.Instance.AddAlarmObject(this);
+			if (AlarmSystem.Instance != null)
+			{
+                AlarmSystem.Instance.AddAlarmObject(this);
+            }
 		}
 
 		public void SetActivateRoot(bool active)

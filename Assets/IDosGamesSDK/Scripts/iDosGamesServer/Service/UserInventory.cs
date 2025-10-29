@@ -150,9 +150,9 @@ namespace IDosGames
             _eachItemAmounts.Clear();
         }
 
-        private void SetEachItemAmounts(List<ItemInstance> inventoryItems)
+        private void SetEachItemAmounts(List<IDosGames.ClientModels.ItemInstance> inventoryItems)
         {
-            foreach (var item in inventoryItems)
+            foreach (IDosGames.ClientModels.ItemInstance item in inventoryItems)
             {
                 int amount = _eachItemAmounts.ContainsKey(item.ItemId) ? _eachItemAmounts[item.ItemId] : 0;
                 var remainingUses = item.RemainingUses;
@@ -189,11 +189,11 @@ namespace IDosGames
             _chestKeyFragments[ChestKeyFragmentType.Legendary_3] = _eachItemAmounts.FirstOrDefault(x => x.Key == ServerItemID.LEGENDARY_CHEST_KEY_FRAGMENT_3).Value;
         }
 
-        private async void UpdateVIPStatus(List<ItemInstance> inventoryItems)
+        private async void UpdateVIPStatus(List<IDosGames.ClientModels.ItemInstance> inventoryItems)
         {
             HasVIPStatus = false;
 
-            foreach (var item in inventoryItems)
+            foreach (IDosGames.ClientModels.ItemInstance item in inventoryItems)
             {
                 if (item.ItemClass == ServerItemClass.VIP)
                 {
