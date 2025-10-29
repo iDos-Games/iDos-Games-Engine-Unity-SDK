@@ -77,7 +77,10 @@ namespace IDosGames
             //CurrentMove = true;
             MoneysRestant = MaxReward;
             AnimateRewards(amount);
-            audioS.PlayOneShot(FX[0]);
+            if (audioS != null)
+            {
+                audioS.PlayOneShot(FX[0]);
+            }
             PlayAudioFlux = false;
         }
 
@@ -116,7 +119,10 @@ namespace IDosGames
 
             if (!PlayAudioFlux)
             {
-                audioS.PlayOneShot(FX[1]);
+                if (audioS != null)
+                {
+                    audioS.PlayOneShot(FX[1]);
+                }
                 PlayAudioFlux = true;
             }
 

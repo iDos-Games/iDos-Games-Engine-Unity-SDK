@@ -125,6 +125,8 @@ namespace IDosGames
             IGSUserData.TitlePublicData = userDataResult.TitlePublicData;
 
             DataUpdated?.Invoke();
+            CustomUserDataUpdated?.Invoke();
+
             if (!_firstTimeDataUpdated)
             {
                 _firstTimeDataUpdated = true;

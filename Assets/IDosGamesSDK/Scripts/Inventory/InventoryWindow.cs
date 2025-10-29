@@ -119,7 +119,10 @@ namespace IDosGames
 
         public void InspectSkin(string itemID)
         {
-            _skinInspectionRoom.OpenRoom(itemID);
+            if (_skinInspectionRoom != null)
+            {
+                _skinInspectionRoom.OpenRoom(itemID);
+            }
         }
 
         public void OpenUserInventoryItems()

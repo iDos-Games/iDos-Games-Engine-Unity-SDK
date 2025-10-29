@@ -12,3 +12,4 @@ EditorBuildSettings:
     path: Assets/IDosGamesSDK/Scenes/Main.unity
     guid: 110f0a0730c7f6144acdf0d3ee5c081a
   m_configObjects: {}
+  m_UseUCBPForAssetBundles: 0
