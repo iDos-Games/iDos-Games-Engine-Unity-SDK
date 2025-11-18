@@ -269,15 +269,19 @@ namespace IDosGames.TitlePublicConfiguration
         public string BlockchainExplorerUrl { get; set; }
         public string SoftTokenTicker { get; set; }
         public string SoftTokenContractAddress { get; set; }
-        public string SoftTokenContractAbi { get; set; }
         public string SoftTokenImagePath { get; set; }
         public string HardTokenTicker { get; set; }
         public string HardTokenContractAddress { get; set; }
-        public string HardTokenContractAbi { get; set; }
         public string HardTokenImagePath { get; set; }
         public string NftContractAddress { get; set; }
-        public string NftContractAbi { get; set; }
-        public string HotWalletAddress { get; set; }
+        public ExtraChainConfig ChainConfig { get; set; }
+    }
+
+    public class ExtraChainConfig
+    {
+        public int ChainConfigVersion { get; set; }
+        public string RewardPoolAddress { get; set; }
+        public string VaultDepositAddress { get; set; } // For Solana
     }
 
     public class ShopDailyProductsConstructor
