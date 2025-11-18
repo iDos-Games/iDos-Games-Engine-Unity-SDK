@@ -63,18 +63,13 @@ namespace IDosGames
 
                 SoftTokenTicker = firstChain.SoftTokenTicker;
                 SoftTokenContractAddress = firstChain.SoftTokenContractAddress;
-                //SoftTokenContractAbi = firstChain.SoftTokenContractAbi;
 
                 HardTokenTicker = firstChain.HardTokenTicker;
                 HardTokenContractAddress = firstChain.HardTokenContractAddress;
-                //HardTokenContractAbi = firstChain.HardTokenContractAbi;
 
                 NftContractAddress = firstChain.NftContractAddress;
-                //NftContractAbi = firstChain.NftContractAbi;
 
-                HotWalletAddress = firstChain.HotWalletAddress;
-
-                ChainConfigs = await GetEvmChainConfigs();
+                ChainConfigs = await GetEvmChainConfigs(firstChain.ChainConfig.ChainConfigVersion);
                 ChainConfig = ChainConfigs.TryGetValue(ChainID.ToString(), out var config) ? config : null;
                 PlatformPoolContractAddress = ChainConfig?.platformPoolContractAddress ?? "";
             }
