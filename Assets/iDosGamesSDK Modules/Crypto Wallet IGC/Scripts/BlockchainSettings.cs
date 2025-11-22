@@ -101,7 +101,7 @@ namespace IDosGames
         public static async Task<ChainConfig> GetEvmChainConfigs(int version = 1)
         {
             ChainConfig chainConfigs = new ChainConfig();
-            string url = $"https://idosgames.com/sdk/v{version}/evm-chain-config.json";
+            string url = $"https://api.idosgames.com/api/StaticData/EvmChainConfigs/{version}";
 
             UnityWebRequest request = UnityWebRequest.Get(url);
             var operation = request.SendWebRequest();
