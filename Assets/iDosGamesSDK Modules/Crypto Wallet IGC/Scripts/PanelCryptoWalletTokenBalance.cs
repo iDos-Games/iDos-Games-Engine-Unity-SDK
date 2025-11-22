@@ -38,7 +38,7 @@ namespace IDosGames
 			SetActivateLoading(true);
 
 			HardTokenBalanceInWei = await WalletService.GetTokenBalance(VirtualCurrencyID.IG);
-			SoftTokenBalanceInWei = await WalletService.GetTokenBalance(VirtualCurrencyID.CO);
+			//SoftTokenBalanceInWei = await WalletService.GetTokenBalance(VirtualCurrencyID.CO);
 			NativeTokenBalanceInWei = await WalletService.GetNativeTokenBalanceInWei();
 
 			var balanceNFTList = await WalletService.GetNFTBalance(new(UserDataService.NFTIDs));
