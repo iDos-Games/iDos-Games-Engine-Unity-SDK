@@ -69,7 +69,13 @@ namespace IDosGames
 
                 NftContractAddress = firstChain.NftContractAddress;
 
-                ChainConfigs = await GetEvmChainConfigs(firstChain.ChainConfig.ChainConfigVersion);
+                int version = 1;
+                if (firstChain.ChainConfig != null)
+                {
+                    version = firstChain.ChainConfig.ChainConfigVersion;
+                }
+
+                ChainConfigs = await GetEvmChainConfigs(version);
                 ChainConfig = ChainConfigs.TryGetValue(ChainID.ToString(), out var config) ? config : null;
                 PlatformPoolContractAddress = ChainConfig?.platformPoolContractAddress ?? "";
             }

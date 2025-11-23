@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "com.unity.collab-proxy": "2.10.0",
+    "com.unity.collab-proxy": "2.10.2",
     "com.unity.ide.visualstudio": "2.0.25",
     "com.unity.mobile.notifications": "2.4.2",
     "com.unity.multiplayer.center": "1.0.0",

@@ -24,9 +24,28 @@ namespace IDosGames
         private static readonly SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
 
         private static readonly Dictionary<string, Sprite> ImageCache = new Dictionary<string, Sprite>();
+        private static readonly Dictionary<string, Texture2D> TextureCache = new Dictionary<string, Texture2D>();
         private static Dictionary<string, CachedImageInfo> CachedImageInfos;
+
         private const long MaxCacheSize = 1024 * 1024 * 1024;
-        private const string CacheKey = "ImageCache";
+
+        private const string CacheKeyPrefix = "ImageCache_";
+        private static string CacheKey => CacheKeyPrefix + (IDosGamesSDKSettings.Instance != null ? IDosGamesSDKSettings.Instance.TitleID : "DefaultTitle");
+
+        private static string GetLocalPathForUrl(string url)
+        {
+            string titleId = IDosGamesSDKSettings.Instance != null
+                ? IDosGamesSDKSettings.Instance.TitleID
+                : "DefaultTitle";
+
+            string folder = Path.Combine(Application.persistentDataPath, titleId);
+            if (!Directory.Exists(folder))
+            {
+                Directory.CreateDirectory(folder);
+            }
+
+            return Path.Combine(folder, Path.GetFileName(url));
+        }
 
         static ImageLoader()
         {
@@ -42,7 +61,7 @@ namespace IDosGames
                 {
                     if (kv.Value != null && !string.IsNullOrEmpty(kv.Value))
                     {
-                        var localPath = Path.Combine(Application.persistentDataPath, Path.GetFileName(kv.Value));
+                        var localPath = GetLocalPathForUrl(kv.Value);
                         CachedImageInfos[kv.Key] = new CachedImageInfo
                         {
                             Url = kv.Value,
@@ -81,6 +100,24 @@ namespace IDosGames
 #endif
         }
 
+        public static async Task<Texture2D> LoadExternalTextureAsync(string url)
+        {
+            if (string.IsNullOrEmpty(url)) return null;
+
+            if (TextureCache.TryGetValue(url, out var cachedTexture))
+            {
+                UpdateLastAccessedTime(url);
+                return cachedTexture;
+            }
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+            var texture = await DownloadAndCacheTextureWebGL(url);
+            return texture;
+#else
+            return await DownloadAndCacheTextureOtherPlatforms(url);
+#endif
+        }
+
 #if UNITY_WEBGL && !UNITY_EDITOR
         private static async Task<Sprite> DownloadAndCacheSpriteWebGL(string url)
         {
@@ -92,6 +129,18 @@ namespace IDosGames
             CleanupWebGLCache();
 
             return sprite;
+        }
+
+        private static async Task<Texture2D> DownloadAndCacheTextureWebGL(string url)
+        {
+            byte[] imageBytes = await DownloadImageBytes(url);
+            if (imageBytes == null) return null;
+
+            var texture = CreateTextureFromBytes(url, imageBytes);
+            UpdateLastAccessedTime(url);
+            CleanupWebGLCache();
+
+            return texture;
         }
 
         private static void CleanupWebGLCache()
@@ -127,7 +176,7 @@ namespace IDosGames
             else
             {
                 imageBytes = await DownloadImageBytes(url);
-                string localPath = Path.Combine(Application.persistentDataPath, Path.GetFileName(url));
+                string localPath = GetLocalPathForUrl(url);
 
                 await semaphore.WaitAsync();
                 try
@@ -158,6 +207,50 @@ namespace IDosGames
             }
 
             return CreateSpriteFromBytes(url, imageBytes);
+        }
+
+        private static async Task<Texture2D> DownloadAndCacheTextureOtherPlatforms(string url)
+        {
+            byte[] imageBytes;
+
+            if (CachedImageInfos.TryGetValue(url, out var cachedInfo) && File.Exists(cachedInfo.LocalPath))
+            {
+                imageBytes = await File.ReadAllBytesAsync(cachedInfo.LocalPath);
+            }
+            else
+            {
+                imageBytes = await DownloadImageBytes(url);
+                string localPath = GetLocalPathForUrl(url);
+
+                await semaphore.WaitAsync();
+                try
+                {
+                    if (!File.Exists(localPath))
+                    {
+                        await File.WriteAllBytesAsync(localPath, imageBytes);
+                    }
+                    else
+                    {
+                        imageBytes = await File.ReadAllBytesAsync(localPath);
+                    }
+                }
+                finally
+                {
+                    semaphore.Release();
+                }
+
+                CachedImageInfos[url] = new CachedImageInfo
+                {
+                    Url = url,
+                    LocalPath = localPath,
+                    LastAccessed = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+                };
+
+                SaveCache();
+                CleanupCache();
+            }
+
+            return CreateTextureFromBytes(url, imageBytes);
         }
 #endif
 
@@ -197,6 +290,19 @@ namespace IDosGames
             ImagesUpdated?.Invoke();
 
             return sprite;
+        }
+
+        private static Texture2D CreateTextureFromBytes(string url, byte[] imageBytes)
+        {
+            if (imageBytes == null || imageBytes.Length == 0) return null;
+
+            Texture2D texture = new Texture2D(2, 2);
+            if (!texture.LoadImage(imageBytes)) return null;
+
+            TextureCache[url] = texture;
+            ImagesUpdated?.Invoke();
+
+            return texture;
         }
 
         public static Sprite LoadLocalImage(string imagePath)
