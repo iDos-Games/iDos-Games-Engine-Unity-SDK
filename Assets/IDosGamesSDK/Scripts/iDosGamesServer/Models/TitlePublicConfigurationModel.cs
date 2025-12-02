@@ -34,6 +34,7 @@ namespace IDosGames.TitlePublicConfiguration
         public List<AiCustomSetting> AiCustomSettings { get; set; }
         public Dictionary<string, string> ImageData { get; set; }
         public Dictionary<string, string> AssetBundle { get; set; }
+        public List<BoostDefinitionModel> BoostDefinitions { get; set; }
     }
 
     public class AiCustomSetting
