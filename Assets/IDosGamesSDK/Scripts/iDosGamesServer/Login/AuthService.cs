@@ -86,12 +86,12 @@ namespace IDosGames
             return titleID;
         }
 
-        public async void LoginWithDeviceID(Action<GetAllUserDataResult> resultCallback = null, Action<string> errorCallback = null, Action retryCallback = null)
+        public async void LoginWithDeviceID(Action<AuthenticationResponse> resultCallback = null, Action<string> errorCallback = null, Action retryCallback = null)
         {
             RequestSent?.Invoke();
             try
             {
-                GetAllUserDataResult result = null;
+                AuthenticationResponse result = null;
 
                 if (IDosGamesSDKSettings.Instance.BuildForPlatform == Platforms.Telegram)
                 {
@@ -127,13 +127,13 @@ namespace IDosGames
             Loading.SwitchToLoginScene(); //LoginWithDeviceID(resultCallback, errorCallback, retryCallback);
         }
 
-        public async void LoginWithEmailAddress(string email, string password, Action<GetAllUserDataResult> resultCallback = null, Action<string> errorCallback = null, Action retryCallback = null)
+        public async void LoginWithEmailAddress(string email, string password, Action<AuthenticationResponse> resultCallback = null, Action<string> errorCallback = null, Action retryCallback = null)
         {
             RequestSent?.Invoke();
 
             try
             {
-                GetAllUserDataResult result = await IGSService.LoginWithEmail(email, password);
+                AuthenticationResponse result = await IGSService.LoginWithEmail(email, password);
                 if (result != null && result.AuthContext != null && !string.IsNullOrEmpty(result.AuthContext.ClientSessionTicket))
                 {
                     SetCredentials(result);
@@ -174,13 +174,13 @@ namespace IDosGames
 
         }
 
-        public async void RegisterUserByEmail(string email, string password, Action<GetAllUserDataResult> resultCallback = null, Action<string> errorCallback = null, Action retryCallback = null)
+        public async void RegisterUserByEmail(string email, string password, Action<AuthenticationResponse> resultCallback = null, Action<string> errorCallback = null, Action retryCallback = null)
         {
             RequestSent?.Invoke();
 
             try
             {
-                GetAllUserDataResult result = await IGSService.RegisterUserByEmail(email, password);
+                AuthenticationResponse result = await IGSService.RegisterUserByEmail(email, password);
                 if (result != null && result.AuthContext != null && !string.IsNullOrEmpty(result.AuthContext.ClientSessionTicket))
                 {
                     SetCredentials(result);
@@ -242,7 +242,7 @@ namespace IDosGames
             */
         }
 
-        private void SetCredentials(GetAllUserDataResult result)
+        private void SetCredentials(AuthenticationResponse result)
         {
             UserID = result.AuthContext.UserID;
             ClientSessionTicket = result.AuthContext.ClientSessionTicket;
@@ -328,55 +328,10 @@ namespace IDosGames
             PlayerPrefs.Save();
         }
 
-        private void ClearEmailAndPassword()
-        {
-            PlayerPrefs.SetString(SAVED_AUTH_EMAIL_KEY, string.Empty);
-            PlayerPrefs.SetString(SAVED_AUTH_PASSWORD_KEY, string.Empty);
-            PlayerPrefs.Save();
-        }
-
         public static void ShowErrorMessage(string error)
         {
             //var message = GenerateErrorMessage(error);
             Message.Show(error);
-        }
-
-        private static string GenerateErrorMessage(MessageCode error)
-        {
-            string message;
-
-            switch (error)
-            {
-                case MessageCode.USER_NOT_FOUND:
-                    message = "Account not found. You can sign up.";
-                    break;
-
-                case MessageCode.INVALID_INPUT_DATA:
-                    message = "INVALID INPUT DATA.";
-                    break;
-
-                case MessageCode.INCORRECT_PASSWORD:
-                    message = "Password is not correct.";
-                    break;
-
-                case MessageCode.EMAIL_ALREADY_EXISTS:
-                    message = "EMAIL ADDRESS ALREADY EXISTS";
-                    break;
-
-                case MessageCode.SESSION_EXPIRED:
-                    message = "SESSION EXPIRED";
-                    break;
-
-                case MessageCode.INVALID_SESSION_TICKET:
-                    message = "INVALID SESSION TICKET";
-                    break;
-
-                default:
-                    message = $"Error message: {error}";
-                    break;
-            }
-
-            return message;
         }
 
         public static bool CheckEmailAddress(string email)
@@ -390,7 +345,7 @@ namespace IDosGames
             return lenght >= PASSWORD_MIN_LENGTH && lenght <= PASSWORD_MAX_LENGTH;
         }
 
-        public void AutoLogin(Action<GetAllUserDataResult> resultCallback = null, Action<string> errorCallback = null, Action retryCallback = null)
+        public void AutoLogin(Action<AuthenticationResponse> resultCallback = null, Action<string> errorCallback = null, Action retryCallback = null)
         {
             switch (LastAuthType)
             {

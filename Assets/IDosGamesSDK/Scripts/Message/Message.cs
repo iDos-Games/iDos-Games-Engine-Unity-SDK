@@ -31,6 +31,8 @@ namespace IDosGames
 
 		private void OnEnable()
 		{
+            HttpService.OnGlobalError += Show;
+            HttpService.ConnectionError += OnHttpConnectionError;
             IGSClientAPI.ConnectionError += StartDelayShowConnectionError;
 			UserDataService.AllDataRequestError += OnAllDataRequestError;
             IGSService.ConnectionError += ShowConnectionError;
@@ -41,6 +43,8 @@ namespace IDosGames
 
         private void OnDisable()
 		{
+            HttpService.OnGlobalError -= Show;
+            HttpService.ConnectionError -= OnHttpConnectionError;
             IGSClientAPI.ConnectionError -= StartDelayShowConnectionError;
 			UserDataService.AllDataRequestError -= OnAllDataRequestError;
             IGSService.ConnectionError -= ShowConnectionError;
@@ -157,7 +161,12 @@ namespace IDosGames
 				error); //LocalizationSystem
         }
 
-		private void OnIAPServiceNotInitialized()
+        private void OnHttpConnectionError(string error)
+        {
+            ShowConnectionError(null);
+        }
+
+        private void OnIAPServiceNotInitialized()
 		{
 			Show(MessageCode.IAP_SERVICE_NOT_INITIALIZED);
 		}

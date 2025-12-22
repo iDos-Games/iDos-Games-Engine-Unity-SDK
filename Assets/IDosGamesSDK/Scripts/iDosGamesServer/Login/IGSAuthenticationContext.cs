@@ -1,18 +1,16 @@
-
 namespace IDosGames
 {
     public sealed class IGSAuthenticationContext
     {
-        public IGSAuthenticationContext()
-        {
-        }
+        public IGSAuthenticationContext() {}
 
-        public string ClientSessionTicket;
-        public string UserID;
-        public string EntityToken;
-        public string EntityId;
-        public string EntityType;
-        public string TelemetryKey;
+        public string ClientSessionTicket { get; set; }
+        public string UserID { get; set; }
+        public string EntityToken { get; set; }
+        public string EntityId { get; set; }
+        public string EntityType { get; set; }
+        public string TelemetryKey { get; set; }
+
         public bool IsClientLoggedIn()
         {
             return !string.IsNullOrEmpty(ClientSessionTicket);
@@ -26,16 +24,6 @@ namespace IDosGames
             EntityId = entityId;
             EntityType = entityType;
             TelemetryKey = telemetryKey;
-        }
-
-        public void ForgetAllCredentials()
-        {
-            UserID = null;
-            ClientSessionTicket = null;
-            EntityToken = null;
-            EntityId = null;
-            EntityType = null;
-            TelemetryKey = null;
         }
     }
 }

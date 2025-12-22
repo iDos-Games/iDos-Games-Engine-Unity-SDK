@@ -87,7 +87,7 @@ namespace IDosGames
 
         private static void OnSuccessClaimReward(string result)
         {
-            var userData = JsonConvert.DeserializeObject<GetAllUserDataResult>(result);
+            var userData = JsonConvert.DeserializeObject<AuthenticationResponse>(result);
             UserDataService.ProcessingAllData(userData);
             Loading.HideAllPanels();
         }

@@ -44,6 +44,19 @@ namespace IDosGames
                 {
                     WebFunctionHandler.Instance.ShowAd(IDosGamesSDKSettings.Instance.AdsGramBlockID.ToString(), "SecondarySpin");
                 }
+                else if (AuthService.WebGLPlatform == WebGLPlatform.Web)
+                {
+                    int ticketAmount = UserInventory.GetVirtualCurrencyAmount(VirtualCurrencyID.SS);
+
+                    if (ticketAmount <= 0)
+                    {
+                        ShopSystem.PopUpSystem.ShowCoinPopUp();
+                    }
+                    else
+                    {
+                        TryExecuteSpinFunction();
+                    }
+                }
                 else
                 {
                     ShopSystem.PopUpSystem.ShowVIPPopUp();

@@ -138,14 +138,14 @@ namespace IDosGames
 			return AuthService.CheckEmailAddress(input);
 		}
 
-		private void OnLogInSuccess(GetAllUserDataResult result)
+		private void OnLogInSuccess(AuthenticationResponse result)
 		{
 			//Message.Show(MessageCode.SUCCESS_LOGGED_IN);
 			UserDataService.ProcessingAllData(result);
             Loading.SwitchToNextScene();
         }
 
-		private void OnSignUpSuccess(GetAllUserDataResult result)
+		private void OnSignUpSuccess(AuthenticationResponse result)
 		{
             UserDataService.ProcessingAllData(result);
             Loading.SwitchToNextScene();

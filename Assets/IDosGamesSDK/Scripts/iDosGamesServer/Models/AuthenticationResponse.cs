@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace IDosGames
 {
-    public class GetAllUserDataResult
+    public class AuthenticationResponse
     {
         public string Message { get; set; }
         public IGSAuthenticationContext AuthContext { get; set; }
