@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
 using Newtonsoft.Json;
+using System.Runtime.CompilerServices;
 
 namespace IDosGames
 {
@@ -44,8 +45,7 @@ namespace IDosGames
                         webRequest.SetRequestHeader("Authorization", $"Bearer {AuthenticationService.ClientSessionTicket}");
                     }
 
-                    var asyncOp = webRequest.SendWebRequest();
-                    while (!asyncOp.isDone) await Task.Yield();
+                    await webRequest.SendWebRequest();
 
                     // --- SUCCESS ---
                     if (webRequest.result == UnityWebRequest.Result.Success)
@@ -127,6 +127,13 @@ namespace IDosGames
             Debug.LogError($"[HttpService Error] {errorMsg}");
             if (!silent) OnGlobalError?.Invoke(errorMsg);
             return new OperationResult<T> { Success = false, Error = errorMsg };
+        }
+
+        public static TaskAwaiter<UnityWebRequest.Result> GetAwaiter(this UnityWebRequestAsyncOperation reqOp)
+        {
+            var tcs = new TaskCompletionSource<UnityWebRequest.Result>();
+            reqOp.completed += asyncOp => tcs.TrySetResult(((UnityWebRequestAsyncOperation)asyncOp).webRequest.result);
+            return tcs.Task.GetAwaiter();
         }
     }
 }
