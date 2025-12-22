@@ -15,13 +15,14 @@ namespace IDosGames
         public static event Action<bool> OnBusyStateChanged;
         public static event Action<string> OnGlobalError;
         public static event Action<string> ConnectionError;
+        public static event Action OnUnauthorized;
 
-        private static readonly string BASE_URL = IDosGamesSDKSettings.Instance.ServerLink;
+        private static readonly string BASE_URL = "https://api.idosgames.com/api/";
 
         // =================================================================================
         // GENERIC POST REQUEST
         // =================================================================================
-        public static async Task<OperationResult<T>> Post<T>(string endpoint, object payload)
+        public static async Task<OperationResult<T>> Post<T>(string endpoint, object payload, bool silent = false)
         {
             OnBusyStateChanged?.Invoke(true);
 
@@ -59,7 +60,7 @@ namespace IDosGames
                             // Logical error from the server (Success = false)
                             if (!response.Success && !string.IsNullOrEmpty(response.Error))
                             {
-                                OnGlobalError?.Invoke(response.Error);
+                                if (!silent) OnGlobalError?.Invoke(response.Error);
                             }
                             return response;
                         }
@@ -67,19 +68,19 @@ namespace IDosGames
                         {
                             string err = $"JSON Parse Error: {ex.Message}";
                             Debug.LogError(err);
-                            return HandleError<T>(err);
+                            return HandleError<T>(err, silent);
                         }
                     }
                     // --- ERROR ---
                     else
                     {
-                        return HandleWebError<T>(webRequest);
+                        return HandleWebError<T>(webRequest, silent);
                     }
                 }
             }
             catch (Exception ex)
             {
-                return HandleError<T>(ex.Message);
+                return HandleError<T>(ex.Message, silent);
             }
             finally
             {
@@ -87,40 +88,44 @@ namespace IDosGames
             }
         }
 
-        private static OperationResult<T> HandleWebError<T>(UnityWebRequest req)
+        private static OperationResult<T> HandleWebError<T>(UnityWebRequest req, bool silent)
         {
             string msg = req.error;
             long code = req.responseCode;
 
+            // 1. First, let's check for critical authorization errors.
             if (code == 401)
             {
-                Debug.LogWarning("[HttpService] Token expired...");
-                AuthenticationService.Logout();
-                msg = "Unauthorized";
+                Debug.LogWarning("[HttpService] Token expired (401).");
+                OnUnauthorized?.Invoke();
+                return new OperationResult<T> { Success = false, Error = "Unauthorized" };
             }
-            else if (req.result == UnityWebRequest.Result.ConnectionError)
+
+            // 2. Checking network errors
+            if (req.result == UnityWebRequest.Result.ConnectionError)
             {
                 Debug.LogWarning("[HttpService] Connection Error...");
                 msg = "Internet Connection Error";
-                ConnectionError?.Invoke(msg);
-            }
-            else
-            {
-                try
-                {
-                    var errObj = JsonConvert.DeserializeObject<OperationResult<T>>(req.downloadHandler.text);
-                    if (errObj != null && !string.IsNullOrEmpty(errObj.Error)) msg = errObj.Error;
-                }
-                catch { }
+                if (!silent) ConnectionError?.Invoke(msg);
+                return new OperationResult<T> { Success = false, Error = msg };
             }
 
-            return HandleError<T>(msg);
+            // 3. We are trying to extract the error text from the response body (for codes 400, 500, etc.)
+            try
+            {
+                var errObj = JsonConvert.DeserializeObject<OperationResult<T>>(req.downloadHandler.text);
+                if (errObj != null && !string.IsNullOrEmpty(errObj.Error)) msg = errObj.Error;
+            }
+            catch { }
+
+            // 4. Common mistake
+            return HandleError<T>(msg, silent);
         }
 
-        private static OperationResult<T> HandleError<T>(string errorMsg)
+        private static OperationResult<T> HandleError<T>(string errorMsg, bool silent)
         {
             Debug.LogError($"[HttpService Error] {errorMsg}");
-            OnGlobalError?.Invoke(errorMsg);
+            if (!silent) OnGlobalError?.Invoke(errorMsg);
             return new OperationResult<T> { Success = false, Error = errorMsg };
         }
     }
