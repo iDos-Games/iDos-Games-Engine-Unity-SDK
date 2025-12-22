@@ -1,6 +1,6 @@
 namespace IDosGames
 {
-    public class UpgradeBoostResult
+    public class UpgradeBoostResponse
     {
         public string BoostName { get; set; }
         public int Level { get; set; }

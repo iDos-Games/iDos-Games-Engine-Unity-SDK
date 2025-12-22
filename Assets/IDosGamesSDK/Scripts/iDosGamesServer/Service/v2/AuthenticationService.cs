@@ -2,14 +2,9 @@ using System;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using UnityEngine;
-using IDosGames.ServerModels;
 
 namespace IDosGames
 {
-    /// <summary>
-    /// Authorization service for API V2.
-    /// Works in parallel with the old AuthService to facilitate migration.
-    /// </summary>
     public static class AuthenticationService
     {
         private const int PASSWORD_MIN_LENGTH = 8;
@@ -20,107 +15,27 @@ namespace IDosGames
         private static string SAVED_AUTH_EMAIL_KEY => "Saved_Auth_Email" + GetTitleID();
         private static string SAVED_AUTH_PASSWORD_KEY => "Saved_Auth_Password" + GetTitleID();
 
-        private static string KEY_TOKEN => "IDos_V2_Token_" + GetTitleID();
-        private static string KEY_USERID => "IDos_V2_UserID_" + GetTitleID();
-
         public static string UserID { get; private set; }
         public static string ClientSessionTicket { get; private set; }
         public static string EntityToken { get; private set; }
-        
-        // Events to subscribe to from UI or other systems
+        public static IGSAuthenticationContext AuthContext { get; private set; }
+
+        public static AuthType LastAuthType => (AuthType)PlayerPrefs.GetInt(SAVED_AUTH_TYPE_KEY, (int)AuthType.None);
+        public static bool IsLoggedIn => !string.IsNullOrEmpty(ClientSessionTicket) && !string.IsNullOrEmpty(UserID);
+
+        public static string SavedEmail => PlayerPrefs.GetString(SAVED_AUTH_EMAIL_KEY, string.Empty);
+        public static string SavedPassword => PlayerPrefs.GetString(SAVED_AUTH_PASSWORD_KEY, string.Empty);
+
+        public static string TelegramInitData { get; set; }
+
+        // Events
         public static event Action OnLoginSuccess;
         public static event Action<string> OnLoginFailed;
-
-        public static bool IsLoggedIn => !string.IsNullOrEmpty(ClientSessionTicket);
-        public static bool IsValidEmail(string email) => Regex.IsMatch(email, EMAIL_REGEX, RegexOptions.IgnoreCase);
-
-        private static string GetEndpoint(string action)
-        {
-            string templateId = IDosGamesSDKSettings.Instance.TitleTemplateID;
-            string titleId = IDosGamesSDKSettings.Instance.TitleID;
-            string userId = AuthService.UserID;
-
-            return $"v2/{templateId}/{titleId}/Client/Authentication/{action}";
-        }
+        public static event Action PlatformSettingsUpdated;
 
         // =================================================================================
-        // LOGIN METHODS
+        // RESTORED GetTitleID (Original Logic)
         // =================================================================================
-
-        public static async Task<IDosGamesApiResult<AuthenticationResponse>> LoginWithDevice()
-        {
-            var request = new { DeviceID = SystemInfo.deviceUniqueIdentifier };
-            var result = await HttpService.Post<AuthenticationResponse>(GetEndpoint("LoginWithDevice"), request);
-
-            if (result.Success) HandleSuccess(result.Data);
-            else OnLoginFailed?.Invoke(result.Error);
-
-            return result;
-        }
-
-        public static async Task<IDosGamesApiResult<AuthenticationResponse>> LoginWithEmail(string email, string password)
-        {
-            var request = new { Email = email, Password = password };
-            var result = await HttpService.Post<AuthenticationResponse>(GetEndpoint("LoginWithEmail"), request);
-
-            if (result.Success) HandleSuccess(result.Data);
-            else OnLoginFailed?.Invoke(result.Error);
-
-            return result;
-        }
-
-        public static async Task<IDosGamesApiResult<AuthenticationResponse>> LoginWithTelegram(string initData)
-        {
-            var request = new { InitData = initData };
-            var result = await HttpService.Post<AuthenticationResponse>(GetEndpoint("LoginWithTelegram"), request);
-
-            if (result.Success) HandleSuccess(result.Data);
-            else OnLoginFailed?.Invoke(result.Error);
-
-            return result;
-        }
-
-        // =================================================================================
-        // Internal logic
-        // =================================================================================
-
-        private static void HandleSuccess(AuthenticationResponse response)
-        {
-            UserID = response.AuthContext.UserID;
-            ClientSessionTicket = response.AuthContext.ClientSessionTicket;
-
-            // Synchronize with the old AuthService to prevent V1 modules from breaking.
-            //AuthService.UpdateV2Credentials(UserID, ClientSessionTicket);
-
-            SaveToPrefs();
-            OnLoginSuccess?.Invoke();
-
-            Debug.Log($"<color=green>[AuthorizationService]</color> User logged in: {UserID}");
-        }
-
-        private static void SaveToPrefs()
-        {
-            PlayerPrefs.SetString(KEY_TOKEN, ClientSessionTicket);
-            PlayerPrefs.SetString(KEY_USERID, UserID);
-            PlayerPrefs.Save();
-        }
-
-        public static void LoadSavedSession()
-        {
-            ClientSessionTicket = PlayerPrefs.GetString(KEY_TOKEN, "");
-            UserID = PlayerPrefs.GetString(KEY_USERID, "");
-        }
-
-        public static void Logout()
-        {
-            ClientSessionTicket = null;
-            UserID = null;
-            PlayerPrefs.DeleteKey(KEY_TOKEN);
-            PlayerPrefs.DeleteKey(KEY_USERID);
-            PlayerPrefs.Save();
-            Loading.SwitchToLoginScene();
-        }
-
         public static string GetTitleID()
         {
             var settings = IDosGamesSDKSettings.Instance;
@@ -161,5 +76,319 @@ namespace IDosGames
             return titleID;
         }
 
+        private static string GetEndpoint(AuthenticationAction action)
+        {
+            string templateId = IDosGamesSDKSettings.Instance.TitleTemplateID;
+            string titleId = GetTitleID();
+            return $"v2/{templateId}/{titleId}/Client/Authentication/{action}";
+        }
+
+        // =================================================================================
+        // PUBLIC ASYNC METHODS (Clean API)
+        // =================================================================================
+
+        public static async Task<OperationResult<AuthenticationResponse>> LoginWithDeviceID()
+        {
+            try
+            {
+                OperationResult<AuthenticationResponse> result;
+
+                if (IDosGamesSDKSettings.Instance.BuildForPlatform == Platforms.Telegram && !string.IsNullOrEmpty(TelegramInitData))
+                {
+                    var request = new AuthenticationRequest 
+                    { 
+                        TelegramInitData = TelegramInitData
+                    };
+                    result = await HttpService.Post<AuthenticationResponse>(GetEndpoint(AuthenticationAction.LoginWithTelegram), request);
+                }
+                else
+                {
+                    var request = new AuthenticationRequest
+                    {
+                        DeviceID = SystemInfo.deviceUniqueIdentifier,
+                        Device = SystemInfo.deviceModel,
+                        Platform = Application.platform.ToString()
+                    };
+                    result = await HttpService.Post<AuthenticationResponse>(GetEndpoint(AuthenticationAction.LoginWithDeviceID), request);
+                }
+
+                if (result.Success)
+                {
+                    SetCredentials(result.Data);
+                    SaveAuthType(AuthType.Device);
+                    OnLoginSuccess?.Invoke();
+                }
+                else
+                {
+                    OnLoginFailed?.Invoke(result.Error);
+                }
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[AuthService] Login Error: {ex.Message}");
+                return OperationResult<AuthenticationResponse>.Fail(ex.Message);
+            }
+        }
+
+        public static async Task<OperationResult<AuthenticationResponse>> LoginWithEmail(string email, string password)
+        {
+            try
+            {
+                var request = new AuthenticationRequest 
+                { 
+                    Email = email,
+                    Password = password
+                };
+                var result = await HttpService.Post<AuthenticationResponse>(GetEndpoint(AuthenticationAction.LoginWithEmail), request);
+
+                if (result.Success)
+                {
+                    SetCredentials(result.Data);
+                    SaveAuthType(AuthType.Email);
+                    SaveEmailAndPassword(email, password);
+                    OnLoginSuccess?.Invoke();
+                }
+                else
+                {
+                    OnLoginFailed?.Invoke(result.Error);
+                }
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                return OperationResult<AuthenticationResponse>.Fail(ex.Message);
+            }
+        }
+
+        public static async Task<OperationResult<AuthenticationResponse>> RegisterUserByEmail(string email, string password)
+        {
+            try
+            {
+                var request = new AuthenticationRequest
+                {
+                    Email = email,
+                    Password = password,
+                    DeviceID = SystemInfo.deviceUniqueIdentifier,
+                    Device = SystemInfo.deviceModel,
+                    Platform = Application.platform.ToString()
+                };
+
+                var result = await HttpService.Post<AuthenticationResponse>(GetEndpoint(AuthenticationAction.RegisterUserByEmail), request);
+
+                if (result.Success)
+                {
+                    SetCredentials(result.Data);
+                    SaveAuthType(AuthType.Device);
+                    SaveEmailAndPassword(email, password);
+                    OnLoginSuccess?.Invoke();
+                }
+                else
+                {
+                    OnLoginFailed?.Invoke(result.Error);
+                }
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                return OperationResult<AuthenticationResponse>.Fail(ex.Message);
+            }
+        }
+
+        public static async Task<OperationResult<SuccessResponse>> AddEmailAndPassword(string email, string password)
+        {
+            try
+            {
+                var request = new AuthenticationRequest
+                {
+                    UserID = UserID,
+                    Email = email,
+                    Password = password,
+                    ClientSessionTicket = ClientSessionTicket
+                };
+
+                var result = await HttpService.Post<SuccessResponse>(GetEndpoint(AuthenticationAction.AddEmailAndPassword), request);
+
+                if (result.Success)
+                {
+                    SaveAuthType(AuthType.Email);
+                    SaveEmailAndPassword(email, password);
+                    // Обновляем локальное состояние, если нужно
+                }
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                return OperationResult<SuccessResponse>.Fail(ex.Message);
+            }
+        }
+
+        public static async Task<OperationResult<SuccessResponse>> ForgotPassword(string email)
+        {
+            try
+            {
+                var request = new AuthenticationRequest 
+                { 
+                    Email = email
+                };
+                return await HttpService.Post<SuccessResponse>(GetEndpoint(AuthenticationAction.ForgotPassword), request);
+            }
+            catch (Exception ex)
+            {
+                return OperationResult<SuccessResponse>.Fail(ex.Message);
+            }
+        }
+
+        public static async Task<OperationResult<SuccessResponse>> ResetPassword(string resetToken, string password)
+        {
+            try
+            {
+                var request = new AuthenticationRequest 
+                { 
+                    ResetToken = resetToken,
+                    Password = password
+                };
+                return await HttpService.Post<SuccessResponse>(GetEndpoint(AuthenticationAction.ResetPassword), request);
+            }
+            catch (Exception ex)
+            {
+                return OperationResult<SuccessResponse>.Fail(ex.Message);
+            }
+        }
+
+        public static async Task<OperationResult<AuthenticationResponse>> AutoLogin()
+        {
+            if (LastAuthType == AuthType.Email && !string.IsNullOrEmpty(SavedEmail) && !string.IsNullOrEmpty(SavedPassword))
+            {
+                return await LoginWithEmail(SavedEmail, SavedPassword);
+            }
+
+            // Default fall-back
+            return await LoginWithDeviceID();
+        }
+
+        public static void Logout()
+        {
+            UserID = null;
+            ClientSessionTicket = null;
+            EntityToken = null;
+            AuthContext = null;
+
+            IGSUserData.UserInventory = new ();
+            IGSUserData.Currency = new ();
+
+            Loading.SwitchToLoginScene();
+        }
+
+        // =================================================================================
+        // INTERNAL HELPERS
+        // =================================================================================
+
+        private static void SetCredentials(AuthenticationResponse result)
+        {
+            if (result == null || result.AuthContext == null)
+            {
+                Debug.LogError("[AuthenticationService] Critical: AuthContext is null.");
+                return;
+            }
+
+            // 1. Set Local Properties
+            UserID = result.AuthContext.UserID;
+            ClientSessionTicket = result.AuthContext.ClientSessionTicket;
+            EntityToken = result.AuthContext.EntityToken;
+            AuthContext = new IGSAuthenticationContext(
+                result.AuthContext.ClientSessionTicket,
+                result.AuthContext.EntityToken,
+                result.AuthContext.UserID,
+                result.AuthContext.EntityId,
+                result.AuthContext.EntityType,
+                result.AuthContext.TelemetryKey
+            );
+
+            // 2. Populate Global Static Data (IGSUserData)
+            IGSUserData.UserAllDataResult = result;
+            IGSUserData.CatalogItemsResult = result.CatalogItemsResult;
+            IGSUserData.UserInventory = result.UserInventoryResult;
+            IGSUserData.TitlePublicConfiguration = result.TitlePublicConfiguration;
+            IGSUserData.CustomUserData = result.CustomUserDataResult;
+            IGSUserData.Leaderboard = result.LeaderboardResult;
+            IGSUserData.Friends = result.GetFriends;
+            IGSUserData.FriendRequests = result.GetFriendRequests;
+            IGSUserData.RecommendedFriends = result.GetRecommendedFriends;
+            IGSUserData.Currency = result.GetCurrencyData;
+            IGSUserData.PlatformSettings = result.PlatformSettings;
+            IGSUserData.ImageData = result.ImageData;
+
+            // 3. Apply Settings
+            SetPlatformSettings();
+
+            PlatformSettingsUpdated?.Invoke();
+        }
+
+        private static void SetPlatformSettings()
+        {
+            if (IGSUserData.PlatformSettings == null) return;
+
+            var settings = IDosGamesSDKSettings.Instance;
+            var ps = IGSUserData.PlatformSettings;
+
+            switch (settings.BuildForPlatform)
+            {
+                case Platforms.GooglePlay when ps.GooglePlay != null:
+                    settings.AndroidBundleID = ps.GooglePlay.BundleID;
+                    settings.AdEnabled = ps.GooglePlay.AdSettings.AdEnabled;
+                    settings.MediationAppKeyAndroid = ps.GooglePlay.AdSettings.AppKey;
+                    settings.BannerEnabled = ps.GooglePlay.AdSettings.BannerEnabled;
+                    settings.BannerPosition = ps.GooglePlay.AdSettings.BanerPosition;
+                    settings.ReferralTrackerLink = ps.GooglePlay.ReferralSystemSettings.ReferralAppLink;
+                    break;
+
+                case Platforms.AppleAppStore when ps.AppleAppStore != null:
+                    settings.IosBundleID = ps.AppleAppStore.BundleID;
+                    settings.IosAppStoreID = ps.AppleAppStore.AppStoreID;
+                    settings.AdEnabled = ps.AppleAppStore.AdSettings.AdEnabled;
+                    settings.MediationAppKeyIOS = ps.AppleAppStore.AdSettings.AppKey;
+                    settings.BannerEnabled = ps.AppleAppStore.AdSettings.BannerEnabled;
+                    settings.BannerPosition = ps.AppleAppStore.AdSettings.BanerPosition;
+                    settings.ReferralTrackerLink = ps.AppleAppStore.ReferralSystemSettings.ReferralAppLink;
+                    break;
+
+                case Platforms.Telegram when ps.Telegram != null:
+                    settings.AdEnabled = ps.Telegram.AdSettings.AdEnabled;
+                    settings.AdsGramBlockID = ps.Telegram.AdSettings.BlockID;
+                    settings.PlatformCurrencyPriceInCent = ps.Telegram.PlatformCurrencyPriceInCent;
+                    settings.TelegramWebAppLink = ps.Telegram.ReferralSystemSettings.ReferralAppLink;
+                    break;
+
+                case Platforms.Web when ps.Web != null:
+                    settings.AdEnabled = ps.Web.AdSettings.AdEnabled;
+                    settings.BannerEnabled = ps.Web.AdSettings.BannerEnabled;
+                    settings.BannerPosition = ps.Web.AdSettings.BanerPosition;
+                    settings.PlatformCurrencyPriceInCent = ps.Web.PlatformCurrencyPriceInCent;
+                    settings.ReferralTrackerLink = ps.Web.ReferralSystemSettings.ReferralAppLink;
+                    break;
+            }
+        }
+
+        private static void SaveAuthType(AuthType authType)
+        {
+            PlayerPrefs.SetInt(SAVED_AUTH_TYPE_KEY, (int)authType);
+            PlayerPrefs.Save();
+        }
+
+        private static void SaveEmailAndPassword(string email, string password)
+        {
+            PlayerPrefs.SetString(SAVED_AUTH_EMAIL_KEY, email);
+            PlayerPrefs.SetString(SAVED_AUTH_PASSWORD_KEY, password);
+            PlayerPrefs.Save();
+        }
+
+        // Helpers
+        public static bool CheckEmailAddress(string email) => Regex.IsMatch(email, EMAIL_REGEX, RegexOptions.IgnoreCase);
+        public static bool CheckPasswordLenght(string password) => password.Length >= PASSWORD_MIN_LENGTH && password.Length <= PASSWORD_MAX_LENGTH;
     }
 }

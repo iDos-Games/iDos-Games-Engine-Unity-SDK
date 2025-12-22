@@ -21,7 +21,7 @@ namespace IDosGames
         // =================================================================================
         // GENERIC POST REQUEST
         // =================================================================================
-        public static async Task<IDosGamesApiResult<T>> Post<T>(string endpoint, object payload)
+        public static async Task<OperationResult<T>> Post<T>(string endpoint, object payload)
         {
             OnBusyStateChanged?.Invoke(true);
 
@@ -54,7 +54,7 @@ namespace IDosGames
 
                         try
                         {
-                            var response = JsonConvert.DeserializeObject<IDosGamesApiResult<T>>(webRequest.downloadHandler.text);
+                            var response = JsonConvert.DeserializeObject<OperationResult<T>>(webRequest.downloadHandler.text);
 
                             // Logical error from the server (Success = false)
                             if (!response.Success && !string.IsNullOrEmpty(response.Error))
@@ -87,7 +87,7 @@ namespace IDosGames
             }
         }
 
-        private static IDosGamesApiResult<T> HandleWebError<T>(UnityWebRequest req)
+        private static OperationResult<T> HandleWebError<T>(UnityWebRequest req)
         {
             string msg = req.error;
             long code = req.responseCode;
@@ -108,7 +108,7 @@ namespace IDosGames
             {
                 try
                 {
-                    var errObj = JsonConvert.DeserializeObject<IDosGamesApiResult<T>>(req.downloadHandler.text);
+                    var errObj = JsonConvert.DeserializeObject<OperationResult<T>>(req.downloadHandler.text);
                     if (errObj != null && !string.IsNullOrEmpty(errObj.Error)) msg = errObj.Error;
                 }
                 catch { }
@@ -117,11 +117,11 @@ namespace IDosGames
             return HandleError<T>(msg);
         }
 
-        private static IDosGamesApiResult<T> HandleError<T>(string errorMsg)
+        private static OperationResult<T> HandleError<T>(string errorMsg)
         {
             Debug.LogError($"[HttpService Error] {errorMsg}");
             OnGlobalError?.Invoke(errorMsg);
-            return new IDosGamesApiResult<T> { Success = false, Error = errorMsg };
+            return new OperationResult<T> { Success = false, Error = errorMsg };
         }
     }
 }

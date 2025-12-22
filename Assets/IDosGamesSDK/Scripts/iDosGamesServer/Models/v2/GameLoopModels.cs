@@ -68,4 +68,12 @@ namespace IDosGames.ServerModels
         public bool MapComplete { get; set; }
         public object BonusReward { get; set; }
     }
+
+    public enum GameLoopAction
+    {
+        Spin,
+        Attack,
+        Raid,
+        Build
+    }
 }

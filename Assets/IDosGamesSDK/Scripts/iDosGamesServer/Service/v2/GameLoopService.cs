@@ -17,11 +17,11 @@ namespace IDosGames
         // =================================================================================
         // PRIVATE HELPERS
         // =================================================================================
-        private static string GetEndpoint(string action)
+        private static string GetEndpoint(GameLoopAction action)
         {
             string templateId = IDosGamesSDKSettings.Instance.TitleTemplateID;
             string titleId = IDosGamesSDKSettings.Instance.TitleID;
-            string userId = AuthService.UserID;
+            string userId = AuthenticationService.UserID;
 
             return $"v2/{templateId}/{titleId}/Client/GameLoop/{action}/{userId}";
         }
@@ -33,7 +33,7 @@ namespace IDosGames
         /// <summary>
         /// Loot box (slot) rotation
         /// </summary>
-        public static async Task<IDosGamesApiResult<SpinResponse>> Spin(string lootboxId, int multiplier)
+        public static async Task<OperationResult<SpinResponse>> Spin(string lootboxId, int multiplier)
         {
             var request = new GameLoopRequest
             {
@@ -41,7 +41,7 @@ namespace IDosGames
                 Multiplier = multiplier
             };
 
-            var result = await HttpService.Post<SpinResponse>(GetEndpoint("Spin"), request);
+            var result = await HttpService.Post<SpinResponse>(GetEndpoint(GameLoopAction.Spin), request);
 
             if (result.Success) OnSpinSuccess?.Invoke(result.Data);
             return result;
@@ -50,14 +50,14 @@ namespace IDosGames
         /// <summary>
         /// Attacking another player's building
         /// </summary>
-        public static async Task<IDosGamesApiResult<AttackResponse>> Attack(string targetUserId)
+        public static async Task<OperationResult<AttackResponse>> Attack(string targetUserId)
         {
             var request = new GameLoopRequest
             {
                 TargetUserID = targetUserId
             };
 
-            var result = await HttpService.Post<AttackResponse>(GetEndpoint("Attack"), request);
+            var result = await HttpService.Post<AttackResponse>(GetEndpoint(GameLoopAction.Attack), request);
 
             if (result.Success) OnAttackSuccess?.Invoke(result.Data);
             return result;
@@ -66,14 +66,14 @@ namespace IDosGames
         /// <summary>
         /// Performing a step in a raid (digging a hole)
         /// </summary>
-        public static async Task<IDosGamesApiResult<RaidResponse>> Raid(int digIndex)
+        public static async Task<OperationResult<RaidResponse>> Raid(int digIndex)
         {
             var request = new GameLoopRequest
             {
                 DigIndex = digIndex
             };
 
-            var result = await HttpService.Post<RaidResponse>(GetEndpoint("Raid"), request);
+            var result = await HttpService.Post<RaidResponse>(GetEndpoint(GameLoopAction.Raid), request);
 
             if (result.Success) OnRaidSuccess?.Invoke(result.Data);
             return result;
@@ -82,14 +82,14 @@ namespace IDosGames
         /// <summary>
         /// Construction or upgrade of a building
         /// </summary>
-        public static async Task<IDosGamesApiResult<BuildResponse>> Build(int buildingIndex)
+        public static async Task<OperationResult<BuildResponse>> Build(int buildingIndex)
         {
             var request = new GameLoopRequest
             {
                 BuildingIndex = buildingIndex
             };
 
-            var result = await HttpService.Post<BuildResponse>(GetEndpoint("Build"), request);
+            var result = await HttpService.Post<BuildResponse>(GetEndpoint(GameLoopAction.Build), request);
 
             if (result.Success) OnBuildSuccess?.Invoke(result.Data);
             return result;
