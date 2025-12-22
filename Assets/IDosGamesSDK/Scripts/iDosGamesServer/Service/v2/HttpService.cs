@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using Newtonsoft.Json;
 using System.Runtime.CompilerServices;
+using System.Threading;
 
 namespace IDosGames
 {
@@ -18,14 +19,37 @@ namespace IDosGames
         public static event Action<string> ConnectionError;
         public static event Action OnUnauthorized;
 
-        private static readonly string BASE_URL = "https://api.idosgames.com/api/";
+        private static readonly string BASE_URL = "https://api.idosgames.com/api";
+        private static int _inFlightRequests = 0;
+        public static bool IsBusy => Volatile.Read(ref _inFlightRequests) > 0;
+
+        private static void RaiseBusy()
+        {
+            int newValue = Interlocked.Increment(ref _inFlightRequests);
+            if (newValue == 1)
+                OnBusyStateChanged?.Invoke(true);
+        }
+
+        private static void LowerBusy()
+        {
+            int newValue = Interlocked.Decrement(ref _inFlightRequests);
+
+            if (newValue < 0)
+            {
+                Interlocked.Exchange(ref _inFlightRequests, 0);
+                newValue = 0;
+            }
+
+            if (newValue == 0)
+                OnBusyStateChanged?.Invoke(false);
+        }
 
         // =================================================================================
         // GENERIC POST REQUEST
         // =================================================================================
-        public static async Task<OperationResult<T>> Post<T>(string endpoint, object payload, bool silent = false)
+        public static async Task<OperationResult<T>> Post<T>(string endpoint, object payload, string clientSessionTicket = null, bool silent = false)
         {
-            OnBusyStateChanged?.Invoke(true);
+            RaiseBusy();
 
             try
             {
@@ -40,9 +64,9 @@ namespace IDosGames
                     webRequest.downloadHandler = new DownloadHandlerBuffer();
 
                     webRequest.SetRequestHeader("Content-Type", "application/json");
-                    if (!string.IsNullOrEmpty(AuthenticationService.ClientSessionTicket))
+                    if (!string.IsNullOrEmpty(clientSessionTicket))
                     {
-                        webRequest.SetRequestHeader("Authorization", $"Bearer {AuthenticationService.ClientSessionTicket}");
+                        webRequest.SetRequestHeader("Authorization", $"Bearer {clientSessionTicket}");
                     }
 
                     await webRequest.SendWebRequest();
@@ -56,8 +80,8 @@ namespace IDosGames
                         try
                         {
                             var response = JsonConvert.DeserializeObject<OperationResult<T>>(webRequest.downloadHandler.text);
+                            if (response == null) return HandleError<T>("Empty response", silent);
 
-                            // Logical error from the server (Success = false)
                             if (!response.Success && !string.IsNullOrEmpty(response.Error))
                             {
                                 if (!silent) OnGlobalError?.Invoke(response.Error);
@@ -84,7 +108,7 @@ namespace IDosGames
             }
             finally
             {
-                OnBusyStateChanged?.Invoke(false);
+                LowerBusy();
             }
         }
 

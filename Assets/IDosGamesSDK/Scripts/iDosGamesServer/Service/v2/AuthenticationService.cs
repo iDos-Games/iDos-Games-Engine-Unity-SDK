@@ -33,9 +33,21 @@ namespace IDosGames
         public static event Action<string> OnLoginFailed;
         public static event Action PlatformSettingsUpdated;
 
-        // =================================================================================
-        // RESTORED GetTitleID (Original Logic)
-        // =================================================================================
+        // =====================================================================
+        // CONTEXT
+        // =====================================================================
+        public static IGSAuthenticationContext GetAuthContext()
+        {
+            var context = AuthContext;
+            if (context == null) throw new Exception("Not logged in. AuthContext is null.");
+            if (string.IsNullOrEmpty(context.UserID)) throw new Exception("Not logged in. UserID is empty.");
+            if (string.IsNullOrEmpty(context.ClientSessionTicket)) throw new Exception("Not logged in. ClientSessionTicket is empty.");
+            return context;
+        }
+
+        // =====================================================================
+        // TITLE ID (дл€ PlayerPrefs keys / WEBGL)
+        // =====================================================================
         public static string GetTitleID()
         {
             var settings = IDosGamesSDKSettings.Instance;
@@ -76,16 +88,9 @@ namespace IDosGames
             return titleID;
         }
 
-        private static string GetEndpoint(AuthenticationAction action)
-        {
-            string templateId = IDosGamesSDKSettings.Instance.TitleTemplateID;
-            string titleId = GetTitleID();
-            return $"v2/{templateId}/{titleId}/Client/Authentication/{action}";
-        }
-
-        // =================================================================================
-        // PUBLIC ASYNC METHODS (Clean API)
-        // =================================================================================
+        // =====================================================================
+        // PUBLIC API (Service) Ч теперь дергаем AuthenticationAPI
+        // =====================================================================
 
         public static async Task<OperationResult<AuthenticationResponse>> LoginWithDeviceID()
         {
@@ -93,23 +98,19 @@ namespace IDosGames
             {
                 OperationResult<AuthenticationResponse> result;
 
-                if (IDosGamesSDKSettings.Instance.BuildForPlatform == Platforms.Telegram && !string.IsNullOrEmpty(TelegramInitData))
+                // Telegram login
+                if (IDosGamesSDKSettings.Instance.BuildForPlatform == Platforms.Telegram &&
+                    !string.IsNullOrEmpty(TelegramInitData))
                 {
-                    var request = new AuthenticationRequest 
-                    { 
-                        TelegramInitData = TelegramInitData
-                    };
-                    result = await HttpService.Post<AuthenticationResponse>(GetEndpoint(AuthenticationAction.LoginWithTelegram), request);
+                    result = await AuthenticationAPI.LoginWithTelegram(TelegramInitData);
                 }
                 else
                 {
-                    var request = new AuthenticationRequest
-                    {
-                        DeviceID = SystemInfo.deviceUniqueIdentifier,
-                        Device = SystemInfo.deviceModel,
-                        Platform = Application.platform.ToString()
-                    };
-                    result = await HttpService.Post<AuthenticationResponse>(GetEndpoint(AuthenticationAction.LoginWithDeviceID), request);
+                    result = await AuthenticationAPI.LoginWithDeviceID(
+                        SystemInfo.deviceUniqueIdentifier,
+                        SystemInfo.deviceModel,
+                        Application.platform.ToString()
+                    );
                 }
 
                 if (result.Success)
@@ -136,12 +137,7 @@ namespace IDosGames
         {
             try
             {
-                var request = new AuthenticationRequest 
-                { 
-                    Email = email,
-                    Password = password
-                };
-                var result = await HttpService.Post<AuthenticationResponse>(GetEndpoint(AuthenticationAction.LoginWithEmail), request);
+                var result = await AuthenticationAPI.LoginWithEmail(email, password);
 
                 if (result.Success)
                 {
@@ -167,16 +163,13 @@ namespace IDosGames
         {
             try
             {
-                var request = new AuthenticationRequest
-                {
-                    Email = email,
-                    Password = password,
-                    DeviceID = SystemInfo.deviceUniqueIdentifier,
-                    Device = SystemInfo.deviceModel,
-                    Platform = Application.platform.ToString()
-                };
-
-                var result = await HttpService.Post<AuthenticationResponse>(GetEndpoint(AuthenticationAction.RegisterUserByEmail), request);
+                var result = await AuthenticationAPI.RegisterUserByEmail(
+                    email,
+                    password,
+                    SystemInfo.deviceUniqueIdentifier,
+                    SystemInfo.deviceModel,
+                    Application.platform.ToString()
+                );
 
                 if (result.Success)
                 {
@@ -202,21 +195,19 @@ namespace IDosGames
         {
             try
             {
-                var request = new AuthenticationRequest
-                {
-                    UserID = UserID,
-                    Email = email,
-                    Password = password,
-                    ClientSessionTicket = ClientSessionTicket
-                };
+                var ctx = GetAuthContext(); // гарантирует, что юзер залогинен
 
-                var result = await HttpService.Post<SuccessResponse>(GetEndpoint(AuthenticationAction.AddEmailAndPassword), request);
+                var result = await AuthenticationAPI.AddEmailAndPassword(
+                    ctx.UserID,
+                    ctx.ClientSessionTicket,
+                    email,
+                    password
+                );
 
                 if (result.Success)
                 {
                     SaveAuthType(AuthType.Email);
                     SaveEmailAndPassword(email, password);
-                    // ќбновл€ем локальное состо€ние, если нужно
                 }
 
                 return result;
@@ -227,47 +218,21 @@ namespace IDosGames
             }
         }
 
-        public static async Task<OperationResult<SuccessResponse>> ForgotPassword(string email)
-        {
-            try
-            {
-                var request = new AuthenticationRequest 
-                { 
-                    Email = email
-                };
-                return await HttpService.Post<SuccessResponse>(GetEndpoint(AuthenticationAction.ForgotPassword), request);
-            }
-            catch (Exception ex)
-            {
-                return OperationResult<SuccessResponse>.Fail(ex.Message);
-            }
-        }
+        public static Task<OperationResult<SuccessResponse>> ForgotPassword(string email)
+            => AuthenticationAPI.ForgotPassword(email);
 
-        public static async Task<OperationResult<SuccessResponse>> ResetPassword(string resetToken, string password)
-        {
-            try
-            {
-                var request = new AuthenticationRequest 
-                { 
-                    ResetToken = resetToken,
-                    Password = password
-                };
-                return await HttpService.Post<SuccessResponse>(GetEndpoint(AuthenticationAction.ResetPassword), request);
-            }
-            catch (Exception ex)
-            {
-                return OperationResult<SuccessResponse>.Fail(ex.Message);
-            }
-        }
+        public static Task<OperationResult<SuccessResponse>> ResetPassword(string resetToken, string password)
+            => AuthenticationAPI.ResetPassword(resetToken, password);
 
         public static async Task<OperationResult<AuthenticationResponse>> AutoLogin()
         {
-            if (LastAuthType == AuthType.Email && !string.IsNullOrEmpty(SavedEmail) && !string.IsNullOrEmpty(SavedPassword))
+            if (LastAuthType == AuthType.Email &&
+                !string.IsNullOrEmpty(SavedEmail) &&
+                !string.IsNullOrEmpty(SavedPassword))
             {
                 return await LoginWithEmail(SavedEmail, SavedPassword);
             }
 
-            // Default fall-back
             return await LoginWithDeviceID();
         }
 
@@ -278,16 +243,15 @@ namespace IDosGames
             EntityToken = null;
             AuthContext = null;
 
-            IGSUserData.UserInventory = new ();
-            IGSUserData.Currency = new ();
+            IGSUserData.UserInventory = new();
+            IGSUserData.Currency = new();
 
             Loading.SwitchToLoginScene();
         }
 
-        // =================================================================================
+        // =====================================================================
         // INTERNAL HELPERS
-        // =================================================================================
-
+        // =====================================================================
         private static void SetCredentials(AuthenticationResponse result)
         {
             if (result == null || result.AuthContext == null)
@@ -296,10 +260,10 @@ namespace IDosGames
                 return;
             }
 
-            // 1. Set Local Properties
             UserID = result.AuthContext.UserID;
             ClientSessionTicket = result.AuthContext.ClientSessionTicket;
             EntityToken = result.AuthContext.EntityToken;
+
             AuthContext = new IGSAuthenticationContext(
                 result.AuthContext.ClientSessionTicket,
                 result.AuthContext.EntityToken,
@@ -309,7 +273,7 @@ namespace IDosGames
                 result.AuthContext.TelemetryKey
             );
 
-            // 2. Populate Global Static Data (IGSUserData)
+            // Global data
             IGSUserData.UserAllDataResult = result;
             IGSUserData.CatalogItemsResult = result.CatalogItemsResult;
             IGSUserData.UserInventory = result.UserInventoryResult;
@@ -323,9 +287,7 @@ namespace IDosGames
             IGSUserData.PlatformSettings = result.PlatformSettings;
             IGSUserData.ImageData = result.ImageData;
 
-            // 3. Apply Settings
             SetPlatformSettings();
-
             PlatformSettingsUpdated?.Invoke();
         }
 
