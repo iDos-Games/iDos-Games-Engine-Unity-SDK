@@ -108,7 +108,7 @@ namespace IDosGames
         private void CreateReferralLink()
         {
             string baseLink;
-            string titleID = AuthService.GetTitleID();
+            string titleID = AuthenticationAPI.GetTitleID();
 
             if (AuthService.WebGLPlatform == WebGLPlatform.Web)
             {

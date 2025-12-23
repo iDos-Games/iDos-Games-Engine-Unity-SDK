@@ -9,7 +9,7 @@ namespace IDosGames
         {
             string templateID = IDosGamesSDKSettings.Instance.TitleTemplateID;
             string titleID = IDosGamesSDKSettings.Instance.TitleID;
-            return $"v2/{templateID}/{titleID}/Client/GameLoop/{action}/{userID}";
+            return $"api/v2/{templateID}/{titleID}/Client/GameLoop/{action}/{userID}";
         }
 
         public static async Task<OperationResult<SpinResponse>> Spin(string userID, string clientSessionTicket, string lootboxId, int multiplier)

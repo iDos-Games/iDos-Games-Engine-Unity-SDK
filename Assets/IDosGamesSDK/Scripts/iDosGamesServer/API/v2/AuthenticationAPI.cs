@@ -8,7 +8,7 @@ namespace IDosGames
         {
             string templateID = IDosGamesSDKSettings.Instance.TitleTemplateID;
             string titleID = GetTitleID();
-            return $"v2/{templateID}/{titleID}/Client/Authentication/{action}";
+            return $"api/v2/{templateID}/{titleID}/Client/Authentication/{action}";
         }
 
         public static string GetTitleID()

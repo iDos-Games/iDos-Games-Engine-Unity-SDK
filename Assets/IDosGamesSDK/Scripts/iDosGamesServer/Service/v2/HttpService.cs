@@ -11,15 +11,12 @@ namespace IDosGames
 {
     public static class HttpService
     {
-        // =================================================================================
-        // GLOBAL EVENTS
-        // =================================================================================
         public static event Action<bool> OnBusyStateChanged;
         public static event Action<string> OnGlobalError;
         public static event Action<string> ConnectionError;
         public static event Action OnUnauthorized;
 
-        private static readonly string BASE_URL = "https://api.idosgames.com/api";
+        private static readonly string BASE_URL = "https://api.idosgames.com";
         private static int _inFlightRequests = 0;
         public static bool IsBusy => Volatile.Read(ref _inFlightRequests) > 0;
 
@@ -44,9 +41,6 @@ namespace IDosGames
                 OnBusyStateChanged?.Invoke(false);
         }
 
-        // =================================================================================
-        // GENERIC POST REQUEST
-        // =================================================================================
         public static async Task<OperationResult<T>> Post<T>(string endpoint, object payload, string clientSessionTicket = null, bool silent = false)
         {
             RaiseBusy();
@@ -75,15 +69,18 @@ namespace IDosGames
                     if (webRequest.result == UnityWebRequest.Result.Success)
                     {
                         if (IDosGamesSDKSettings.Instance.DebugLogging)
-                            Debug.Log($"[HttpService] Success: {url}\nResp: {webRequest.downloadHandler.text}");
+                            Debug.Log($"[HttpService] Success: {endpoint}\nResponse: {webRequest.downloadHandler.text}");
 
                         try
                         {
                             var response = JsonConvert.DeserializeObject<OperationResult<T>>(webRequest.downloadHandler.text);
-                            if (response == null) return HandleError<T>("Empty response", silent);
+                            if (response == null) return HandleError<T>("Empty response", silent, endpoint);
 
                             if (!response.Success && !string.IsNullOrEmpty(response.Error))
                             {
+                                if (IDosGamesSDKSettings.Instance.DebugLogging)
+                                    Debug.LogWarning($"[HttpService] Server returned Success=false (HTTP {webRequest.responseCode}) Error={response.Error}");
+
                                 if (!silent) OnGlobalError?.Invoke(response.Error);
                             }
                             return response;
@@ -91,20 +88,19 @@ namespace IDosGames
                         catch (Exception ex)
                         {
                             string err = $"JSON Parse Error: {ex.Message}";
-                            Debug.LogError(err);
-                            return HandleError<T>(err, silent);
+                            return HandleError<T>(err, silent, endpoint);
                         }
                     }
                     // --- ERROR ---
                     else
                     {
-                        return HandleWebError<T>(webRequest, silent);
+                        return HandleWebError<T>(webRequest, silent, endpoint);
                     }
                 }
             }
             catch (Exception ex)
             {
-                return HandleError<T>(ex.Message, silent);
+                return HandleError<T>(ex.Message, silent, endpoint);
             }
             finally
             {
@@ -112,12 +108,18 @@ namespace IDosGames
             }
         }
 
-        private static OperationResult<T> HandleWebError<T>(UnityWebRequest req, bool silent)
+        private static OperationResult<T> HandleWebError<T>(UnityWebRequest req, bool silent, string endpoint)
         {
-            string msg = req.error;
             long code = req.responseCode;
 
-            // 1. First, let's check for critical authorization errors.
+            // Extended log (code + result + error + body)
+            if (IDosGamesSDKSettings.Instance.DebugLogging)
+            {
+                string debugInfo = BuildHttpErrorMessage(req, endpoint);
+                Debug.LogWarning($"[HttpService] Request failed:\n{debugInfo}");
+            }
+
+            // 1) Unauthorized
             if (code == 401)
             {
                 Debug.LogWarning("[HttpService] Token expired (401).");
@@ -125,32 +127,72 @@ namespace IDosGames
                 return new OperationResult<T> { Success = false, Error = "Unauthorized" };
             }
 
-            // 2. Checking network errors
+            // 2) Network error (no internet / DNS / timeout)
             if (req.result == UnityWebRequest.Result.ConnectionError)
             {
+                string connectionMessage = $"Internet Connection Error (HTTP {code})";
                 Debug.LogWarning("[HttpService] Connection Error...");
-                msg = "Internet Connection Error";
-                if (!silent) ConnectionError?.Invoke(msg);
-                return new OperationResult<T> { Success = false, Error = msg };
+                if (!silent) ConnectionError?.Invoke(connectionMessage);
+                return new OperationResult<T> { Success = false, Error = connectionMessage };
             }
 
-            // 3. We are trying to extract the error text from the response body (for codes 400, 500, etc.)
+            // 3) Data processing error (for example, a response arrived, but Unity couldn't process/read it)
+            if (req.result == UnityWebRequest.Result.DataProcessingError)
+            {
+                string processingMessage = $"Data Processing Error (HTTP {code}): {req.error}";
+                return HandleError<T>(processingMessage, silent, endpoint);
+            }
+
+            // 4) Default error message (with HTTP code)
+            string errorMessage = $"HTTP {code}: {req.error}";
+
+            // 5) Try to extract server error from body (OperationResult<T>)
             try
             {
-                var errObj = JsonConvert.DeserializeObject<OperationResult<T>>(req.downloadHandler.text);
-                if (errObj != null && !string.IsNullOrEmpty(errObj.Error)) msg = errObj.Error;
-            }
-            catch { }
+                string body = req.downloadHandler?.text;
 
-            // 4. Common mistake
-            return HandleError<T>(msg, silent);
+                if (!string.IsNullOrWhiteSpace(body))
+                {
+                    var errObj = JsonConvert.DeserializeObject<OperationResult<T>>(body);
+
+                    if (errObj != null && !string.IsNullOrWhiteSpace(errObj.Error))
+                        errorMessage = $"HTTP {code}: {errObj.Error}"; // server error
+                    else
+                        errorMessage = $"HTTP {code}: {body}"; // there is a body, but not an OperationResult<T>
+                }
+            }
+            catch
+            {
+                // leave the errorMessage as is
+            }
+
+            return HandleError<T>(errorMessage, silent, endpoint);
         }
 
-        private static OperationResult<T> HandleError<T>(string errorMsg, bool silent)
+        private static OperationResult<T> HandleError<T>(string errorMsg, bool silent, string endpoint = null)
         {
-            Debug.LogError($"[HttpService Error] {errorMsg}");
+            if (!string.IsNullOrEmpty(endpoint))
+                Debug.LogError($"[HttpService Error] Endpoint: {endpoint}\n{errorMsg}");
+            else
+                Debug.LogError($"[HttpService Error] {errorMsg}");
+
             if (!silent) OnGlobalError?.Invoke(errorMsg);
             return new OperationResult<T> { Success = false, Error = errorMsg };
+        }
+
+        private static string BuildHttpErrorMessage(UnityWebRequest req, string endpoint)
+        {
+            long code = req.responseCode;
+            string result = req.result.ToString();
+            string err = string.IsNullOrEmpty(req.error) ? "n/a" : req.error;
+
+            string body = null;
+            try { body = req.downloadHandler?.text; } catch { }
+
+            if (!string.IsNullOrWhiteSpace(body) && body.Length > 2000)
+                body = body.Substring(0, 2000) + "...(truncated)";
+
+            return $"Endpoint: {endpoint}\nHTTP {code} | Result={result} | Error={err}" + (!string.IsNullOrWhiteSpace(body) ? $"\nBody: {body}" : "");
         }
 
         public static TaskAwaiter<UnityWebRequest.Result> GetAwaiter(this UnityWebRequestAsyncOperation reqOp)
