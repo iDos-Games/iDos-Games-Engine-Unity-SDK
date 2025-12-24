@@ -35,6 +35,7 @@ namespace IDosGames.TitlePublicConfiguration
         public Dictionary<string, string> ImageData { get; set; }
         public Dictionary<string, string> AssetBundle { get; set; }
         public List<BoostDefinitionModel> BoostDefinitions { get; set; }
+        public List<LootboxDefinition> LootboxDefinitions { get; set; }
     }
 
     public class AiCustomSetting
@@ -411,4 +412,29 @@ namespace IDosGames.TitlePublicConfiguration
         public List<DateTime> FirstEndTime { get; set; }
     }
 
+    public class LootboxDefinition
+    {
+        public string LootboxID { get; set; }
+        public string LootboxImagePath { get; set; }
+
+        // List of payment options
+        public List<LootboxPriceOption> PriceOptions { get; set; }
+
+        // Rewards
+        public int MinRewardsPerBox { get; set; }
+        public int MaxRewardsPerBox { get; set; }
+        public List<LootRewardWeight> PossibleRewards { get; set; }
+    }
+
+    public class LootboxPriceOption
+    {
+        public int OptionID { get; set; }
+        public List<ItemOrCurrency> RequiredResources { get; set; }
+    }
+
+    public class LootRewardWeight
+    {
+        public ItemOrCurrency Item { get; set; }
+        public int Weight { get; set; }
+    }
 }
