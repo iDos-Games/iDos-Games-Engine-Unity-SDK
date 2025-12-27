@@ -3,23 +3,7 @@ using System;
 namespace IDosGames
 {
     [Serializable]
-    public class AuthenticationRequest
-    {
-        public string TitleID { get; set; }
-
-        public string DeviceID { get; set; }
-        public string Device { get; set; }
-        public string Platform { get; set; }
-
-        public string Email { get; set; }
-        public string Password { get; set; }
-
-        public string TelegramInitData { get; set; }
-
-        public string UserID { get; set; }
-        public string ClientSessionTicket { get; set; }
-        public string ResetToken { get; set; }
-    }
+    public class AuthenticationRequest : IGSRequest {}
 
     [Serializable]
     public class OperationResult<T>

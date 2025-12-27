@@ -10,18 +10,27 @@ namespace IDosGames
         public static event Action<LootboxOpenResponse> OnLootboxOpened;
 
         private static IGSAuthenticationContext Ctx => AuthService.GetAuthContext();
-        private static string UserId => Ctx.UserID;
-        private static string Token => Ctx.ClientSessionTicket;
+        private static string UserID => Ctx.UserID;
+        private static string ClientSessionTicket => Ctx.ClientSessionTicket;
 
         /// <summary>
         /// Get a list of available loot boxes
         /// </summary>
         public static async Task<OperationResult<LootboxDefinitionsResponse>> GetDefinitions()
         {
-            var result = await LootboxAPI.GetDefinitions(UserId, Token);
+            var request = new LootboxRequest()
+            {
+                UserID = UserID,
+                ClientSessionTicket = ClientSessionTicket,
+                UsageTime = IDosGamesSDKSettings.Instance.PlayTime,
+                BuildKey = IDosGamesSDKSettings.Instance.BuildKey,
+                WebAppLink = WebSDK.webAppLink,
+            };
 
+            var result = await LootboxAPI.GetDefinitions(request);
             if (result.Success)
             {
+                IDosGamesSDKSettings.Instance.PlayTime = 0;
                 OnDefinitionsLoaded?.Invoke(result.Data);
             }
 
@@ -36,10 +45,24 @@ namespace IDosGames
         /// <param name="count">Number of openings</param>
         public static async Task<OperationResult<LootboxOpenResponse>> Open(string lootboxId, int selectedOptionId, int count = 1)
         {
-            var result = await LootboxAPI.Open(UserId, Token, lootboxId, selectedOptionId, count);
+            var request = new LootboxRequest
+            {
+                UserID = UserID,
+                ClientSessionTicket = ClientSessionTicket,
+                UsageTime = IDosGamesSDKSettings.Instance.PlayTime,
+                BuildKey = IDosGamesSDKSettings.Instance.BuildKey,
+                WebAppLink = WebSDK.webAppLink,
+
+                LootboxID = lootboxId,
+                SelectedOptionID = selectedOptionId,
+                Count = count
+            };
+
+            var result = await LootboxAPI.Open(request);
 
             if (result.Success)
             {
+                IDosGamesSDKSettings.Instance.PlayTime = 0;
                 OnLootboxOpened?.Invoke(result.Data);
             }
 

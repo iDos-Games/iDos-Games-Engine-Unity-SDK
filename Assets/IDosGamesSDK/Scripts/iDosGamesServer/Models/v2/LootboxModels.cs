@@ -15,7 +15,7 @@ namespace IDosGames.ServerModels
     // =================================================================================
 
     [Serializable]
-    public class LootboxRequest
+    public class LootboxRequest : IGSRequest
     {
         // Loot box ID (required)
         public string LootboxID;

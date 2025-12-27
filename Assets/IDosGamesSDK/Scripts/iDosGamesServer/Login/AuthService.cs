@@ -101,32 +101,46 @@ namespace IDosGames
 
             try
             {
-                OperationResult<AuthenticationResponse> op;
+                OperationResult<AuthenticationResponse> result;
 
                 if (IDosGamesSDKSettings.Instance.BuildForPlatform == Platforms.Telegram)
                 {
-                    op = await AuthenticationAPI.LoginWithTelegram(TelegramInitData);
+                    var request = new AuthenticationRequest
+                    {
+                        BuildKey = IDosGamesSDKSettings.Instance.BuildKey,
+                        WebAppLink = WebSDK.webAppLink,
+
+                        TelegramInitData = TelegramInitData,
+                    };
+
+                    result = await AuthenticationAPI.LoginWithTelegram(request);
                 }
                 else
                 {
-                    op = await AuthenticationAPI.LoginWithDeviceID(
-                        SystemInfo.deviceUniqueIdentifier,
-                        SystemInfo.deviceModel,
-                        Application.platform.ToString()
-                    );
+                    var request = new AuthenticationRequest
+                    {
+                        BuildKey = IDosGamesSDKSettings.Instance.BuildKey,
+                        WebAppLink = WebSDK.webAppLink,
+
+                        DeviceID = SystemInfo.deviceUniqueIdentifier,
+                        Device = SystemInfo.deviceModel,
+                        Platform = Application.platform.ToString(),
+                    };
+
+                    result = await AuthenticationAPI.LoginWithDeviceID(request);
                 }
 
-                if (op.Success && op.Data != null && op.Data.AuthContext != null && !string.IsNullOrEmpty(op.Data.AuthContext.ClientSessionTicket))
+                if (result.Success && result.Data != null && result.Data.AuthContext != null && !string.IsNullOrEmpty(result.Data.AuthContext.ClientSessionTicket))
                 {
-                    SetCredentials(op.Data);
+                    SetCredentials(result.Data);
                     SaveAuthType(AuthType.Device);
 
-                    resultCallback?.Invoke(op.Data);
+                    resultCallback?.Invoke(result.Data);
                     LoggedIn?.Invoke();
                 }
                 else
                 {
-                    var err = !string.IsNullOrEmpty(op.Error) ? op.Error : "Invalid result";
+                    var err = !string.IsNullOrEmpty(result.Error) ? result.Error : "Invalid result";
                     IGSClientAPI.OnIGSError(err, errorCallback, retryCallback);
                 }
             }
@@ -147,20 +161,29 @@ namespace IDosGames
 
             try
             {
-                var op = await AuthenticationAPI.LoginWithEmail(email, password);
-
-                if (op.Success && op.Data != null && op.Data.AuthContext != null && !string.IsNullOrEmpty(op.Data.AuthContext.ClientSessionTicket))
+                var request = new AuthenticationRequest
                 {
-                    SetCredentials(op.Data);
+                    BuildKey = IDosGamesSDKSettings.Instance.BuildKey,
+                    WebAppLink = WebSDK.webAppLink,
+
+                    Email = email,
+                    Password = password,
+                };
+
+                var result = await AuthenticationAPI.LoginWithEmail(request);
+
+                if (result.Success && result.Data != null && result.Data.AuthContext != null && !string.IsNullOrEmpty(result.Data.AuthContext.ClientSessionTicket))
+                {
+                    SetCredentials(result.Data);
                     SaveAuthType(AuthType.Device);
                     SaveEmailAndPassword(email, password);
 
-                    resultCallback?.Invoke(op.Data);
+                    resultCallback?.Invoke(result.Data);
                     LoggedIn?.Invoke();
                 }
                 else
                 {
-                    var err = !string.IsNullOrEmpty(op.Error) ? op.Error : "Invalid result";
+                    var err = !string.IsNullOrEmpty(result.Error) ? result.Error : "Invalid result";
                     IGSClientAPI.OnIGSError(err, errorCallback, retryCallback);
                 }
             }
@@ -176,15 +199,26 @@ namespace IDosGames
 
             try
             {
-                if (AuthContext == null || string.IsNullOrEmpty(AuthContext.ClientSessionTicket) || string.IsNullOrEmpty(UserID))
+                if (AuthContext == null || string.IsNullOrEmpty(AuthContext.ClientSessionTicket) || string.IsNullOrEmpty(AuthContext.UserID))
                 {
                     IGSClientAPI.OnIGSError("Not logged in", errorCallback);
                     return;
                 }
 
-                var op = await AuthenticationAPI.AddEmailAndPassword(UserID, email, password, AuthContext.ClientSessionTicket);
+                var request = new AuthenticationRequest
+                {
+                    UserID = AuthContext.UserID,
+                    ClientSessionTicket = AuthContext.ClientSessionTicket,
+                    BuildKey = IDosGamesSDKSettings.Instance.BuildKey,
+                    WebAppLink = WebSDK.webAppLink,
 
-                if (op.Success)
+                    Email = email,
+                    Password = password,
+                };
+
+                var result = await AuthenticationAPI.AddEmailAndPassword(request);
+
+                if (result.Success)
                 {
                     SaveAuthType(AuthType.Email);
                     SaveEmailAndPassword(email, password);
@@ -193,7 +227,7 @@ namespace IDosGames
                 }
                 else
                 {
-                    var err = !string.IsNullOrEmpty(op.Error) ? op.Error : "Request failed";
+                    var err = !string.IsNullOrEmpty(result.Error) ? result.Error : "Request failed";
                     IGSClientAPI.OnIGSError(err, errorCallback);
                 }
             }
@@ -209,26 +243,32 @@ namespace IDosGames
 
             try
             {
-                var op = await AuthenticationAPI.RegisterUserByEmail(
-                    email,
-                    password,
-                    SystemInfo.deviceUniqueIdentifier,
-                    SystemInfo.deviceModel,
-                    Application.platform.ToString()
-                );
-
-                if (op.Success && op.Data != null && op.Data.AuthContext != null && !string.IsNullOrEmpty(op.Data.AuthContext.ClientSessionTicket))
+                var request = new AuthenticationRequest
                 {
-                    SetCredentials(op.Data);
+                    BuildKey = IDosGamesSDKSettings.Instance.BuildKey,
+                    WebAppLink = WebSDK.webAppLink,
+
+                    Email = email,
+                    Password = password,
+                    DeviceID = SystemInfo.deviceUniqueIdentifier,
+                    Device = SystemInfo.deviceModel,
+                    Platform = Application.platform.ToString(),
+                };
+
+                var result = await AuthenticationAPI.RegisterUserByEmail(request);
+
+                if (result.Success && result.Data != null && result.Data.AuthContext != null && !string.IsNullOrEmpty(result.Data.AuthContext.ClientSessionTicket))
+                {
+                    SetCredentials(result.Data);
                     SaveAuthType(AuthType.Device);
                     SaveEmailAndPassword(email, password);
 
-                    resultCallback?.Invoke(op.Data);
+                    resultCallback?.Invoke(result.Data);
                     LoggedIn?.Invoke();
                 }
                 else
                 {
-                    var err = !string.IsNullOrEmpty(op.Error) ? op.Error : "Invalid result";
+                    var err = !string.IsNullOrEmpty(result.Error) ? result.Error : "Invalid result";
                     IGSClientAPI.OnIGSError(err, errorCallback, retryCallback);
                 }
             }
@@ -244,15 +284,25 @@ namespace IDosGames
 
             try
             {
-                var op = await AuthenticationAPI.ForgotPassword(email);
+                var request = new AuthenticationRequest
+                {
+                    UserID = AuthContext.UserID,
+                    ClientSessionTicket = AuthContext.ClientSessionTicket,
+                    BuildKey = IDosGamesSDKSettings.Instance.BuildKey,
+                    WebAppLink = WebSDK.webAppLink,
 
-                if (op.Success)
+                    Email = email,
+                };
+
+                var result = await AuthenticationAPI.ForgotPassword(request);
+
+                if (result.Success)
                 {
                     resultCallback?.Invoke("Success");
                 }
                 else
                 {
-                    var err = !string.IsNullOrEmpty(op.Error) ? op.Error : "Request failed";
+                    var err = !string.IsNullOrEmpty(result.Error) ? result.Error : "Request failed";
                     IGSClientAPI.OnIGSError(err, errorCallback);
                 }
             }
@@ -268,15 +318,26 @@ namespace IDosGames
 
             try
             {
-                var op = await AuthenticationAPI.ResetPassword(resetToken, password);
+                var request = new AuthenticationRequest
+                {
+                    UserID = AuthContext.UserID,
+                    ClientSessionTicket = AuthContext.ClientSessionTicket,
+                    BuildKey = IDosGamesSDKSettings.Instance.BuildKey,
+                    WebAppLink = WebSDK.webAppLink,
 
-                if (op.Success)
+                    ResetToken = resetToken,
+                    Password = password
+                };
+
+                var result = await AuthenticationAPI.ResetPassword(request);
+
+                if (result.Success)
                 {
                     resultCallback?.Invoke("Success");
                 }
                 else
                 {
-                    var err = !string.IsNullOrEmpty(op.Error) ? op.Error : "Request failed";
+                    var err = !string.IsNullOrEmpty(result.Error) ? result.Error : "Request failed";
                     IGSClientAPI.OnIGSError(err, errorCallback);
                 }
             }

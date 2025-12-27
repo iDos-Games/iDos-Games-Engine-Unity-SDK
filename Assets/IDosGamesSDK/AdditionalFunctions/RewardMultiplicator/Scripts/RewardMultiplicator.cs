@@ -123,35 +123,14 @@ namespace IDosGames
             }
         }
 
-        private void OnFinishedWatchingRewardedVideo(bool finished)
+        private async void OnFinishedWatchingRewardedVideo(bool finished)
         {
-            int coinReward = Mathf.CeilToInt(_currentCoinReward * _multiplicator);
-            int eventPoints = Mathf.CeilToInt(_currentEventReward * _multiplicator);
+            _popUpReward.SetActive(false);
 
-            if(_multiplicator == 3f || _multiplicator == 2.5f)
-            {
-                ClaimRewardSystem.ClaimX3CoinReward(_currentCoinReward, _currentEventReward);
-                //WeeklyEventSystem.AddEventPoints(eventPoints);
+            RewardAnimations.ShowIgcAnimation();
+            RewardAnimations.ShowEventPointAnimation();
 
-                _popUpReward.SetActive(false);
-
-                RewardAnimations.ShowIgcAnimation();
-                RewardAnimations.ShowEventPointAnimation();
-
-                //Debug.Log("Coins: " + coinReward + "/ Points: " + eventPoints);
-            }
-            else
-            {
-                ClaimRewardSystem.ClaimCoinReward(coinReward, eventPoints);
-                //WeeklyEventSystem.AddEventPoints(eventPoints);
-
-                _popUpReward.SetActive(false);
-
-                RewardAnimations.ShowIgcAnimation();
-                RewardAnimations.ShowEventPointAnimation();
-
-                //Debug.Log("Coins: " + coinReward + "/ Points: " + eventPoints);
-            }
+            await RewardService.Claim("CO", _currentCoinReward, _multiplicator, _currentEventReward);
         }
     }
 }

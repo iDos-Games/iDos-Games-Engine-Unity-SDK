@@ -8,7 +8,7 @@ namespace IDosGames.ServerModels
     // =================================================================================
 
     [Serializable]
-    public class GameLoopRequest
+    public class GameLoopRequest : IGSRequest
     {
         public string LootboxID { get; set; }
         public int Multiplier { get; set; } = 1;

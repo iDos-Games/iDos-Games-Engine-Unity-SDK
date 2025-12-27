@@ -34,7 +34,7 @@ namespace IDosGames.TitlePublicConfiguration
         public List<AiCustomSetting> AiCustomSettings { get; set; }
         public Dictionary<string, string> ImageData { get; set; }
         public Dictionary<string, string> AssetBundle { get; set; }
-        public List<BoostDefinitionModel> BoostDefinitions { get; set; }
+        public List<StatDefinition> StatDefinitions { get; set; }
         public List<LootboxDefinition> LootboxDefinitions { get; set; }
     }
 
@@ -410,6 +410,28 @@ namespace IDosGames.TitlePublicConfiguration
         public List<string> Expensive { get; set; }
         public List<DateTime> EndTime { get; set; }
         public List<DateTime> FirstEndTime { get; set; }
+    }
+
+    public class StatDefinition
+    {
+        public string StatId { get; set; }
+        public int MaxLevel { get; set; }
+        public int Weight { get; set; }
+        public string BaseCostCurrencyID { get; set; }
+        public int BaseCost { get; set; }
+        public double CostScalingFactor { get; set; }
+        public double BaseStatValue { get; set; }
+        public double StatScalingFactor { get; set; }
+        public List<StatRequirement> Requirements { get; set; }
+        public string DisplayName { get; set; }
+        public string IconPath { get; set; }
+        public string Description { get; set; }
+    }
+
+    public class StatRequirement
+    {
+        public string RequiredStatId { get; set; }
+        public int RequiredLevel { get; set; }
     }
 
     public class LootboxDefinition

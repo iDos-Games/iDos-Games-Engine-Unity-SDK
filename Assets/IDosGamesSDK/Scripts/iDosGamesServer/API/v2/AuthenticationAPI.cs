@@ -50,92 +50,38 @@ namespace IDosGames
             return titleID;
         }
 
-        public static Task<OperationResult<AuthenticationResponse>> LoginWithDeviceID(string deviceId, string deviceModel, string platform)
+        public static Task<OperationResult<AuthenticationResponse>> LoginWithDeviceID(AuthenticationRequest request)
         {
-            var request = new AuthenticationRequest
-            {
-                DeviceID = deviceId,
-                Device = deviceModel,
-                Platform = platform
-            };
-
             return HttpService.Post<AuthenticationResponse>(GetEndpoint(AuthenticationAction.LoginWithDeviceID), request);
         }
 
-        public static Task<OperationResult<AuthenticationResponse>> LoginWithTelegram(string telegramInitData)
+        public static Task<OperationResult<AuthenticationResponse>> LoginWithTelegram(AuthenticationRequest request)
         {
-            var request = new AuthenticationRequest
-            {
-                TelegramInitData = telegramInitData
-            };
-
             return HttpService.Post<AuthenticationResponse>(GetEndpoint(AuthenticationAction.LoginWithTelegram), request);
         }
 
-        public static Task<OperationResult<AuthenticationResponse>> LoginWithEmail(string email, string password)
+        public static Task<OperationResult<AuthenticationResponse>> LoginWithEmail(AuthenticationRequest request)
         {
-            var request = new AuthenticationRequest
-            {
-                Email = email,
-                Password = password
-            };
-
             return HttpService.Post<AuthenticationResponse>(GetEndpoint(AuthenticationAction.LoginWithEmail), request);
         }
 
-        public static Task<OperationResult<AuthenticationResponse>> RegisterUserByEmail(
-            string email,
-            string password,
-            string deviceId,
-            string deviceModel,
-            string platform)
+        public static Task<OperationResult<AuthenticationResponse>> RegisterUserByEmail(AuthenticationRequest request)
         {
-            var request = new AuthenticationRequest
-            {
-                Email = email,
-                Password = password,
-                DeviceID = deviceId,
-                Device = deviceModel,
-                Platform = platform
-            };
-
             return HttpService.Post<AuthenticationResponse>(GetEndpoint(AuthenticationAction.RegisterUserByEmail), request);
         }
 
-        public static Task<OperationResult<SuccessResponse>> AddEmailAndPassword(
-            string userID,
-            string clientSessionTicket,
-            string email,
-            string password)
+        public static Task<OperationResult<SuccessResponse>> AddEmailAndPassword(AuthenticationRequest request)
         {
-            var request = new AuthenticationRequest
-            {
-                UserID = userID,
-                Email = email,
-                Password = password,
-            };
-
-            return HttpService.Post<SuccessResponse>(GetEndpoint(AuthenticationAction.AddEmailAndPassword), request, clientSessionTicket);
+            return HttpService.Post<SuccessResponse>(GetEndpoint(AuthenticationAction.AddEmailAndPassword), request, request.ClientSessionTicket);
         }
 
-        public static Task<OperationResult<SuccessResponse>> ForgotPassword(string email)
+        public static Task<OperationResult<SuccessResponse>> ForgotPassword(AuthenticationRequest request)
         {
-            var request = new AuthenticationRequest
-            {
-                Email = email
-            };
-
             return HttpService.Post<SuccessResponse>(GetEndpoint(AuthenticationAction.ForgotPassword), request);
         }
 
-        public static Task<OperationResult<SuccessResponse>> ResetPassword(string resetToken, string password)
+        public static Task<OperationResult<SuccessResponse>> ResetPassword(AuthenticationRequest request)
         {
-            var request = new AuthenticationRequest
-            {
-                ResetToken = resetToken,
-                Password = password
-            };
-
             return HttpService.Post<SuccessResponse>(GetEndpoint(AuthenticationAction.ResetPassword), request);
         }
     }

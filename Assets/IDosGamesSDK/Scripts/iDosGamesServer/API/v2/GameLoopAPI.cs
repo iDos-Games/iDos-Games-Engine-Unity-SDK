@@ -12,45 +12,42 @@ namespace IDosGames
             return $"api/v2/{templateID}/{titleID}/Client/GameLoop/{action}/{userID}";
         }
 
-        public static async Task<OperationResult<SpinResponse>> Spin(string userID, string clientSessionTicket, string lootboxId, int multiplier)
+        public static async Task<OperationResult<SpinResponse>> Spin(GameLoopRequest request)
         {
-            var request = new GameLoopRequest
-            {
-                LootboxID = lootboxId,
-                Multiplier = multiplier
-            };
-
-            return await HttpService.Post<SpinResponse>(GetEndpoint(GameLoopAction.Spin, userID), request, clientSessionTicket);
+            return await HttpService.Post<SpinResponse>(
+                GetEndpoint(GameLoopAction.Spin, request.UserID),
+                request,
+                request.ClientSessionTicket
+            );
         }
 
-        public static async Task<OperationResult<AttackResponse>> Attack(string userID, string clientSessionTicket, string targetUserId)
+        public static async Task<OperationResult<AttackResponse>> Attack(GameLoopRequest request)
         {
-            var request = new GameLoopRequest
-            {
-                TargetUserID = targetUserId
-            };
-
-            return await HttpService.Post<AttackResponse>(GetEndpoint(GameLoopAction.Attack, userID), request, clientSessionTicket);
+            return await HttpService.Post<AttackResponse>(GetEndpoint(
+                GameLoopAction.Attack,
+                request.UserID),
+                request,
+                request.ClientSessionTicket
+            );
         }
 
-        public static async Task<OperationResult<RaidResponse>> Raid(string userID, string clientSessionTicket, int digIndex)
+        public static async Task<OperationResult<RaidResponse>> Raid(GameLoopRequest request)
         {
-            var request = new GameLoopRequest
-            {
-                DigIndex = digIndex
-            };
-
-            return await HttpService.Post<RaidResponse>(GetEndpoint(GameLoopAction.Raid, userID), request, clientSessionTicket);
+            return await HttpService.Post<RaidResponse>(
+                GetEndpoint(GameLoopAction.Raid, request.UserID),
+                request,
+                request.ClientSessionTicket
+            );
         }
 
-        public static async Task<OperationResult<BuildResponse>> Build(string userID, string clientSessionTicket, int buildingIndex)
+        public static async Task<OperationResult<BuildResponse>> Build(GameLoopRequest request)
         {
-            var request = new GameLoopRequest
-            {
-                BuildingIndex = buildingIndex
-            };
-
-            return await HttpService.Post<BuildResponse>(GetEndpoint(GameLoopAction.Build, userID), request, clientSessionTicket);
+            return await HttpService.Post<BuildResponse>(
+                GetEndpoint(GameLoopAction.Build,
+                request.UserID),
+                request,
+                request.ClientSessionTicket
+            );
         }
     }
 }
