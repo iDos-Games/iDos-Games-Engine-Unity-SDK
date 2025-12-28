@@ -80,13 +80,8 @@ namespace IDosGames
         {
             if (UserInventory.HasVIPStatus)
             {
-                ClaimRewardSystem.ClaimX5CoinReward(_currentCoinReward, _currentEventReward);
-                //WeeklyEventSystem.AddEventPoints(_currentEventReward * 5);
-
                 _popUpReward.SetActive(false);
-
-                RewardAnimations.ShowIgcAnimation();
-                RewardAnimations.ShowEventPointAnimation();
+                ClaimRewardSystem.ClaimCoinReward(_currentCoinReward, 5, _currentEventReward);
             }
             else
             {
@@ -123,14 +118,10 @@ namespace IDosGames
             }
         }
 
-        private async void OnFinishedWatchingRewardedVideo(bool finished)
+        private void OnFinishedWatchingRewardedVideo(bool finished)
         {
             _popUpReward.SetActive(false);
-
-            RewardAnimations.ShowIgcAnimation();
-            RewardAnimations.ShowEventPointAnimation();
-
-            await RewardService.Claim("CO", _currentCoinReward, _multiplicator, _currentEventReward);
+            ClaimRewardSystem.ClaimCoinReward(_currentCoinReward, _multiplicator, _currentEventReward);
         }
     }
 }

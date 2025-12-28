@@ -41,7 +41,7 @@ namespace IDosGames
                 OnBusyStateChanged?.Invoke(false);
         }
 
-        public static async Task<OperationResult<T>> Post<T>(string endpoint, object payload, string clientSessionTicket = null, bool silent = false)
+        public static async Task<OperationResult<T>> Post<T>(string endpoint, object payload, string clientSessionTicket = null, bool silent = false, int timeoutSeconds = 12)
         {
             RaiseBusy();
 
@@ -56,6 +56,7 @@ namespace IDosGames
                 {
                     webRequest.uploadHandler = new UploadHandlerRaw(bodyRaw);
                     webRequest.downloadHandler = new DownloadHandlerBuffer();
+                    webRequest.timeout = timeoutSeconds;
 
                     webRequest.SetRequestHeader("Content-Type", "application/json");
                     if (!string.IsNullOrEmpty(clientSessionTicket))

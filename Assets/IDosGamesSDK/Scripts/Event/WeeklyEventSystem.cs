@@ -1,3 +1,4 @@
+using IDosGames.ServerModels;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -35,11 +36,61 @@ namespace IDosGames
         private void OnEnable()
         {
             UserDataService.CustomUserDataUpdated += SetData;
+            RewardService.OnClaimSuccess += OnRewardClaimSuccess;
         }
 
         private void OnDisable()
         {
             UserDataService.CustomUserDataUpdated -= SetData;
+            RewardService.OnClaimSuccess -= OnRewardClaimSuccess;
+        }
+
+        private void OnRewardClaimSuccess(RewardClaimResponse resp)
+        {
+            if (resp == null || resp.PointsAdded <= 0) return;
+
+            ApplyWeeklyPointsLocal(resp.PointsAdded);
+            TryPatchWeeklyPointsInCache(PlayerPoints);
+        }
+
+        private void ApplyWeeklyPointsLocal(int pointsAdded)
+        {
+            PlayerPoints += pointsAdded;
+
+            if (string.IsNullOrEmpty(EventType) || Rewards == null)
+            {
+                SetData();
+                if (string.IsNullOrEmpty(EventType) || Rewards == null) return;
+            }
+
+            SetRewards(EventType);
+            SetSliderData();
+
+            DataUpdated?.Invoke();
+        }
+
+        private void TryPatchWeeklyPointsInCache(int newPoints)
+        {
+            var cud = IGSUserData.CustomUserData;
+            if (cud?.Data == null) return;
+
+            var key = CustomUserDataKey.event_weekly.ToString();
+
+            if (!cud.Data.TryGetValue(key, out var record) || record == null) return;
+            if (string.IsNullOrEmpty(record.Value)) return;
+
+            JToken token;
+            try
+            {
+                token = JsonConvert.DeserializeObject<JToken>(record.Value);
+                if (token == null) return;
+            }
+            catch { return; }
+
+            token[JsonProperty.POINTS] = newPoints;
+
+            record.Value = token.ToString(Formatting.None);
+            record.LastUpdated = DateTime.UtcNow;
         }
 
         public static void UpdateEventForPlayer()

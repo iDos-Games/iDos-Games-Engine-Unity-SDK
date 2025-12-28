@@ -5,84 +5,36 @@ namespace IDosGames
 {
     public class ClaimRewardSystem
     {
-        public static string tokenLimitCurrencyID = "TL";
+        public static string coinCurrencyId = "CO";
+        public static string tokenCurrencyId = "IG";
 
-        // For VIP
-        public static void ClaimTokenReward(int value, int point)
+        public static async void ClaimCoinReward(int baseValue, float multiplier = 1, int points = 0, bool includeReferral = false)
+        {
+            RewardAnimations.ShowIgcAnimation();
+            if (points > 0) RewardAnimations.ShowEventPointAnimation();
+            await RewardService.Claim(coinCurrencyId, baseValue, multiplier, points, includeReferral);
+        }
+
+        public static async void ClaimTokenReward(int baseValue, float multiplier = 1, int points = 0, bool includeReferral = false)
         {
             if (UserInventory.HasVIPStatus)
             {
-                //Debug.Log($"Daily Token Limit: {UserInventory.GetVirtualCurrencyAmount(tokenLimitCurrencyID)}");
-                ExecuteClaimFunction(value, ServerFunctionHandlers.ClaimTokenReward, point);
+                RewardAnimations.ShowIgtAnimation();
+                if (points > 0) RewardAnimations.ShowEventPointAnimation();
+                await RewardService.ClaimVip(tokenCurrencyId, baseValue, multiplier, points, includeReferral);
             }
             else
             {
-                //Debug.Log($"Daily Token Limit: {UserInventory.GetVirtualCurrencyAmount(tokenLimitCurrencyID)}");
                 ShopSystem.PopUpSystem.ShowVIPPopUp();
             }
         }
 
-        public static void ClaimSkinProfit()
+        public static async void ClaimSkinProfit(string currencyId) // Coin or Token
         {
-            if (GetSkinProfitAmount() > 0 && UserInventory.HasVIPStatus)
-            {
-                ExecuteClaimFunction(0, ServerFunctionHandlers.GrantSkinProfitFromEquippedSkins);
-            }
-        }
-        // For VIP End
+            var amount = GetSkinProfitAmount();
+            if (amount <= 0) return;
 
-        public static void ClaimCoinReward(int value, int point)
-        {
-            ExecuteClaimFunction(value, ServerFunctionHandlers.ClaimCoinReward, point);
-            Loading.HideAllPanels();
-        }
-
-        public static void ClaimX3CoinReward(int value, int point)
-        {
-            ExecuteClaimFunction(value, ServerFunctionHandlers.ClaimX3CoinReward, point);
-            Loading.HideAllPanels();
-        }
-
-        public static void ClaimX5CoinReward(int value, int point)
-        {
-            ExecuteClaimFunction(value, ServerFunctionHandlers.ClaimX5CoinReward, point);
-            Loading.HideAllPanels();
-        }
-
-        public static void ClaimRewardWithoutSkinProfit(int value)
-        {
-            ExecuteClaimFunction(value, ServerFunctionHandlers.ClaimCoinReward);
-            Loading.HideAllPanels();
-        }
-
-        public static void ClaimX3RewardWithoutSkinProfit(int value)
-        {
-            ExecuteClaimFunction(value, ServerFunctionHandlers.ClaimX3CoinReward);
-            Loading.HideAllPanels();
-        }
-
-        public static void ClaimX5RewardWithoutSkinProfit(int value)
-        {
-            ExecuteClaimFunction(value, ServerFunctionHandlers.ClaimX5CoinReward);
-            Loading.HideAllPanels();
-        }
-
-        private static void ExecuteClaimFunction(int value, ServerFunctionHandlers functionName, int points = 0)
-        {
-            FunctionParameters parameter = new()
-            {
-                IntValue = value,
-                Points = points
-            };
-
-            _ = IGSClientAPI.ExecuteFunction
-                (
-                functionName: functionName,
-                resultCallback: OnSuccessClaimReward,
-                notConnectionErrorCallback: OnErrorClaimReward,
-                connectionErrorCallback: () => Message.ShowConnectionError(() => ExecuteClaimFunction(value, functionName)),
-                functionParameter: parameter
-                );
+            await RewardService.ClaimItemProfit(currencyId, amount);
         }
 
         private static void OnSuccessClaimReward(string result)

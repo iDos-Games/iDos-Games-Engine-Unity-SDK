@@ -40,5 +40,6 @@ namespace IDosGames.ServerModels
         Claim,
         ClaimVip,
         ClaimItemProfit,
+        ClaimDailyReward,
     }
 }
