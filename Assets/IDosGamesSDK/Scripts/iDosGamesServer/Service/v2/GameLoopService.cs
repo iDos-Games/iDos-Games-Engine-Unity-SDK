@@ -21,7 +21,6 @@ namespace IDosGames
             {
                 UserID = UserID,
                 ClientSessionTicket = ClientSessionTicket,
-                UsageTime = IDosGamesSDKSettings.Instance.PlayTime,
                 BuildKey = IDosGamesSDKSettings.Instance.BuildKey,
                 WebAppLink = WebSDK.webAppLink
             };
@@ -37,7 +36,6 @@ namespace IDosGames
             var result = await GameLoopAPI.Spin(request);
             if (result.Success)
             {
-                IDosGamesSDKSettings.Instance.PlayTime = 0;
                 OnSpinSuccess?.Invoke(result.Data);
             }
             
@@ -53,7 +51,6 @@ namespace IDosGames
             var result = await GameLoopAPI.Attack(request);
             if (result.Success)
             {
-                IDosGamesSDKSettings.Instance.PlayTime = 0;
                 OnAttackSuccess?.Invoke(result.Data);
             }
 
@@ -69,7 +66,6 @@ namespace IDosGames
             var result = await GameLoopAPI.Raid(request);
             if (result.Success)
             {
-                IDosGamesSDKSettings.Instance.PlayTime = 0;
                 OnRaidSuccess?.Invoke(result.Data);
             }
 
@@ -85,7 +81,6 @@ namespace IDosGames
             var result = await GameLoopAPI.Build(request);
             if (result.Success)
             {
-                IDosGamesSDKSettings.Instance.PlayTime = 0;
                 OnBuildSuccess?.Invoke(result.Data);
             }
 

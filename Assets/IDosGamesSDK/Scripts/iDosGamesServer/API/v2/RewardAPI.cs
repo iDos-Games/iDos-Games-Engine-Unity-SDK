@@ -12,31 +12,28 @@ namespace IDosGames
             return $"api/v2/{templateID}/{titleID}/Client/Reward/{action}/{userID}";
         }
 
-        public static async Task<OperationResult<RewardResponse>> Claim(RewardRequest request)
+        private static async Task<OperationResult<TResponse>> SendRequest<TResponse>(RewardAction action, RewardRequest request)
         {
-            return await HttpService.Post<RewardResponse>(
-                GetEndpoint(RewardAction.Claim, request.UserID),
+            return await HttpService.Post<TResponse>(
+                GetEndpoint(action, request.UserID),
                 request,
                 request.ClientSessionTicket
             );
+        }
+
+        public static async Task<OperationResult<RewardResponse>> Claim(RewardRequest request)
+        {
+            return await SendRequest<RewardResponse>(RewardAction.Claim, request);
         }
 
         public static async Task<OperationResult<RewardResponse>> ClaimVip(RewardRequest request)
         {
-            return await HttpService.Post<RewardResponse>(
-                GetEndpoint(RewardAction.ClaimVip, request.UserID),
-                request,
-                request.ClientSessionTicket
-            );
+            return await SendRequest<RewardResponse>(RewardAction.ClaimVip, request);
         }
 
         public static async Task<OperationResult<RewardResponse>> ClaimItemProfit(RewardRequest request)
         {
-            return await HttpService.Post<RewardResponse>(
-                GetEndpoint(RewardAction.ClaimItemProfit, request.UserID),
-                request,
-                request.ClientSessionTicket
-            );
+            return await SendRequest<RewardResponse>(RewardAction.ClaimItemProfit, request);
         }
     }
 }

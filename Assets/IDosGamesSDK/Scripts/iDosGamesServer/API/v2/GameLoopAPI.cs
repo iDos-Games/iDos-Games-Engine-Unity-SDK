@@ -12,42 +12,33 @@ namespace IDosGames
             return $"api/v2/{templateID}/{titleID}/Client/GameLoop/{action}/{userID}";
         }
 
-        public static async Task<OperationResult<SpinResponse>> Spin(GameLoopRequest request)
+        private static async Task<OperationResult<TResponse>> SendRequest<TResponse>(GameLoopAction action, GameLoopRequest request)
         {
-            return await HttpService.Post<SpinResponse>(
-                GetEndpoint(GameLoopAction.Spin, request.UserID),
+            return await HttpService.Post<TResponse>(
+                GetEndpoint(action, request.UserID),
                 request,
                 request.ClientSessionTicket
             );
+        }
+
+        public static async Task<OperationResult<SpinResponse>> Spin(GameLoopRequest request)
+        {
+            return await SendRequest<SpinResponse>(GameLoopAction.Spin, request);
         }
 
         public static async Task<OperationResult<AttackResponse>> Attack(GameLoopRequest request)
         {
-            return await HttpService.Post<AttackResponse>(GetEndpoint(
-                GameLoopAction.Attack,
-                request.UserID),
-                request,
-                request.ClientSessionTicket
-            );
+            return await SendRequest<AttackResponse>(GameLoopAction.Attack, request);
         }
 
         public static async Task<OperationResult<RaidResponse>> Raid(GameLoopRequest request)
         {
-            return await HttpService.Post<RaidResponse>(
-                GetEndpoint(GameLoopAction.Raid, request.UserID),
-                request,
-                request.ClientSessionTicket
-            );
+            return await SendRequest<RaidResponse>(GameLoopAction.Raid, request);
         }
 
         public static async Task<OperationResult<BuildResponse>> Build(GameLoopRequest request)
         {
-            return await HttpService.Post<BuildResponse>(
-                GetEndpoint(GameLoopAction.Build,
-                request.UserID),
-                request,
-                request.ClientSessionTicket
-            );
+            return await SendRequest<BuildResponse>(GameLoopAction.Build, request);
         }
     }
 }

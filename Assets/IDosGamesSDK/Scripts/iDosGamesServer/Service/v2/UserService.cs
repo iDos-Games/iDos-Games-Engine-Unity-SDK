@@ -25,7 +25,6 @@ namespace IDosGames
             {
                 UserID = UserID,
                 ClientSessionTicket = ClientSessionTicket,
-                UsageTime = IDosGamesSDKSettings.Instance.PlayTime,
                 BuildKey = IDosGamesSDKSettings.Instance.BuildKey,
                 WebAppLink = WebSDK.webAppLink
             };
@@ -34,6 +33,8 @@ namespace IDosGames
         public static async Task<OperationResult<AuthenticationResponse>> GetUserAllData()
         {
             var request = CreateBaseRequest();
+            request.UsageTime = IDosGamesSDKSettings.Instance.PlayTime;
+
             var result = await UserAPI.GetUserAllData(request);
 
             if (result.Success)
@@ -52,7 +53,6 @@ namespace IDosGames
 
             if (result.Success)
             {
-                IDosGamesSDKSettings.Instance.PlayTime = 0;
                 OnUserInventoryLoaded?.Invoke(result.Data);
             }
 
@@ -66,7 +66,6 @@ namespace IDosGames
 
             if (result.Success)
             {
-                IDosGamesSDKSettings.Instance.PlayTime = 0;
                 OnCustomUserDataLoaded?.Invoke(result.Data);
             }
 
@@ -84,7 +83,6 @@ namespace IDosGames
 
             if (result.Success)
             {
-                IDosGamesSDKSettings.Instance.PlayTime = 0;
                 OnCustomUserDataUpdated?.Invoke(result.Data);
             }
 
@@ -102,7 +100,6 @@ namespace IDosGames
 
             if (result.Success)
             {
-                IDosGamesSDKSettings.Instance.PlayTime = 0;
                 UpdateCachedCurrencies(result.Data);
                 OnVirtualCurrencySubtracted?.Invoke(result.Data);
             }
@@ -117,7 +114,6 @@ namespace IDosGames
 
             if (result.Success)
             {
-                IDosGamesSDKSettings.Instance.PlayTime = 0;
                 OnUserAccountDeleted?.Invoke(result.Data);
             }
 

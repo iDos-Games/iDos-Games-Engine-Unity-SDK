@@ -12,16 +12,21 @@ namespace IDosGames
             return $"api/v2/{templateID}/{titleID}/Client/Lootbox/{action}/{userID}";
         }
 
+        private static async Task<OperationResult<TResponse>> SendRequest<TResponse>(LootboxAction action, LootboxRequest request)
+        {
+            return await HttpService.Post<TResponse>(
+                GetEndpoint(action, request.UserID),
+                request,
+                request.ClientSessionTicket
+            );
+        }
+
         /// <summary>
         /// Request to get the configuration of all loot boxes (prices, contents)
         /// </summary>
         public static async Task<OperationResult<LootboxDefinitionsResponse>> GetDefinitions(LootboxRequest request)
         {
-            return await HttpService.Post<LootboxDefinitionsResponse>(
-                GetEndpoint(LootboxAction.GetDefinitions, request.UserID),
-                request,
-                request.ClientSessionTicket
-            );
+            return await SendRequest<LootboxDefinitionsResponse>(LootboxAction.GetDefinitions, request);
         }
 
         /// <summary>
@@ -29,11 +34,7 @@ namespace IDosGames
         /// </summary>
         public static async Task<OperationResult<LootboxOpenResponse>> Open(LootboxRequest request)
         {
-            return await HttpService.Post<LootboxOpenResponse>(
-                GetEndpoint(LootboxAction.Open, request.UserID),
-                request,
-                request.ClientSessionTicket
-            );
+            return await SendRequest<LootboxOpenResponse>(LootboxAction.Open, request);
         }
     }
 }

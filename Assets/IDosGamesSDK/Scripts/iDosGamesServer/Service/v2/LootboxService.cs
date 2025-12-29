@@ -19,7 +19,6 @@ namespace IDosGames
             {
                 UserID = UserID,
                 ClientSessionTicket = ClientSessionTicket,
-                UsageTime = IDosGamesSDKSettings.Instance.PlayTime,
                 BuildKey = IDosGamesSDKSettings.Instance.BuildKey,
                 WebAppLink = WebSDK.webAppLink
             };
@@ -35,7 +34,6 @@ namespace IDosGames
             var result = await LootboxAPI.GetDefinitions(request);
             if (result.Success)
             {
-                IDosGamesSDKSettings.Instance.PlayTime = 0;
                 OnDefinitionsLoaded?.Invoke(result.Data);
             }
 
@@ -60,7 +58,6 @@ namespace IDosGames
 
             if (result.Success)
             {
-                IDosGamesSDKSettings.Instance.PlayTime = 0;
                 OnLootboxOpened?.Invoke(result.Data);
             }
 

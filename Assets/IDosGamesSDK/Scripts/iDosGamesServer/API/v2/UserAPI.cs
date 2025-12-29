@@ -13,58 +13,43 @@ namespace IDosGames
             return $"api/v2/{templateID}/{titleID}/Client/User/{action}/{userID}";
         }
 
-        public static async Task<OperationResult<AuthenticationResponse>> GetUserAllData(UserRequest request)
+        private static async Task<OperationResult<TResponse>> SendRequest<TResponse>(UserAction action, UserRequest request)
         {
-            return await HttpService.Post<AuthenticationResponse>(
-                GetEndpoint(UserAction.GetUserAllData, request.UserID),
+            return await HttpService.Post<TResponse>(
+                GetEndpoint(action, request.UserID),
                 request,
                 request.ClientSessionTicket
             );
+        }
+
+        public static async Task<OperationResult<AuthenticationResponse>> GetUserAllData(UserRequest request)
+        {
+            return await SendRequest<AuthenticationResponse>(UserAction.GetUserAllData, request);
         }
 
         public static async Task<OperationResult<GetUserInventoryResult>> GetUserInventory(UserRequest request)
         {
-            return await HttpService.Post<GetUserInventoryResult>(
-                GetEndpoint(UserAction.GetUserInventory, request.UserID),
-                request,
-                request.ClientSessionTicket
-            );
+            return await SendRequest<GetUserInventoryResult>(UserAction.GetUserInventory, request);
         }
 
         public static async Task<OperationResult<GetCustomUserDataResult>> GetCustomUserData(UserRequest request)
         {
-            return await HttpService.Post<GetCustomUserDataResult>(
-                GetEndpoint(UserAction.GetCustomUserData, request.UserID),
-                request,
-                request.ClientSessionTicket
-            );
+            return await SendRequest<GetCustomUserDataResult>(UserAction.GetCustomUserData, request);
         }
 
         public static async Task<OperationResult<SuccessResponse>> UpdateCustomUserData(UserRequest request)
         {
-            return await HttpService.Post<SuccessResponse>(
-                GetEndpoint(UserAction.UpdateCustomUserData, request.UserID),
-                request,
-                request.ClientSessionTicket
-            );
+            return await SendRequest<SuccessResponse>(UserAction.UpdateCustomUserData, request);
         }
 
         public static async Task<OperationResult<CurrencyUpdateResponse>> SubtractVirtualCurrency(UserRequest request)
         {
-            return await HttpService.Post<CurrencyUpdateResponse>(
-                GetEndpoint(UserAction.SubtractVirtualCurrency, request.UserID),
-                request,
-                request.ClientSessionTicket
-            );
+            return await SendRequest<CurrencyUpdateResponse>(UserAction.SubtractVirtualCurrency, request);
         }
 
         public static async Task<OperationResult<SuccessResponse>> DeleteUserAccount(UserRequest request)
         {
-            return await HttpService.Post<SuccessResponse>(
-                GetEndpoint(UserAction.DeleteUserAccount, request.UserID),
-                request,
-                request.ClientSessionTicket
-            );
+            return await SendRequest<SuccessResponse>(UserAction.DeleteUserAccount, request);
         }
     }
 }

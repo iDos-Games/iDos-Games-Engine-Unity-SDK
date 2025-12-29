@@ -6,7 +6,7 @@ namespace IDosGames
     {
         public void Test()
         {
-            
+            //_ = TitleService.GetServerTime();
         }
 
         public void SaveValueToServer()
