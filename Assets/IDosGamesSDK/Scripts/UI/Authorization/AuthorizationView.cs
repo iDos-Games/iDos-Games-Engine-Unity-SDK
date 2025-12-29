@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -67,10 +68,14 @@ namespace IDosGames
 #endif
 		}
 
-		public void DeleteTitlePlayerAccount()
+		public async Task DeleteTitlePlayerAccountAsync()
 		{
-			AuthService.Instance.DeleteTitlePlayerAccount(OnSuccessDeleteTitlePlayerAccount);
-		}
+            var result = await UserService.DeleteUserAccount();
+			if (result.Success)
+			{
+				OnSuccessDeleteTitlePlayerAccount();
+            }
+        }
 
 		private void OnSuccessDeleteTitlePlayerAccount()
 		{

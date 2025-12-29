@@ -347,17 +347,6 @@ namespace IDosGames
             }
         }
 
-        public void DeleteTitlePlayerAccount(Action resultCallback = null)
-        {
-            /*
-            IGServerAPI.ExecuteFunction(
-                functionName: CloudFunctionName.DELETE_TITLE_PLAYER_ACCOUNT,
-                resultCallback: (result) => resultCallback?.Invoke(),
-                notConnectionErrorCallback: ShowErrorMessage
-                );
-            */
-        }
-
         private void SetCredentials(AuthenticationResponse result)
         {
             UserID = result.AuthContext.UserID;

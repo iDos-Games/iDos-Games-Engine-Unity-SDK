@@ -1,8 +1,6 @@
 using IDosGames.TitlePublicConfiguration;
-using Newtonsoft.Json.Linq;
 using UnityEngine;
 using UnityEngine.UI;
-
 
 namespace IDosGames.UserProfile
 {
@@ -43,7 +41,6 @@ namespace IDosGames.UserProfile
         private void OnEnable()
         {
             _closeButton.onClick.AddListener(TryCLoseRoom);
-            UserDataService.ClientModifyCustomUserDataUpdated += OnCustomUpdated;
             _userAvatar.OnEquippedAvatarSkin += OnEquipSkin;
             _userAvatar.OnUnequippedAvatarSkin += OnUnequipSkin;
             _userAvatar.OnInspectAvatarSkin += OnSkinInspect;
@@ -52,7 +49,6 @@ namespace IDosGames.UserProfile
         private void OnDisable()
         {
             _closeButton.onClick.RemoveAllListeners();
-            UserDataService.ClientModifyCustomUserDataUpdated -= OnCustomUpdated;
             _userAvatar.OnEquippedAvatarSkin -= OnEquipSkin;
             _userAvatar.OnUnequippedAvatarSkin -= OnUnequipSkin;
             _userAvatar.OnInspectAvatarSkin -= OnSkinInspect;

@@ -7,13 +7,25 @@ namespace IDosGames
 {
     public static class RewardService
     {
-        public static event Action<RewardClaimResponse> OnClaimSuccess;
+        public static event Action<RewardResponse> OnClaimSuccess;
 
         private static IGSAuthenticationContext Ctx => AuthService.GetAuthContext();
         private static string UserID => Ctx.UserID;
         private static string ClientSessionTicket => Ctx.ClientSessionTicket;
 
-        public static async Task<OperationResult<RewardClaimResponse>> Claim(
+        private static RewardRequest CreateBaseRequest()
+        {
+            return new RewardRequest
+            {
+                UserID = UserID,
+                ClientSessionTicket = ClientSessionTicket,
+                UsageTime = IDosGamesSDKSettings.Instance.PlayTime,
+                BuildKey = IDosGamesSDKSettings.Instance.BuildKey,
+                WebAppLink = WebSDK.webAppLink
+            };
+        }
+
+        public static async Task<OperationResult<RewardResponse>> Claim(
             string currencyId,
             int baseValue,
             float multiplier = 1,
@@ -21,20 +33,13 @@ namespace IDosGames
             bool includeReferral = false
             )
         {
-            var request = new RewardClaimRequest
-            {
-                UserID = UserID,
-                ClientSessionTicket = ClientSessionTicket,
-                UsageTime = IDosGamesSDKSettings.Instance.PlayTime,
-                BuildKey = IDosGamesSDKSettings.Instance.BuildKey,
-                WebAppLink = WebSDK.webAppLink,
+            var request = CreateBaseRequest();
 
-                RewardCurrencyId = currencyId,
-                BaseValue = baseValue,
-                Multiplier = multiplier,
-                IncludeReferral = includeReferral,
-                Points = points
-            };
+            request.RewardCurrencyID = currencyId;
+            request.BaseValue = baseValue;
+            request.Multiplier = multiplier;
+            request.Points = points;
+            request.IncludeReferral = includeReferral;
 
             var result = await RewardAPI.Claim(request);
 
@@ -48,7 +53,7 @@ namespace IDosGames
             return result;
         }
 
-        public static async Task<OperationResult<RewardClaimResponse>> ClaimVip(
+        public static async Task<OperationResult<RewardResponse>> ClaimVip(
             string currencyId,
             int baseValue,
             float multiplier = 1,
@@ -56,20 +61,13 @@ namespace IDosGames
             bool includeReferral = false
             )
         {
-            var request = new RewardClaimRequest
-            {
-                UserID = UserID,
-                ClientSessionTicket = ClientSessionTicket,
-                UsageTime = IDosGamesSDKSettings.Instance.PlayTime,
-                BuildKey = IDosGamesSDKSettings.Instance.BuildKey,
-                WebAppLink = WebSDK.webAppLink,
+            var request = CreateBaseRequest();
 
-                RewardCurrencyId = currencyId,
-                BaseValue = baseValue,
-                Multiplier = multiplier,
-                IncludeReferral = includeReferral,
-                Points = points
-            };
+            request.RewardCurrencyID = currencyId;
+            request.BaseValue = baseValue;
+            request.Multiplier = multiplier;
+            request.Points = points;
+            request.IncludeReferral = includeReferral;
 
             var result = await RewardAPI.ClaimVip(request);
 
@@ -83,7 +81,7 @@ namespace IDosGames
             return result;
         }
 
-        public static async Task<OperationResult<RewardClaimResponse>> ClaimItemProfit(
+        public static async Task<OperationResult<RewardResponse>> ClaimItemProfit(
             string currencyId,
             int baseValue,
             float multiplier = 1,
@@ -91,20 +89,13 @@ namespace IDosGames
             bool includeReferral = false
             )
         {
-            var request = new RewardClaimRequest
-            {
-                UserID = UserID,
-                ClientSessionTicket = ClientSessionTicket,
-                UsageTime = IDosGamesSDKSettings.Instance.PlayTime,
-                BuildKey = IDosGamesSDKSettings.Instance.BuildKey,
-                WebAppLink = WebSDK.webAppLink,
+            var request = CreateBaseRequest();
 
-                RewardCurrencyId = currencyId,
-                BaseValue = baseValue,
-                Multiplier = multiplier,
-                IncludeReferral = includeReferral,
-                Points = points
-            };
+            request.RewardCurrencyID = currencyId;
+            request.BaseValue = baseValue;
+            request.Multiplier = multiplier;
+            request.Points = points;
+            request.IncludeReferral = includeReferral;
 
             var result = await RewardAPI.ClaimItemProfit(request);
 
@@ -118,7 +109,7 @@ namespace IDosGames
             return result;
         }
 
-        private static void UpdateCachedCurrencies(RewardClaimResponse response)
+        private static void UpdateCachedCurrencies(RewardResponse response)
         {
             if (response == null) return;
 
@@ -127,8 +118,8 @@ namespace IDosGames
 
             inv.VirtualCurrency ??= new Dictionary<string, int>();
 
-            if (!string.IsNullOrEmpty(response.RewardCurrencyId)) inv.VirtualCurrency[response.RewardCurrencyId] = response.RewardBalanceNew;
-            if (!string.IsNullOrEmpty(response.LimitCurrencyId)) inv.VirtualCurrency[response.LimitCurrencyId] = response.LimitBalanceNew;
+            if (!string.IsNullOrEmpty(response.RewardCurrencyID)) inv.VirtualCurrency[response.RewardCurrencyID] = response.RewardBalanceNew;
+            if (!string.IsNullOrEmpty(response.LimitCurrencyID)) inv.VirtualCurrency[response.LimitCurrencyID] = response.LimitBalanceNew;
 
             UserDataService.VirtualCurrencyUpdatedInvoke();
         }

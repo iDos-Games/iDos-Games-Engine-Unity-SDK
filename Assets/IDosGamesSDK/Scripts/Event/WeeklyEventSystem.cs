@@ -45,7 +45,7 @@ namespace IDosGames
             RewardService.OnClaimSuccess -= OnRewardClaimSuccess;
         }
 
-        private void OnRewardClaimSuccess(RewardClaimResponse resp)
+        private void OnRewardClaimSuccess(RewardResponse resp)
         {
             if (resp == null || resp.PointsAdded <= 0) return;
 

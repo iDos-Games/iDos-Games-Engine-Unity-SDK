@@ -13,19 +13,24 @@ namespace IDosGames
         private static string UserID => Ctx.UserID;
         private static string ClientSessionTicket => Ctx.ClientSessionTicket;
 
-        /// <summary>
-        /// Get a list of available loot boxes
-        /// </summary>
-        public static async Task<OperationResult<LootboxDefinitionsResponse>> GetDefinitions()
+        private static LootboxRequest CreateBaseRequest()
         {
-            var request = new LootboxRequest()
+            return new LootboxRequest
             {
                 UserID = UserID,
                 ClientSessionTicket = ClientSessionTicket,
                 UsageTime = IDosGamesSDKSettings.Instance.PlayTime,
                 BuildKey = IDosGamesSDKSettings.Instance.BuildKey,
-                WebAppLink = WebSDK.webAppLink,
+                WebAppLink = WebSDK.webAppLink
             };
+        }
+
+        /// <summary>
+        /// Get a list of available loot boxes
+        /// </summary>
+        public static async Task<OperationResult<LootboxDefinitionsResponse>> GetDefinitions()
+        {
+            var request = CreateBaseRequest();
 
             var result = await LootboxAPI.GetDefinitions(request);
             if (result.Success)
@@ -45,18 +50,11 @@ namespace IDosGames
         /// <param name="count">Number of openings</param>
         public static async Task<OperationResult<LootboxOpenResponse>> Open(string lootboxId, int selectedOptionId, int count = 1)
         {
-            var request = new LootboxRequest
-            {
-                UserID = UserID,
-                ClientSessionTicket = ClientSessionTicket,
-                UsageTime = IDosGamesSDKSettings.Instance.PlayTime,
-                BuildKey = IDosGamesSDKSettings.Instance.BuildKey,
-                WebAppLink = WebSDK.webAppLink,
+            var request = CreateBaseRequest();
 
-                LootboxID = lootboxId,
-                SelectedOptionID = selectedOptionId,
-                Count = count
-            };
+            request.LootboxID = lootboxId;
+            request.SelectedOptionID = selectedOptionId;
+            request.Count = count;
 
             var result = await LootboxAPI.Open(request);
 

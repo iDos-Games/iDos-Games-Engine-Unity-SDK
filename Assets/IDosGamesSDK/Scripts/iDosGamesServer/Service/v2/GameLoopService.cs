@@ -15,19 +15,24 @@ namespace IDosGames
         private static string UserID => Ctx.UserID;
         private static string ClientSessionTicket => Ctx.ClientSessionTicket;
 
-        public static async Task<OperationResult<SpinResponse>> Spin(string lootboxId, int multiplier)
+        private static GameLoopRequest CreateBaseRequest()
         {
-            var request = new GameLoopRequest()
+            return new GameLoopRequest
             {
                 UserID = UserID,
                 ClientSessionTicket = ClientSessionTicket,
                 UsageTime = IDosGamesSDKSettings.Instance.PlayTime,
                 BuildKey = IDosGamesSDKSettings.Instance.BuildKey,
-                WebAppLink = WebSDK.webAppLink,
-
-                LootboxID = lootboxId,
-                Multiplier = multiplier,
+                WebAppLink = WebSDK.webAppLink
             };
+        }
+
+        public static async Task<OperationResult<SpinResponse>> Spin(string lootboxId, int multiplier)
+        {
+            var request = CreateBaseRequest();
+
+            request.LootboxID = lootboxId;
+            request.Multiplier = multiplier;
 
             var result = await GameLoopAPI.Spin(request);
             if (result.Success)
@@ -41,16 +46,9 @@ namespace IDosGames
 
         public static async Task<OperationResult<AttackResponse>> Attack(string targetUserId)
         {
-            var request = new GameLoopRequest()
-            {
-                UserID = UserID,
-                ClientSessionTicket = ClientSessionTicket,
-                UsageTime = IDosGamesSDKSettings.Instance.PlayTime,
-                BuildKey = IDosGamesSDKSettings.Instance.BuildKey,
-                WebAppLink = WebSDK.webAppLink,
+            var request = CreateBaseRequest();
 
-                TargetUserID = targetUserId,
-            };
+            request.TargetUserID = targetUserId;
 
             var result = await GameLoopAPI.Attack(request);
             if (result.Success)
@@ -64,16 +62,9 @@ namespace IDosGames
 
         public static async Task<OperationResult<RaidResponse>> Raid(int digIndex)
         {
-            var request = new GameLoopRequest()
-            {
-                UserID = UserID,
-                ClientSessionTicket = ClientSessionTicket,
-                UsageTime = IDosGamesSDKSettings.Instance.PlayTime,
-                BuildKey = IDosGamesSDKSettings.Instance.BuildKey,
-                WebAppLink = WebSDK.webAppLink,
+            var request = CreateBaseRequest();
 
-                DigIndex = digIndex,
-            };
+            request.DigIndex = digIndex;
 
             var result = await GameLoopAPI.Raid(request);
             if (result.Success)
@@ -87,16 +78,9 @@ namespace IDosGames
 
         public static async Task<OperationResult<BuildResponse>> Build(int buildingIndex)
         {
-            var request = new GameLoopRequest()
-            {
-                UserID = UserID,
-                ClientSessionTicket = ClientSessionTicket,
-                UsageTime = IDosGamesSDKSettings.Instance.PlayTime,
-                BuildKey = IDosGamesSDKSettings.Instance.BuildKey,
-                WebAppLink = WebSDK.webAppLink,
+            var request = CreateBaseRequest();
 
-                BuildingIndex = buildingIndex,
-            };
+            request.BuildingIndex = buildingIndex;
 
             var result = await GameLoopAPI.Build(request);
             if (result.Success)

@@ -7,9 +7,9 @@ namespace IDosGames.ServerModels
     // =================================================================================
 
     [Serializable]
-    public class RewardClaimRequest : IGSRequest
+    public class RewardRequest : IGSRequest
     {
-        public string RewardCurrencyId; // "CO" or "IG"
+        public string RewardCurrencyID; // "CO" or "IG"
         public int BaseValue;           // Base value of the reward
         public float Multiplier = 1;    // Multiplier (1, 3, 5)
         public bool IncludeReferral;    // Should referrals be credited (for CO)
@@ -21,13 +21,13 @@ namespace IDosGames.ServerModels
     // =================================================================================
 
     [Serializable]
-    public class RewardClaimResponse
+    public class RewardResponse
     {
-        public string RewardCurrencyId; // "CO" / "IG"
+        public string RewardCurrencyID; // "CO" / "IG"
         public int RewardGranted;       // How much was accrued
         public int RewardBalanceNew;    // New reward balance
 
-        public string LimitCurrencyId;  // "CL" / "TL"
+        public string LimitCurrencyID;  // "CL" / "TL"
         public int LimitSpent;          // How much of the limit was written off
         public int LimitBalanceNew;     // New balance limit
 

@@ -35,9 +35,10 @@ namespace IDosGames.ClientModels
     [Serializable]
     public class VirtualCurrencyRechargeTime : IGSBaseModel
     {
-        public int RechargeMax;
-        public DateTime RechargeTime;
-        public int SecondsToRecharge;
+        public int RechargeMax { get; set; }
+        public DateTime RechargeTime { get; set; }
+        public int RechargePeriod { get; set; }
+        public int RechargeRate { get; set; }
     }
 
     [Serializable]

@@ -36,8 +36,6 @@ namespace IDosGames
         public static event Action EquippedSkinsUpdated;
         public static event Action VirtualCurrencyUpdated;
 
-        public static event Action<string, CustomUpdateResult> ClientModifyCustomUserDataUpdated;
-
         public static IReadOnlyList<SkinCatalogItem> AllSkinsInCatalog => _allSkinsInCatalog.AsReadOnly();
 
         public static IReadOnlyList<BigInteger> NFTIDs => _nftIDs.AsReadOnly();
@@ -363,46 +361,7 @@ namespace IDosGames
 
         public static void UpdateCustomUserData(string key, object data)
         {
-            FunctionParameters parameter = new()
-            {
-                Key = key,
-                Value = data
-            };
-
-            if (IDosGamesSDKSettings.Instance.DebugLogging)
-            {
-                Debug.Log(JsonConvert.SerializeObject(parameter));
-            }
-
-            _ = IGSClientAPI.ExecuteFunction(
-
-                functionName: ServerFunctionHandlers.UpdateCustomUserData,
-                resultCallback: (result) => OnUpdateCustomUserData(result, key),
-                notConnectionErrorCallback: (error) => OnErrorUpdateCustomData(),
-                connectionErrorCallback: () => UpdateCustomUserData(key, data),
-                functionParameter: parameter
-                );
-        }
-
-        private static void OnUpdateCustomUserData(string result, string key)
-        {
-            if (result != null)
-            {
-
-                JObject resultData = JsonConvert.DeserializeObject<JObject>(result);
-                if (resultData[JsonProperty.MESSAGE_KEY] != null && resultData[JsonProperty.MESSAGE_KEY].ToString() == "SUCCESS")
-                {
-                    ClientModifyCustomUserDataUpdated?.Invoke(key, CustomUpdateResult.SUCCESS);
-                }
-                else if (resultData[JsonProperty.MESSAGE_KEY] != null && resultData[JsonProperty.MESSAGE_KEY].ToString() == "MESSAGE_CODE_INCORECT_KEY")
-                {
-                    ClientModifyCustomUserDataUpdated?.Invoke(key, CustomUpdateResult.INCORECT_KEY);
-                }
-                else if (resultData[JsonProperty.MESSAGE_KEY] != null && resultData[JsonProperty.MESSAGE_KEY].ToString() == "MESSAGE_CODE_INCORECT_ARGS")
-                {
-                    ClientModifyCustomUserDataUpdated?.Invoke(key, CustomUpdateResult.INCIRCT_ARGS);
-                }
-            }
+            _ = UserService.UpdateCustomUserData(key, data);
         }
 
         public static async Task ValidateVIPSubscription(string receipt = null)
@@ -759,11 +718,6 @@ namespace IDosGames
         private static void OnErrorUpdateEquippedSkins()
         {
             Message.Show(MessageCode.FAILED_TO_UPDATE_EQUIPPED_SKINS);
-        }
-
-        private static void OnErrorUpdateCustomData()
-        {
-            Message.Show(MessageCode.FAILED_TO_LOAD_DATA);
         }
 
         private static void OnAllDataRequestError(string error)
