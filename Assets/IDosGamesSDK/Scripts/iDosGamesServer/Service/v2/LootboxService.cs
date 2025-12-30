@@ -6,7 +6,7 @@ namespace IDosGames
 {
     public static class LootboxService
     {
-        public static event Action<LootboxDefinitionsResponse> OnDefinitionsLoaded;
+        public static event Action<LootboxDefinitionsResponse> OnDefinitionsReceived;
         public static event Action<LootboxOpenResponse> OnLootboxOpened;
 
         private static IGSAuthenticationContext Ctx => AuthService.GetAuthContext();
@@ -34,7 +34,7 @@ namespace IDosGames
             var result = await LootboxAPI.GetDefinitions(request);
             if (result.Success)
             {
-                OnDefinitionsLoaded?.Invoke(result.Data);
+                OnDefinitionsReceived?.Invoke(result.Data);
             }
 
             return result;

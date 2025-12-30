@@ -8,12 +8,13 @@ namespace IDosGames
 {
     public static class UserService
     {
-        public static event Action<AuthenticationResponse> OnUserAllDataLoaded;
-        public static event Action<GetUserInventoryResult> OnUserInventoryLoaded;
-        public static event Action<GetCustomUserDataResult> OnCustomUserDataLoaded;
+        public static event Action<AuthenticationResponse> OnUserAllDataReceived;
+        public static event Action<GetUserInventoryResult> OnUserInventoryReceived;
+        public static event Action<GetCustomUserDataResult> OnCustomUserDataReceived;
         public static event Action<SuccessResponse> OnCustomUserDataUpdated;
         public static event Action<CurrencyUpdateResponse> OnVirtualCurrencySubtracted;
         public static event Action<SuccessResponse> OnUserAccountDeleted;
+        public static event Action<UsageTimeStats> OnUsageTimeReceived;
 
         private static IGSAuthenticationContext Ctx => AuthService.GetAuthContext();
         private static string UserID => Ctx.UserID;
@@ -40,7 +41,7 @@ namespace IDosGames
             if (result.Success)
             {
                 IDosGamesSDKSettings.Instance.PlayTime = 0;
-                OnUserAllDataLoaded?.Invoke(result.Data);
+                OnUserAllDataReceived?.Invoke(result.Data);
             }
 
             return result;
@@ -53,7 +54,7 @@ namespace IDosGames
 
             if (result.Success)
             {
-                OnUserInventoryLoaded?.Invoke(result.Data);
+                OnUserInventoryReceived?.Invoke(result.Data);
             }
 
             return result;
@@ -66,7 +67,7 @@ namespace IDosGames
 
             if (result.Success)
             {
-                OnCustomUserDataLoaded?.Invoke(result.Data);
+                OnCustomUserDataReceived?.Invoke(result.Data);
             }
 
             return result;
@@ -115,6 +116,36 @@ namespace IDosGames
             if (result.Success)
             {
                 OnUserAccountDeleted?.Invoke(result.Data);
+            }
+
+            return result;
+        }
+
+        public static async Task<OperationResult<UsageTimeStats>> GetUsageTime()
+        {
+            var request = CreateBaseRequest();
+
+            var result = await UserAPI.GetUsageTime(request);
+
+            if (result.Success)
+            {
+                OnUsageTimeReceived?.Invoke(result.Data);
+            }
+
+            return result;
+        }
+
+        public static async Task<OperationResult<UsageTimeStats>> AddUsageTime()
+        {
+            var request = CreateBaseRequest();
+            request.UsageTime = IDosGamesSDKSettings.Instance.PlayTime;
+
+            var result = await UserAPI.AddUsageTime(request);
+
+            if (result.Success)
+            {
+                IDosGamesSDKSettings.Instance.PlayTime = 0;
+                OnUsageTimeReceived?.Invoke(result.Data);
             }
 
             return result;

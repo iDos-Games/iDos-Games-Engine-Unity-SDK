@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace IDosGames.ServerModels
 {
@@ -17,6 +18,16 @@ namespace IDosGames.ServerModels
         public int NewBalance { get; set; }
     }
 
+    public class UsageTimeStats
+    {
+        public int Today { get; set; }
+        public int Yesterday { get; set; }
+        public int CurrentWeek { get; set; }
+        public int CurrentMonth { get; set; }
+        public long Total { get; set; }
+        public Dictionary<DateTime, int> History { get; set; }
+    }
+
     public enum UserAction
     {
         GetUserAllData,
@@ -25,5 +36,7 @@ namespace IDosGames.ServerModels
         UpdateCustomUserData,
         SubtractVirtualCurrency,
         DeleteUserAccount,
+        GetUsageTime,
+        AddUsageTime,
     }
 }

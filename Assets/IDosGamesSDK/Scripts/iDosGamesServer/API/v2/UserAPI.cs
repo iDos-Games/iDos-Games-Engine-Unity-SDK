@@ -51,5 +51,15 @@ namespace IDosGames
         {
             return await SendRequest<SuccessResponse>(UserAction.DeleteUserAccount, request);
         }
+
+        public static async Task<OperationResult<UsageTimeStats>> GetUsageTime(UserRequest request)
+        {
+            return await SendRequest<UsageTimeStats>(UserAction.GetUsageTime, request);
+        }
+
+        public static async Task<OperationResult<UsageTimeStats>> AddUsageTime(UserRequest request)
+        {
+            return await SendRequest<UsageTimeStats>(UserAction.AddUsageTime, request);
+        }
     }
 }

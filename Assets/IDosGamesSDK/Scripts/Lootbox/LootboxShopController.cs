@@ -15,13 +15,13 @@ namespace IDosGames
         private void OnEnable()
         {
             // Так как мы в одном namespace, LootboxService доступен напрямую
-            LootboxService.OnDefinitionsLoaded += OnDefinitionsLoaded;
+            LootboxService.OnDefinitionsReceived += OnDefinitionsLoaded;
             LootboxService.OnLootboxOpened += OnLootboxOpened;
         }
 
         private void OnDisable()
         {
-            LootboxService.OnDefinitionsLoaded -= OnDefinitionsLoaded;
+            LootboxService.OnDefinitionsReceived -= OnDefinitionsLoaded;
             LootboxService.OnLootboxOpened -= OnLootboxOpened;
         }
 
