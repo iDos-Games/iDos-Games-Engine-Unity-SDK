@@ -1,76 +1,51 @@
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
-using System.Collections.Generic;
 using IDosGames.ServerModels;
-using IDosGames.TitlePublicConfiguration;
 
-namespace IDosGames
+namespace IDosGames.UI
 {
     public class LootboxRewardWindow : MonoBehaviour
     {
         [Header("References")]
-        [SerializeField] private GameObject _windowRoot;
-        [SerializeField] private Transform _itemsContainer;
-        [SerializeField] private GameObject _rewardItemPrefab; // Префаб с иконкой и текстом
-        [SerializeField] private Button _closeButton;
+        public GameObject WindowRoot;
+        public Transform GridContainer;
+        public LootboxRewardView RewardItemPrefab;
+        public Button CloseButton;
 
         private void Awake()
         {
-            if (_closeButton) _closeButton.onClick.AddListener(Close);
-            if (_windowRoot) _windowRoot.SetActive(false);
+            LootboxService.OnLootboxOpened += ShowRewards;
+
+            if (CloseButton) CloseButton.onClick.AddListener(CloseWindow);
+            if (WindowRoot) WindowRoot.SetActive(false);
         }
 
-        public void Show(LootboxOpenResponse result)
+        private void OnDestroy()
         {
-            // Очищаем старые иконки
-            foreach (Transform child in _itemsContainer)
-                Destroy(child.gameObject);
+            LootboxService.OnLootboxOpened -= ShowRewards;
+        }
 
-            // Агрегируем награды (суммируем одинаковые)
-            Dictionary<string, int> aggregatedRewards = new Dictionary<string, int>();
+        private void ShowRewards(LootboxOpenResponse response)
+        {
+            if (response == null || response.Results == null) return;
 
-            if (result.Results != null)
+            foreach (Transform child in GridContainer) Destroy(child.gameObject);
+
+            foreach (var sessionList in response.Results)
             {
-                foreach (var boxContent in result.Results)
+                foreach (var reward in sessionList)
                 {
-                    foreach (var reward in boxContent)
-                    {
-                        string id = (reward.Type == ItemType.VirtualCurrency) ? reward.CurrencyID : reward.ItemID;
-                        int amount = reward.Amount ?? 1;
-
-                        if (aggregatedRewards.ContainsKey(id))
-                            aggregatedRewards[id] += amount;
-                        else
-                            aggregatedRewards[id] = amount;
-                    }
+                    var item = Instantiate(RewardItemPrefab, GridContainer);
+                    item.Setup(reward);
                 }
             }
 
-            // Создаем визуальные элементы
-            foreach (var kvp in aggregatedRewards)
-            {
-                CreateRewardIcon(kvp.Key, kvp.Value);
-            }
-
-            _windowRoot.SetActive(true);
+            if (WindowRoot) WindowRoot.SetActive(true);
         }
 
-        private void CreateRewardIcon(string id, int amount)
+        private void CloseWindow()
         {
-            var go = Instantiate(_rewardItemPrefab, _itemsContainer);
-
-            // Находим текст в префабе (предполагаем, что он там есть)
-            var text = go.GetComponentInChildren<TextMeshProUGUI>();
-            if (text)
-                text.text = $"{id}\nx{amount}";
-
-            // Здесь можно добавить логику загрузки иконки по ID
-        }
-
-        private void Close()
-        {
-            _windowRoot.SetActive(false);
+            if (WindowRoot) WindowRoot.SetActive(false);
         }
     }
 }
