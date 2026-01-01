@@ -6,7 +6,7 @@ namespace IDosGames
     {
         public void Test()
         {
-            //_ = TitleService.GetServerTime();
+            _ = CharacterService.UpgradeStatLevel("Health");
         }
 
         public void SaveValueToServer()

@@ -414,7 +414,7 @@ namespace IDosGames.TitlePublicConfiguration
 
     public class StatDefinition
     {
-        public string StatId { get; set; }
+        public string StatID { get; set; }
         public int MaxLevel { get; set; }
         public int Weight { get; set; }
         public string BaseCostCurrencyID { get; set; }
@@ -430,7 +430,7 @@ namespace IDosGames.TitlePublicConfiguration
 
     public class StatRequirement
     {
-        public string RequiredStatId { get; set; }
+        public string RequiredStatID { get; set; }
         public int RequiredLevel { get; set; }
     }
 
