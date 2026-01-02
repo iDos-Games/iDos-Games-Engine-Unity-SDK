@@ -6,7 +6,7 @@ namespace IDosGames
     {
         public void Test()
         {
-            _ = CharacterService.UpgradeStatLevel("Health");
+            _ = UserService.TransferVirtualCurrency("SS", "BO", 1);
         }
 
         public void SaveValueToServer()

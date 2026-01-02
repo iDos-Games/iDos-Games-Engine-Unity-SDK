@@ -34,8 +34,10 @@ namespace IDosGames.TitlePublicConfiguration
         public List<AiCustomSetting> AiCustomSettings { get; set; }
         public Dictionary<string, string> ImageData { get; set; }
         public Dictionary<string, string> AssetBundle { get; set; }
-        public List<StatDefinition> StatDefinitions { get; set; }
+        public CharacterDefinitions CharacterDefinitions { get; set; }
         public List<LootboxDefinition> LootboxDefinitions { get; set; }
+        public List<DailyRewardsDefinition> DailyRewardsDefinitions { get; set; }
+        public List<CurrencyTransferPair> AllowedCurrencyTransferPairs { get; set; }
     }
 
     public class AiCustomSetting
@@ -412,6 +414,14 @@ namespace IDosGames.TitlePublicConfiguration
         public List<DateTime> FirstEndTime { get; set; }
     }
 
+    public class CharacterDefinitions
+    {
+        public List<string> AllowedCharacterIDs { get; set; }
+        public List<string> AllowedEquipmentSlotIDs { get; set; }
+        public List<StatDefinition> StatDefinitions { get; set; }
+        public List<CharacterLevelDefinition> LevelDefinitions { get; set; }
+    }
+
     public class StatDefinition
     {
         public string StatID { get; set; }
@@ -432,6 +442,14 @@ namespace IDosGames.TitlePublicConfiguration
     {
         public string RequiredStatID { get; set; }
         public int RequiredLevel { get; set; }
+    }
+
+    public class CharacterLevelDefinition
+    {
+        public int Level { get; set; } // 1, 2, 3...
+        public List<ItemOrCurrency> UpgradeCost { get; set; } // The price of transition to this level
+        public float GlobalStatMultiplier { get; set; } = 1.0f; // Global Stat Boost (Strength)
+        public float StatMaxLevelMultiplier { get; set; } // Multiplied by MaxLevel from StatDefinition. Must be greater than 1 to increase MaxLevel.
     }
 
     public class LootboxDefinition
@@ -458,5 +476,27 @@ namespace IDosGames.TitlePublicConfiguration
     {
         public ItemOrCurrency Item { get; set; }
         public int Weight { get; set; }
+    }
+
+    public class DailyRewardsDefinition
+    {
+        public string CalendarID { get; set; }
+        public string Description { get; set; }
+        public List<DailyRewardDay> Days { get; set; }
+        public bool IsLooping { get; set; } = true;
+        public bool IsVipOnly { get; set; } = false;
+    }
+
+    public class DailyRewardDay
+    {
+        public int DayNumber { get; set; }
+        public List<ItemOrCurrency> Rewards { get; set; }
+        public bool IsMilestone { get; set; } = false;
+    }
+
+    public class CurrencyTransferPair
+    {
+        public string FromCurrencyID { get; set; }
+        public string ToCurrencyID { get; set; }
     }
 }

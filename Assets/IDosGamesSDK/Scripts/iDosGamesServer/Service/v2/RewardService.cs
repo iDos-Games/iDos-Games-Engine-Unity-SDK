@@ -2,12 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using IDosGames.ServerModels;
+using IDosGames.TitlePublicConfiguration;
 
 namespace IDosGames
 {
     public static class RewardService
     {
         public static event Action<RewardResponse> OnClaimSuccess;
+        public static event Action<ClaimDailyRewardResponse> OnClaimDailyRewardSuccess;
+        public static event Action<List<DailyRewardsDefinition>> OnDailyRewardsDefinitionsReceived;
 
         private static IGSAuthenticationContext Ctx => AuthService.GetAuthContext();
         private static string UserID => Ctx.UserID;
@@ -19,10 +22,38 @@ namespace IDosGames
             {
                 UserID = UserID,
                 ClientSessionTicket = ClientSessionTicket,
-                UsageTime = IDosGamesSDKSettings.Instance.PlayTime,
                 BuildKey = IDosGamesSDKSettings.Instance.BuildKey,
                 WebAppLink = WebSDK.webAppLink
             };
+        }
+
+        public static async Task<OperationResult<List<DailyRewardsDefinition>>> GetDailyRewardsDefinitions()
+        {
+            var request = CreateBaseRequest();
+
+            var result = await RewardAPI.GetDailyRewardsDefinitions(request);
+
+            if (result.Success)
+            {
+                OnDailyRewardsDefinitionsReceived?.Invoke(result.Data);
+            }
+
+            return result;
+        }
+
+        public static async Task<OperationResult<ClaimDailyRewardResponse>> ClaimDailyReward(string calendarId = null)
+        {
+            var request = CreateBaseRequest();
+            request.CalendarID = calendarId;
+
+            var result = await RewardAPI.ClaimDailyReward(request);
+
+            if (result.Success)
+            {
+                OnClaimDailyRewardSuccess?.Invoke(result.Data);
+            }
+
+            return result;
         }
 
         public static async Task<OperationResult<RewardResponse>> Claim(
@@ -34,6 +65,7 @@ namespace IDosGames
             )
         {
             var request = CreateBaseRequest();
+            request.UsageTime = IDosGamesSDKSettings.Instance.PlayTime;
 
             request.RewardCurrencyID = currencyId;
             request.BaseValue = baseValue;
@@ -62,6 +94,7 @@ namespace IDosGames
             )
         {
             var request = CreateBaseRequest();
+            request.UsageTime = IDosGamesSDKSettings.Instance.PlayTime;
 
             request.RewardCurrencyID = currencyId;
             request.BaseValue = baseValue;
@@ -90,6 +123,7 @@ namespace IDosGames
             )
         {
             var request = CreateBaseRequest();
+            request.UsageTime = IDosGamesSDKSettings.Instance.PlayTime;
 
             request.RewardCurrencyID = currencyId;
             request.BaseValue = baseValue;

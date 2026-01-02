@@ -47,6 +47,11 @@ namespace IDosGames
             return await SendRequest<CurrencyUpdateResponse>(UserAction.SubtractVirtualCurrency, request);
         }
 
+        public static async Task<OperationResult<CurrencyTransferResponse>> TransferVirtualCurrency(UserRequest request)
+        {
+            return await SendRequest<CurrencyTransferResponse>(UserAction.TransferVirtualCurrency, request);
+        }
+
         public static async Task<OperationResult<SuccessResponse>> DeleteUserAccount(UserRequest request)
         {
             return await SendRequest<SuccessResponse>(UserAction.DeleteUserAccount, request);

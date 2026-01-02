@@ -46,5 +46,10 @@ namespace IDosGames
         {
             return await SendRequest<UpgradeStatLevelResponse>(CharacterAction.UpgradeStatLevel, request);
         }
+
+        public static async Task<OperationResult<UpgradeCharacterLevelResponse>> UpgradeCharacterLevel(CharacterRequest request)
+        {
+            return await SendRequest<UpgradeCharacterLevelResponse>(CharacterAction.UpgradeCharacterLevel, request);
+        }
     }
 }

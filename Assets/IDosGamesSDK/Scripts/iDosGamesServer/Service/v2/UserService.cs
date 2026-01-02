@@ -13,6 +13,7 @@ namespace IDosGames
         public static event Action<GetCustomUserDataResult> OnCustomUserDataReceived;
         public static event Action<SuccessResponse> OnCustomUserDataUpdated;
         public static event Action<CurrencyUpdateResponse> OnVirtualCurrencySubtracted;
+        public static event Action<CurrencyTransferResponse> OnVirtualCurrencyTransfered;
         public static event Action<SuccessResponse> OnUserAccountDeleted;
         public static event Action<UsageTimeStats> OnUsageTimeReceived;
 
@@ -103,6 +104,24 @@ namespace IDosGames
             {
                 UpdateCachedCurrencies(result.Data);
                 OnVirtualCurrencySubtracted?.Invoke(result.Data);
+            }
+
+            return result;
+        }
+
+        public static async Task<OperationResult<CurrencyTransferResponse>> TransferVirtualCurrency(string fromCurrencyID, string toCurrencyID, int transferAmount)
+        {
+            var request = CreateBaseRequest();
+
+            request.FromCurrencyID = fromCurrencyID;
+            request.ToCurrencyID = toCurrencyID;
+            request.TransferAmount = transferAmount;
+
+            var result = await UserAPI.TransferVirtualCurrency(request);
+
+            if (result.Success)
+            {
+                OnVirtualCurrencyTransfered?.Invoke(result.Data);
             }
 
             return result;

@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using IDosGames.ServerModels;
+using IDosGames.TitlePublicConfiguration;
 
 namespace IDosGames
 {
@@ -34,6 +36,16 @@ namespace IDosGames
         public static async Task<OperationResult<RewardResponse>> ClaimItemProfit(RewardRequest request)
         {
             return await SendRequest<RewardResponse>(RewardAction.ClaimItemProfit, request);
+        }
+
+        public static async Task<OperationResult<ClaimDailyRewardResponse>> ClaimDailyReward(RewardRequest request)
+        {
+            return await SendRequest<ClaimDailyRewardResponse>(RewardAction.ClaimDailyReward, request);
+        }
+
+        public static async Task<OperationResult<List<DailyRewardsDefinition>>> GetDailyRewardsDefinitions(RewardRequest request)
+        {
+            return await SendRequest<List<DailyRewardsDefinition>>(RewardAction.GetDailyRewardsDefinitions, request);
         }
     }
 }

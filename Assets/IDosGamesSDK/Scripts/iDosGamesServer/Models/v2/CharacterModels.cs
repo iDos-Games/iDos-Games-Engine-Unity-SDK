@@ -13,6 +13,7 @@ namespace IDosGames.ClientModels
         GetStatDefinitions,
         GetCharacters,
         UpgradeStatLevel,
+        UpgradeCharacterLevel,
     }
 
     // =================================================================================
@@ -83,5 +84,13 @@ namespace IDosGames.ClientModels
         public string ItemID { get; set; } // (опционально) дл€ удобства UI/логов можно продублировать ItemId
         public string ItemInstanceID { get; set; } // —сылка на конкретный экземпл€р предмета в account inventory
         public DateTime EquippedAt { get; set; } = DateTime.UtcNow;
+    }
+
+    [Serializable]
+    public class UpgradeCharacterLevelResponse
+    {
+        public string CharacterID { get; set; }
+        public int NewLevel { get; set; }
+        public List<ItemOrCurrency> ConsumedResources { get; set; }
     }
 }

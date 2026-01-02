@@ -9,6 +9,7 @@ namespace IDosGames
         // —обыти€ дл€ обновлени€ UI при успешных действи€х
         public static event Action<GetCharactersResponse> OnCharactersUpdated;
         public static event Action<UpgradeStatLevelResponse> OnStatUpgradeSuccess;
+        public static event Action<UpgradeCharacterLevelResponse> OnCharacterLevelUpgradeSuccess;
 
         private static IGSAuthenticationContext Ctx => AuthService.GetAuthContext();
         private static string UserID => Ctx.UserID;
@@ -23,9 +24,8 @@ namespace IDosGames
             {
                 UserID = UserID,
                 ClientSessionTicket = ClientSessionTicket,
-                // ƒополнительные метаданные, если нужны серверу
-                UsageTime = IDosGamesSDKSettings.Instance.PlayTime,
-                BuildKey = IDosGamesSDKSettings.Instance.BuildKey
+                BuildKey = IDosGamesSDKSettings.Instance.BuildKey,
+                WebAppLink = WebSDK.webAppLink,
             };
         }
 
@@ -74,6 +74,19 @@ namespace IDosGames
 
                 // ќпционально: можно автоматически обновить локальный инвентарь или список персонажей
                 // UserDataService.RequestUserInventory(); 
+            }
+
+            return result;
+        }
+
+        public static async Task<OperationResult<UpgradeCharacterLevelResponse>> UpgradeCharacterLevel()
+        {
+            var request = CreateBaseRequest();
+            var result = await CharacterAPI.UpgradeCharacterLevel(request);
+
+            if (result.Success)
+            {
+                OnCharacterLevelUpgradeSuccess?.Invoke(result.Data);
             }
 
             return result;
