@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace IDosGames
@@ -6,7 +7,7 @@ namespace IDosGames
     {
         public void Test()
         {
-            _ = UserService.TransferVirtualCurrency("SS", "BO", 1);
+            _ = CraftService.TradeUpRarity("test", new List<string> { "avatar_glasses_v1_01", "avatar_glasses_v1_01", "avatar_glasses_v1_01", "avatar_glasses_v1_01", "avatar_glasses_v1_01", });
         }
 
         public void SaveValueToServer()
