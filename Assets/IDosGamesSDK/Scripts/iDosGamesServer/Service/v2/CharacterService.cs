@@ -78,9 +78,11 @@ namespace IDosGames
             return result;
         }
 
-        public static async Task<OperationResult<UpgradeCharacterLevelResponse>> UpgradeCharacterLevel()
+        public static async Task<OperationResult<UpgradeCharacterLevelResponse>> UpgradeCharacterLevel(string characterId = null)
         {
             var request = CreateBaseRequest();
+            request.CharacterID = characterId;
+
             var result = await CharacterAPI.UpgradeCharacterLevel(request);
 
             if (result.Success)
