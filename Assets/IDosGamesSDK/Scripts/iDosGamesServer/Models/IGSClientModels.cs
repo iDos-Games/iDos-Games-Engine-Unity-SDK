@@ -30,6 +30,7 @@ namespace IDosGames.ClientModels
         public string UnitCurrency;
         public uint UnitPrice;
         public int? UsesIncrementedBy;
+        public bool IsEquipped;
     }
 
     [Serializable]

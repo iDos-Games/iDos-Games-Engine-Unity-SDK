@@ -419,7 +419,9 @@ namespace IDosGames.TitlePublicConfiguration
         public List<string> AllowedCharacterIDs { get; set; }
         public List<string> AllowedEquipmentSlotIDs { get; set; }
         public List<StatDefinition> StatDefinitions { get; set; }
+        public Dictionary<string, List<StatDefinition>> CustomStatDefinitions { get; set; } // List of unique StatDefinitions or global overrides. Key: CharacterID
         public List<CharacterLevelDefinition> LevelDefinitions { get; set; }
+        public Dictionary<string, List<CharacterLevelDefinition>> CustomLevelDefinitions { get; set; } // Allows you to set different upgrade costs and different power multipliers for specific heroes. Key: CharacterID
     }
 
     public class StatDefinition

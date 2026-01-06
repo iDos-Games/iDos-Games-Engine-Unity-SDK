@@ -10,10 +10,12 @@ namespace IDosGames.ClientModels
 
     public enum CharacterAction
     {
-        GetStatDefinitions,
-        GetCharacters,
+        GetCharacterDefinitions,
+        GetUserCharacters,
         UpgradeStatLevel,
         UpgradeCharacterLevel,
+        EquipItems,
+        UnequipItems,
     }
 
     // =================================================================================
@@ -25,6 +27,15 @@ namespace IDosGames.ClientModels
     {
         public string CharacterID { get; set; } // Character ID (optional if null -> Main)
         public string StatID { get; set; }      // Stat ID for leveling
+        public List<EquipSlotPair> ItemsToEquip { get; set; }
+        public List<string> UnequipSlotIDs { get; set; }
+    }
+
+    [Serializable]
+    public class EquipSlotPair
+    {
+        public string SlotID { get; set; }
+        public string ItemInstanceID { get; set; }
     }
 
     // =================================================================================
@@ -72,7 +83,7 @@ namespace IDosGames.ClientModels
         // ---------- Equipment ----------
         // slotId -> equipped item (ссылка на account inventory)
         public Dictionary<string, EquippedItem> Equipment { get; set; }
-        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime UpdatedAt { get; set; }
     }
 
     [Serializable]

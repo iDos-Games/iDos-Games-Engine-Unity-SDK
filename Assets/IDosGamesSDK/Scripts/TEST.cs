@@ -7,7 +7,8 @@ namespace IDosGames
     {
         public void Test()
         {
-            _ = CraftService.TradeUpRarity("test", new List<string> { "avatar_glasses_v1_01", "avatar_glasses_v1_01", "avatar_glasses_v1_01", "avatar_glasses_v1_01", "avatar_glasses_v1_01", });
+            //_ = CraftService.TradeUpRarity("test", new List<string> { "avatar_glasses_v1_01", "avatar_glasses_v1_01", "avatar_glasses_v1_01", "avatar_glasses_v1_01", "avatar_glasses_v1_01", });
+            _ = CharacterService.GetCharacterDefinitions();
         }
 
         public void SaveValueToServer()

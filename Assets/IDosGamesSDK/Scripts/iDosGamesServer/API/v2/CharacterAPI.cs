@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using IDosGames.ClientModels;
+using IDosGames.TitlePublicConfiguration;
 
 namespace IDosGames
 {
@@ -32,14 +33,14 @@ namespace IDosGames
         // PUBLIC METHODS
         // =================================================================================
 
-        public static async Task<OperationResult<GetStatDefinitionsResponse>> GetStatDefinitions(CharacterRequest request)
+        public static async Task<OperationResult<CharacterDefinitions>> GetCharacterDefinitions(CharacterRequest request)
         {
-            return await SendRequest<GetStatDefinitionsResponse>(CharacterAction.GetStatDefinitions, request);
+            return await SendRequest<CharacterDefinitions>(CharacterAction.GetCharacterDefinitions, request);
         }
 
-        public static async Task<OperationResult<GetCharactersResponse>> GetCharacters(CharacterRequest request)
+        public static async Task<OperationResult<GetCharactersResponse>> GetUserCharacters(CharacterRequest request)
         {
-            return await SendRequest<GetCharactersResponse>(CharacterAction.GetCharacters, request);
+            return await SendRequest<GetCharactersResponse>(CharacterAction.GetUserCharacters, request);
         }
 
         public static async Task<OperationResult<UpgradeStatLevelResponse>> UpgradeStatLevel(CharacterRequest request)
@@ -50,6 +51,16 @@ namespace IDosGames
         public static async Task<OperationResult<UpgradeCharacterLevelResponse>> UpgradeCharacterLevel(CharacterRequest request)
         {
             return await SendRequest<UpgradeCharacterLevelResponse>(CharacterAction.UpgradeCharacterLevel, request);
+        }
+
+        public static async Task<OperationResult<SuccessResponse>> EquipItems(CharacterRequest request)
+        {
+            return await SendRequest<SuccessResponse>(CharacterAction.EquipItems, request);
+        }
+
+        public static async Task<OperationResult<SuccessResponse>> UnequipItems(CharacterRequest request)
+        {
+            return await SendRequest<SuccessResponse>(CharacterAction.UnequipItems, request);
         }
     }
 }
