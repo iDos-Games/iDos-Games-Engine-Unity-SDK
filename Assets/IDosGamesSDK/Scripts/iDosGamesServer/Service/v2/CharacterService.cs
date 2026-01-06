@@ -6,7 +6,6 @@ namespace IDosGames
 {
     public static class CharacterService
     {
-        // —обыти€ дл€ обновлени€ UI при успешных действи€х
         public static event Action<GetCharactersResponse> OnCharactersUpdated;
         public static event Action<UpgradeStatLevelResponse> OnStatUpgradeSuccess;
         public static event Action<UpgradeCharacterLevelResponse> OnCharacterLevelUpgradeSuccess;
@@ -16,7 +15,7 @@ namespace IDosGames
         private static string ClientSessionTicket => Ctx.ClientSessionTicket;
 
         /// <summary>
-        /// —оздает базовый запрос с об€зательными пол€ми авторизации
+        /// Creates a basic request with required authorization fields
         /// </summary>
         private static CharacterRequest CreateBaseRequest()
         {
@@ -30,7 +29,7 @@ namespace IDosGames
         }
 
         /// <summary>
-        /// ѕолучает список определений статов (конфиг)
+        /// Gets a list of stat definitions (config)
         /// </summary>
         public static async Task<OperationResult<GetStatDefinitionsResponse>> GetStatDefinitions()
         {
@@ -39,7 +38,7 @@ namespace IDosGames
         }
 
         /// <summary>
-        /// ѕолучает текущих персонажей игрока
+        /// Gets the player's current characters
         /// </summary>
         public static async Task<OperationResult<GetCharactersResponse>> GetCharacters()
         {
@@ -55,10 +54,10 @@ namespace IDosGames
         }
 
         /// <summary>
-        /// ѕрокачивает уровень стата
+        /// Increases stat level
         /// </summary>
-        /// <param name="statId">ID стата (например, "Strength")</param>
-        /// <param name="characterId">ID персонажа (по умолчанию null/Main)</param>
+        /// <param name="statId">Stat ID (e.g. "Health")</param>
+        /// <param name="characterId">Character ID (default null/Main)</param>
         public static async Task<OperationResult<UpgradeStatLevelResponse>> UpgradeStatLevel(string statId, string characterId = null)
         {
             var request = CreateBaseRequest();
@@ -69,11 +68,7 @@ namespace IDosGames
 
             if (result.Success)
             {
-                // ≈сли прокачка прошла успешно, вызываем событие (например, дл€ проигрывани€ звука или FX)
                 OnStatUpgradeSuccess?.Invoke(result.Data);
-
-                // ќпционально: можно автоматически обновить локальный инвентарь или список персонажей
-                // UserDataService.RequestUserInventory(); 
             }
 
             return result;

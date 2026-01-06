@@ -23,8 +23,8 @@ namespace IDosGames.ClientModels
     [Serializable]
     public class CharacterRequest : IGSRequest
     {
-        public string CharacterID; // ID персонажа (опционально, если null -> Main)
-        public string StatID;      // ID стата дл€ прокачки
+        public string CharacterID { get; set; } // Character ID (optional if null -> Main)
+        public string StatID { get; set; }      // Stat ID for leveling
     }
 
     // =================================================================================
@@ -34,15 +34,13 @@ namespace IDosGames.ClientModels
     [Serializable]
     public class GetStatDefinitionsResponse
     {
-        // StatDefinition Ч класс из вашего SDK
-        public List<StatDefinition> StatDefinitions;
+        public List<StatDefinition> StatDefinitions { get; set; }
     }
 
     [Serializable]
     public class GetCharactersResponse
     {
-        // CharacterModel Ч класс из вашего SDK
-        public Dictionary<string, CharacterModel> Characters;
+        public Dictionary<string, CharacterModel> Characters { get; set; }
     }
 
     [Serializable]
@@ -58,14 +56,14 @@ namespace IDosGames.ClientModels
     [Serializable]
     public class CharacterModel
     {
-        public string CharacterID { get; set; } // "main" или GUID/что угодно
-        public string Class { get; set; } // "Mage", "Warrior" (опционально)
+        public string CharacterID { get; set; }
+        public string Class { get; set; } // "Mage", "Warrior" (optional)
         public string Name { get; set; }
 
         // ---------- Progress ----------
-        public int Level { get; set; } = 1;
-        public long Experience { get; set; } = 0;
-        public int Power { get; set; } = 0;
+        public int Level { get; set; } // If Level = 0 then the character is not yet open (If CharacterID = Main it is open by default and has Level 1)
+        public long Experience { get; set; }
+        public int Power { get; set; }
 
         // ---------- Boosts ----------
         // boostId -> state
