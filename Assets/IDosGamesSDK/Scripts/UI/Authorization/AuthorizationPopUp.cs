@@ -79,11 +79,6 @@ namespace IDosGames
 			AuthService.Instance.RegisterUserByEmail(GetEmailInput(), GetPasswordInput(), OnSignUpSuccess, ShowError);
 		}
 
-		private void AddEmailAndPassword()
-		{
-            AuthService.Instance.AddUsernamePassword(GetEmailInput(), GetPasswordInput(), OnEmailAndPasswordAdded, ShowError);
-        }
-
 		private void ShowError(string error)
 		{
             Message.Show(error);

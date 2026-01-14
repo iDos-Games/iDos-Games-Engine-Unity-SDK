@@ -193,50 +193,6 @@ namespace IDosGames
             }
         }
 
-        public async void AddUsernamePassword(string email, string password, Action<string> resultCallback = null, Action<string> errorCallback = null)
-        {
-            RequestSent?.Invoke();
-
-            try
-            {
-                if (AuthContext == null || string.IsNullOrEmpty(AuthContext.ClientSessionTicket) || string.IsNullOrEmpty(AuthContext.UserID))
-                {
-                    IGSClientAPI.OnIGSError("Not logged in", errorCallback);
-                    return;
-                }
-
-                var request = new AuthenticationRequest
-                {
-                    UserID = AuthContext.UserID,
-                    ClientSessionTicket = AuthContext.ClientSessionTicket,
-                    BuildKey = IDosGamesSDKSettings.Instance.BuildKey,
-                    WebAppLink = WebSDK.webAppLink,
-
-                    Email = email,
-                    Password = password,
-                };
-
-                var result = await AuthenticationAPI.AddEmailAndPassword(request);
-
-                if (result.Success)
-                {
-                    SaveAuthType(AuthType.Email);
-                    SaveEmailAndPassword(email, password);
-                    resultCallback?.Invoke("Success");
-                    LoggedIn?.Invoke();
-                }
-                else
-                {
-                    var err = !string.IsNullOrEmpty(result.Error) ? result.Error : "Request failed";
-                    IGSClientAPI.OnIGSError(err, errorCallback);
-                }
-            }
-            catch (Exception ex)
-            {
-                IGSClientAPI.OnIGSError(ex.Message, errorCallback);
-            }
-        }
-
         public async void RegisterUserByEmail(string email, string password, Action<AuthenticationResponse> resultCallback = null, Action<string> errorCallback = null, Action retryCallback = null)
         {
             RequestSent?.Invoke();

@@ -3,7 +3,11 @@ using System;
 namespace IDosGames
 {
     [Serializable]
-    public class AuthenticationRequest : IGSRequest {}
+    public class AuthenticationRequest : IGSRequest 
+    {
+        public string PlatformAuthToken { get; set; }
+        public string PlatformRefreshToken { get; set; }
+    }
 
     [Serializable]
     public class OperationResult<T>
@@ -26,14 +30,30 @@ namespace IDosGames
         public DateTime ServerTime { get; set; }
     }
 
+    [Serializable]
+    public class PlatformLoginResponse
+    {
+        public string PlatformUserID { get; set; }
+        public string PlatformAuthToken { get; set; }
+        public DateTime? PlatformAuthTokenExpiration { get; set; }
+        public string PlatformRefreshToken { get; set; }
+        public DateTime? PlatformRefreshTokenExpiration { get; set; }
+
+        public string TitleUserID { get; set; }
+        public string TitleClientSessionTicket { get; set; }
+        public DateTime TitleClientSessionTicketExpiration { get; set; }
+    }
+
     public enum AuthenticationAction
     {
         LoginWithDeviceID,
         LoginWithTelegram,
         LoginWithEmail,
         RegisterUserByEmail,
-        AddEmailAndPassword,
         ForgotPassword,
         ResetPassword,
+        LoginOrRegisterWithPlatformEmail,
+        LoginWithPlatformToken,
+        RefreshPlatformToken,
     }
 }
