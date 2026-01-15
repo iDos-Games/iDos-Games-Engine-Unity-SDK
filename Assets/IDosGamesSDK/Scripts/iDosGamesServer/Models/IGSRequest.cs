@@ -7,7 +7,7 @@ namespace IDosGames
     {
         public string TitleID { get; set; }
         public string UserID { get; set; }
-        public string UserName { get; set; }
+        public string Username { get; set; }
         public string FunctionName { get; set; }
         public string Platform { get; set; }
         public string Device { get; set; }

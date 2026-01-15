@@ -5,6 +5,7 @@ namespace IDosGames
 		None,
 		Device,
 		Email,
+		iDosGames,
 		Facebook,
 		GooglePlay
 	}

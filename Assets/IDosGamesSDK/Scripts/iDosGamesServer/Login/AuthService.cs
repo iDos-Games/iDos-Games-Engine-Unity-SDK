@@ -20,6 +20,7 @@ namespace IDosGames
         public static string SavedEmail => PlayerPrefs.GetString(SAVED_AUTH_EMAIL_KEY, string.Empty);
         public static string SavedPassword => PlayerPrefs.GetString(SAVED_AUTH_PASSWORD_KEY, string.Empty);
 
+        public static PlatformUser PlatformUser { get; set; }
         public static string UserID { get; private set; }
         public static string ClientSessionTicket { get; private set; }
         public static string EntityToken { get; private set; }
@@ -93,6 +94,69 @@ namespace IDosGames
             }
 
             return titleID;
+        }
+
+        public void SetPlatformUser(PlatformUser platformUser)
+        {
+            PlatformUser = platformUser;
+        }
+
+        public async void LoginWithPlatformToken(string authToken, Action<AuthenticationResponse> resultCallback = null, Action<string> errorCallback = null, Action retryCallback = null)
+        {
+            if (string.IsNullOrEmpty(authToken))
+            {
+                Debug.Log("AuthToken is Null rr Empty");
+                return;
+            }
+            RequestSent?.Invoke();
+
+            try
+            {
+                var request = new AuthenticationRequest
+                {
+                    BuildKey = IDosGamesSDKSettings.Instance.BuildKey,
+                    WebAppLink = WebSDK.webAppLink,
+
+                    PlatformAuthToken = authToken,
+                    DeviceID = SystemInfo.deviceUniqueIdentifier,
+                    Device = SystemInfo.deviceModel,
+                    Platform = Application.platform.ToString(),
+                };
+
+                var login = await AuthenticationAPI.LoginWithPlatformToken(request);
+                if (login.Success)
+                {
+                    AuthContext = new IGSAuthenticationContext
+                    {
+                        UserID = login.Data.TitleUserID,
+                        ClientSessionTicket = login.Data.TitleClientSessionTicket,
+                        ClientSessionTicketExpiration = login.Data.TitleClientSessionTicketExpiration,
+                    };
+
+                    var result = await UserService.GetUserAllData();
+                    if (result.Success && result.Data != null && result.Data.AuthContext != null && !string.IsNullOrEmpty(result.Data.AuthContext.ClientSessionTicket))
+                    {
+                        SetCredentials(result.Data);
+                        SaveAuthType(AuthType.iDosGames);
+
+                        resultCallback?.Invoke(result.Data);
+                        LoggedIn?.Invoke();
+                    }
+                    else
+                    {
+                        var err = !string.IsNullOrEmpty(result.Error) ? result.Error : "Invalid result";
+                        IGSClientAPI.OnIGSError(err, errorCallback, retryCallback);
+                    }
+                }
+                else
+                {
+                    IGSClientAPI.OnIGSError(login.Error, errorCallback, retryCallback);
+                }
+            }
+            catch (Exception ex)
+            {
+                IGSClientAPI.OnIGSError(ex.Message, errorCallback, retryCallback);
+            }
         }
 
         public async void LoginWithDeviceID(Action<AuthenticationResponse> resultCallback = null, Action<string> errorCallback = null, Action retryCallback = null)
@@ -175,7 +239,7 @@ namespace IDosGames
                 if (result.Success && result.Data != null && result.Data.AuthContext != null && !string.IsNullOrEmpty(result.Data.AuthContext.ClientSessionTicket))
                 {
                     SetCredentials(result.Data);
-                    SaveAuthType(AuthType.Device);
+                    SaveAuthType(AuthType.Email);
                     SaveEmailAndPassword(email, password);
 
                     resultCallback?.Invoke(result.Data);

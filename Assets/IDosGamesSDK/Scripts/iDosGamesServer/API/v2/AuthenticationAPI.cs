@@ -50,19 +50,9 @@ namespace IDosGames
             return titleID;
         }
 
-        public static Task<OperationResult<PlatformLoginResponse>> LoginOrRegisterWithPlatformEmail(AuthenticationRequest request)
-        {
-            return HttpService.Post<PlatformLoginResponse>(GetEndpoint(AuthenticationAction.LoginOrRegisterWithPlatformEmail), request);
-        }
-
         public static Task<OperationResult<PlatformLoginResponse>> LoginWithPlatformToken(AuthenticationRequest request)
         {
             return HttpService.Post<PlatformLoginResponse>(GetEndpoint(AuthenticationAction.LoginWithPlatformToken), request);
-        }
-
-        public static Task<OperationResult<PlatformLoginResponse>> RefreshPlatformToken(AuthenticationRequest request)
-        {
-            return HttpService.Post<PlatformLoginResponse>(GetEndpoint(AuthenticationAction.RefreshPlatformToken), request);
         }
 
         public static Task<OperationResult<AuthenticationResponse>> LoginWithDeviceID(AuthenticationRequest request)

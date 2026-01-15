@@ -142,6 +142,14 @@ namespace IDosGames
             CacheClear();
         }
 
+        [DllImport("__Internal")]
+        private static extern void RequestPlatformAuth(string gameObjectName, string callbackMethod);
+
+        public static void FetchPlatformAuth(string gameObjectName, string callbackMethod)
+        {
+            RequestPlatformAuth(gameObjectName, callbackMethod);
+        }
+
 #endif
 
     }

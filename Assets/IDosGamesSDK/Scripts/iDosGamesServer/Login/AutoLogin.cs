@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace IDosGames
 {
@@ -9,24 +9,47 @@ namespace IDosGames
         private string _savedEmail => AuthService.SavedEmail;
         private string _savedPassword => AuthService.SavedPassword;
 
+        // platform auth wait
+        private bool _waitingPlatformAuth = false;
+        private const float PlatformAuthTimeoutSeconds = 120f;
+
         private void Start()
         {
             CheckPlatform();
-            //Login();
+
+#if UNITY_WEBGL //&& !UNITY_EDITOR
+            if (WebFunctionHandler.Instance != null) WebFunctionHandler.Instance.OnPlatformAuthEvent += OnPlatformAuth;
+#endif
+        }
+
+        private void OnDestroy()
+        {
+#if UNITY_WEBGL //&& !UNITY_EDITOR
+            if (WebFunctionHandler.Instance != null) WebFunctionHandler.Instance.OnPlatformAuthEvent -= OnPlatformAuth;
+#endif
         }
 
         public void Login()
         {
             switch (_lastAuthType)
             {
+                case AuthType.iDosGames:
+                    PlatformLogin();
+                    break;
+
                 case AuthType.Email:
                     AutoLoginWithEmail();
                     break;
 
                 default:
-                    AutoLoginWithDeviceID();
+                    PlatformLogin();
                     break;
             }
+        }
+
+        public void PlatformLogin()
+        {
+            TryPlatformLogin();
         }
 
         public void AutoLoginWithEmail()
@@ -53,6 +76,39 @@ namespace IDosGames
         {
             Message.ShowConnectionError(Login);
         }
+
+#if UNITY_WEBGL //&& !UNITY_EDITOR
+        private void TryPlatformLogin()
+        {
+            if (_waitingPlatformAuth) return;
+            _waitingPlatformAuth = true;
+
+            WebSDK.FetchPlatformAuth("WebFunctionHandler", "OnPlatformAuth");
+
+            Invoke(nameof(OnPlatformAuthTimeout), PlatformAuthTimeoutSeconds);
+        }
+
+        public void OnPlatformAuth(string json)
+        {
+            Debug.Log("AutoLogin_OnPlatformAuth:" + json);
+            if (!_waitingPlatformAuth) return;
+
+            _waitingPlatformAuth = false;
+            CancelInvoke(nameof(OnPlatformAuthTimeout));
+
+            PlatformAuthResponse resp = Newtonsoft.Json.JsonConvert.DeserializeObject<PlatformAuthResponse>(json);
+
+            AuthService.Instance.SetPlatformUser(resp.user);
+            AuthService.Instance.LoginWithPlatformToken(resp.user.AuthToken, OnSuccessAutoLogin, OnErrorAutoLogin, OnRetryAutoLogin);
+        }
+
+        private void OnPlatformAuthTimeout()
+        {
+            if (!_waitingPlatformAuth) return;
+            _waitingPlatformAuth = false;
+            Login();
+        }
+#endif
 
         private void CheckPlatform()
         {

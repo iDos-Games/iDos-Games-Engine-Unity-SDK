@@ -1,3 +1,5 @@
+using System;
+
 namespace IDosGames
 {
     public sealed class IGSAuthenticationContext
@@ -5,6 +7,7 @@ namespace IDosGames
         public IGSAuthenticationContext() {}
 
         public string ClientSessionTicket { get; set; }
+        public DateTime ClientSessionTicketExpiration { get; set; }
         public string UserID { get; set; }
         public string EntityToken { get; set; }
         public string EntityId { get; set; }

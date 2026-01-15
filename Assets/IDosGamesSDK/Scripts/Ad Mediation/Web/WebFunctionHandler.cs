@@ -16,6 +16,9 @@ namespace IDosGames
         public event FocusEventHandler OnWebAppFocusFalseEvent;
         public event FocusEventHandler OnWebAppQuitEvent;
 
+        public delegate void AuthEventHandler(string resultJson);
+        public event AuthEventHandler OnPlatformAuthEvent;
+
         private string _args;
         public string _clipboardText;
 
@@ -73,6 +76,11 @@ namespace IDosGames
         public void OnWebAppQuit()
         {
             OnWebAppQuitEvent?.Invoke();
+        }
+
+        public void OnPlatformAuth(string resultJson)
+        {
+            OnPlatformAuthEvent?.Invoke(resultJson);
         }
 #endif
     }

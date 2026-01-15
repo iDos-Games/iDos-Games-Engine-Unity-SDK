@@ -36,12 +36,32 @@ namespace IDosGames
         public string PlatformUserID { get; set; }
         public string PlatformAuthToken { get; set; }
         public DateTime? PlatformAuthTokenExpiration { get; set; }
-        public string PlatformRefreshToken { get; set; }
-        public DateTime? PlatformRefreshTokenExpiration { get; set; }
 
         public string TitleUserID { get; set; }
         public string TitleClientSessionTicket { get; set; }
         public DateTime TitleClientSessionTicketExpiration { get; set; }
+    }
+
+    [Serializable]
+    public class PlatformUser
+    {
+        public string PlatformUserID { get; set; }
+        public string PublisherID { get; set; }
+        public string Email { get; set; }
+        public string Username { get; set; }
+        public string AvatarUrl { get; set; }
+        public string AuthToken { get; set; }
+        public string AuthTokenExpiration { get; set; }
+    }
+
+    [Serializable]
+    public class PlatformAuthResponse
+    {
+        public string type;
+        public string requestId;
+        public bool ok;
+        public string error;
+        public PlatformUser user;
     }
 
     public enum AuthenticationAction

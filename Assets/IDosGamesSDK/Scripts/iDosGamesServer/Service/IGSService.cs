@@ -105,7 +105,7 @@ namespace IDosGames
                 Platform = platform,
                 Device = device,
                 DeviceID = deviceID,
-                UserName = userName,
+                Username = userName,
                 UsageTime = IDosGamesSDKSettings.Instance.PlayTime,
             };
 
