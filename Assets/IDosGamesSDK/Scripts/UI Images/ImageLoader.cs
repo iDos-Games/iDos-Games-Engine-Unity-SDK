@@ -312,6 +312,7 @@ namespace IDosGames
 
         public static async Task<Sprite> GetSpriteAsync(string imagePath)
         {
+            if (string.IsNullOrWhiteSpace(imagePath)) return null;
             if (IsExternalUrl(imagePath))
             {
                 var sprite = await LoadExternalImageAsync(imagePath);

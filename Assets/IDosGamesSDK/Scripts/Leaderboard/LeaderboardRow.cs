@@ -52,7 +52,12 @@ namespace IDosGames
 
 		private async void SetUserAvatar(string avatarUrl)
 		{
-            _userAvatar.gameObject.SetActive(avatarUrl != null);
+            if (string.IsNullOrWhiteSpace(avatarUrl))
+            {
+                _userAvatar.gameObject.SetActive(false);
+                return;
+            }
+            _userAvatar.gameObject.SetActive(true);
             _userAvatar.sprite = await ImageLoader.GetSpriteAsync(avatarUrl);
         }
 
