@@ -11,15 +11,17 @@ namespace IDosGames
 		[SerializeField] private TMP_Text _playerID;
 		[SerializeField] private TMP_Text _value;
 		[SerializeField] private Image _rankIcon;
+        [SerializeField] private Image _userAvatar;
 
-		public void Set(int place, string playerID, string statValue, Sprite rankIcon = null)
+        public void Set(int place, string playerID, string statValue, string avatarUrl, Sprite rankIcon = null)
 		{
 			SetPlace(place);
 			SetPlayerID(playerID);
 			SetStatValue(statValue);
 			SetRankIcon(rankIcon);
 			SetRowFrameColor(playerID);
-		}
+			SetUserAvatar(avatarUrl);
+        }
 
 		private void SetPlace(int place)
 		{
@@ -48,13 +50,19 @@ namespace IDosGames
 			_playerID.text = playerID;
 		}
 
-		private void SetRankIcon(Sprite rankIcon)
+		private async void SetUserAvatar(string avatarUrl)
 		{
-			_rankIcon.gameObject.SetActive(rankIcon != null);
-			_rankIcon.sprite = rankIcon;
-		}
+            _userAvatar.gameObject.SetActive(avatarUrl != null);
+            _userAvatar.sprite = await ImageLoader.GetSpriteAsync(avatarUrl);
+        }
 
-		private void SetRowFrameColor(string playerID)
+        private void SetRankIcon(Sprite rankIcon)
+        {
+            _rankIcon.gameObject.SetActive(rankIcon != null);
+            _rankIcon.sprite = rankIcon;
+        }
+
+        private void SetRowFrameColor(string playerID)
 		{
 			if (playerID != AuthService.UserID)
 			{

@@ -23,7 +23,8 @@ namespace IDosGames
                 UserID = UserID,
                 ClientSessionTicket = ClientSessionTicket,
                 BuildKey = IDosGamesSDKSettings.Instance.BuildKey,
-                WebAppLink = WebSDK.webAppLink
+                WebAppLink = WebSDK.webAppLink,
+                LeaderboardID = DefaultData.CoinContest,
             };
         }
 

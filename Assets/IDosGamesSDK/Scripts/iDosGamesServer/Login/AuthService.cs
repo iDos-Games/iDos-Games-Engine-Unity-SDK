@@ -106,6 +106,7 @@ namespace IDosGames
             if (string.IsNullOrEmpty(authToken))
             {
                 Debug.Log("AuthToken is Null rr Empty");
+                Message.Show("AuthToken is Null rr Empty");
                 return;
             }
             RequestSent?.Invoke();

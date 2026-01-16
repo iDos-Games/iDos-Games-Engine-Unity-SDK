@@ -192,11 +192,20 @@ namespace IDosGames.ClientModels
         public string UserName;
         public string UserID;
         public int Position;
-        public PlayerProfileModel Profile;
+        public UserPublicDataModel Profile;
         public int StatValue;
     }
 
     [Serializable]
+    public class UserPublicDataModel
+    {
+        public string Username { get; set; }
+        public string AvatarUrl { get; set; }
+        public bool Vip { get; set; }
+        public int Level { get; set; }
+        public int Power { get; set; }
+    }
+
     public class PlayerProfileModel : IGSBaseModel
     {
         public List<AdCampaignAttributionModel> AdCampaignAttributions;

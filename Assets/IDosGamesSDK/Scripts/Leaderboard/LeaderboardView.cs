@@ -70,7 +70,7 @@ namespace IDosGames
 
 			var statValue = GetStatValueForCurrentPlayer(isCurrentPlayerOnLeaderboard, currentPlayer, leaderboard);
 
-			CreateRow(currentPlayer.Position, currentPlayer.UserID, statValue);
+			CreateRow(currentPlayer.Position, currentPlayer.UserID, statValue, null);
 		}
 
 		private string GetStatValueForCurrentPlayer(bool isCurrentPlayerOnLeaderboard, PlayerLeaderboardEntry currentPlayer, List<PlayerLeaderboardEntry> leaderboard)
@@ -98,15 +98,15 @@ namespace IDosGames
 					continue;
 				}
 
-                string displayName = player.UserName ?? player.UserID;
-                CreateRow(player.Position, displayName, $"{player.StatValue}");
+                string displayName = player.Profile.Username ?? player.UserID;
+                CreateRow(player.Position, displayName, $"{player.StatValue}", player.Profile.AvatarUrl);
 			}
 		}
 
-		private void CreateRow(int position, string userID, string statValue)
+		private void CreateRow(int position, string userID, string statValue, string avatarUrl)
 		{
 			var row = Instantiate(_rowPrefab, _rowsParent);
-			row.Set(position - 1, userID, statValue, GetRankIcon(position));
+			row.Set(position - 1, userID, statValue, avatarUrl, GetRankIcon(position));
 		}
 
 		private Sprite GetRankIcon(int position)
