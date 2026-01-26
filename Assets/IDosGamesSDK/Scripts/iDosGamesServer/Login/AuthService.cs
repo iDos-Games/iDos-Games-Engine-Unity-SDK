@@ -134,7 +134,7 @@ namespace IDosGames
                         ClientSessionTicketExpiration = login.Data.TitleClientSessionTicketExpiration,
                     };
 
-                    var result = await UserService.GetUserAllData();
+                    var result = await UserService.GetAllUserData();
                     if (result.Success && result.Data != null && result.Data.AuthContext != null && !string.IsNullOrEmpty(result.Data.AuthContext.ClientSessionTicket))
                     {
                         SetCredentials(result.Data);

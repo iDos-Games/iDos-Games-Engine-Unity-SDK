@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using IDosGames.ClientModels;
@@ -14,6 +14,7 @@ namespace IDosGames
         public static event Action<SuccessResponse> OnCustomUserDataUpdated;
         public static event Action<CurrencyUpdateResponse> OnVirtualCurrencySubtracted;
         public static event Action<CurrencyTransferResponse> OnVirtualCurrencyTransfered;
+        public static event Action<ConsumeItemResponse> OnItemConsumed;
         public static event Action<SuccessResponse> OnUserAccountDeleted;
         public static event Action<UsageTimeStats> OnUsageTimeReceived;
 
@@ -32,12 +33,12 @@ namespace IDosGames
             };
         }
 
-        public static async Task<OperationResult<AuthenticationResponse>> GetUserAllData()
+        public static async Task<OperationResult<AuthenticationResponse>> GetAllUserData()
         {
             var request = CreateBaseRequest();
             request.UsageTime = IDosGamesSDKSettings.Instance.PlayTime;
 
-            var result = await UserAPI.GetUserAllData(request);
+            var result = await UserAPI.GetAllUserData(request);
 
             if (result.Success)
             {
@@ -122,6 +123,27 @@ namespace IDosGames
             if (result.Success)
             {
                 OnVirtualCurrencyTransfered?.Invoke(result.Data);
+            }
+
+            return result;
+        }
+
+        public static async Task<OperationResult<ConsumeItemResponse>> ConsumeItem(string itemInstanceID, int consumeAmount, string catalogVersion = null, string itemId = null )
+        {
+            var request = CreateBaseRequest();
+
+            request.ItemInstanceID = itemInstanceID;
+            request.SubtractAmount = consumeAmount;
+
+            // If ItemInstanceID = null, then these values ​​can be used
+            request.CatalogVersion = catalogVersion;
+            request.ItemID = itemId;
+
+            var result = await UserAPI.ConsumeItem(request);
+
+            if (result.Success)
+            {
+                OnItemConsumed?.Invoke(result.Data);
             }
 
             return result;

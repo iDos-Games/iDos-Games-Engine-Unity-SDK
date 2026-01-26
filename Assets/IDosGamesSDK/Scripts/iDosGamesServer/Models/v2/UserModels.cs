@@ -14,6 +14,8 @@ namespace IDosGames.ServerModels
         public string FromCurrencyID { get; set; }
         public string ToCurrencyID { get; set; }
         public int TransferAmount { get; set; } = 1;
+
+        public string ItemInstanceID { get; set; }
     }
 
     [Serializable]
@@ -43,9 +45,18 @@ namespace IDosGames.ServerModels
         public Dictionary<string, int> UpdatedVirtualCurrencies { get; set; }
     }
 
+    [Serializable]
+    public class ConsumeItemResponse
+    {
+        public string ItemID { get; set; }
+        public string ItemInstanceID { get; set; }
+        public string CatalogVersion { get; set; }
+        public int ConsumedAmount { get; set; }
+    }
+
     public enum UserAction
     {
-        GetUserAllData,
+        GetAllUserData,
         GetUserInventory,
         GetCustomUserData,
         UpdateCustomUserData,
@@ -54,5 +65,6 @@ namespace IDosGames.ServerModels
         GetUsageTime,
         AddUsageTime,
         TransferVirtualCurrency,
+        ConsumeItem,
     }
 }

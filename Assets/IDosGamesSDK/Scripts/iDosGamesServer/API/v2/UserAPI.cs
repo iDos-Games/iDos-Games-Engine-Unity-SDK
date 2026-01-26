@@ -22,9 +22,9 @@ namespace IDosGames
             );
         }
 
-        public static async Task<OperationResult<AuthenticationResponse>> GetUserAllData(UserRequest request)
+        public static async Task<OperationResult<AuthenticationResponse>> GetAllUserData(UserRequest request)
         {
-            return await SendRequest<AuthenticationResponse>(UserAction.GetUserAllData, request);
+            return await SendRequest<AuthenticationResponse>(UserAction.GetAllUserData, request);
         }
 
         public static async Task<OperationResult<GetUserInventoryResult>> GetUserInventory(UserRequest request)
@@ -50,6 +50,11 @@ namespace IDosGames
         public static async Task<OperationResult<CurrencyTransferResponse>> TransferVirtualCurrency(UserRequest request)
         {
             return await SendRequest<CurrencyTransferResponse>(UserAction.TransferVirtualCurrency, request);
+        }
+
+        public static async Task<OperationResult<ConsumeItemResponse>> ConsumeItem(UserRequest request)
+        {
+            return await SendRequest<ConsumeItemResponse>(UserAction.ConsumeItem, request);
         }
 
         public static async Task<OperationResult<SuccessResponse>> DeleteUserAccount(UserRequest request)
