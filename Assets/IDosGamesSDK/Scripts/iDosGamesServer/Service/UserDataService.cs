@@ -142,20 +142,6 @@ namespace IDosGames
             IGSClientAPI.GetUserAllData(resultCallback: ProcessingAllData, notConnectionErrorCallback: OnAllDataRequestError, connectionErrorCallback: () => { RequestUserAllData(); TryInvokeDataRequestAgain(); });
         }
 
-        private static async Task WaitForNextStepRequestAllDataSequence()
-        {
-            _continueRequestAllDataSequence = false;
-
-            int elapsedTime = 0;
-
-            while (!_continueRequestAllDataSequence && elapsedTime < MILLISECONDS_BEFORE_BREAK_REQUEST_ALL_DATA_SEQUENCE)
-            {
-                await Task.Delay(TASK_DELAY_MILLISECONDS_STEP_REQUEST_ALL_DATA);
-
-                elapsedTime += TASK_DELAY_MILLISECONDS_STEP_REQUEST_ALL_DATA;
-            }
-        }
-
         public static void RequestUserInventory()
         {
             IGSClientAPI.GetUserInventory

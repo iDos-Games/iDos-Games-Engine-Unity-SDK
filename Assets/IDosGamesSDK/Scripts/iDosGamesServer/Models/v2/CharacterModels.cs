@@ -60,8 +60,8 @@ namespace IDosGames.ClientModels
         public string StatID { get; set; }
         public int StatLevel { get; set; }
 
-        public string CurrencyID { get; set; }
-        public int CurrencyBalance { get; set; }
+        public ItemOrCurrency ConsumedResource { get; set; }
+        public int ConsumedResourceBalance { get; set; }
     }
 
     [Serializable]

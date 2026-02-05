@@ -429,7 +429,7 @@ namespace IDosGames.TitlePublicConfiguration
         public string StatID { get; set; }
         public int MaxLevel { get; set; }
         public int Weight { get; set; }
-        public string BaseCostCurrencyID { get; set; }
+        public ItemOrCurrency BaseCostResource { get; set; }
         public int BaseCost { get; set; }
         public double CostScalingFactor { get; set; }
         public double BaseStatValue { get; set; }
