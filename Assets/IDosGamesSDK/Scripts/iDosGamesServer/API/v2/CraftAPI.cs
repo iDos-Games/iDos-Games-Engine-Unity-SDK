@@ -26,14 +26,9 @@ namespace IDosGames
             return await SendRequest<CraftDefinitionsResponse>(CraftAction.GetDefinitions, request);
         }
 
-        public static async Task<OperationResult<TradeUpCollectionResponse>> TradeUpCollection(CraftRequest request)
+        public static async Task<OperationResult<CraftResponse>> Craft(CraftRequest request)
         {
-            return await SendRequest<TradeUpCollectionResponse>(CraftAction.TradeUpCollection, request);
-        }
-
-        public static async Task<OperationResult<TradeUpRarityResponse>> TradeUpRarity(CraftRequest request)
-        {
-            return await SendRequest<TradeUpRarityResponse>(CraftAction.TradeUpRarity, request);
+            return await SendRequest<CraftResponse>(CraftAction.Craft, request);
         }
     }
 }

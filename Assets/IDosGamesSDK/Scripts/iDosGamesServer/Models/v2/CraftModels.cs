@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using IDosGames.TitlePublicConfiguration;
+using Newtonsoft.Json.Converters;
+using Newtonsoft.Json;
 
 namespace IDosGames.ClientModels
 {
@@ -25,57 +27,53 @@ namespace IDosGames.ClientModels
     // =================================================================================
 
     [Serializable]
-    public class CraftDefinitionsResponse
+    public class CraftResponse
     {
-        public List<CraftDefinition> CraftDefinitions { get; set; }
-    }
+        [JsonConverter(typeof(StringEnumConverter))]
+        public CraftType Type { get; set; }
 
-    [Serializable]
-    public class TradeUpCollectionResponse
-    {
         public string CraftID { get; set; }
         public int CraftedCount { get; set; }
-        public int SelectedOptionID { get; set; }
+        public int SelectedOptionID { get; set; } = 0;
+
         public string InputRarity { get; set; }
         public string OutputRarity { get; set; }
-        public List<TradeUpCollectionSingleResult> Results { get; set; }
+
+        public List<CraftSingleResult> Results { get; set; } = new();
     }
 
     [Serializable]
-    public class TradeUpCollectionSingleResult
+    public class CraftSingleResult
     {
+        public int Index { get; set; } // 0..CraftedCount-1
+        public List<string> BurnedItemIDs { get; set; }
         public string RolledCollectionID { get; set; }
         public Dictionary<string, int> UsedCollections { get; set; }
         public ItemOrCurrency Output { get; set; }
     }
 
     [Serializable]
-    public class TradeUpRarityResponse
+    public class CraftDefinitionsResponse
     {
-        public string CraftID { get; set; }
-        public int CraftedCount { get; set; }
-        public int SelectedOptionID { get; set; }
-        public string InputRarity { get; set; }
-        public string OutputRarity { get; set; }
-        public List<TradeUpRaritySingleResult> Results { get; set; }
-    }
-
-    [Serializable]
-    public class TradeUpRaritySingleResult
-    {
-        public int Index { get; set; }
-        public List<string> BurnedItemIDs { get; set; }
-        public ItemOrCurrency Output { get; set; }
+        public List<CraftDefinition> CraftDefinitions { get; set; }
     }
 
     // =================================================================================
     // CONFIG & ENUMS
     // =================================================================================
 
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum CraftType
+    {
+        TradeUpRarity,
+        TradeUpCollection,
+    }
+
     [Serializable]
     public class CraftDefinition
     {
         public string CraftID { get; set; }
+        public CraftType Type { get; set; }
         public string CatalogVersion { get; set; }
         public string CollectionID { get; set; }
         public string InputRarityID { get; set; }
@@ -94,7 +92,6 @@ namespace IDosGames.ClientModels
     public enum CraftAction
     {
         GetDefinitions,
-        TradeUpCollection,
-        TradeUpRarity,
+        Craft,
     }
 }
