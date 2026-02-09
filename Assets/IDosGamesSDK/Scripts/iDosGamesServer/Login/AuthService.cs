@@ -101,7 +101,7 @@ namespace IDosGames
             PlatformUser = platformUser;
         }
 
-        public async void LoginWithPlatformToken(string authToken, Action<AuthenticationResponse> resultCallback = null, Action<string> errorCallback = null, Action retryCallback = null)
+        public async void LoginWithPlatformToken(string authToken, Action<ClientStateResponse> resultCallback = null, Action<string> errorCallback = null, Action retryCallback = null)
         {
             if (string.IsNullOrEmpty(authToken))
             {
@@ -124,7 +124,7 @@ namespace IDosGames
                     Platform = Application.platform.ToString(),
                 };
 
-                var login = await AuthenticationAPI.LoginWithPlatformToken(request);
+                var login = await AuthenticationAPI.LoginTokensWithPlatformToken(request);
                 if (login.Success)
                 {
                     AuthContext = new IGSAuthenticationContext
@@ -134,7 +134,7 @@ namespace IDosGames
                         ClientSessionTicketExpiration = login.Data.TitleClientSessionTicketExpiration,
                     };
 
-                    var result = await UserService.GetAllUserData();
+                    var result = await UserService.GetClientState();
                     if (result.Success && result.Data != null && result.Data.AuthContext != null && !string.IsNullOrEmpty(result.Data.AuthContext.ClientSessionTicket))
                     {
                         SetCredentials(result.Data);
@@ -160,13 +160,13 @@ namespace IDosGames
             }
         }
 
-        public async void LoginWithDeviceID(Action<AuthenticationResponse> resultCallback = null, Action<string> errorCallback = null, Action retryCallback = null)
+        public async void LoginWithDeviceID(Action<ClientStateResponse> resultCallback = null, Action<string> errorCallback = null, Action retryCallback = null)
         {
             RequestSent?.Invoke();
 
             try
             {
-                OperationResult<AuthenticationResponse> result;
+                OperationResult<ClientStateResponse> result;
 
                 if (IDosGamesSDKSettings.Instance.BuildForPlatform == Platforms.Telegram)
                 {
@@ -220,7 +220,7 @@ namespace IDosGames
             Loading.SwitchToLoginScene(); //LoginWithDeviceID(resultCallback, errorCallback, retryCallback);
         }
 
-        public async void LoginWithEmailAddress(string email, string password, Action<AuthenticationResponse> resultCallback = null, Action<string> errorCallback = null, Action retryCallback = null)
+        public async void LoginWithEmailAddress(string email, string password, Action<ClientStateResponse> resultCallback = null, Action<string> errorCallback = null, Action retryCallback = null)
         {
             RequestSent?.Invoke();
 
@@ -258,7 +258,7 @@ namespace IDosGames
             }
         }
 
-        public async void RegisterUserByEmail(string email, string password, Action<AuthenticationResponse> resultCallback = null, Action<string> errorCallback = null, Action retryCallback = null)
+        public async void RegisterUserByEmail(string email, string password, Action<ClientStateResponse> resultCallback = null, Action<string> errorCallback = null, Action retryCallback = null)
         {
             RequestSent?.Invoke();
 
@@ -276,7 +276,7 @@ namespace IDosGames
                     Platform = Application.platform.ToString(),
                 };
 
-                var result = await AuthenticationAPI.RegisterUserByEmail(request);
+                var result = await AuthenticationAPI.RegisterWithEmail(request);
 
                 if (result.Success && result.Data != null && result.Data.AuthContext != null && !string.IsNullOrEmpty(result.Data.AuthContext.ClientSessionTicket))
                 {
@@ -368,7 +368,7 @@ namespace IDosGames
             }
         }
 
-        private void SetCredentials(AuthenticationResponse result)
+        private void SetCredentials(ClientStateResponse result)
         {
             UserID = result.AuthContext.UserID;
             ClientSessionTicket = result.AuthContext.ClientSessionTicket;
@@ -471,7 +471,7 @@ namespace IDosGames
             return lenght >= PASSWORD_MIN_LENGTH && lenght <= PASSWORD_MAX_LENGTH;
         }
 
-        public void AutoLogin(Action<AuthenticationResponse> resultCallback = null, Action<string> errorCallback = null, Action retryCallback = null)
+        public void AutoLogin(Action<ClientStateResponse> resultCallback = null, Action<string> errorCallback = null, Action retryCallback = null)
         {
             switch (LastAuthType)
             {

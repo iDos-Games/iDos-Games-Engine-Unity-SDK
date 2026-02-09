@@ -23,7 +23,7 @@ namespace IDosGames
         public static string URL_TOURNAMENT = IDosGamesSDKSettings.Instance.TournamentLink;
         public static string URL_REWARD = IDosGamesSDKSettings.Instance.RewardAndProfitSystemLink;
 
-        public static async Task<AuthenticationResponse> GetUserAllData(string userID, string clientSessionTicket)
+        public static async Task<ClientStateResponse> GetUserAllData(string userID, string clientSessionTicket)
         {
             var requestBody = new IGSRequest
             {
@@ -37,14 +37,14 @@ namespace IDosGames
             };
 
             string responseString = await SendPostRequest(URL_USER_DATA_SYSTEM + nameof(GetUserAllData), requestBody);
-            var response = JsonConvert.DeserializeObject<AuthenticationResponse>(responseString);
+            var response = JsonConvert.DeserializeObject<ClientStateResponse>(responseString);
 
             if (response != null ) { IDosGamesSDKSettings.Instance.PlayTime = 0; }
 
             return response;
         }
 
-        public static async Task<AuthenticationResponse> ClaimCoinReward(string userID, string clientSessionTicket, FunctionParameters functionParameter)
+        public static async Task<ClientStateResponse> ClaimCoinReward(string userID, string clientSessionTicket, FunctionParameters functionParameter)
         {
             var requestBody = new IGSRequest
             {
@@ -59,14 +59,14 @@ namespace IDosGames
             };
 
             string responseString = await SendPostRequest(URL_USER_DATA_SYSTEM + nameof(ClaimCoinReward), requestBody);
-            var response = JsonConvert.DeserializeObject<AuthenticationResponse>(responseString);
+            var response = JsonConvert.DeserializeObject<ClientStateResponse>(responseString);
 
             if (response != null) { IDosGamesSDKSettings.Instance.PlayTime = 0; }
 
             return response;
         }
 
-        public static async Task<AuthenticationResponse> ClaimTokenReward(string userID, string clientSessionTicket, FunctionParameters functionParameter)
+        public static async Task<ClientStateResponse> ClaimTokenReward(string userID, string clientSessionTicket, FunctionParameters functionParameter)
         {
             var requestBody = new IGSRequest
             {
@@ -81,7 +81,7 @@ namespace IDosGames
             };
 
             string responseString = await SendPostRequest(URL_USER_DATA_SYSTEM + nameof(ClaimTokenReward), requestBody);
-            var response = JsonConvert.DeserializeObject<AuthenticationResponse>(responseString);
+            var response = JsonConvert.DeserializeObject<ClientStateResponse>(responseString);
 
             if (response != null) { IDosGamesSDKSettings.Instance.PlayTime = 0; }
 
@@ -89,7 +89,7 @@ namespace IDosGames
         }
 
         // ------------------ Login / Registration ------------------ //
-        public static async Task<AuthenticationResponse> LoginWithDeviceID()
+        public static async Task<ClientStateResponse> LoginWithDeviceID()
         {
             string deviceID = GetOrCreateDeviceID();
             string userName = GetUserName();
@@ -112,14 +112,14 @@ namespace IDosGames
             string response = await SendPostRequest(URL_LOGIN_SYSTEM + nameof(LoginWithDeviceID), requestBody);
             
             // Десериализация строки в объект GetAllUserDataResult  
-            AuthenticationResponse result = JsonConvert.DeserializeObject<AuthenticationResponse>(response);
+            ClientStateResponse result = JsonConvert.DeserializeObject<ClientStateResponse>(response);
 
             if (result != null ) { IDosGamesSDKSettings.Instance.PlayTime = 0; }
 
             return result;
         }
 
-        public static async Task<AuthenticationResponse> LoginWithTelegram(string telegramInitData)
+        public static async Task<ClientStateResponse> LoginWithTelegram(string telegramInitData)
         {
             var requestBody = new IGSRequest
             {
@@ -133,7 +133,7 @@ namespace IDosGames
             string response = await SendPostRequest(URL_LOGIN_SYSTEM + ServerFunctionHandlers.LoginWithTelegram.ToString(), requestBody);
 
             // Десериализация строки в объект GetAllUserDataResult  
-            AuthenticationResponse result = JsonConvert.DeserializeObject<AuthenticationResponse>(response);
+            ClientStateResponse result = JsonConvert.DeserializeObject<ClientStateResponse>(response);
 
             if (result != null) { IDosGamesSDKSettings.Instance.PlayTime = 0; }
 
@@ -203,7 +203,7 @@ namespace IDosGames
             return platform;
         }
 
-        public static async Task<AuthenticationResponse> LoginWithEmail(string email, string password)
+        public static async Task<ClientStateResponse> LoginWithEmail(string email, string password)
         {
             var requestBody = new IGSRequest
             {
@@ -218,7 +218,7 @@ namespace IDosGames
 
             string response = await SendPostRequest(URL_LOGIN_SYSTEM + nameof(LoginWithEmail), requestBody);
 
-            AuthenticationResponse result = JsonConvert.DeserializeObject<AuthenticationResponse>(response);
+            ClientStateResponse result = JsonConvert.DeserializeObject<ClientStateResponse>(response);
 
             if (result != null) { IDosGamesSDKSettings.Instance.PlayTime = 0; }
 
@@ -242,7 +242,7 @@ namespace IDosGames
             return await SendPostRequest(URL_LOGIN_SYSTEM + nameof(AddEmailAndPassword), requestBody);
         }
 
-        public static async Task<AuthenticationResponse> RegisterUserByEmail(string email, string password)
+        public static async Task<ClientStateResponse> RegisterUserByEmail(string email, string password)
         {
             var requestBody = new IGSRequest
             {
@@ -260,7 +260,7 @@ namespace IDosGames
 
             string response = await SendPostRequest(URL_LOGIN_SYSTEM + nameof(RegisterUserByEmail), requestBody);
 
-            AuthenticationResponse result = JsonConvert.DeserializeObject<AuthenticationResponse>(response);
+            ClientStateResponse result = JsonConvert.DeserializeObject<ClientStateResponse>(response);
 
             if (result != null) { IDosGamesSDKSettings.Instance.PlayTime = 0; }
 

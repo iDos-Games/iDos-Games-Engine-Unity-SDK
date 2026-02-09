@@ -56,7 +56,7 @@ namespace IDosGames.ServerModels
 
     public enum UserAction
     {
-        GetAllUserData,
+        GetClientState,
         GetUserInventory,
         GetCustomUserData,
         UpdateCustomUserData,

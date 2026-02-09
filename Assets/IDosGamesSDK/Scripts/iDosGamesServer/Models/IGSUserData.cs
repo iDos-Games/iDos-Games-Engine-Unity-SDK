@@ -6,7 +6,7 @@ namespace IDosGames
 {
     public static class IGSUserData
     {
-        public static AuthenticationResponse UserAllDataResult { get; set; }
+        public static ClientStateResponse UserAllDataResult { get; set; }
         public static GetUserInventoryResult UserInventory { get; set; }
         public static TitlePublicConfigurationModel TitlePublicConfiguration { get; set; }
         public static GetCustomUserDataResult CustomUserData { get; set; }

@@ -92,7 +92,7 @@ namespace IDosGames
             _instance = new();
         }
 
-        public static void ProcessingAllData(AuthenticationResponse userDataResult)
+        public static void ProcessingAllData(ClientStateResponse userDataResult)
         {
             DataRequested?.Invoke();
 

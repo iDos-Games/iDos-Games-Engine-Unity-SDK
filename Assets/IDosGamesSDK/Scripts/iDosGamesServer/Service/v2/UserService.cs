@@ -8,7 +8,7 @@ namespace IDosGames
 {
     public static class UserService
     {
-        public static event Action<AuthenticationResponse> OnUserAllDataReceived;
+        public static event Action<ClientStateResponse> OnClientStateReceived;
         public static event Action<GetUserInventoryResult> OnUserInventoryReceived;
         public static event Action<GetCustomUserDataResult> OnCustomUserDataReceived;
         public static event Action<SuccessResponse> OnCustomUserDataUpdated;
@@ -33,17 +33,17 @@ namespace IDosGames
             };
         }
 
-        public static async Task<OperationResult<AuthenticationResponse>> GetAllUserData()
+        public static async Task<OperationResult<ClientStateResponse>> GetClientState()
         {
             var request = CreateBaseRequest();
             request.UsageTime = IDosGamesSDKSettings.Instance.PlayTime;
 
-            var result = await UserAPI.GetAllUserData(request);
+            var result = await UserAPI.GetClientState(request);
 
             if (result.Success)
             {
                 IDosGamesSDKSettings.Instance.PlayTime = 0;
-                OnUserAllDataReceived?.Invoke(result.Data);
+                OnClientStateReceived?.Invoke(result.Data);
             }
 
             return result;

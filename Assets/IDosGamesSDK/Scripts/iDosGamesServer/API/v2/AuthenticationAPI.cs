@@ -50,29 +50,29 @@ namespace IDosGames
             return titleID;
         }
 
-        public static Task<OperationResult<PlatformLoginResponse>> LoginWithPlatformToken(AuthenticationRequest request)
+        public static Task<OperationResult<PlatformLoginResponse>> LoginTokensWithPlatformToken(AuthenticationRequest request)
         {
-            return HttpService.Post<PlatformLoginResponse>(GetEndpoint(AuthenticationAction.LoginWithPlatformToken), request);
+            return HttpService.Post<PlatformLoginResponse>(GetEndpoint(AuthenticationAction.LoginTokensWithPlatformToken), request);
         }
 
-        public static Task<OperationResult<AuthenticationResponse>> LoginWithDeviceID(AuthenticationRequest request)
+        public static Task<OperationResult<ClientStateResponse>> LoginWithDeviceID(AuthenticationRequest request)
         {
-            return HttpService.Post<AuthenticationResponse>(GetEndpoint(AuthenticationAction.LoginWithDeviceID), request);
+            return HttpService.Post<ClientStateResponse>(GetEndpoint(AuthenticationAction.LoginWithDeviceID), request);
         }
 
-        public static Task<OperationResult<AuthenticationResponse>> LoginWithTelegram(AuthenticationRequest request)
+        public static Task<OperationResult<ClientStateResponse>> LoginWithTelegram(AuthenticationRequest request)
         {
-            return HttpService.Post<AuthenticationResponse>(GetEndpoint(AuthenticationAction.LoginWithTelegram), request);
+            return HttpService.Post<ClientStateResponse>(GetEndpoint(AuthenticationAction.LoginWithTelegram), request);
         }
 
-        public static Task<OperationResult<AuthenticationResponse>> LoginWithEmail(AuthenticationRequest request)
+        public static Task<OperationResult<ClientStateResponse>> LoginWithEmail(AuthenticationRequest request)
         {
-            return HttpService.Post<AuthenticationResponse>(GetEndpoint(AuthenticationAction.LoginWithEmail), request);
+            return HttpService.Post<ClientStateResponse>(GetEndpoint(AuthenticationAction.LoginWithEmail), request);
         }
 
-        public static Task<OperationResult<AuthenticationResponse>> RegisterUserByEmail(AuthenticationRequest request)
+        public static Task<OperationResult<ClientStateResponse>> RegisterWithEmail(AuthenticationRequest request)
         {
-            return HttpService.Post<AuthenticationResponse>(GetEndpoint(AuthenticationAction.RegisterUserByEmail), request);
+            return HttpService.Post<ClientStateResponse>(GetEndpoint(AuthenticationAction.RegisterWithEmail), request);
         }
 
         public static Task<OperationResult<SuccessResponse>> ForgotPassword(AuthenticationRequest request)

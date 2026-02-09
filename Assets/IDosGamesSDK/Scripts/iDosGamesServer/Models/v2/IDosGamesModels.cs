@@ -66,14 +66,24 @@ namespace IDosGames
 
     public enum AuthenticationAction
     {
+        // FULL (tokens + all data)
         LoginWithDeviceID,
         LoginWithTelegram,
         LoginWithEmail,
-        RegisterUserByEmail,
+        LoginWithGoogle,
+        LoginWithPlatformToken,
+        RegisterWithEmail,
+
+        // TOKENS ONLY
+        LoginTokensWithDeviceID,
+        LoginTokensWithTelegram,
+        LoginTokensWithEmail,
+        LoginTokensWithGoogle,
+        LoginTokensWithPlatformToken,
+        RegisterTokensWithEmail,
+
         ForgotPassword,
         ResetPassword,
-        LoginOrRegisterWithPlatformEmail,
-        LoginWithPlatformToken,
         RefreshPlatformToken,
     }
 }

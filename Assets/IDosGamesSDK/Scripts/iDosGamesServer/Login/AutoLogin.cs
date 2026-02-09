@@ -62,7 +62,7 @@ namespace IDosGames
             AuthService.Instance.LoginWithDeviceID(OnSuccessAutoLogin, OnErrorAutoLogin, OnRetryAutoLogin);
         }
 
-        private void OnSuccessAutoLogin(AuthenticationResponse authContext)
+        private void OnSuccessAutoLogin(ClientStateResponse authContext)
         {
             Loading.SwitchToNextScene();
         }

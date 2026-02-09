@@ -22,9 +22,9 @@ namespace IDosGames
             );
         }
 
-        public static async Task<OperationResult<AuthenticationResponse>> GetAllUserData(UserRequest request)
+        public static async Task<OperationResult<ClientStateResponse>> GetClientState(UserRequest request)
         {
-            return await SendRequest<AuthenticationResponse>(UserAction.GetAllUserData, request);
+            return await SendRequest<ClientStateResponse>(UserAction.GetClientState, request);
         }
 
         public static async Task<OperationResult<GetUserInventoryResult>> GetUserInventory(UserRequest request)

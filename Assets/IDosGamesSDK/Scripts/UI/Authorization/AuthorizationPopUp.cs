@@ -133,14 +133,14 @@ namespace IDosGames
 			return AuthService.CheckEmailAddress(input);
 		}
 
-		private void OnLogInSuccess(AuthenticationResponse result)
+		private void OnLogInSuccess(ClientStateResponse result)
 		{
 			//Message.Show(MessageCode.SUCCESS_LOGGED_IN);
 			UserDataService.ProcessingAllData(result);
             Loading.SwitchToNextScene();
         }
 
-		private void OnSignUpSuccess(AuthenticationResponse result)
+		private void OnSignUpSuccess(ClientStateResponse result)
 		{
             UserDataService.ProcessingAllData(result);
             Loading.SwitchToNextScene();
