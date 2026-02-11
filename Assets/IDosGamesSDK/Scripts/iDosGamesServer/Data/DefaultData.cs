@@ -6,5 +6,7 @@ namespace IDosGames
         public const string TokenCurrencyId = "IG";
 
         public const string CoinContest = "coin_contest";
+
+        public const string InstantBattle1v1 = "InstantBattle1v1";
     }
 }

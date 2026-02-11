@@ -9,10 +9,10 @@ namespace IDosGames
         {
             List<string> itemIDs = new()
             {
-                "avatar_hat_v1_01", "avatar_hat_v1_01",
+                "avatar_hat_v1_01", "avatar_hat_v1_01", "avatar_hat_v1_01",
             };
-            //_ = CraftService.Craft("test", itemIDs);
-            _ = LootboxService.Open("test", 1);
+            _ = CraftService.Craft("test", itemIDs, 1, 1);
+            //_ = LootboxService.Open("test", 1);
         }
 
         public void SaveValueToServer()
