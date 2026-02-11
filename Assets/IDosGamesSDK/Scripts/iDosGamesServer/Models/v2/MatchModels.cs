@@ -7,7 +7,7 @@ using IDosGames.ServerModels;
 namespace IDosGames.ClientModels
 {
     // =================================================================================
-    // ENUMS (Строго как на сервере)
+    // ENUMS
     // =================================================================================
 
     [JsonConverter(typeof(StringEnumConverter))]
@@ -29,7 +29,7 @@ namespace IDosGames.ClientModels
         SaveStrategy,
         GetMyMatches,
         GetAvailableMatches,
-        // Остальные экшены, если есть на сервере
+        
         JoinMatch,
         GetMatch,
         SubmitAction,
@@ -72,7 +72,7 @@ namespace IDosGames.ClientModels
         // Paging & Filters
         public int Page = 0;
         public int PageSize = 20;
-        public List<string> Statuses; // Для фильтрации статусов
+        public List<string> Statuses;
         public int? MinEntryFeeAmount;
         public int? MaxEntryFeeAmount;
         public bool OnlyPublic = false;
@@ -85,7 +85,6 @@ namespace IDosGames.ClientModels
     [Serializable]
     public class CreateMatchResponse
     {
-        // ИСПРАВЛЕНО: Теперь это Enum, как требовалось
         public MatchStatus Status;
         public string MatchID;
         public int RewardPoolAmount;
@@ -110,7 +109,6 @@ namespace IDosGames.ClientModels
     // DATA MODELS
     // =================================================================================
 
-    // Модель оффера (восстановлена по логике использования на сервере)
     [Serializable]
     public class PvPMatch
     {
@@ -118,10 +116,7 @@ namespace IDosGames.ClientModels
         public string CreatorID;
         public string CurrencyID;
         public int EntryFeeAmount;
-
-        // ИСПРАВЛЕНО: Enum вместо string
         public MatchStatus Status;
-
         public int RewardPoolAmount;
         public string CreatorCharacterID;
         public List<BattleStepConfig> CreatorStrategy;
@@ -129,7 +124,6 @@ namespace IDosGames.ClientModels
         public DateTime? ExpiresAt;
     }
 
-    // Результат боя (Server: BattleResult)
     [Serializable]
     public class BattleResult
     {
@@ -144,7 +138,6 @@ namespace IDosGames.ClientModels
         public double P2StartHp;
     }
 
-    // Лог боя
     [Serializable]
     public class BattleLogEntry
     {
@@ -158,7 +151,6 @@ namespace IDosGames.ClientModels
         public double DefenderHpRemaining;
     }
 
-    // Шаг стратегии
     [Serializable]
     public class BattleStepConfig
     {
@@ -166,7 +158,6 @@ namespace IDosGames.ClientModels
         public BodyPart DefenseTarget;
     }
 
-    // Статы (если понадобятся)
     [Serializable]
     public class FighterStats
     {
@@ -179,5 +170,4 @@ namespace IDosGames.ClientModels
         public double Armor;
         public double DodgeChance;
     }
-
 }
