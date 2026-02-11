@@ -75,6 +75,16 @@ namespace IDosGames
             return result;
         }
 
+        public static async Task<OperationResult<MatchesPageResponse>> GetMyMatches(int page = 0, int pageSize = 20, List<string> statuses = null)
+        {
+            var request = CreateBaseRequest();
+            request.Page = page;
+            request.PageSize = pageSize;
+            request.Statuses = statuses;
+
+            return await MatchAPI.GetMyMatches(request);
+        }
+
         /// <summary>
         /// Get a list of matches available for battle
         /// </summary>

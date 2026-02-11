@@ -87,6 +87,7 @@ namespace IDosGames.ClientModels
     {
         public MatchStatus Status;
         public string MatchID;
+        public string RewardPoolCurrencyID;
         public int RewardPoolAmount;
     }
 
