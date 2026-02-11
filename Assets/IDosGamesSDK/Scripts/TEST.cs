@@ -9,9 +9,9 @@ namespace IDosGames
         {
             List<string> itemIDs = new()
             {
-                "avatar_hat_v1_01", "avatar_hat_v1_01", "avatar_hat_v1_01",
+                "avatar_hat_v1_01", "avatar_glasses_v3_01", "avatar_glasses_v4_01", "avatar_glasses_v5_01", "avatar_glasses_v5_01",
             };
-            _ = CraftService.Craft("test", itemIDs, 1, 1);
+            _ = CraftService.Craft("test", itemIDs, 2, 1);
             //_ = LootboxService.Open("test", 1);
         }
 

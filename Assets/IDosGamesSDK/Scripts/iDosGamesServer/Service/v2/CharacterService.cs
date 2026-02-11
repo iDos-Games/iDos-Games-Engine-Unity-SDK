@@ -13,6 +13,7 @@ namespace IDosGames
         public static event Action<UpgradeCharacterLevelResponse> OnCharacterLevelUpgradeSuccess;
         public static event Action<SuccessResponse> OnEquipItems;
         public static event Action<SuccessResponse> OnUnequipItems;
+        public static event Action<SuccessResponse> OnUnequipAllCharacters;
 
         private static IGSAuthenticationContext Ctx => AuthService.GetAuthContext();
         private static string UserID => Ctx.UserID;
@@ -120,6 +121,20 @@ namespace IDosGames
             if (result.Success)
             {
                 OnUnequipItems?.Invoke(result.Data);
+            }
+
+            return result;
+        }
+
+        public static async Task<OperationResult<SuccessResponse>> UnequipAllCharacters()
+        {
+            var request = CreateBaseRequest();
+
+            var result = await CharacterAPI.UnequipAllCharacters(request);
+
+            if (result.Success)
+            {
+                OnUnequipAllCharacters?.Invoke(result.Data);
             }
 
             return result;

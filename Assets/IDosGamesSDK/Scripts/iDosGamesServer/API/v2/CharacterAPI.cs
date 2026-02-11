@@ -7,7 +7,7 @@ namespace IDosGames
     public static class CharacterAPI
     {
         /// <summary>
-        /// Формирует URL для запроса.
+        /// Generates a URL for the request.
         /// </summary>
         private static string GetEndpoint(CharacterAction action, string userID)
         {
@@ -18,7 +18,7 @@ namespace IDosGames
         }
 
         /// <summary>
-        /// Универсальный метод отправки запроса, скрывающий детали HttpService.
+        /// A generic method for sending a request that hides the details of HttpService.
         /// </summary>
         private static async Task<OperationResult<TResponse>> SendRequest<TResponse>(CharacterAction action, CharacterRequest request)
         {
@@ -61,6 +61,11 @@ namespace IDosGames
         public static async Task<OperationResult<SuccessResponse>> UnequipItems(CharacterRequest request)
         {
             return await SendRequest<SuccessResponse>(CharacterAction.UnequipItems, request);
+        }
+
+        public static async Task<OperationResult<SuccessResponse>> UnequipAllCharacters(CharacterRequest request)
+        {
+            return await SendRequest<SuccessResponse>(CharacterAction.UnequipAllCharacters, request);
         }
     }
 }

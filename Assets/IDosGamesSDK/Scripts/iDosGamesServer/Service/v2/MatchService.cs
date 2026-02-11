@@ -19,7 +19,9 @@ namespace IDosGames
             return new MatchRequest
             {
                 UserID = UserID,
-                ClientSessionTicket = ClientSessionTicket
+                ClientSessionTicket = ClientSessionTicket,
+                BuildKey = IDosGamesSDKSettings.Instance.BuildKey,
+                WebAppLink = WebSDK.webAppLink,
             };
         }
 

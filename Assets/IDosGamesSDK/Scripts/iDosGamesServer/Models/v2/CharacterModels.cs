@@ -16,6 +16,7 @@ namespace IDosGames.ClientModels
         UpgradeCharacterLevel,
         EquipItems,
         UnequipItems,
+        UnequipAllCharacters,
     }
 
     // =================================================================================
