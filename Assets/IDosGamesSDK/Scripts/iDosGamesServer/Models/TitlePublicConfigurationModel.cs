@@ -1,3 +1,5 @@
+﻿using IDosGames.ClientModels;
+using Nethereum.ABI;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using System;
@@ -34,10 +36,13 @@ namespace IDosGames.TitlePublicConfiguration
         public List<AiCustomSetting> AiCustomSettings { get; set; }
         public Dictionary<string, string> ImageData { get; set; }
         public Dictionary<string, string> AssetBundle { get; set; }
+        public GameLoopsDefinition GameLoops { get; set; }
         public CharacterDefinitions CharacterDefinitions { get; set; }
         public List<LootboxDefinition> LootboxDefinitions { get; set; }
+        public List<CraftDefinition> CraftDefinitions { get; set; }
         public List<DailyRewardsDefinition> DailyRewardsDefinitions { get; set; }
         public List<CurrencyTransferPair> AllowedCurrencyTransferPairs { get; set; }
+        public QuestDefinitions QuestDefinitions { get; set; }
     }
 
     public class AiCustomSetting
@@ -480,6 +485,77 @@ namespace IDosGames.TitlePublicConfiguration
         public int Weight { get; set; }
     }
 
+    public class GameLoopsDefinition
+    {
+        public RaidBuildLoopDefinition RaidBuild { get; set; }
+    }
+
+    public class RaidBuildLoopDefinition
+    {
+        // общие настройки режима
+        public string CoinCurrencyID { get; set; } = "CO";
+        public string ShieldCurrencyID { get; set; } = "SH";
+        public int MaxBuildingLevel { get; set; } = 5;
+
+        // список уровней/стейджей
+        public Dictionary<int, RaidBuildStageDefinition> StagesByLevel { get; set; } = new();
+    }
+
+    public class RaidBuildStageDefinition
+    {
+        // --- БАЗОВЫЕ НАСТРОЙКИ ---
+        // public int MapLevel { get; set; } теперь ключ в словаре StagesByLevel
+        public string Name { get; set; }
+        public int BuildingCount { get; set; } = 5;
+
+        public string AssetID { get; set; } //ID от AssetBundle если нужно
+        public string MapImagepath { get; set; } // Фон уровня
+
+        // --- СТРОИТЕЛЬСТВО (РАСХОДЫ) ---
+        public double CostGrowthFactor { get; set; } = 1.25;
+
+        // Вот сюда мы пишем, какие именно домики строим на этом уровне
+        public List<BuildingDefinition> Buildings { get; set; }
+
+        // --- ЗАРАБОТОК (ПРИХОДЫ) ---
+
+        // 1. АТАКА: Базовая награда за успешный удар.
+        // Итоговая награда = BaseAttackReward * BetMultiplier
+        public PriceValue BaseAttackReward { get; set; }
+
+        // 2. РЕЙД: "Идеальный рейд".
+        // Это число используется для генерации ботов или кэпа грабежа.
+        public PriceValue BaseRaidReward { get; set; }
+
+        // --- ПРОГРЕССИЯ ---
+
+        // Максимальная ставка (x3, x5, x10, x100) доступная на этом уровне
+        public int MaxBetMultiplier { get; set; }
+
+        // --- ЗАЩИТА ---
+        public int MaxShields { get; set; }
+
+        // --- ФИНАЛ УРОВНЯ ---
+        public List<ItemOrCurrency> CompletionReward { get; set; }
+    }
+
+    // НОВЫЙ КЛАСС: Описывает одно здание на карте
+    public class BuildingDefinition
+    {
+        public int SlotIndex { get; set; } // Индекс слота
+        public string Name { get; set; } // Название (например "Statue of Zeus")
+        public string AssetID { get; set; } // Ключ для загрузки ассета (Addressables / Resources)
+        public string ImageUrl { get; set; } // Если у тебя WebGL или ты грузишь картинки напрямую из интернета (CDN)
+        public PriceValue BaseBuildCost { get; set; }
+    }
+
+    // Универсальный класс для цен и наград (Валюта + Кол-во)
+    public class PriceValue
+    {
+        public string CurrencyID { get; set; }
+        public long Amount { get; set; }
+    }
+
     public class DailyRewardsDefinition
     {
         public string CalendarID { get; set; }
@@ -500,5 +576,199 @@ namespace IDosGames.TitlePublicConfiguration
     {
         public string FromCurrencyID { get; set; }
         public string ToCurrencyID { get; set; }
+    }
+
+    // =========================
+    // QUEST SYSTEM
+    // =========================
+
+    /// <summary>
+    /// Корневой блок системы квестов в конфиге тайтла.
+    /// </summary>
+    public class QuestDefinitions
+    {
+        /// <summary>
+        /// Определения циклов (daily/weekly/monthly/каждые N дней).
+        /// Время ресета не настраивается: всегда 00:00:00 UTC.
+        /// Weekly всегда начинается в Понедельник, Monthly всегда начинается 1 числа.
+        /// </summary>
+        public List<QuestCycleDefinition> Cycles { get; set; } = new();
+
+        /// <summary>
+        /// Определения квестов.
+        /// Если CycleID пустой/null => квест вечный (Permanent).
+        /// Если CycleID задан => квест цикличный и относится к этому циклу.
+        /// </summary>
+        public List<QuestDefinition> Quests { get; set; } = new();
+    }
+
+    /// <summary>
+    /// Тип цикла/ресета. Ресеты всегда 00:00:00 UTC.
+    /// </summary>
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum QuestCycleResetKind
+    {
+        /// <summary>Каждый день в 00:00 UTC.</summary>
+        Daily,
+
+        /// <summary>Каждый Понедельник в 00:00 UTC.</summary>
+        Weekly,
+
+        /// <summary>Каждое 1 число месяца в 00:00 UTC.</summary>
+        Monthly,
+
+        /// <summary>Каждые IntervalDays дней в 00:00 UTC от AnchorUtc.</summary>
+        FixedIntervalDays
+    }
+
+    /// <summary>
+    /// Определение цикла: расписание + milestone-награды.
+    /// Квесты НЕ перечисляются здесь — квесты сами ссылаются на CycleID.
+    /// </summary>
+    public class QuestCycleDefinition
+    {
+        /// <summary>
+        /// ID цикла (например: "daily", "weekly", "monthly", "cycle_10d").
+        /// Mongo-safe (без '.' и '$'), т.к. может быть ключом в state.
+        /// </summary>
+        public string CycleID { get; set; }
+
+        /// <summary>
+        /// Имя цикла для UI/админки.
+        /// </summary>
+        public string DisplayName { get; set; }
+
+        /// <summary>
+        /// Тип ресета цикла (всегда 00:00:00 UTC).
+        /// Weekly всегда Понедельник, Monthly всегда 1 число.
+        /// </summary>
+        public QuestCycleResetKind ResetKind { get; set; }
+
+        /// <summary>
+        /// Только для FixedIntervalDays: длина окна в днях (например 10 или 15).
+        /// Для Daily/Weekly/Monthly игнорируется.
+        /// </summary>
+        public int IntervalDays { get; set; } = 10;
+
+        /// <summary>
+        /// Только для FixedIntervalDays: якорная дата (строго 00:00 UTC),
+        /// от которой считаются окна по IntervalDays.
+        /// Для Daily/Weekly/Monthly игнорируется.
+        /// </summary>
+        public DateTime AnchorUtc { get; set; } = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
+        /// <summary>
+        /// Milestone-награды за N завершённых квестов в текущем окне цикла.
+        /// </summary>
+        public List<QuestCycleMilestoneDefinition> Milestones { get; set; }
+    }
+
+    /// <summary>
+    /// Milestone-награда за прогресс цикла.
+    /// </summary>
+    public class QuestCycleMilestoneDefinition
+    {
+        /// <summary>
+        /// ID милстоуна (например: "m3", "m5"). Mongo-safe.
+        /// </summary>
+        public string MilestoneID { get; set; }
+
+        /// <summary>
+        /// Требуемое количество завершённых квестов (Completed или Claimed) в окне.
+        /// </summary>
+        public int RequiredCompletedQuests { get; set; } = 0;
+
+        /// <summary>
+        /// Награды за milestone (ваш ItemOrCurrency).
+        /// </summary>
+        public List<ItemOrCurrency> Rewards { get; set; } = new();
+    }
+
+    /// <summary>
+    /// Определение квеста.
+    /// </summary>
+    public class QuestDefinition
+    {
+        /// <summary>
+        /// ID квеста (например: "win_3_raids"). Mongo-safe (без '.' и '$').
+        /// </summary>
+        public string QuestID { get; set; }
+
+        /// <summary>
+        /// Список CycleID, к которым относится квест.
+        /// - Если null/empty => квест вечный (Permanent), хранится у игрока в PermanentQuests.
+        /// - Если содержит элементы => квест цикличный и появляется в каждом из этих циклов.
+        ///
+        /// Важно: если один QuestID находится в нескольких циклах одновременно,
+        /// прогресс хранится ОТДЕЛЬНО для каждого цикла в UserQuestState.Cycles[cycleId].Quests[QuestID].
+        /// </summary>
+        public List<string> CycleIDs { get; set; }
+
+        /// <summary>Название квеста для UI.</summary>
+        public string DisplayName { get; set; }
+
+        /// <summary>Описание квеста для UI.</summary>
+        public string Description { get; set; }
+
+        /// <summary>Сортировка в UI (меньше = выше).</summary>
+        public int SortOrder { get; set; } = 0;
+
+        /// <summary>
+        /// Пререквизиты (опционально): какие QuestID должны быть закрыты ранее.
+        /// </summary>
+        public List<string> RequiredQuestIDs { get; set; }
+
+        /// <summary>
+        /// Цели квеста. Квест выполнен, когда ВСЕ цели выполнены.
+        /// </summary>
+        public List<QuestObjectiveDefinition> Objectives { get; set; }
+
+        /// <summary>
+        /// Награды за выполнение квеста.
+        /// </summary>
+        public List<ItemOrCurrency> Rewards { get; set; }
+    }
+
+    /// <summary>
+    /// Цель квеста: универсальный счётчик по MetricID.
+    /// </summary>
+    public class QuestObjectiveDefinition
+    {
+        /// <summary>
+        /// ID цели внутри квеста (например: "raid_wins"). Mongo-safe.
+        /// </summary>
+        public string ObjectiveID { get; set; }
+
+        // ✅ НОВОЕ: кто может начислять прогресс
+        public QuestObjectiveSource Source { get; set; }
+
+        /// <summary>
+        /// Ключ метрики/события, по которому начисляется прогресс
+        /// (например: "raid_win", "currency_spent:IG").
+        /// </summary>
+        public string MetricID { get; set; }
+
+        /// <summary>
+        /// Сколько нужно набрать для выполнения цели.
+        /// </summary>
+        public long TargetValue { get; set; } = 1;
+
+        /// <summary>
+        /// Метод агрегации прогресса (обычно Sum). Можно переиспользовать ваш enum.
+        /// </summary>
+        public StatisticAggregationMethod AggregationMethod { get; set; }
+
+        /// <summary>
+        /// Опциональные фильтры для уточнения метрики (режим, сложность и т.п.).
+        /// </summary>
+        public Dictionary<string, string> Filters { get; set; }
+    }
+
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum QuestObjectiveSource
+    {
+        ClientApi,     // клиент сам дергает AddProgress
+        ServerApi,     // другой сервер дергает AddProgress с SecretKey
+        SystemEvent    // только из внутренней логики игры (без HTTP)
     }
 }

@@ -7,9 +7,7 @@ namespace IDosGames
     {
         public void Test()
         {
-            _ = MatchService.GetAvailableMatches();
-            //_ = MatchService.CreateMatch(50);
-            //_ = MatchService.InstantBattle("698cf91dea662ed856763429");
+            Quest();
         }
 
         public void SaveValueToServer()
@@ -35,6 +33,18 @@ namespace IDosGames
                 "avatar_hat_v1_01", "avatar_glasses_v3_01", "avatar_glasses_v4_01", "avatar_glasses_v5_01", "avatar_glasses_v5_01",
             };
             _ = CraftService.Craft("test", itemIDs, 2, 1);
+        }
+
+        public void Match()
+        {
+            _ = MatchService.GetAvailableMatches();
+            //_ = MatchService.CreateMatch(50);
+            //_ = MatchService.InstantBattle("698cf91dea662ed856763429");
+        }
+
+        public void Quest()
+        {
+            _ = QuestService.GetQuestDefinitions();
         }
     }
 }

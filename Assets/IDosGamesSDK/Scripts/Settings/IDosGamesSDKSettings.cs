@@ -219,7 +219,7 @@ namespace IDosGames
             set => _developerSecretKey = value;
         }
 
-        [HideInInspector][SerializeField] public string IgsAdminApiLink => $"{_serverLink}/api/{_titleTemplateID}/{_titleID}/Admin/".Trim();
+        [HideInInspector] public string IgsAdminApiLink => $"{_serverLink}/api/{_titleTemplateID}/{_titleID}/Admin/".Trim();
 
         [HideInInspector] public string WebGLBuildPath = "Assets/WebGLBuild/";
 

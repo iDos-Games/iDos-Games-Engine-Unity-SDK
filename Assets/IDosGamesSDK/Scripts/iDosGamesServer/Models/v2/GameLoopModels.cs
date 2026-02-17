@@ -22,18 +22,18 @@ namespace IDosGames.ServerModels
     // =================================================================================
 
     [Serializable]
-    public class SpinResponse
+    public class RollResponse
     {
         public string Symbol { get; set; }
         public int Multiplier { get; set; }
         public long RewardAmount { get; set; }
         public string RewardType { get; set; }
         public string ActionRequired { get; set; }
-        public SpinActionResponse ActionData { get; set; }
+        public RollActionResponse ActionData { get; set; }
     }
 
     [Serializable]
-    public class SpinActionResponse
+    public class RollActionResponse
     {
         public string TargetUserID { get; set; }
         public string TargetName { get; set; }
@@ -71,9 +71,9 @@ namespace IDosGames.ServerModels
 
     public enum GameLoopAction
     {
-        Spin,
-        Attack,
-        Raid,
-        Build
+        RaidBuildLoopRoll,
+        RaidBuildLoopAttack,
+        RaidBuildLoopRaid,
+        RaidBuildLoopBuild
     }
 }

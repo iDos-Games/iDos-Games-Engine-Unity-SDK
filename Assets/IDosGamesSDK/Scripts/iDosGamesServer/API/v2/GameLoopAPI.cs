@@ -21,24 +21,24 @@ namespace IDosGames
             );
         }
 
-        public static async Task<OperationResult<SpinResponse>> Spin(GameLoopRequest request)
+        public static async Task<OperationResult<RollResponse>> Spin(GameLoopRequest request)
         {
-            return await SendRequest<SpinResponse>(GameLoopAction.Spin, request);
+            return await SendRequest<RollResponse>(GameLoopAction.RaidBuildLoopRoll, request);
         }
 
         public static async Task<OperationResult<AttackResponse>> Attack(GameLoopRequest request)
         {
-            return await SendRequest<AttackResponse>(GameLoopAction.Attack, request);
+            return await SendRequest<AttackResponse>(GameLoopAction.RaidBuildLoopAttack, request);
         }
 
         public static async Task<OperationResult<RaidResponse>> Raid(GameLoopRequest request)
         {
-            return await SendRequest<RaidResponse>(GameLoopAction.Raid, request);
+            return await SendRequest<RaidResponse>(GameLoopAction.RaidBuildLoopRaid, request);
         }
 
         public static async Task<OperationResult<BuildResponse>> Build(GameLoopRequest request)
         {
-            return await SendRequest<BuildResponse>(GameLoopAction.Build, request);
+            return await SendRequest<BuildResponse>(GameLoopAction.RaidBuildLoopBuild, request);
         }
     }
 }

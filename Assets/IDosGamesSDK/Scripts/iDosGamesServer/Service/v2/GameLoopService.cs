@@ -6,7 +6,7 @@ namespace IDosGames
 {
     public static class GameLoopService
     {
-        public static event Action<SpinResponse> OnSpinSuccess;
+        public static event Action<RollResponse> OnSpinSuccess;
         public static event Action<AttackResponse> OnAttackSuccess;
         public static event Action<RaidResponse> OnRaidSuccess;
         public static event Action<BuildResponse> OnBuildSuccess;
@@ -26,7 +26,7 @@ namespace IDosGames
             };
         }
 
-        public static async Task<OperationResult<SpinResponse>> Spin(string lootboxId, int multiplier)
+        public static async Task<OperationResult<RollResponse>> Spin(string lootboxId, int multiplier)
         {
             var request = CreateBaseRequest();
 
