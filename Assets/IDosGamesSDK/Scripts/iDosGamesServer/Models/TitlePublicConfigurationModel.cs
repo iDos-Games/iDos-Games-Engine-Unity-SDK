@@ -1,5 +1,4 @@
 ﻿using IDosGames.ClientModels;
-using Nethereum.ABI;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using System;
@@ -487,73 +486,85 @@ namespace IDosGames.TitlePublicConfiguration
 
     public class GameLoopsDefinition
     {
-        public RaidBuildLoopDefinition RaidBuild { get; set; }
+        public BoardLoopDefinition RaidBuild { get; set; }
     }
 
-    public class RaidBuildLoopDefinition
+    public class BoardLoopDefinition
     {
-        // общие настройки режима
-        public string CoinCurrencyID { get; set; } = "CO";
-        public string ShieldCurrencyID { get; set; } = "SH";
-        public int MaxBuildingLevel { get; set; } = 5;
+        public string RollCurrencyID { get; set; }
+        public string ShieldCurrencyID { get; set; }
+        public List<int> AllowedRollMultipliers { get; set; }
 
         // список уровней/стейджей
-        public Dictionary<int, RaidBuildStageDefinition> StagesByLevel { get; set; } = new();
+        public Dictionary<string, BoardStageDefinition> StagesByLevel { get; set; }
     }
 
-    public class RaidBuildStageDefinition
+    public class BoardStageDefinition
     {
-        // --- БАЗОВЫЕ НАСТРОЙКИ ---
-        // public int MapLevel { get; set; } теперь ключ в словаре StagesByLevel
         public string Name { get; set; }
-        public int BuildingCount { get; set; } = 5;
+        public string AssetID { get; set; }
+        public string MapImagePath { get; set; }
 
-        public string AssetID { get; set; } //ID от AssetBundle если нужно
-        public string MapImagepath { get; set; } // Фон уровня
+        /// <summary>Клетки доски. Индекс = position.</summary>
+        public List<BoardTileDefinition> Tiles { get; set; }
 
-        // --- СТРОИТЕЛЬСТВО (РАСХОДЫ) ---
-        public double CostGrowthFactor { get; set; } = 1.25;
-
-        // Вот сюда мы пишем, какие именно домики строим на этом уровне
+        /// <summary>Building (обычно 5 шт)</summary>
         public List<BuildingDefinition> Buildings { get; set; }
 
-        // --- ЗАРАБОТОК (ПРИХОДЫ) ---
+        /// <summary>Рост стоимости апгрейдов Building’ов по уровню.</summary>
+        public double CostGrowthFactor { get; set; }
 
-        // 1. АТАКА: Базовая награда за успешный удар.
-        // Итоговая награда = BaseAttackReward * BetMultiplier
-        public PriceValue BaseAttackReward { get; set; }
+        /// <summary>Награда за успешную атаку (до множителя).</summary>
+        public ItemOrCurrency BaseAttackReward { get; set; }
 
-        // 2. РЕЙД: "Идеальный рейд".
-        // Это число используется для генерации ботов или кэпа грабежа.
-        public PriceValue BaseRaidReward { get; set; }
+        /// <summary>“Банк” для рейда (до множителя), используется для генерации raid layout.</summary>
+        public ItemOrCurrency BaseRaidReward { get; set; }
 
-        // --- ПРОГРЕССИЯ ---
+        /// <summary>Макс множитель ролла на этой локации (можно повышать по мере прогресса).</summary>
+        public int MaxRollMultiplier { get; set; }
 
-        // Максимальная ставка (x3, x5, x10, x100) доступная на этом уровне
-        public int MaxBetMultiplier { get; set; }
-
-        // --- ЗАЩИТА ---
+        /// <summary>Макс щитов на этой локации.</summary>
         public int MaxShields { get; set; }
 
-        // --- ФИНАЛ УРОВНЯ ---
+        /// <summary>Награда за полное завершение борда.</summary>
         public List<ItemOrCurrency> CompletionReward { get; set; }
+
+        /// <summary>Бонус за проход старта.</summary>
+        public List<ItemOrCurrency> PassStartReward { get; set; }
     }
 
-    // НОВЫЙ КЛАСС: Описывает одно здание на карте
+    public enum BoardTileType
+    {
+        Empty,
+        Reward,
+        Chance,
+        RandomAction,       // триггер Attack/Raid
+        Attack,
+        Raid,
+        Shield,         // pickup shield
+        EventToken      // универсальная “ивентовая” клетка
+    }
+
+    public class BoardTileDefinition
+    {
+        public int Index { get; set; }
+        public BoardTileType Type { get; set; }
+
+        /// <summary>Что выдавать при приземлении.</summary>
+        public List<ItemOrCurrency> TileRewards { get; set; }
+
+        /// <summary>Опциональные параметры под ивенты/AB.</summary>
+        public Dictionary<string, string> Params { get; set; }
+    }
+
     public class BuildingDefinition
     {
-        public int SlotIndex { get; set; } // Индекс слота
-        public string Name { get; set; } // Название (например "Statue of Zeus")
-        public string AssetID { get; set; } // Ключ для загрузки ассета (Addressables / Resources)
-        public string ImageUrl { get; set; } // Если у тебя WebGL или ты грузишь картинки напрямую из интернета (CDN)
-        public PriceValue BaseBuildCost { get; set; }
-    }
-
-    // Универсальный класс для цен и наград (Валюта + Кол-во)
-    public class PriceValue
-    {
-        public string CurrencyID { get; set; }
-        public long Amount { get; set; }
+        public int SlotIndex { get; set; }          // 0..4
+        public string Name { get; set; }
+        public string AssetID { get; set; }
+        public string ImageUrl { get; set; }
+        public ItemOrCurrency BaseBuildCost { get; set; }
+        public int MaxLevel { get; set; }
     }
 
     public class DailyRewardsDefinition

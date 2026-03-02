@@ -49,7 +49,9 @@ namespace IDosGames
 
         public void PlatformLogin()
         {
+#if UNITY_WEBGL //&& !UNITY_EDITOR
             TryPlatformLogin();
+#endif
         }
 
         public void AutoLoginWithEmail()

@@ -200,10 +200,13 @@ namespace IDosGames.ClientModels
     public class UserPublicDataModel
     {
         public string Username { get; set; }
+        public string Country { get; set; }
         public string AvatarUrl { get; set; }
         public bool Vip { get; set; }
+
         public int Level { get; set; }
-        public int Power { get; set; }
+        public long Power { get; set; }
+        public long NetWorth { get; set; }
     }
 
     public class PlayerProfileModel : IGSBaseModel

@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
-using IDosGames.ServerModels;
+using IDosGames.ClientModels;
+using IDosGames.TitlePublicConfiguration;
 
 namespace IDosGames
 {
@@ -21,24 +22,44 @@ namespace IDosGames
             );
         }
 
-        public static async Task<OperationResult<RollResponse>> Spin(GameLoopRequest request)
+        public static async Task<OperationResult<GameLoopsDefinition>> GetGameLoops(GameLoopRequest request)
         {
-            return await SendRequest<RollResponse>(GameLoopAction.RaidBuildLoopRoll, request);
+            return await SendRequest<GameLoopsDefinition>(GameLoopAction.GetGameLoops, request);
         }
 
-        public static async Task<OperationResult<AttackResponse>> Attack(GameLoopRequest request)
+        public static async Task<OperationResult<BoardLoopDefinition>> GetBoardDefinition(GameLoopRequest request)
         {
-            return await SendRequest<AttackResponse>(GameLoopAction.RaidBuildLoopAttack, request);
+            return await SendRequest<BoardLoopDefinition>(GameLoopAction.GetBoardDefinition, request);
         }
 
-        public static async Task<OperationResult<RaidResponse>> Raid(GameLoopRequest request)
+        public static async Task<OperationResult<BoardLoopDefinition>> GetBoardDefinitionForLevel(GameLoopRequest request)
         {
-            return await SendRequest<RaidResponse>(GameLoopAction.RaidBuildLoopRaid, request);
+            return await SendRequest<BoardLoopDefinition>(GameLoopAction.GetBoardDefinitionForLevel, request);
         }
 
-        public static async Task<OperationResult<BuildResponse>> Build(GameLoopRequest request)
+        public static async Task<OperationResult<BoardLoopState>> GetUserBoardState(GameLoopRequest request)
         {
-            return await SendRequest<BuildResponse>(GameLoopAction.RaidBuildLoopBuild, request);
+            return await SendRequest<BoardLoopState>(GameLoopAction.GetUserBoardState, request);
+        }
+
+        public static async Task<OperationResult<BoardRollResponse>> BoardLoopRoll(GameLoopRequest request)
+        {
+            return await SendRequest<BoardRollResponse>(GameLoopAction.BoardLoopRoll, request);
+        }
+
+        public static async Task<OperationResult<AttackResponse>> BoardLoopAttack(GameLoopRequest request)
+        {
+            return await SendRequest<AttackResponse>(GameLoopAction.BoardLoopAttack, request);
+        }
+
+        public static async Task<OperationResult<RaidResponse>> BoardLoopRaid(GameLoopRequest request)
+        {
+            return await SendRequest<RaidResponse>(GameLoopAction.BoardLoopRaid, request);
+        }
+
+        public static async Task<OperationResult<BuildResponse>> BoardLoopBuild(GameLoopRequest request)
+        {
+            return await SendRequest<BuildResponse>(GameLoopAction.BoardLoopBuild, request);
         }
     }
 }

@@ -7,7 +7,7 @@ namespace IDosGames
     {
         public void Test()
         {
-            Quest();
+            GameLoop();
         }
 
         public void SaveValueToServer()
@@ -44,7 +44,15 @@ namespace IDosGames
 
         public void Quest()
         {
-            _ = QuestService.GetQuestDefinitions();
+            _ = QuestService.GetUserQuestState();
+            //_ = QuestService.AddProgress("Metric1", 1);
+            _ = QuestService.ClaimQuestReward("Quest1", "Daily");
+            //_ = QuestService.ClaimMilestoneReward("Daily", "3");
+        }
+
+        public void GameLoop()
+        {
+            _ = GameLoopService.BoardLoopBuild(0);
         }
     }
 }
