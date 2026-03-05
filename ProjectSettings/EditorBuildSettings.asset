@@ -11,5 +11,8 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/IDosGamesSDK/Scenes/Main.unity
     guid: 110f0a0730c7f6144acdf0d3ee5c081a
+  - enabled: 0
+    path: Assets/IDosGamesSDK/Scenes/MainV2.unity
+    guid: 35d26b81fe0bfb746b3c0db9aed96b62
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0
