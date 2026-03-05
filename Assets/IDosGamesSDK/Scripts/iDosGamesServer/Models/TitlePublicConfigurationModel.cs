@@ -482,6 +482,8 @@ namespace IDosGames.TitlePublicConfiguration
     {
         public ItemOrCurrency Item { get; set; }
         public int Weight { get; set; }
+        public long MinAmount { get; set; }
+        public long MaxAmount { get; set; }
     }
 
     public class GameLoopsDefinition
@@ -494,9 +496,13 @@ namespace IDosGames.TitlePublicConfiguration
         public string RollCurrencyID { get; set; }
         public string ShieldCurrencyID { get; set; }
         public List<int> AllowedRollMultipliers { get; set; }
-
-        // список уровней/стейджей
+        public Dictionary<string, BoardTemplateDefinition> BoardTemplatesByID { get; set; }
         public Dictionary<string, BoardStageDefinition> StagesByLevel { get; set; }
+    }
+
+    public class BoardTemplateDefinition
+    {
+        public List<BoardTileDefinition> Tiles { get; set; }
     }
 
     public class BoardStageDefinition
@@ -504,9 +510,7 @@ namespace IDosGames.TitlePublicConfiguration
         public string Name { get; set; }
         public string AssetID { get; set; }
         public string MapImagePath { get; set; }
-
-        /// <summary>Клетки доски. Индекс = position.</summary>
-        public List<BoardTileDefinition> Tiles { get; set; }
+        public string BoardTemplateID { get; set; }
 
         /// <summary>Building (обычно 5 шт)</summary>
         public List<BuildingDefinition> Buildings { get; set; }

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using IDosGames.ServerModels;
 
 namespace IDosGames.ClientModels
 {
@@ -135,8 +134,17 @@ namespace IDosGames.ClientModels
 
         public List<BattleLogEntry> BattleLog = new();
 
-        public double P1StartHp;
-        public double P2StartHp;
+        public PlayerBattleProfile P1BattleProfile { get; set; }
+        public PlayerBattleProfile P2BattleProfile { get; set; }
+    }
+
+    [Serializable]
+    public class PlayerBattleProfile
+    {
+        public string UserID { get; set; }
+        public string SelectedCharacterID { get; set; }
+        public Dictionary<string, CharacterModel> Characters { get; set; }
+        public List<BattleStepConfig> BattleStrategy { get; set; }
     }
 
     [Serializable]

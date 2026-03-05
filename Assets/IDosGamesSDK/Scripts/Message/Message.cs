@@ -165,10 +165,5 @@ namespace IDosGames
         {
             ShowConnectionError(null);
         }
-
-        private void OnIAPServiceNotInitialized()
-		{
-			Show(MessageCode.IAP_SERVICE_NOT_INITIALIZED);
-		}
 	}
 }

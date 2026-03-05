@@ -747,6 +747,74 @@ RectTransform:
     type: 3}
   m_PrefabInstance: {fileID: 7465524567218903894}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &768644999
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 768645001}
+  - component: {fileID: 768645000}
+  m_Layer: 0
+  m_Name: Social
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &768645000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 768644999}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b173f273f05bfb4d923a3af7e5a758b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::IDosGames.UI.Social.SocialScreenBuilder
+  _bgColor: {r: 0.11, g: 0.11, b: 0.14, a: 1}
+  _headerColor: {r: 0.15, g: 0.15, b: 0.19, a: 1}
+  _cardColor: {r: 0.18, g: 0.18, b: 0.22, a: 1}
+  _accentColor: {r: 0.3, g: 0.56, b: 1, a: 1}
+  _buttonDangerColor: {r: 0.85, g: 0.25, b: 0.25, a: 1}
+  _buttonSuccessColor: {r: 0.2, g: 0.72, b: 0.4, a: 1}
+  _textColor: {r: 1, g: 1, b: 1, a: 1}
+  _textSecondaryColor: {r: 0.65, g: 0.65, b: 0.7, a: 1}
+  _tabInactiveColor: {r: 0.4, g: 0.4, b: 0.45, a: 1}
+  _avatarSize: 72
+  _smallAvatarSize: 56
+  _cardHeight: 88
+  _timelineCardHeight: 80
+  _tabBarHeight: 50
+  _headerHeight: 56
+  _buttonWidth: 100
+  _buttonHeight: 36
+  _spacing: 6
+  _mainFontSize: 16
+  _subFontSize: 13
+  _tabFontSize: 14
+  _headerFontSize: 20
+  _buildOnAwake: 1
+  _destroyBuilderAfterBuild: 1
+--- !u!4 &768645001
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 768644999}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &976983017 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 444709332814466647, guid: 3b69535eef177174dbc644c701893b54,
@@ -11206,3 +11274,4 @@ SceneRoots:
   - {fileID: 508979257}
   - {fileID: 1655984364}
   - {fileID: 538084468}
+  - {fileID: 768645001}

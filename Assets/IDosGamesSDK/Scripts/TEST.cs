@@ -52,6 +52,7 @@ namespace IDosGames
 
         public void GameLoop()
         {
+            //_ = GameLoopService.GetBoardDefinitionForLevel(1);
             _ = GameLoopService.BoardLoopBuild(0);
         }
     }
