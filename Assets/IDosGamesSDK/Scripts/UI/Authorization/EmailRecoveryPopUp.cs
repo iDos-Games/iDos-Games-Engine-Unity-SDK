@@ -44,7 +44,19 @@ namespace IDosGames
 			Message.Show(MessageCode.INCORRECT_EMAIL);
 		}
 
-		private void Send()
+		public void ShowResetPasswordPopup()
+		{
+			if(CheckEmailInput())
+			{
+                _resetPasswordPopup.SetActive(true);
+            }
+			else
+			{
+				ShowErrorMessage();
+			}
+		}
+
+        private void Send()
 		{
 			AuthService.Instance.SendAccountRecoveryEmail(GetEmailInput(), OnSendSuccess, AuthService.ShowErrorMessage);
 		}
@@ -55,7 +67,7 @@ namespace IDosGames
 
 			if (isValid)
 			{
-                AuthService.Instance.SendResetPassword(GetResetToken(), GetNewPassword(), OnResetPasswordSuccess, AuthService.ShowErrorMessage);
+                AuthService.Instance.SendResetPassword(GetEmailInput(), GetResetToken(), GetNewPassword(), OnResetPasswordSuccess, AuthService.ShowErrorMessage);
             }
 			else
 			{
@@ -77,7 +89,7 @@ namespace IDosGames
 
         private void OnSendSuccess(string result)
 		{
-			if (result == "true")
+			if (result == "Success")
 			{
                 Message.Show(MessageCode.PASSWORD_RECOVERY_SENT);
                 _resetPasswordPopup.SetActive(true);
@@ -90,7 +102,7 @@ namespace IDosGames
 
         private void OnResetPasswordSuccess(string result)
         {
-			if (result == "true")
+			if (result == "Success")
 			{
                 _resetPasswordPopup.SetActive(false);
                 _authorizationPopUpView.CloseRecoveryPopUp();

@@ -307,8 +307,6 @@ namespace IDosGames
             {
                 var request = new AuthenticationRequest
                 {
-                    UserID = AuthContext.UserID,
-                    ClientSessionTicket = AuthContext.ClientSessionTicket,
                     BuildKey = IDosGamesSDKSettings.Instance.BuildKey,
                     WebAppLink = WebSDK.webAppLink,
 
@@ -333,7 +331,7 @@ namespace IDosGames
             }
         }
 
-        public async void SendResetPassword(string resetToken, string password, Action<string> resultCallback = null, Action<string> errorCallback = null)
+        public async void SendResetPassword(string email, string resetToken, string password, Action<string> resultCallback = null, Action<string> errorCallback = null)
         {
             RequestSent?.Invoke();
 
@@ -341,11 +339,10 @@ namespace IDosGames
             {
                 var request = new AuthenticationRequest
                 {
-                    UserID = AuthContext.UserID,
-                    ClientSessionTicket = AuthContext.ClientSessionTicket,
                     BuildKey = IDosGamesSDKSettings.Instance.BuildKey,
                     WebAppLink = WebSDK.webAppLink,
 
+                    Email = email,
                     ResetToken = resetToken,
                     Password = password
                 };
