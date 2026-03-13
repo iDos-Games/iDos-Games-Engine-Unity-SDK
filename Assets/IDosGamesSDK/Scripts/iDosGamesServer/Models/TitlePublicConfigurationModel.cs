@@ -509,7 +509,7 @@ namespace IDosGames.TitlePublicConfiguration
     {
         public string Name { get; set; }
         public string AssetID { get; set; }
-        public string MapImagePath { get; set; }
+        public string StageImagePath { get; set; }
         public string BoardTemplateID { get; set; }
 
         /// <summary>Building (обычно 5 шт)</summary>
@@ -563,12 +563,13 @@ namespace IDosGames.TitlePublicConfiguration
 
     public class BuildingDefinition
     {
-        public int SlotIndex { get; set; }          // 0..4
+        public int SlotIndex { get; set; }
         public string Name { get; set; }
-        public string AssetID { get; set; }
-        public string ImageUrl { get; set; }
+        public List<string> AssetIDs { get; set; }
+        public List<string> ImageUrls { get; set; }
         public ItemOrCurrency BaseBuildCost { get; set; }
         public int MaxLevel { get; set; }
+        public List<ItemOrCurrency> MaxLevelReward { get; set; }
     }
 
     public class DailyRewardsDefinition

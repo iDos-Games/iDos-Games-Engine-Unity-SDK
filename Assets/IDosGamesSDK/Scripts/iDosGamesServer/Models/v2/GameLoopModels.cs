@@ -67,13 +67,20 @@ namespace IDosGames.ClientModels
         public int StageLevel { get; set; }
         public int Position { get; set; }
 
-        public List<int> Buildings { get; set; }
-        public List<bool> BuildingDamaged { get; set; }
-
+        public List<BuildingState> BuildingStates { get; set; }
         public BoardPendingInteraction Pending { get; set; }
 
         public long CyclesCompleted { get; set; }
         public DateTime LastRollAtUtc { get; set; }
+    }
+
+    [Serializable]
+    public class BuildingState
+    {
+        public int SlotIndex { get; set; }
+        public int Level { get; set; }
+        public bool IsDamaged { get; set; }
+        public bool MaxLevelRewardClaimed { get; set; }
     }
 
     [Serializable]
@@ -148,5 +155,7 @@ namespace IDosGames.ClientModels
 
         public ItemOrCurrency ConsumedResource { get; set; }
         public List<ItemOrCurrency> CompletionReward { get; set; }
+        public List<ItemOrCurrency> MaxLevelReward { get; set; }
+        public bool MaxLevelRewardClaimed { get; set; }
     }
 }
