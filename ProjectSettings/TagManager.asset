@@ -11,7 +11,7 @@ TagManager:
   - 
   - Water
   - UI
-  - 
+  - UIEffects
   - 
   - 
   - 
@@ -38,6 +38,9 @@ TagManager:
   - 
   - 
   m_SortingLayers:
+  - name: UIEffects
+    uniqueID: 292803765
+    locked: 0
   - name: Default
     uniqueID: 0
     locked: 0

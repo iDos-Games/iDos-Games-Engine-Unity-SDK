@@ -7,7 +7,7 @@ namespace IDosGames
     {
         public void Test()
         {
-            GameLoop();
+            
         }
 
         public void SaveValueToServer()

@@ -67,7 +67,7 @@ namespace IDosGames
             }
 
             int level = BoardState.StageLevel;
-            Debug.Log($"[GameLoopData] Board state loaded. StageLevel: {level}");
+            //Debug.Log($"[GameLoopData] Board state loaded. StageLevel: {level}");
 
             var defResult = await GameLoopService.GetBoardDefinitionForLevel(level);
 
@@ -78,7 +78,7 @@ namespace IDosGames
             }
 
             ResolveCurrentStage();
-            Debug.Log($"[GameLoopData] Board ready. Stage: {CurrentStage?.Name}, Template: {CurrentTemplate != null}");
+            //Debug.Log($"[GameLoopData] Board ready. Stage: {CurrentStage?.Name}, Template: {CurrentTemplate != null}");
             OnBoardReady?.Invoke();
         }
 
