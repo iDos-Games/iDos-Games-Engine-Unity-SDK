@@ -1,3 +1,4 @@
+using IDosGames.TitlePublicConfiguration;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,7 +8,7 @@ namespace IDosGames
     {
         public void Test()
         {
-            
+            ShowTestRewards();
         }
 
         public void SaveValueToServer()
@@ -54,6 +55,95 @@ namespace IDosGames
         {
             //_ = GameLoopService.GetBoardDefinitionForLevel(1);
             _ = GameLoopService.BoardLoopBuild(0);
+        }
+
+        public void ShowTestRewards()
+        {
+            var rewards = new List<ItemOrCurrency>
+            {
+                new ItemOrCurrency
+                {
+                    Type = ItemType.VirtualCurrency,
+                    CurrencyID = "Gold",
+                    Name = "Gold",
+                    Amount = 1000,
+                    ImagePath = "Rewards/gold"
+                },
+                new ItemOrCurrency
+                {
+                    Type = ItemType.VirtualCurrency,
+                    CurrencyID = "Gems",
+                    Name = "Gems",
+                    Amount = 250,
+                    ImagePath = "Rewards/gems"
+                },
+                new ItemOrCurrency
+                {
+                    Type = ItemType.VirtualCurrency,
+                    CurrencyID = "Energy",
+                    Name = "Energy",
+                    Amount = 50,
+                    ImagePath = "Rewards/energy"
+                },
+                new ItemOrCurrency
+                {
+                    Type = ItemType.Item,
+                    ItemID = "Hammer",
+                    Name = "Hammer",
+                    Amount = 3,
+                    ImagePath = "Rewards/hammer"
+                },
+                new ItemOrCurrency
+                {
+                    Type = ItemType.Item,
+                    ItemID = "DiceRoll",
+                    Name = "Dice Roll",
+                    Amount = 5,
+                    ImagePath = "Rewards/dice"
+                },
+                new ItemOrCurrency
+                {
+                    Type = ItemType.Item,
+                    ItemID = "Shield",
+                    Name = "Shield",
+                    Amount = 2,
+                    ImagePath = "Rewards/shield"
+                },
+                new ItemOrCurrency
+                {
+                    Type = ItemType.Item,
+                    ItemID = "Rocket",
+                    Name = "Rocket",
+                    Amount = 1,
+                    ImagePath = "Rewards/rocket"
+                },
+                new ItemOrCurrency
+                {
+                    Type = ItemType.Item,
+                    ItemID = "Chest",
+                    Name = "Epic Chest",
+                    Amount = 1,
+                    ImagePath = "Rewards/chest_epic"
+                },
+                new ItemOrCurrency
+                {
+                    Type = ItemType.Item,
+                    ItemID = "CardPack",
+                    Name = "Card Pack",
+                    Amount = 4,
+                    ImagePath = "Rewards/card_pack"
+                },
+                new ItemOrCurrency
+                {
+                    Type = ItemType.Item,
+                    ItemID = "Booster",
+                    Name = "Score Booster",
+                    Amount = 2,
+                    ImagePath = "Rewards/booster"
+                }
+            };
+
+            Message.ShowRewards(rewards);
         }
     }
 }

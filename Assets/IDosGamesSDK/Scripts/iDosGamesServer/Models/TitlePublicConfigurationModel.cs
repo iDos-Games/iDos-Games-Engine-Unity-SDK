@@ -188,7 +188,7 @@ namespace IDosGames.TitlePublicConfiguration
     {
         public ItemType? Type { get; set; }
         public string Catalog { get; set; }
-        public int? Amount { get; set; }
+        public long? Amount { get; set; }
         public string ImagePath { get; set; }
         public string Name { get; set; }
         public string CurrencyID { get; set; }

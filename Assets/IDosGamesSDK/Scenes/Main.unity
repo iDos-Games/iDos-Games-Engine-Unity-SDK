@@ -2223,6 +2223,11 @@ MonoBehaviour:
   damagedEffect: {fileID: 1917569844}
   upgradeEffect: {fileID: 1329955116}
   upgradeEffectDuration: 2
+  upgradeScaleDown: 0.1
+  upgradeScaleUp: 1.08
+  upgradeScaleDownDuration: 0.8
+  upgradeScaleUpDuration: 0.8
+  upgradeScaleSettleDuration: 0.08
 --- !u!1 &443214120 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7047952789772479883, guid: 82ce311f0a4c8c444b691b44f6e5efba,
@@ -2522,6 +2527,11 @@ MonoBehaviour:
   damagedEffect: {fileID: 2050747445644415957}
   upgradeEffect: {fileID: 608782890}
   upgradeEffectDuration: 2
+  upgradeScaleDown: 0.1
+  upgradeScaleUp: 1.08
+  upgradeScaleDownDuration: 0.8
+  upgradeScaleUpDuration: 0.8
+  upgradeScaleSettleDuration: 0.08
 --- !u!1 &561307944
 GameObject:
   m_ObjectHideFlags: 0
@@ -3341,6 +3351,11 @@ MonoBehaviour:
   damagedEffect: {fileID: 1319215073}
   upgradeEffect: {fileID: 1995502622}
   upgradeEffectDuration: 2
+  upgradeScaleDown: 0.1
+  upgradeScaleUp: 1.08
+  upgradeScaleDownDuration: 0.8
+  upgradeScaleUpDuration: 0.8
+  upgradeScaleSettleDuration: 0.08
 --- !u!1 &830412164
 GameObject:
   m_ObjectHideFlags: 0
@@ -4913,6 +4928,11 @@ MonoBehaviour:
   damagedEffect: {fileID: 1523495853}
   upgradeEffect: {fileID: 962667787}
   upgradeEffectDuration: 2
+  upgradeScaleDown: 0.1
+  upgradeScaleUp: 1.08
+  upgradeScaleDownDuration: 0.8
+  upgradeScaleUpDuration: 0.8
+  upgradeScaleSettleDuration: 0.08
 --- !u!1 &1095915033
 GameObject:
   m_ObjectHideFlags: 0
@@ -7325,6 +7345,11 @@ MonoBehaviour:
   damagedEffect: {fileID: 2071726751}
   upgradeEffect: {fileID: 182276604}
   upgradeEffectDuration: 2
+  upgradeScaleDown: 0.1
+  upgradeScaleUp: 1.08
+  upgradeScaleDownDuration: 0.8
+  upgradeScaleUpDuration: 0.8
+  upgradeScaleSettleDuration: 0.08
 --- !u!1 &1802732869
 GameObject:
   m_ObjectHideFlags: 0
@@ -17656,6 +17681,46 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 1833458783}
+    - target: {fileID: 2184050123421218326, guid: 217b3338edc4aa043890fde6deed21e5,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2184050123421218326, guid: 217b3338edc4aa043890fde6deed21e5,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 2184050123421218326, guid: 217b3338edc4aa043890fde6deed21e5,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 123148871}
+    - target: {fileID: 2184050123421218326, guid: 217b3338edc4aa043890fde6deed21e5,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2184050123421218326, guid: 217b3338edc4aa043890fde6deed21e5,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: SetActive
+      objectReference: {fileID: 0}
+    - target: {fileID: 2184050123421218326, guid: 217b3338edc4aa043890fde6deed21e5,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: UnityEngine.GameObject, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 2184050123421218326, guid: 217b3338edc4aa043890fde6deed21e5,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_BoolArgument
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2184050123421218326, guid: 217b3338edc4aa043890fde6deed21e5,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
     - target: {fileID: 2388166784311764054, guid: 217b3338edc4aa043890fde6deed21e5,
         type: 3}
       propertyPath: m_Name
@@ -18092,7 +18157,7 @@ PrefabInstance:
     - target: {fileID: 6487814903617963197, guid: c0514125e4761c84586801dc88a9f270,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6487814903617963197, guid: c0514125e4761c84586801dc88a9f270,
         type: 3}

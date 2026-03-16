@@ -39,8 +39,8 @@ namespace IDosGames
         private void OnClaimTournamentReward(UserLeaderboardRewards result)
         {
             // Dictionaries to store reward data
-            var virtualCurrencies = new Dictionary<string, int>();
-            var items = new Dictionary<string, int>();
+            var virtualCurrencies = new Dictionary<string, long>();
+            var items = new Dictionary<string, long>();
             var imagePathes = new Dictionary<string, string>();
 
             // Process each reward in ItemsToGrant
@@ -49,7 +49,7 @@ namespace IDosGames
                 if (reward.Type == ItemType.VirtualCurrency)
                 {
                     string currencyID = reward.CurrencyID;
-                    int amount = reward.Amount ?? 0;
+                    long amount = reward.Amount ?? 0;
                     string imagePath = reward.ImagePath;
 
                     if (virtualCurrencies.ContainsKey(currencyID))
@@ -65,7 +65,7 @@ namespace IDosGames
                 else if (reward.Type == ItemType.Item)
                 {
                     string itemID = reward.ItemID;
-                    int amount = reward.Amount ?? 0;
+                    long amount = reward.Amount ?? 0;
                     string imagePath = reward.ImagePath;
 
                     if (items.ContainsKey(itemID))
@@ -91,7 +91,7 @@ namespace IDosGames
             {
                 var item = Instantiate(_rewardItem, _parent);
                 string imagePath = imagePathes[currency.Key];
-                int amount = currency.Value;
+                long amount = currency.Value;
                 item.Set(imagePath, amount);
             }
 
@@ -100,7 +100,7 @@ namespace IDosGames
             {
                 var item = Instantiate(_rewardItem, _parent);
                 string imagePath = imagePathes[itemEntry.Key];
-                int amount = itemEntry.Value;
+                long amount = itemEntry.Value;
                 item.Set(imagePath, amount);
             }
 

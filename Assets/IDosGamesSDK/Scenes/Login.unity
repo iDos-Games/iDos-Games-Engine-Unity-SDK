@@ -912,6 +912,66 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2125728358816941351, guid: 0c1030b28eb56d440800d803f975e9b5,
+        type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2125728358816941351, guid: 0c1030b28eb56d440800d803f975e9b5,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3491229674206035721, guid: 0c1030b28eb56d440800d803f975e9b5,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3491229674206035721, guid: 0c1030b28eb56d440800d803f975e9b5,
+        type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3491229674206035721, guid: 0c1030b28eb56d440800d803f975e9b5,
+        type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3491229674206035721, guid: 0c1030b28eb56d440800d803f975e9b5,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3491229674206035721, guid: 0c1030b28eb56d440800d803f975e9b5,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6143801467921809081, guid: 0c1030b28eb56d440800d803f975e9b5,
+        type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6143801467921809081, guid: 0c1030b28eb56d440800d803f975e9b5,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0.0004562579
+      objectReference: {fileID: 0}
+    - target: {fileID: 8206468989749146308, guid: 0c1030b28eb56d440800d803f975e9b5,
+        type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8206468989749146308, guid: 0c1030b28eb56d440800d803f975e9b5,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8206468989749146308, guid: 0c1030b28eb56d440800d803f975e9b5,
+        type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

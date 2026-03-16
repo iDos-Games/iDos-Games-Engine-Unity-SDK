@@ -32,7 +32,7 @@ namespace IDosGames
             foreach (var reward in rewards)
             {
                 var rewardItem = Instantiate(_rewardPrefab, _rewardsParent);
-                int amount = reward.Amount ?? 0;
+                long amount = reward.Amount ?? 0;
                 rewardItem.Set(reward.ImagePath, amount);
             }
         }
