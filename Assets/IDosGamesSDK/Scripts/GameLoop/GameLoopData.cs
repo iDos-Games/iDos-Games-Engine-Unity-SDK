@@ -171,6 +171,14 @@ namespace IDosGames
         private void SetRollResponse(BoardRollResponse data)
         {
             LastRollResponse = data;
+
+            if (BoardState != null && data != null)
+            {
+                BoardState.Position = data.NewPosition;
+                BoardState.CyclesCompleted += data.CyclesCompletedDelta;
+                BoardState.LastRollAtUtc = DateTime.UtcNow;
+            }
+
             OnDataUpdated?.Invoke();
         }
 

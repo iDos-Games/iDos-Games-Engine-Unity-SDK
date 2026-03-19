@@ -37,6 +37,7 @@ namespace IDosGames.ClientModels
     {
         public string SlotID { get; set; }
         public string ItemInstanceID { get; set; }
+        public string ItemID { get; set; } // Can use ItemID instead of ItemInstanceID, but ItemInstanceID must be null
     }
 
     // =================================================================================

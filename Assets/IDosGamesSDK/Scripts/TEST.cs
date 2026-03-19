@@ -8,7 +8,7 @@ namespace IDosGames
     {
         public void Test()
         {
-            ShowTestRewards();
+            GameLoop();
         }
 
         public void SaveValueToServer()
@@ -51,10 +51,13 @@ namespace IDosGames
             //_ = QuestService.ClaimMilestoneReward("Daily", "3");
         }
 
-        public void GameLoop()
+        public async void GameLoop()
         {
-            //_ = GameLoopService.GetBoardDefinitionForLevel(1);
-            _ = GameLoopService.BoardLoopBuild(0);
+            //_ = await GameLoopService.GetBoardDefinitionForLevel(1);
+
+            var result = await GameLoopService.BoardLoopRoll(1);
+            var rewards = result.Data.GrantedRewards;
+            Message.ShowRewards(rewards);
         }
 
         public void ShowTestRewards()
