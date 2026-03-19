@@ -1240,7 +1240,6 @@ GameObject:
   - component: {fileID: 6487814903617963197}
   - component: {fileID: 2649996260980541696}
   - component: {fileID: 1119259807811326525}
-  - component: {fileID: 7407334627819283849}
   m_Layer: 5
   m_Name: Test_2
   m_TagString: Untagged
@@ -1385,18 +1384,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   imageType: 0
---- !u!114 &7407334627819283849
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7491879065278259831}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 39d8fa50b0a321a4c8172a6345ff3104, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &7643269206086271974
 GameObject:
   m_ObjectHideFlags: 0
@@ -1632,7 +1619,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Test2
+  m_text: Roll
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: c27a434de79d0d445843d961bcd13733, type: 2}
   m_sharedMaterial: {fileID: 614083157554701104, guid: c27a434de79d0d445843d961bcd13733,

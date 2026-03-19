@@ -18415,18 +18415,18 @@ PrefabInstance:
     - target: {fileID: 6487814903617963197, guid: c0514125e4761c84586801dc88a9f270,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6487814903617963197, guid: c0514125e4761c84586801dc88a9f270,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
-      value: 6
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 6487814903617963197, guid: c0514125e4761c84586801dc88a9f270,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 123148871}
+      objectReference: {fileID: 1039038685}
     - target: {fileID: 6487814903617963197, guid: c0514125e4761c84586801dc88a9f270,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
@@ -18435,17 +18435,22 @@ PrefabInstance:
     - target: {fileID: 6487814903617963197, guid: c0514125e4761c84586801dc88a9f270,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: SetActive
+      value: RollWithMultiplierFromUI
       objectReference: {fileID: 0}
     - target: {fileID: 6487814903617963197, guid: c0514125e4761c84586801dc88a9f270,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: UnityEngine.GameObject, UnityEngine
+      value: IDosGames.BoardPlayerTokenController, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 6487814903617963197, guid: c0514125e4761c84586801dc88a9f270,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_IntArgument
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6487814903617963197, guid: c0514125e4761c84586801dc88a9f270,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_BoolArgument
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6487814903617963197, guid: c0514125e4761c84586801dc88a9f270,
         type: 3}
