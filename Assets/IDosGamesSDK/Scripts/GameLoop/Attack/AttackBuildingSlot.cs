@@ -20,6 +20,8 @@ namespace IDosGames
         {
             _slotIndex = slotIndex;
 
+            button.interactable = true;
+
             levelText.text = $"Lv.{state.Level}";
             damagedBadge.SetActive(state.IsDamaged);
 

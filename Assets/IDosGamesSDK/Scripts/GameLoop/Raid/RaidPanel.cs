@@ -4,6 +4,8 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using IDosGames.ClientModels;
+using System;
+using System.Threading.Tasks;
 
 namespace IDosGames
 {
@@ -49,6 +51,11 @@ namespace IDosGames
         {
             if (Instance != null && Instance != this) { Destroy(gameObject); return; }
             Instance = this;
+
+            canvasGroup.alpha = 0f;
+            canvasGroup.interactable = false;
+            canvasGroup.blocksRaycasts = false;
+
             root.SetActive(false);
         }
 
@@ -58,15 +65,19 @@ namespace IDosGames
         // -----------------------------------------------------------------------
         public void Show(RollActionData target)
         {
+            canvasGroup.alpha = 0f;
+            canvasGroup.interactable = true;
+            canvasGroup.blocksRaycasts = true;
+
+            root.SetActive(true);
+
             _target = target;
             _interactable = true;
 
             targetNameText.text = target?.PublicData?.Username ?? "???";
             _ = LoadAvatar(target?.PublicData?.AvatarUrl);
 
-            // Берём начальное состояние из Pending (если есть)
             var pending = GameLoopData.Instance?.BoardState?.Pending;
-
             int attempts = pending != null ? (9 - (pending.OpenedIndices?.Count ?? 0)) : 3;
             long stolen = pending?.CurrentTotalStolen ?? 0;
 
@@ -74,7 +85,6 @@ namespace IDosGames
             InitCells(pending);
 
             resultOverlay.SetActive(false);
-            root.SetActive(true);
             StartCoroutine(FadeIn());
         }
 
@@ -110,10 +120,38 @@ namespace IDosGames
             if (!_interactable) return;
             _interactable = false;
 
-            // Блокируем все ячейки до ответа сервера
             cells.ForEach(c => c?.SetInteractable(false));
 
-            _ = GameLoopService.BoardLoopRaid(digIndex);
+            _ = SendRaidRequest(digIndex);
+        }
+
+        private async Task SendRaidRequest(int digIndex)
+        {
+            try
+            {
+                var result = await GameLoopService.BoardLoopRaid(digIndex);
+
+                if (result == null || !result.Success)
+                {
+                    Debug.LogWarning("[RaidPanel] Raid request failed, unlocking panel.");
+                    UnlockPanel();
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[RaidPanel] Raid request exception: {ex}");
+                UnlockPanel();
+            }
+        }
+
+        private void UnlockPanel()
+        {
+            _interactable = true;
+            cells.ForEach(c =>
+            {
+                if (c != null && !c.IsOpened)
+                    c.SetInteractable(true);
+            });
         }
 
         private void HandleRaidResult(RaidResponse response)
@@ -217,6 +255,9 @@ namespace IDosGames
         private IEnumerator FadeIn()
         {
             canvasGroup.alpha = 0f;
+            canvasGroup.blocksRaycasts = true;
+            canvasGroup.interactable = true;
+
             float t = 0f;
             while (t < fadeInDuration)
             {
@@ -237,6 +278,9 @@ namespace IDosGames
                 yield return null;
             }
             canvasGroup.alpha = 0f;
+
+            canvasGroup.blocksRaycasts = false;
+            canvasGroup.interactable = false;
         }
 
         private IEnumerator PunchScale(Transform target, float duration)

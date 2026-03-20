@@ -5,6 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using IDosGames.ClientModels;
+using System.Threading.Tasks;
 
 namespace IDosGames
 {
@@ -45,6 +46,11 @@ namespace IDosGames
         {
             if (Instance != null && Instance != this) { Destroy(gameObject); return; }
             Instance = this;
+
+            canvasGroup.alpha = 0f;
+            canvasGroup.interactable = false;
+            canvasGroup.blocksRaycasts = false;
+
             root.SetActive(false);
         }
 
@@ -54,6 +60,12 @@ namespace IDosGames
         // -----------------------------------------------------------------------
         public void Show(RollActionData target)
         {
+            canvasGroup.alpha = 0f;
+            canvasGroup.interactable = true;
+            canvasGroup.blocksRaycasts = true;
+
+            root.SetActive(true);
+
             _currentTarget = target;
             _waitingForResult = false;
 
@@ -66,7 +78,6 @@ namespace IDosGames
             RefreshBuildingSlots();
 
             resultOverlay.SetActive(false);
-            root.SetActive(true);
             StartCoroutine(FadeIn());
         }
 
@@ -103,7 +114,34 @@ namespace IDosGames
             StartCoroutine(AnimateSelection(slotIndex));
 
             // ќтправл€ем запрос
-            _ = GameLoopService.BoardLoopAttack(slotIndex);
+            _ = SendAttackRequest(slotIndex);
+        }
+
+        private async Task SendAttackRequest(int slotIndex)
+        {
+            try
+            {
+                var result = await GameLoopService.BoardLoopAttack(slotIndex);
+
+                // ≈сли запрос провалилс€ Ч разблокируем панель
+                if (result == null || !result.Success)
+                {
+                    Debug.LogWarning("[AttackPanel] Attack request failed, unlocking panel.");
+                    UnlockPanel();
+                }
+                // ”спех Ч придЄт через HandleAttackResult via event
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[AttackPanel] Attack request exception: {ex}");
+                UnlockPanel();
+            }
+        }
+
+        private void UnlockPanel()
+        {
+            _waitingForResult = false;
+            buildingSlots.ForEach(s => s?.SetInteractable(true));
         }
 
         private void HandleAttackResult(AttackResponse response)
@@ -147,6 +185,9 @@ namespace IDosGames
         private IEnumerator FadeIn()
         {
             canvasGroup.alpha = 0f;
+            canvasGroup.blocksRaycasts = true;
+            canvasGroup.interactable = true;
+
             float t = 0f;
             while (t < panelFadeInDuration)
             {
@@ -167,6 +208,9 @@ namespace IDosGames
                 yield return null;
             }
             canvasGroup.alpha = 0f;
+
+            canvasGroup.blocksRaycasts = false;
+            canvasGroup.interactable = false;
         }
 
         private IEnumerator ShakeRoutine(Transform target)
