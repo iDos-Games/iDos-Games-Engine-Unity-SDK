@@ -21,7 +21,7 @@ namespace IDosGames
         [SerializeField] private TMP_Text targetNameText;
         [SerializeField] private Image targetAvatarImage;
 
-        [Header("Raid Grid (9 €чеек, 0..8)")]
+        [Header("Raid Grid")]
         [SerializeField] private List<RaidCell> cells; // ровно 9
 
         [Header("HUD")]
@@ -78,7 +78,7 @@ namespace IDosGames
             _ = LoadAvatar(target?.PublicData?.AvatarUrl);
 
             var pending = GameLoopData.Instance?.BoardState?.Pending;
-            int attempts = pending != null ? (9 - (pending.OpenedIndices?.Count ?? 0)) : 3;
+            int attempts = pending != null ? (12 - (pending.OpenedIndices?.Count ?? 0)) : 3;
             long stolen = pending?.CurrentTotalStolen ?? 0;
 
             UpdateHUD(attempts, stolen);
