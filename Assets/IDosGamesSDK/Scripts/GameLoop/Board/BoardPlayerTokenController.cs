@@ -86,12 +86,25 @@ namespace IDosGames
 
                 await PlayRollAnimationAsync(result.Data);
 
-                if (rewardsPopupDelayMs > 0)
-                    await Task.Delay(rewardsPopupDelayMs);
+                var response = result.Data;
 
-                var rewards = result.Data.GrantedRewards;
-                if (rewards != null && rewards.Count > 0)
-                    Message.ShowRewards(rewards);
+                if (response.ActionRequired == "ATTACK")
+                {
+                    AttackPanel.Instance.Show(response.ActionData);
+                }
+                else if (response.ActionRequired == "RAID")
+                {
+                    RaidPanel.Instance.Show(response.ActionData);
+                }
+                else
+                {
+                    // Обычные награды
+                    if (rewardsPopupDelayMs > 0)
+                        await Task.Delay(rewardsPopupDelayMs);
+
+                    if (response.GrantedRewards != null && response.GrantedRewards.Count > 0)
+                        Message.ShowRewards(response.GrantedRewards);
+                }
             }
             catch (Exception ex)
             {

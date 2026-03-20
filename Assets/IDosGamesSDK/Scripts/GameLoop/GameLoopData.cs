@@ -67,7 +67,6 @@ namespace IDosGames
             }
 
             int level = BoardState.StageLevel;
-            //Debug.Log($"[GameLoopData] Board state loaded. StageLevel: {level}");
 
             var defResult = await GameLoopService.GetBoardDefinitionForLevel(level);
 
@@ -78,8 +77,39 @@ namespace IDosGames
             }
 
             ResolveCurrentStage();
-            //Debug.Log($"[GameLoopData] Board ready. Stage: {CurrentStage?.Name}, Template: {CurrentTemplate != null}");
             OnBoardReady?.Invoke();
+            CheckPendingInteraction();
+        }
+
+        private void CheckPendingInteraction()
+        {
+            var pending = BoardState?.Pending;
+            if (pending == null) return;
+
+            // Проверяем не истёк ли таймер
+            if (pending.ExpiresAtUtc < DateTime.UtcNow)
+            {
+                Debug.Log("[GameLoopData] Pending interaction expired, skipping.");
+                return;
+            }
+
+            var actionData = new RollActionData
+            {
+                TargetUserID = pending.TargetUserID,
+                PublicData = pending.TargetPublicData
+            };
+
+            if (pending.Type == "ATTACK")
+            {
+                Debug.Log("[GameLoopData] Restoring pending ATTACK");
+                AttackPanel.Instance?.Show(actionData);
+            }
+            else if (pending.Type == "RAID" || pending.Type == "RAID_FINISHING")
+            {
+                Debug.Log("[GameLoopData] Restoring pending RAID");
+                RaidPanel.Instance?.Show(actionData);
+                // RaidPanel.Show уже читает BoardState.Pending для восстановления открытых ячеек
+            }
         }
 
         /// <summary>

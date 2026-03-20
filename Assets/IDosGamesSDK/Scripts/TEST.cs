@@ -8,7 +8,7 @@ namespace IDosGames
     {
         public void Test()
         {
-            
+            Character();
         }
 
         public void SaveValueToServer()
@@ -25,6 +25,12 @@ namespace IDosGames
         public void GetToken()
         {
             ClaimRewardSystem.ClaimTokenReward(10, 1);
+        }
+
+        public void Character()
+        {
+            //_ = CharacterService.UpgradeStatLevel("Health");
+            _ = CharacterService.UpgradeCharacterLevel();
         }
 
         public void Craft()
