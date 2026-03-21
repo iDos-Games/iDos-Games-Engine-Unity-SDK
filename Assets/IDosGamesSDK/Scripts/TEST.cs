@@ -1,3 +1,4 @@
+using IDosGames.ClientModels;
 using IDosGames.TitlePublicConfiguration;
 using System.Collections.Generic;
 using UnityEngine;
@@ -30,7 +31,18 @@ namespace IDosGames
         public void Character()
         {
             //_ = CharacterService.UpgradeStatLevel("Health");
-            _ = CharacterService.UpgradeCharacterLevel();
+            //_ = CharacterService.UpgradeCharacterLevel();
+            _ = CharacterService.UnequipAllCharacters();
+
+            List<EquipSlotPair> itemsToEquip = new List<EquipSlotPair>
+            {
+                new EquipSlotPair
+                {
+                    SlotID = "test",
+                    ItemID = "skin_m4_dyegun"
+                }
+            };
+            //_ = CharacterService.EquipItems(itemsToEquip);
         }
 
         public void Craft()

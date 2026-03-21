@@ -495,9 +495,17 @@ namespace IDosGames.TitlePublicConfiguration
     {
         public string RollCurrencyID { get; set; }
         public string ShieldCurrencyID { get; set; }
+        public RaidMode RaidMode { get; set; }
         public List<int> AllowedRollMultipliers { get; set; }
         public Dictionary<string, BoardTemplateDefinition> BoardTemplatesByID { get; set; }
         public Dictionary<string, BoardStageDefinition> StagesByLevel { get; set; }
+    }
+
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum RaidMode
+    {
+        Fast,
+        Sequential,
     }
 
     public class BoardTemplateDefinition

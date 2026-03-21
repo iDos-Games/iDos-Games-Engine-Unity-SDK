@@ -6,6 +6,7 @@ using UnityEngine.UI;
 using IDosGames.ClientModels;
 using System;
 using System.Threading.Tasks;
+using IDosGames.TitlePublicConfiguration;
 
 namespace IDosGames
 {
@@ -46,6 +47,14 @@ namespace IDosGames
         private bool _interactable = true;
         private RollActionData _target;
 
+        // ==================== Fast mode state ====================
+        private bool _isFastMode;
+        private List<HeistSymbol> _localLayout;
+        private List<int> _localOpenedIndices;
+        private int _localSmallCount;
+        private int _localMediumCount;
+        private int _localBigCount;
+
         // -----------------------------------------------------------------------
         private void Awake()
         {
@@ -59,23 +68,55 @@ namespace IDosGames
             root.SetActive(false);
         }
 
-        private void OnEnable() => GameLoopService.OnBoardRaidSuccess += HandleRaidResult;
-        private void OnDisable() => GameLoopService.OnBoardRaidSuccess -= HandleRaidResult;
+        private void OnEnable()
+        {
+            GameLoopService.OnBoardRaidSuccess += HandleRaidResult;
+        }
+
+        private void OnDisable()
+        {
+            GameLoopService.OnBoardRaidSuccess -= HandleRaidResult;
+        }
 
         // -----------------------------------------------------------------------
         public void Show(RollActionData target)
         {
-            canvasGroup.alpha = 0f;
-            canvasGroup.interactable = true;
-            canvasGroup.blocksRaycasts = true;
-
-            root.SetActive(true);
+            ResetState();
 
             _target = target;
-            _interactable = true;
+
+            root.SetActive(true);
+            canvasGroup.alpha = 0f;
+            canvasGroup.interactable = false;
+            canvasGroup.blocksRaycasts = true;
 
             targetNameText.text = target?.PublicData?.Username ?? "???";
             _ = LoadAvatar(target?.PublicData?.AvatarUrl);
+
+            resultOverlay.SetActive(false);
+
+            // ќпредел€ем режим
+            var boardDef = GameLoopData.Instance?.BoardDefinition;
+            bool configIsSequential = boardDef != null && boardDef.RaidMode == RaidMode.Sequential;
+
+            if (configIsSequential)
+            {
+                // Sequential Ч используем уже имеющийс€ pending, без доп. запроса
+                InitSequentialAndShow();
+            }
+            else
+            {
+                // Fast Ч сначала получаем свежий стейт с layout, потом показываем
+                StartCoroutine(InitFastAndShowCoroutine());
+            }
+        }
+
+        // -----------------------------------------------------------------------
+        // Sequential Ч мгновенна€ инициализаци€ (как было раньше)
+        // -----------------------------------------------------------------------
+        private void InitSequentialAndShow()
+        {
+            _isFastMode = false;
 
             var pending = GameLoopData.Instance?.BoardState?.Pending;
             int attempts = pending != null ? (12 - (pending.OpenedIndices?.Count ?? 0)) : 3;
@@ -84,8 +125,136 @@ namespace IDosGames
             UpdateHUD(attempts, stolen);
             InitCells(pending);
 
-            resultOverlay.SetActive(false);
+            _interactable = true;
             StartCoroutine(FadeIn());
+        }
+
+        // -----------------------------------------------------------------------
+        // Fast Ч запрашиваем GetUserBoardState, получаем layout, потом показываем
+        // -----------------------------------------------------------------------
+        private IEnumerator InitFastAndShowCoroutine()
+        {
+            // ѕоказываем панель, но без интерактивности Ч пока загружаем данные
+            // (canvasGroup.alpha = 0, blocksRaycasts = true, чтобы заблокировать клики под панелью)
+
+            bool requestDone = false;
+            BoardLoopState freshState = null;
+            bool requestFailed = false;
+
+            _ = FetchBoardStateAsync(
+                (state) => { freshState = state; requestDone = true; },
+                () => { requestFailed = true; requestDone = true; }
+            );
+
+            // ∆дЄм ответ сервера
+            while (!requestDone)
+                yield return null;
+
+            if (requestFailed || freshState == null)
+            {
+                Debug.LogWarning("[RaidPanel] Failed to fetch board state for Fast raid. Falling back to Sequential.");
+                // ‘оллбэк на Sequential с тем что есть
+                InitSequentialAndShow();
+                yield break;
+            }
+
+            // ќбновл€ем локальный кеш
+            if (GameLoopData.Instance != null)
+                GameLoopData.Instance.BoardState = freshState;
+
+            var pending = freshState.Pending;
+            bool hasLayout = pending?.RaidLayout != null && pending.RaidLayout.Count > 0;
+
+            if (!hasLayout)
+            {
+                Debug.LogWarning("[RaidPanel] Server returned no RaidLayout. Falling back to Sequential.");
+                InitSequentialAndShow();
+                yield break;
+            }
+
+            // »нициализируем Fast-режим с актуальными данными
+            _isFastMode = true;
+            InitFastMode(pending);
+
+            int attempts = 12 - (_localOpenedIndices?.Count ?? 0);
+            UpdateHUD(attempts, 0);
+            InitCells(pending);
+
+            _interactable = true;
+            StartCoroutine(FadeIn());
+        }
+
+        private async Task FetchBoardStateAsync(Action<BoardLoopState> onSuccess, Action onFail)
+        {
+            try
+            {
+                var result = await GameLoopService.GetUserBoardState();
+
+                if (result != null && result.Success && result.Data != null)
+                {
+                    onSuccess?.Invoke(result.Data);
+                }
+                else
+                {
+                    Debug.LogWarning($"[RaidPanel] GetUserBoardState failed: {result?.Error}");
+                    onFail?.Invoke();
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[RaidPanel] GetUserBoardState exception: {ex}");
+                onFail?.Invoke();
+            }
+        }
+
+        // -----------------------------------------------------------------------
+        private void ResetState()
+        {
+            _isFastMode = false;
+            _localLayout = null;
+            _localOpenedIndices = null;
+            _localSmallCount = 0;
+            _localMediumCount = 0;
+            _localBigCount = 0;
+            _target = null;
+            _interactable = false;
+        }
+
+        // -----------------------------------------------------------------------
+        private void InitFastMode(BoardPendingInteraction pending)
+        {
+            _localLayout = new List<HeistSymbol>(pending.RaidLayout);
+            _localOpenedIndices = pending.OpenedIndices != null
+                ? new List<int>(pending.OpenedIndices)
+                : new List<int>();
+
+            _localSmallCount = 0;
+            _localMediumCount = 0;
+            _localBigCount = 0;
+
+            foreach (var idx in _localOpenedIndices)
+            {
+                if (idx >= 0 && idx < _localLayout.Count)
+                    IncrementSymbolCount(_localLayout[idx]);
+            }
+        }
+
+        private void IncrementSymbolCount(HeistSymbol symbol)
+        {
+            switch (symbol)
+            {
+                case HeistSymbol.Small: _localSmallCount++; break;
+                case HeistSymbol.Medium: _localMediumCount++; break;
+                case HeistSymbol.Big: _localBigCount++; break;
+            }
+        }
+
+        private string CheckLocalFinish()
+        {
+            if (_localSmallCount >= 3) return "SMALL";
+            if (_localMediumCount >= 3) return "MEDIUM";
+            if (_localBigCount >= 3) return "BIG";
+            return null;
         }
 
         // -----------------------------------------------------------------------
@@ -101,8 +270,19 @@ namespace IDosGames
 
                 HeistSymbol symbol = HeistSymbol.None;
 
-                if (alreadyOpened && pending?.RaidLayout != null && i < pending.RaidLayout.Count)
-                    symbol = pending.RaidLayout[i];
+                if (alreadyOpened)
+                {
+                    if (_isFastMode)
+                    {
+                        if (_localLayout != null && i < _localLayout.Count)
+                            symbol = _localLayout[i];
+                    }
+                    else
+                    {
+                        if (pending?.RaidLayout != null && i < pending.RaidLayout.Count)
+                            symbol = pending.RaidLayout[i];
+                    }
+                }
 
                 cell.Bind(
                     digIndex: i,
@@ -115,6 +295,7 @@ namespace IDosGames
             }
         }
 
+        // -----------------------------------------------------------------------
         private void OnCellSelected(int digIndex)
         {
             if (!_interactable) return;
@@ -122,9 +303,142 @@ namespace IDosGames
 
             cells.ForEach(c => c?.SetInteractable(false));
 
-            _ = SendRaidRequest(digIndex);
+            if (_isFastMode)
+            {
+                ProcessFastDig(digIndex);
+            }
+            else
+            {
+                _ = SendRaidRequest(digIndex);
+            }
         }
 
+        // -----------------------------------------------------------------------
+        // === FAST MODE ===
+        // -----------------------------------------------------------------------
+        private void ProcessFastDig(int digIndex)
+        {
+            if (_localLayout == null || digIndex < 0 || digIndex >= _localLayout.Count)
+            {
+                Debug.LogWarning("[RaidPanel] Fast mode but no layout, falling back to server.");
+                _ = SendRaidRequest(digIndex);
+                return;
+            }
+
+            if (_localOpenedIndices.Contains(digIndex))
+            {
+                UnlockPanel();
+                return;
+            }
+
+            HeistSymbol foundSymbol = _localLayout[digIndex];
+            _localOpenedIndices.Add(digIndex);
+            IncrementSymbolCount(foundSymbol);
+
+            int attemptsLeft = 12 - _localOpenedIndices.Count;
+            string tier = CheckLocalFinish();
+
+            StartCoroutine(ProcessFastDigCoroutine(digIndex, foundSymbol, attemptsLeft, tier));
+        }
+
+        private IEnumerator ProcessFastDigCoroutine(int digIndex, HeistSymbol foundSymbol, int attemptsLeft, string tier)
+        {
+            var cell = GetCell(digIndex);
+            if (cell != null)
+            {
+                Sprite foundSprite = GetSymbolSprite(foundSymbol);
+                yield return StartCoroutine(cell.RevealRoutine(foundSprite));
+            }
+
+            UpdateHUD(attemptsLeft, 0);
+
+            if (tier != null)
+            {
+                RevealAllCells(_localLayout);
+                yield return new WaitForSeconds(0.8f);
+                yield return StartCoroutine(SendFastRaidAndShowResult(tier));
+            }
+            else
+            {
+                UnlockPanel();
+            }
+        }
+
+        private IEnumerator SendFastRaidAndShowResult(string tier)
+        {
+            bool requestDone = false;
+            RaidResponse serverResponse = null;
+            bool requestFailed = false;
+
+            _ = SendFastRaidRequestAsync(
+                new List<int>(_localOpenedIndices),
+                (response) => { serverResponse = response; requestDone = true; },
+                () => { requestFailed = true; requestDone = true; }
+            );
+
+            while (!requestDone)
+                yield return null;
+
+            if (requestFailed || serverResponse == null)
+            {
+                Debug.LogWarning("[RaidPanel] Fast raid server request failed.");
+                yield return StartCoroutine(FadeOut());
+                root.SetActive(false);
+                yield break;
+            }
+
+            yield return StartCoroutine(ShowFastRaidResult(tier, serverResponse.TotalStolen));
+        }
+
+        private async Task SendFastRaidRequestAsync(
+            List<int> digIndices,
+            Action<RaidResponse> onSuccess,
+            Action onFail)
+        {
+            try
+            {
+                var result = await GameLoopService.BoardLoopRaidFast(digIndices);
+
+                if (result != null && result.Success)
+                {
+                    onSuccess?.Invoke(result.Data);
+                }
+                else
+                {
+                    Debug.LogWarning($"[RaidPanel] Fast raid failed: {result?.Error}");
+                    onFail?.Invoke();
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[RaidPanel] Fast raid exception: {ex}");
+                onFail?.Invoke();
+            }
+        }
+
+        private IEnumerator ShowFastRaidResult(string tier, long totalStolen)
+        {
+            string title = tier switch
+            {
+                "SMALL" => "Ќебольшой куш!",
+                "MEDIUM" => "Ќеплохо!",
+                "BIG" => "ƒ∆≈ ѕќ“!",
+                _ => "ќграбление завершено"
+            };
+
+            resultTitleText.text = title;
+            resultAmountText.text = $"+ {totalStolen:N0} монет";
+
+            resultOverlay.SetActive(true);
+            yield return StartCoroutine(PunchScale(resultOverlay.transform, 0.3f));
+            yield return new WaitForSeconds(resultShowDuration);
+            yield return StartCoroutine(FadeOut());
+            root.SetActive(false);
+        }
+
+        // -----------------------------------------------------------------------
+        // === SEQUENTIAL MODE ===
+        // -----------------------------------------------------------------------
         private async Task SendRaidRequest(int digIndex)
         {
             try
@@ -156,12 +470,13 @@ namespace IDosGames
 
         private void HandleRaidResult(RaidResponse response)
         {
+            if (_isFastMode) return;
+
             StartCoroutine(ProcessRaidResult(response));
         }
 
         private IEnumerator ProcessRaidResult(RaidResponse response)
         {
-            // јнимируем открытие €чейки
             var cell = GetCell(response.OpenedIndex);
             if (cell != null)
             {
@@ -169,14 +484,12 @@ namespace IDosGames
                 yield return StartCoroutine(cell.RevealRoutine(foundSprite));
             }
 
-            // ќбновл€ем HUD
             UpdateHUD(response.AttemptsLeft, response.TotalStolen);
 
             bool finished = response.Status != "CONTINUE";
 
             if (finished)
             {
-                // ѕоказываем остаток раскладки
                 if (response.RaidLayout != null)
                     RevealAllCells(response.RaidLayout);
 
@@ -185,11 +498,9 @@ namespace IDosGames
             }
             else
             {
-                // ≈щЄ ходы есть Ч снова даЄм выбирать
                 _interactable = true;
                 cells.ForEach(c => c?.SetInteractable(true));
 
-                // ”же открытые повторно блокируем
                 for (int i = 0; i < cells.Count; i++)
                 {
                     if (cells[i] != null && cells[i].IsOpened)
@@ -249,7 +560,7 @@ namespace IDosGames
         };
 
         // -----------------------------------------------------------------------
-        // ќбщие анимации
+        // јнимации
         // -----------------------------------------------------------------------
 
         private IEnumerator FadeIn()

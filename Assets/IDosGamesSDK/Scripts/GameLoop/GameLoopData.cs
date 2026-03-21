@@ -16,7 +16,7 @@ namespace IDosGames
         // Сырые данные
         public GameLoopsDefinition GameLoops { get; private set; }
         public BoardLoopDefinition BoardDefinition { get; private set; }
-        public BoardLoopState BoardState { get; private set; }
+        public BoardLoopState BoardState { get; set; }
 
         // === Данные текущего уровня (быстрый доступ) ===
         public int CurrentStageLevel => BoardState?.StageLevel ?? 0;
@@ -238,6 +238,21 @@ namespace IDosGames
 
                     if (data.MaxLevelRewardClaimed)
                         state.MaxLevelRewardClaimed = true;
+                }
+
+                if (data.StageComplete)
+                {
+                    // Показываем награды за стейдж
+                    if (data.CompletionReward != null && data.CompletionReward.Count > 0)
+                        Message.ShowRewards(data.CompletionReward);
+
+                    // Перезагружаем доску в фоне — к моменту закрытия попапа данные уже придут
+                    _ = LoadBoard();
+                }
+                else if (data.MaxLevelReward != null && data.MaxLevelReward.Count > 0)
+                {
+                    // Награда за максимальный уровень здания
+                    Message.ShowRewards(data.MaxLevelReward);
                 }
             }
 

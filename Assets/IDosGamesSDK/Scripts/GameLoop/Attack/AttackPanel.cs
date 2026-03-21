@@ -84,7 +84,7 @@ namespace IDosGames
         private void RefreshBuildingSlots()
         {
             var stage = GameLoopData.Instance?.CurrentStage;
-            var state = GameLoopData.Instance?.BoardState;
+            var targetStates = _currentTarget?.TargetBuildingStates;
 
             for (int i = 0; i < buildingSlots.Count; i++)
             {
@@ -92,13 +92,16 @@ namespace IDosGames
                 if (slot == null) continue;
 
                 var def = stage?.Buildings?.Find(x => x?.SlotIndex == i);
-                var bldState = state?.BuildingStates?.Find(x => x?.SlotIndex == i);
 
-                bool isValid = def != null && bldState != null && bldState.Level > 0;
+                bool isValid = def != null;
                 slot.gameObject.SetActive(isValid);
 
-                if (isValid)
-                    slot.Bind(i, def, bldState, OnBuildingSelected);
+                if (!isValid) continue;
+
+                var bldState = targetStates?.Find(x => x?.SlotIndex == i)
+                               ?? new BuildingState { SlotIndex = i, Level = 0 };
+
+                slot.Bind(i, def, bldState, OnBuildingSelected);
             }
         }
 

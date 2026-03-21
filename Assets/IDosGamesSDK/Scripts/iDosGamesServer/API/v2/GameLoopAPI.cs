@@ -57,6 +57,11 @@ namespace IDosGames
             return await SendRequest<RaidResponse>(GameLoopAction.BoardLoopRaid, request);
         }
 
+        public static async Task<OperationResult<RaidResponse>> BoardLoopRaidFast(GameLoopRequest request)
+        {
+            return await SendRequest<RaidResponse>(GameLoopAction.BoardLoopRaidFast, request);
+        }
+
         public static async Task<OperationResult<BuildResponse>> BoardLoopBuild(GameLoopRequest request)
         {
             return await SendRequest<BuildResponse>(GameLoopAction.BoardLoopBuild, request);

@@ -19,6 +19,7 @@ namespace IDosGames.ClientModels
         BoardLoopRoll,
         BoardLoopAttack,
         BoardLoopRaid,
+        BoardLoopRaidFast,
         BoardLoopBuild,
     }
 
@@ -55,6 +56,7 @@ namespace IDosGames.ClientModels
         public int BuildingIndex { get; set; }    // attack/build
         public int DigIndex { get; set; }          // RAID (0..8)
         public int StageLevel { get; set; }        // for GetBoardDefinitionForLevel
+        public List<int> DigIndices { get; set; }
     }
 
     // =================================================================================
@@ -91,6 +93,8 @@ namespace IDosGames.ClientModels
 
         public string TargetUserID { get; set; }
         public UserPublicDataModel TargetPublicData { get; set; }
+        public List<BuildingState> TargetBuildingStates { get; set; }
+        public bool TargetHasShield { get; set; }
 
         public int RollMultiplier { get; set; }
         public DateTime ExpiresAtUtc { get; set; }
@@ -107,6 +111,8 @@ namespace IDosGames.ClientModels
         public string TargetUserID { get; set; }
         public bool IsBot { get; set; }
         public UserPublicDataModel PublicData { get; set; }
+        public List<BuildingState> TargetBuildingStates { get; set; }
+        public bool TargetHasShield { get; set; }
     }
 
     [Serializable]

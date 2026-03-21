@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using IDosGames.ClientModels;
 using IDosGames.TitlePublicConfiguration;
@@ -125,6 +126,21 @@ namespace IDosGames
             request.DigIndex = digIndex;
 
             var result = await GameLoopAPI.BoardLoopRaid(request);
+
+            if (result.Success)
+            {
+                OnBoardRaidSuccess?.Invoke(result.Data);
+            }
+
+            return result;
+        }
+
+        public static async Task<OperationResult<RaidResponse>> BoardLoopRaidFast(List<int> digIndices)
+        {
+            var request = CreateBaseRequest();
+            request.DigIndices = digIndices;
+
+            var result = await GameLoopAPI.BoardLoopRaidFast(request);
 
             if (result.Success)
             {
