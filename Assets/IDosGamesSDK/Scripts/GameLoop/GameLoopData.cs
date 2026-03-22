@@ -1,4 +1,4 @@
-using System;
+п»їusing System;
 using System.Threading.Tasks;
 using IDosGames.ClientModels;
 using IDosGames.TitlePublicConfiguration;
@@ -13,17 +13,19 @@ namespace IDosGames
         public event Action OnDataUpdated;
         public event Action OnBoardReady;
 
-        // Сырые данные
+        [SerializeField] private BoardHexRingRenderer boardHexRingRenderer;
+
+        // РЎС‹СЂС‹Рµ РґР°РЅРЅС‹Рµ
         public GameLoopsDefinition GameLoops { get; private set; }
         public BoardLoopDefinition BoardDefinition { get; private set; }
         public BoardLoopState BoardState { get; set; }
 
-        // === Данные текущего уровня (быстрый доступ) ===
+        // === Р”Р°РЅРЅС‹Рµ С‚РµРєСѓС‰РµРіРѕ СѓСЂРѕРІРЅСЏ (Р±С‹СЃС‚СЂС‹Р№ РґРѕСЃС‚СѓРї) ===
         public int CurrentStageLevel => BoardState?.StageLevel ?? 0;
         public BoardStageDefinition CurrentStage { get; private set; }
         public BoardTemplateDefinition CurrentTemplate { get; private set; }
 
-        // Последние ответы
+        // РџРѕСЃР»РµРґРЅРёРµ РѕС‚РІРµС‚С‹
         public BoardRollResponse LastRollResponse { get; private set; }
         public AttackResponse LastAttackResponse { get; private set; }
         public RaidResponse LastRaidResponse { get; private set; }
@@ -77,6 +79,9 @@ namespace IDosGames
             }
 
             ResolveCurrentStage();
+
+            boardHexRingRenderer?.RenderFromCurrentTemplate();
+
             OnBoardReady?.Invoke();
             CheckPendingInteraction();
         }
@@ -86,7 +91,7 @@ namespace IDosGames
             var pending = BoardState?.Pending;
             if (pending == null) return;
 
-            // Проверяем не истёк ли таймер
+            // РџСЂРѕРІРµСЂСЏРµРј РЅРµ РёСЃС‚С‘Рє Р»Рё С‚Р°Р№РјРµСЂ
             if (pending.ExpiresAtUtc < DateTime.UtcNow)
             {
                 Debug.Log("[GameLoopData] Pending interaction expired, skipping.");
@@ -108,12 +113,12 @@ namespace IDosGames
             {
                 Debug.Log("[GameLoopData] Restoring pending RAID");
                 RaidPanel.Instance?.Show(actionData);
-                // RaidPanel.Show уже читает BoardState.Pending для восстановления открытых ячеек
+                // RaidPanel.Show СѓР¶Рµ С‡РёС‚Р°РµС‚ BoardState.Pending РґР»СЏ РІРѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёСЏ РѕС‚РєСЂС‹С‚С‹С… СЏС‡РµРµРє
             }
         }
 
         /// <summary>
-        /// Из BoardDefinition вытаскивает текущий Stage и Template по StageLevel.
+        /// РР· BoardDefinition РІС‹С‚Р°СЃРєРёРІР°РµС‚ С‚РµРєСѓС‰РёР№ Stage Рё Template РїРѕ StageLevel.
         /// </summary>
         private void ResolveCurrentStage()
         {
@@ -242,16 +247,16 @@ namespace IDosGames
 
                 if (data.StageComplete)
                 {
-                    // Показываем награды за стейдж
+                    // РџРѕРєР°Р·С‹РІР°РµРј РЅР°РіСЂР°РґС‹ Р·Р° СЃС‚РµР№РґР¶
                     if (data.CompletionReward != null && data.CompletionReward.Count > 0)
                         Message.ShowRewards(data.CompletionReward);
 
-                    // Перезагружаем доску в фоне — к моменту закрытия попапа данные уже придут
+                    // РџРµСЂРµР·Р°РіСЂСѓР¶Р°РµРј РґРѕСЃРєСѓ РІ С„РѕРЅРµ вЂ” Рє РјРѕРјРµРЅС‚Сѓ Р·Р°РєСЂС‹С‚РёСЏ РїРѕРїР°РїР° РґР°РЅРЅС‹Рµ СѓР¶Рµ РїСЂРёРґСѓС‚
                     _ = LoadBoard();
                 }
                 else if (data.MaxLevelReward != null && data.MaxLevelReward.Count > 0)
                 {
-                    // Награда за максимальный уровень здания
+                    // РќР°РіСЂР°РґР° Р·Р° РјР°РєСЃРёРјР°Р»СЊРЅС‹Р№ СѓСЂРѕРІРµРЅСЊ Р·РґР°РЅРёСЏ
                     Message.ShowRewards(data.MaxLevelReward);
                 }
             }
