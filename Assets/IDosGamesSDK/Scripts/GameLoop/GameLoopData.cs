@@ -15,12 +15,11 @@ namespace IDosGames
 
         [SerializeField] private BoardHexRingRenderer boardHexRingRenderer;
 
-        // Сырые данные
-        public GameLoopsDefinition GameLoops { get; private set; }
-        public BoardLoopDefinition BoardDefinition { get; private set; }
-        public BoardLoopState BoardState { get; set; }
+        // === Прямой доступ через единый центр данных ===
+        public BoardLoopState BoardState => IDosGamesData.User.Board;
+        public BoardLoopDefinition BoardDefinition => IDosGamesData.Config.TitlePublicConfiguration?.GameLoops?.Board;
 
-        // === Данные текущего уровня (быстрый доступ) ===
+        // === Данные текущего уровня ===
         public int CurrentStageLevel => BoardState?.StageLevel ?? 0;
         public BoardStageDefinition CurrentStage { get; private set; }
         public BoardTemplateDefinition CurrentTemplate { get; private set; }
@@ -42,7 +41,6 @@ namespace IDosGames
             }
 
             Instance = this;
-            //DontDestroyOnLoad(gameObject);
             Subscribe();
         }
 
@@ -61,6 +59,7 @@ namespace IDosGames
         public async Task LoadBoard()
         {
             var stateResult = await GameLoopService.GetUserBoardState();
+            // GameLoopService уже вызывает IDosGamesData.User.ApplyBoard() внутри
 
             if (!stateResult.Success)
             {
@@ -68,13 +67,12 @@ namespace IDosGames
                 return;
             }
 
-            int level = BoardState.StageLevel;
-
-            var defResult = await GameLoopService.GetBoardDefinitionForLevel(level);
+            var defResult = await GameLoopService.GetBoardDefinitionForLevel(CurrentStageLevel);
+            // GameLoopService уже записывает определение в IDosGamesData.Config
 
             if (!defResult.Success)
             {
-                Debug.LogError($"[GameLoopData] Failed to load board definition for level {level}: {defResult.Error}");
+                Debug.LogError($"[GameLoopData] Failed to load board definition for level {CurrentStageLevel}: {defResult.Error}");
                 return;
             }
 
@@ -91,7 +89,6 @@ namespace IDosGames
             var pending = BoardState?.Pending;
             if (pending == null) return;
 
-            // Проверяем не истёк ли таймер
             if (pending.ExpiresAtUtc < DateTime.UtcNow)
             {
                 Debug.Log("[GameLoopData] Pending interaction expired, skipping.");
@@ -113,13 +110,9 @@ namespace IDosGames
             {
                 Debug.Log("[GameLoopData] Restoring pending RAID");
                 RaidPanel.Instance?.Show(actionData);
-                // RaidPanel.Show уже читает BoardState.Pending для восстановления открытых ячеек
             }
         }
 
-        /// <summary>
-        /// Из BoardDefinition вытаскивает текущий Stage и Template по StageLevel.
-        /// </summary>
         private void ResolveCurrentStage()
         {
             CurrentStage = null;
@@ -150,9 +143,8 @@ namespace IDosGames
 
         public void Clear()
         {
-            GameLoops = null;
-            BoardDefinition = null;
-            BoardState = null;
+            // Сбрасываем только локальный производный стейт
+            // Основные данные сбрасываются через IDosGamesData.User.Clear()
             CurrentStage = null;
             CurrentTemplate = null;
             LastRollResponse = null;
@@ -163,9 +155,11 @@ namespace IDosGames
 
         private void Subscribe()
         {
-            GameLoopService.OnGameLoopsUpdated += SetGameLoops;
-            GameLoopService.OnBoardDefinitionUpdated += SetBoardDefinition;
-            GameLoopService.OnBoardStateUpdated += SetBoardState;
+            // Подписка на единый центр данных вместо дублирования через GameLoopService
+            IDosGamesData.User.OnBoardUpdated += OnBoardStateUpdated;
+            IDosGamesData.Config.OnTitlePublicConfigurationUpdated += OnConfigUpdated;
+
+            // Только игровые ответы по-прежнему через GameLoopService
             GameLoopService.OnBoardRollSuccess += SetRollResponse;
             GameLoopService.OnBoardAttackSuccess += SetAttackResponse;
             GameLoopService.OnBoardRaidSuccess += SetRaidResponse;
@@ -174,31 +168,24 @@ namespace IDosGames
 
         private void Unsubscribe()
         {
-            GameLoopService.OnGameLoopsUpdated -= SetGameLoops;
-            GameLoopService.OnBoardDefinitionUpdated -= SetBoardDefinition;
-            GameLoopService.OnBoardStateUpdated -= SetBoardState;
+            IDosGamesData.User.OnBoardUpdated -= OnBoardStateUpdated;
+            IDosGamesData.Config.OnTitlePublicConfigurationUpdated -= OnConfigUpdated;
+
             GameLoopService.OnBoardRollSuccess -= SetRollResponse;
             GameLoopService.OnBoardAttackSuccess -= SetAttackResponse;
             GameLoopService.OnBoardRaidSuccess -= SetRaidResponse;
             GameLoopService.OnBoardBuildSuccess -= SetBuildResponse;
         }
 
-        private void SetGameLoops(GameLoopsDefinition data)
+        private void OnBoardStateUpdated()
         {
-            GameLoops = data;
-            OnDataUpdated?.Invoke();
-        }
-
-        private void SetBoardDefinition(BoardLoopDefinition data)
-        {
-            BoardDefinition = data;
             ResolveCurrentStage();
             OnDataUpdated?.Invoke();
         }
 
-        private void SetBoardState(BoardLoopState data)
+        private void OnConfigUpdated()
         {
-            BoardState = data;
+            // BoardDefinition мог обновиться в составе TitlePublicConfiguration
             ResolveCurrentStage();
             OnDataUpdated?.Invoke();
         }
@@ -247,16 +234,13 @@ namespace IDosGames
 
                 if (data.StageComplete)
                 {
-                    // Показываем награды за стейдж
                     if (data.CompletionReward != null && data.CompletionReward.Count > 0)
                         Message.ShowRewards(data.CompletionReward);
 
-                    // Перезагружаем доску в фоне — к моменту закрытия попапа данные уже придут
                     _ = LoadBoard();
                 }
                 else if (data.MaxLevelReward != null && data.MaxLevelReward.Count > 0)
                 {
-                    // Награда за максимальный уровень здания
                     Message.ShowRewards(data.MaxLevelReward);
                 }
             }

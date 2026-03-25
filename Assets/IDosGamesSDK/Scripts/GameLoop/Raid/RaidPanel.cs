@@ -158,10 +158,6 @@ namespace IDosGames
                 yield break;
             }
 
-            // Обновляем локальный кеш
-            if (GameLoopData.Instance != null)
-                GameLoopData.Instance.BoardState = freshState;
-
             var pending = freshState.Pending;
             bool hasLayout = pending?.RaidLayout != null && pending.RaidLayout.Count > 0;
 

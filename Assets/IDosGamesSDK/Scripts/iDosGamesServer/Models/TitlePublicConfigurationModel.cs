@@ -14,7 +14,6 @@ namespace IDosGames.TitlePublicConfiguration
         public DefaultAvatarSkin DefaultAvatarSkin { get; set; }
         public EventWeekly EventWeekly { get; set; }
         public List<EventWeeklyRewards> EventWeeklyRewards { get; set; }
-        public Friends Friends { get; set; }
         public List<Leaderboard> Leaderboards { get; set; }
         public List<ProductForRealMoney> ProductsForRealMoney { get; set; }
         public List<ProductForVirtualCurrency> ProductsForVirtualCurrency { get; set; }
@@ -133,12 +132,6 @@ namespace IDosGames.TitlePublicConfiguration
         public int Points { get; set; }
         public ItemOrCurrency Premium { get; set; }
         public ItemOrCurrency Standard { get; set; }
-    }
-
-    public class Friends
-    {
-        public int MaxCount { get; set; }
-        public int MaxInactiveDay { get; set; }
     }
 
     public class Leaderboard
@@ -488,7 +481,7 @@ namespace IDosGames.TitlePublicConfiguration
 
     public class GameLoopsDefinition
     {
-        public BoardLoopDefinition RaidBuild { get; set; }
+        public BoardLoopDefinition Board { get; set; }
     }
 
     public class BoardLoopDefinition

@@ -43,6 +43,10 @@ namespace IDosGames
 
             if (result.Success)
             {
+                if (IDosGamesData.Config == null) return OperationResult<GameLoopsDefinition>.Fail("IDosGamesData.Config is null");
+                if (IDosGamesData.Config.TitlePublicConfiguration == null) return OperationResult<GameLoopsDefinition>.Fail("TitlePublicConfiguration is not loaded");
+
+                IDosGamesData.Config.TitlePublicConfiguration.GameLoops = result.Data;
                 OnGameLoopsUpdated?.Invoke(result.Data);
             }
 
@@ -56,6 +60,12 @@ namespace IDosGames
 
             if (result.Success)
             {
+                if (IDosGamesData.Config == null) return OperationResult<BoardLoopDefinition>.Fail("IDosGamesData.Config is null");
+                if (IDosGamesData.Config.TitlePublicConfiguration == null) return OperationResult<BoardLoopDefinition>.Fail("TitlePublicConfiguration is not loaded");
+
+                IDosGamesData.Config.TitlePublicConfiguration.GameLoops ??= new GameLoopsDefinition();
+                IDosGamesData.Config.TitlePublicConfiguration.GameLoops.Board = result.Data;
+
                 OnBoardDefinitionUpdated?.Invoke(result.Data);
             }
 
@@ -71,6 +81,12 @@ namespace IDosGames
 
             if (result.Success)
             {
+                if (IDosGamesData.Config == null) return OperationResult<BoardLoopDefinition>.Fail("IDosGamesData.Config is null");
+                if (IDosGamesData.Config.TitlePublicConfiguration == null) return OperationResult<BoardLoopDefinition>.Fail("TitlePublicConfiguration is not loaded");
+
+                IDosGamesData.Config.TitlePublicConfiguration.GameLoops ??= new GameLoopsDefinition();
+                IDosGamesData.Config.TitlePublicConfiguration.GameLoops.Board = result.Data;
+
                 OnBoardDefinitionUpdated?.Invoke(result.Data);
             }
 
@@ -84,6 +100,7 @@ namespace IDosGames
 
             if (result.Success)
             {
+                IDosGamesData.User.ApplyBoard(result.Data);
                 OnBoardStateUpdated?.Invoke(result.Data);
             }
 

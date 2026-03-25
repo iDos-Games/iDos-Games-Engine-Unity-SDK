@@ -39,6 +39,7 @@ namespace IDosGames
 
             if (result.Success)
             {
+                IDosGamesData.Config?.ApplyTitlePublicData(result.Data);
                 OnTitleDataReceived?.Invoke(result.Data);
             }
 
@@ -52,13 +53,14 @@ namespace IDosGames
 
             if (result.Success)
             {
+                IDosGamesData.Config?.ApplyTitlePublicConfiguration(result.Data);
                 OnConfigReceived?.Invoke(result.Data);
             }
 
             return result;
         }
 
-        public static async Task<OperationResult<GetCatalogItemsResult>> GetCatalogItems(string catalogVersion = null)
+        public static async Task<OperationResult<GetCatalogItemsResult>> GetCatalogItems(string catalogVersion)
         {
             var request = CreateBaseRequest();
             request.CatalogVersion = catalogVersion;
@@ -67,13 +69,14 @@ namespace IDosGames
 
             if (result.Success)
             {
+                IDosGamesData.Config?.ApplyCatalog(catalogVersion, result.Data);
                 OnCatalogReceived?.Invoke(result.Data);
             }
 
             return result;
         }
 
-        public static async Task<OperationResult<GetLeaderboardResult>> GetLeaderboard(string statisticName = null)
+        public static async Task<OperationResult<GetLeaderboardResult>> GetLeaderboard(string statisticName)
         {
             var request = CreateBaseRequest();
             request.StatisticName = statisticName;
@@ -95,6 +98,7 @@ namespace IDosGames
 
             if (result.Success)
             {
+                IDosGamesData.Config?.ApplyPlatformSettings(result.Data);
                 OnPlatformSettingsReceived?.Invoke(result.Data);
             }
 
@@ -108,6 +112,7 @@ namespace IDosGames
 
             if (result.Success)
             {
+                IDosGamesData.Config?.ApplyCurrencyData(result.Data);
                 OnCurrencyDataReceived?.Invoke(result.Data);
             }
 
