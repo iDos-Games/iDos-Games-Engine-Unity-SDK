@@ -20,17 +20,6 @@ namespace IDosGames
         //public UserPremiumState Premium { get; private set; }
         public Dictionary<string, PlayerLeaderboardData> LeaderboardData { get; private set; }
 
-        public bool IsUserPublicDataLoaded => UserPublicData != null;
-        public bool IsBoardLoaded => Board != null;
-        public bool IsQuestsLoaded => Quests != null;
-        public bool IsCharactersLoaded => Characters != null;
-        public bool IsInventoryLoaded => Inventory != null;
-        public bool IsVirtualCurrencyLoaded => VirtualCurrency != null;
-        public bool IsDailyRewardsLoaded => DailyRewards != null;
-        //public bool IsSocialLoaded => Social != null;
-        //public bool IsPremiumLoaded => Premium != null;
-        public bool IsLeaderboardDataLoaded => LeaderboardData != null;
-
         public event Action OnUserPublicDataUpdated;
         public event Action OnBoardUpdated;
         public event Action OnQuestsUpdated;

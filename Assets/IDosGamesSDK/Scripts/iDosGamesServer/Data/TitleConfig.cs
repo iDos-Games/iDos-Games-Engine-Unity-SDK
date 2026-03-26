@@ -13,12 +13,6 @@ namespace IDosGames
         public Currencies CurrencyData { get; private set; }
         public Dictionary<string, List<CatalogItem>> Catalogs { get; private set; } = new();
         
-        public bool IsTitlePublicConfigurationLoaded => TitlePublicConfiguration != null;
-        public bool IsTitlePublicDataLoaded => TitlePublicData != null;
-        public bool IsCatalogLoaded(string version) => Catalogs.ContainsKey(version);
-        public bool IsPlatformSettingsLoaded => PlatformSettings != null;
-        public bool IsCurrencyDataLoaded => CurrencyData != null;
-
         public event Action OnTitlePublicConfigurationUpdated;
         public event Action OnTitlePublicDataUpdated;
         public event Action<string> OnCatalogUpdated; // string - CatalogVersion

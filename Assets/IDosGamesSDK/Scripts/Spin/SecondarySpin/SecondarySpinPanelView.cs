@@ -75,7 +75,7 @@ namespace IDosGames
 
 		public void ResetSpinButton(Action<bool> action)
 		{
-			var ticketsAmount = UserInventory.GetVirtualCurrencyAmount(VirtualCurrencyID.SS);
+            long ticketsAmount = UserInventory.GetVirtualCurrencyAmount(VirtualCurrencyID.SS);
 
 			bool showAd = IsNeedToShowAd(ticketsAmount, UserInventory.SecondarySpinTicketRechargeMax);
 
@@ -92,7 +92,7 @@ namespace IDosGames
 			Message.ShowReward(amount, iconPath);
 		}
 
-		private bool IsNeedToShowAd(int ticketsAmount, int maxTickets)
+		private bool IsNeedToShowAd(long ticketsAmount, long maxTickets)
 		{
 			if (UserInventory.HasVIPStatus)
 			{

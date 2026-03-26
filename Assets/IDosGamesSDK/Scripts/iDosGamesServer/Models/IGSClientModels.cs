@@ -8,7 +8,7 @@ namespace IDosGames.ClientModels
     public class GetUserInventoryResult : IGSResultCommon
     {
         public List<ItemInstance> Inventory;
-        public Dictionary<string, int> VirtualCurrency;
+        public Dictionary<string, long> VirtualCurrency;
         public Dictionary<string, VirtualCurrencyRechargeTime> VirtualCurrencyRechargeTimes;
     }
 

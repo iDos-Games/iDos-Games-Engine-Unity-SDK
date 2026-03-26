@@ -11,7 +11,7 @@ namespace IDosGames
         [SerializeField] private Image _adIcon;
         [SerializeField] private TMP_Text _usesLeft;
 
-        public void Set(Action tryToSpinAction, int ticketsAmount, bool showAd)
+        public void Set(Action tryToSpinAction, long ticketsAmount, bool showAd)
         {
             bool block = ticketsAmount <= 0;
 
@@ -56,7 +56,7 @@ namespace IDosGames
             _adIcon.gameObject.SetActive(active);
         }
 
-        private void SetUsesLeftText(int ticketsAmount)
+        private void SetUsesLeftText(long ticketsAmount)
         {
             _usesLeft.text = $"{ticketsAmount}/{UserInventory.SecondarySpinTicketRechargeMax}";
         }

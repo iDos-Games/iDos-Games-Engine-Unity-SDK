@@ -13,7 +13,7 @@ namespace IDosGames
 		private Color CorrectInputColor = Color.white;
 		private Color WrongInputColor = Color.red;
 
-		private int _availableAmount = 0;
+		private long _availableAmount = 0;
 
 		public bool IsAmountCorrect { get; private set; }
 
@@ -34,7 +34,7 @@ namespace IDosGames
 			ValidateInput(_inputField.text);
 		}
 
-		public void UpdateAvailableAmount(int amount)
+		public void UpdateAvailableAmount(long amount)
 		{
 			_availableAmount = amount;
 			_availableAmountText.text = _availableAmount.ToString();

@@ -156,7 +156,7 @@ namespace IDosGames
 
 		private void UpdateTokenAvailableAmount()
 		{
-			int amount = 0;
+			long amount = 0;
 
 			var direction = GetTransferDirection();
 			var tokenInput = GetTokenInput();

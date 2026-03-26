@@ -8,6 +8,7 @@ namespace IDosGames.TitlePublicConfiguration
 {
     public class TitlePublicConfigurationModel
     {
+        // v1
         public CommissionRoyaltyPercentage CommissionRoyaltyPercentage { get; set; }
         public CreativeMarketplace CreativeMarketplace { get; set; }
         public CurrencyPrices CurrencyPrices { get; set; }
@@ -27,13 +28,13 @@ namespace IDosGames.TitlePublicConfiguration
         public List<SkinCollectionRarity> SkinCollectionRarity { get; set; }
         public List<SpinReward> SpinRewards { get; set; }
         public SystemState SystemState { get; set; }
-        public SmartOffers SmartOffers { get; set; }
-        public CurrentSmartOffers CurrentSmartOffers { get; set; }
         public List<CryptoWallet> CryptoWallet { get; set; }
         public AiPublicSettings AiSettings { get; set; }
         public List<AiCustomSetting> AiCustomSettings { get; set; }
         public Dictionary<string, string> ImageData { get; set; }
         public Dictionary<string, string> AssetBundle { get; set; }
+
+        // v2
         public GameLoopsDefinition GameLoops { get; set; }
         public CharacterDefinitions CharacterDefinitions { get; set; }
         public List<LootboxDefinition> LootboxDefinitions { get; set; }
@@ -355,60 +356,6 @@ namespace IDosGames.TitlePublicConfiguration
     {
         public bool Ios { get; set; }
         public bool Android { get; set; }
-    }
-
-    public class SmartOffers
-    {
-        public SingleOffers SingleOffers { get; set; }
-        public List<ChainOffer> ChainOffers { get; set; }
-        public string OneTimeOffer { get; set; }
-    }
-
-    public class SingleOffers
-    {
-        public List<Offer> Cheap { get; set; }
-        public List<Offer> Medium { get; set; }
-        public List<Offer> Expensive { get; set; }
-    }
-
-    public class Offer
-    {
-        public string OfferID { get; set; }
-        public DateTime? EndTime { get; set; }
-        public int Quantity { get; set; }
-        public string Name { get; set; }
-        public int PriceRM { get; set; }
-        public string ProductType { get; set; }
-        public string IconImagePath { get; set; }
-        public string ImagePath { get; set; }
-        public List<ItemOrCurrency> ItemsToGrant { get; set; }
-    }
-
-    public class ChainOffer
-    {
-        public string ChainOfferID { get; set; }
-        public string IconImagePath { get; set; }
-        public DateTime? EndTime { get; set; }
-        public string Name { get; set; }
-        public List<ChainOfferItem> Offers { get; set; }
-    }
-
-    public class ChainOfferItem
-    {
-        public string OfferID { get; set; }
-        public int Level { get; set; }
-        public int PriceRM { get; set; }
-        public string ImagePath { get; set; }
-        public List<ItemOrCurrency> ItemsToGrant { get; set; }
-    }
-
-    public class CurrentSmartOffers
-    {
-        public List<string> Cheap { get; set; }
-        public List<string> Medium { get; set; }
-        public List<string> Expensive { get; set; }
-        public List<DateTime> EndTime { get; set; }
-        public List<DateTime> FirstEndTime { get; set; }
     }
 
     public class CharacterDefinitions

@@ -7,20 +7,20 @@ namespace IDosGames
 	{
 		[SerializeField] private TMP_Text _amount;
 
-		public int Amount
+		public long Amount
 		{
 			get => GetAmount();
 			protected set => SetAmount(value);
 		}
 
-		private void SetAmount(int amount)
+		private void SetAmount(long amount)
 		{
 			_amount.text = amount.ToString("N0");
 		}
 
-		private int GetAmount()
+		private long GetAmount()
 		{
-			int.TryParse(_amount.text, out int amount);
+            long.TryParse(_amount.text, out long amount);
 			return amount;
 		}
 

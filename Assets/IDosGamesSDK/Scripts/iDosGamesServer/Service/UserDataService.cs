@@ -111,13 +111,9 @@ namespace IDosGames
 
             IGSUserData.Leaderboard = userDataResult.LeaderboardResult;
 
-            IGSUserData.Friends = userDataResult.GetFriends;
-            IGSUserData.FriendRequests = userDataResult.GetFriendRequests;
-            IGSUserData.RecommendedFriends = userDataResult.GetRecommendedFriends;
-
             IGSUserData.Currency = userDataResult.GetCurrencyData;
 
-            IGSUserData.ImageData = userDataResult.ImageData;
+            IGSUserData.ImageData = userDataResult.TitlePublicConfiguration.ImageData;
 
             IGSUserData.LeaderboardData = userDataResult.LeaderboardData;
             IGSUserData.TitlePublicData = userDataResult.TitlePublicData;

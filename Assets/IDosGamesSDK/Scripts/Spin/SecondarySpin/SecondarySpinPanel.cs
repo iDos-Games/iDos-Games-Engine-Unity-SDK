@@ -46,7 +46,7 @@ namespace IDosGames
                 }
                 else if (AuthService.WebGLPlatform == WebGLPlatform.Web)
                 {
-                    int ticketAmount = UserInventory.GetVirtualCurrencyAmount(VirtualCurrencyID.SS);
+                    long ticketAmount = UserInventory.GetVirtualCurrencyAmount(VirtualCurrencyID.SS);
 
                     if (ticketAmount <= 0)
                     {
@@ -77,7 +77,7 @@ namespace IDosGames
             }
             else
             {
-                int ticketAmount = UserInventory.GetVirtualCurrencyAmount(VirtualCurrencyID.SS);
+                long ticketAmount = UserInventory.GetVirtualCurrencyAmount(VirtualCurrencyID.SS);
 
                 if (ticketAmount <= 0)
                 {
@@ -92,7 +92,7 @@ namespace IDosGames
 
         public void TryToSpinCoin()
         {
-            int coinAmount = UserInventory.GetVirtualCurrencyAmount(VirtualCurrencyID.CO);
+            long coinAmount = UserInventory.GetVirtualCurrencyAmount(VirtualCurrencyID.CO);
 
             if (coinAmount >= 100)
             {

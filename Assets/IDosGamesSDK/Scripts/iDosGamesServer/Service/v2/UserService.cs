@@ -199,7 +199,7 @@ namespace IDosGames
             var inv = IGSUserData.UserInventory;
             if (inv == null) return;
 
-            inv.VirtualCurrency ??= new Dictionary<string, int>();
+            inv.VirtualCurrency ??= new ();
 
             inv.VirtualCurrency[response.CurrencyID] = response.NewBalance;
 

@@ -186,7 +186,7 @@ namespace IDosGames
         {
             Enum.TryParse(offer.CurrencyID, out VirtualCurrencyID virtualCurrencyID);
 
-            int balance = UserInventory.GetVirtualCurrencyAmount(virtualCurrencyID.ToString());
+            long balance = UserInventory.GetVirtualCurrencyAmount(virtualCurrencyID.ToString());
 
             if (balance < offer.Price)
             {

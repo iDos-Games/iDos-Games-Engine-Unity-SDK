@@ -20,7 +20,7 @@ namespace IDosGames
         }
 
         private static readonly Dictionary<string, int> _eachItemAmounts = new();
-        private static readonly Dictionary<string, int> _virtualCurrencyAmounts = new();
+        private static readonly Dictionary<string, long> _virtualCurrencyAmounts = new();
         private static readonly Dictionary<SpinTicketType, int> _spinTickets = new();
         private static readonly Dictionary<ChestKeyFragmentType, int> _chestKeyFragments = new();
 
@@ -124,14 +124,14 @@ namespace IDosGames
             return amount;
         }
 
-        public static int GetVirtualCurrencyAmount(VirtualCurrencyID virtualCurrencyID)
+        public static long GetVirtualCurrencyAmount(VirtualCurrencyID virtualCurrencyID)
         {
             return GetVirtualCurrencyAmount(virtualCurrencyID.ToString());
         }
 
-        public static int GetVirtualCurrencyAmount(string virtualCurrencyID)
+        public static long GetVirtualCurrencyAmount(string virtualCurrencyID)
         {
-            _virtualCurrencyAmounts.TryGetValue(virtualCurrencyID, out int amount);
+            _virtualCurrencyAmounts.TryGetValue(virtualCurrencyID, out long amount);
 
             return amount;
         }
@@ -209,7 +209,7 @@ namespace IDosGames
             }
         }
 
-        private void SetVirtualCurrencyAmounts(Dictionary<string, int> virtualCurrencies)
+        private void SetVirtualCurrencyAmounts(Dictionary<string, long> virtualCurrencies)
         {
             foreach (var virtualCurency in virtualCurrencies)
             {

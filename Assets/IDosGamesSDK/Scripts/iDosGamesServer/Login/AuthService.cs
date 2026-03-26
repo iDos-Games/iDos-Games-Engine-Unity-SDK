@@ -381,15 +381,9 @@ namespace IDosGames
             UpdateProperty(result.TitlePublicConfiguration, value => IGSUserData.TitlePublicConfiguration = value);
             UpdateProperty(result.CustomUserDataResult, value => IGSUserData.CustomUserData = value);
             UpdateProperty(result.LeaderboardResult, value => IGSUserData.Leaderboard = value);
-            UpdateProperty(result.GetFriends, value => IGSUserData.Friends = value);
-            UpdateProperty(result.GetFriendRequests, value => IGSUserData.FriendRequests = value);
-            UpdateProperty(result.GetRecommendedFriends, value => IGSUserData.RecommendedFriends = value);
             UpdateProperty(result.GetCurrencyData, value => IGSUserData.Currency = value);
             UpdateProperty(result.PlatformSettings, value => IGSUserData.PlatformSettings = value);
-            UpdateProperty(result.ImageData, value => IGSUserData.ImageData = value);
-            //UpdateProperty(result.GetMarketplaceGroupedOffers, value => IGSUserData.MarketplaceGroupedOffers = value?.ToString());
-            //UpdateProperty(result.GetMarketplaceActiveOffers, value => IGSUserData.MarketplaceActiveOffers = value?.ToString());
-            //UpdateProperty(result.GetMarketplaceHistory, value => IGSUserData.MarketplaceHistory = value?.ToString());
+            UpdateProperty(result.TitlePublicConfiguration.ImageData, value => IGSUserData.ImageData = value);
 
             SetPlatformSettings();
         }

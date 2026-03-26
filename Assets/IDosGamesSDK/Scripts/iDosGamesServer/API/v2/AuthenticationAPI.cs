@@ -55,6 +55,31 @@ namespace IDosGames
             return HttpService.Post<PlatformLoginResponse>(GetEndpoint(AuthenticationAction.LoginTokensWithPlatformToken), request);
         }
 
+        public static Task<OperationResult<PlatformLoginResponse>> LoginTokensWithDeviceID(AuthenticationRequest request)
+        {
+            return HttpService.Post<PlatformLoginResponse>(GetEndpoint(AuthenticationAction.LoginTokensWithDeviceID), request);
+        }
+
+        public static Task<OperationResult<PlatformLoginResponse>> LoginTokensWithTelegram(AuthenticationRequest request)
+        {
+            return HttpService.Post<PlatformLoginResponse>(GetEndpoint(AuthenticationAction.LoginTokensWithTelegram), request);
+        }
+
+        public static Task<OperationResult<PlatformLoginResponse>> LoginTokensWithEmail(AuthenticationRequest request)
+        {
+            return HttpService.Post<PlatformLoginResponse>(GetEndpoint(AuthenticationAction.LoginTokensWithEmail), request);
+        }
+
+        public static Task<OperationResult<PlatformLoginResponse>> LoginTokensWithGoogle(AuthenticationRequest request)
+        {
+            return HttpService.Post<PlatformLoginResponse>(GetEndpoint(AuthenticationAction.LoginTokensWithGoogle), request);
+        }
+
+        public static Task<OperationResult<PlatformLoginResponse>> RegisterTokensWithEmail(AuthenticationRequest request)
+        {
+            return HttpService.Post<PlatformLoginResponse>(GetEndpoint(AuthenticationAction.RegisterTokensWithEmail), request);
+        }
+
         public static Task<OperationResult<ClientStateResponse>> LoginWithDeviceID(AuthenticationRequest request)
         {
             return HttpService.Post<ClientStateResponse>(GetEndpoint(AuthenticationAction.LoginWithDeviceID), request);
