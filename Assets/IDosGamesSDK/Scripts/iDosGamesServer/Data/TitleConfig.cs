@@ -10,9 +10,9 @@ namespace IDosGames
         public TitlePublicConfigurationModel TitlePublicConfiguration { get; private set; } = new ();
         public PlatformSettingsModel PlatformSettings { get; private set; }
         public Dictionary<string, object> TitlePublicData { get; private set; }
-        public Currencies CurrencyData { get; private set; }
+        public Currencies Currencies { get; private set; }
         public Dictionary<string, List<CatalogItem>> Catalogs { get; private set; } = new();
-        
+
         public event Action OnTitlePublicConfigurationUpdated;
         public event Action OnTitlePublicDataUpdated;
         public event Action<string> OnCatalogUpdated; // string - CatalogVersion
@@ -56,9 +56,9 @@ namespace IDosGames
             OnAnyUpdated?.Invoke();
         }
 
-        internal void ApplyCurrencyData(Currencies data)
+        internal void ApplyCurrencies(Currencies data)
         {
-            CurrencyData = data;
+            Currencies = data;
             OnCurrencyDataUpdated?.Invoke();
             OnAnyUpdated?.Invoke();
         }

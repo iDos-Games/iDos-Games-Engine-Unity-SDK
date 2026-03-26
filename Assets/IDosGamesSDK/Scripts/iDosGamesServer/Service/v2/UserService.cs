@@ -18,7 +18,7 @@ namespace IDosGames
         public static event Action<SuccessResponse> OnUserAccountDeleted;
         public static event Action<UsageTimeStats> OnUsageTimeReceived;
 
-        private static IGSAuthenticationContext Ctx => AuthService.GetAuthContext();
+        private static IGSAuthenticationContext Ctx => AuthenticationService.GetAuthContext();
         private static string UserID => Ctx.UserID;
         private static string ClientSessionTicket => Ctx.ClientSessionTicket;
 
@@ -196,12 +196,9 @@ namespace IDosGames
         {
             if (response == null) return;
 
-            var inv = IGSUserData.UserInventory;
-            if (inv == null) return;
+            var currency = IDosGamesData.User.VirtualCurrency;
 
-            inv.VirtualCurrency ??= new ();
-
-            inv.VirtualCurrency[response.CurrencyID] = response.NewBalance;
+            currency[response.CurrencyID] = response.NewBalance;
 
             UserDataService.VirtualCurrencyUpdatedInvoke();
         }

@@ -36,7 +36,11 @@ namespace IDosGames
                 DontDestroyOnLoad(gameObject);
             }
 
-            PLAYER_PREFS_AFTER_IAP_NOT_GRANTED_PRODUCT = "NOT_GRANTED_IAP_PRODUCT" + AuthService.UserID;
+            if (AuthenticationService.AuthContext != null)
+            {
+                PLAYER_PREFS_AFTER_IAP_NOT_GRANTED_PRODUCT = "NOT_GRANTED_IAP_PRODUCT" + AuthenticationService.AuthContext.UserID;
+            }
+            
             CheckForItemsGrantedAfterIAPPurchase();
         }
 
@@ -87,7 +91,7 @@ namespace IDosGames
                 int priceRM = int.Parse(product.PriceRM);
                 int price = (int)Math.Round(priceRM / starPrice);
 
-                _payload = IDosGamesSDKSettings.Instance.TitleID + "-|-" + AuthService.UserID + "-|-" + _iapProcessedProductID + "-|-" + Guid.NewGuid();
+                _payload = IDosGamesSDKSettings.Instance.TitleID + "-|-" + AuthenticationService.AuthContext.UserID + "-|-" + _iapProcessedProductID + "-|-" + Guid.NewGuid();
 
                 string invoiceLink = await AdditionalIAPService.CreateTelegramInvoice(product.Name, product.Name, _payload, null, "XTR", price);
                 Loading.HideAllPanels();
@@ -234,7 +238,7 @@ namespace IDosGames
                 }
                 else
                 {
-                    if (AuthService.WebGLPlatform == WebGLPlatform.Telegram)
+                    if (AuthenticationService.WebGLPlatform == WebGLPlatform.Telegram)
                     {
 #if UNITY_WEBGL
                         WebFunctionHandler.Instance.ShowAd(IDosGamesSDKSettings.Instance.AdsGramBlockID.ToString(), ID);

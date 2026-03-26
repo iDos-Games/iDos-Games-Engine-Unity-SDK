@@ -57,11 +57,11 @@ namespace IDosGames
 		private void CreateCurrentPlayerRow(List<PlayerLeaderboardEntry> leaderboard)
 		{
 			bool isCurrentPlayerOnLeaderboard = false;
-			PlayerLeaderboardEntry currentPlayer = new() { UserID = AuthService.UserID};
+			PlayerLeaderboardEntry currentPlayer = new() { UserID = AuthenticationService.AuthContext.UserID};
 
 			foreach (var player in leaderboard)
 			{
-				if (player.UserID == AuthService.UserID)
+				if (player.UserID == AuthenticationService.AuthContext.UserID)
 				{
 					currentPlayer = player;
 					isCurrentPlayerOnLeaderboard = true;
@@ -93,7 +93,7 @@ namespace IDosGames
 		{
 			foreach (var player in leaderboard)
 			{
-				if (player.UserID == AuthService.UserID)
+				if (player.UserID == AuthenticationService.AuthContext.UserID)
 				{
 					continue;
 				}

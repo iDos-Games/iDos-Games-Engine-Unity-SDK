@@ -177,7 +177,7 @@ namespace IDosGames
             {
                 Token = tokenAddress,
                 Amount = requiredAmountWei,
-                UserID = AuthService.UserID
+                UserID = AuthenticationService.AuthContext.UserID
             };
             var depositTransactionRequest = new MetamaskTransactionCoroutineUnityRequest(
                 _selectedAccountAddress, GetUnityRpcRequestClientFactory());

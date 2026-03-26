@@ -9,7 +9,7 @@ namespace IDosGames
     {
         public static event Action<CraftResponse> OnCraftSuccess;
 
-        private static IGSAuthenticationContext Ctx => AuthService.GetAuthContext();
+        private static IGSAuthenticationContext Ctx => AuthenticationService.GetAuthContext();
         private static string UserID => Ctx.UserID;
         private static string ClientSessionTicket => Ctx.ClientSessionTicket;
 

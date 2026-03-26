@@ -33,14 +33,14 @@ namespace IDosGames
 
         private void OnEnable()
         {
-            UserInventory.InventoryUpdated += OnInventoryUpdated;
-            UserDataService.CustomUserDataUpdated += OnUserReadOnlyDataUpdated;
+            IDosGamesData.User.OnAnyUpdated += OnInventoryUpdated;
+            IDosGamesData.User.OnAnyUpdated += OnUserReadOnlyDataUpdated;
         }
 
         private void OnDisable()
         {
-            UserInventory.InventoryUpdated -= OnInventoryUpdated;
-            UserDataService.CustomUserDataUpdated -= OnUserReadOnlyDataUpdated;
+            IDosGamesData.User.OnAnyUpdated -= OnInventoryUpdated;
+            IDosGamesData.User.OnAnyUpdated -= OnUserReadOnlyDataUpdated;
         }
 
         public void AddAlarmObject(AlarmObject alarmObject)

@@ -5,11 +5,10 @@ namespace IDosGames
     public class AutoLogin : MonoBehaviour
     {
         public float delayAutoLogin = 2f;
-        private AuthType _lastAuthType => AuthService.LastAuthType;
-        private string _savedEmail => AuthService.SavedEmail;
-        private string _savedPassword => AuthService.SavedPassword;
+        private AuthType _lastAuthType => AuthenticationService.LastAuthType;
+        private string _savedEmail => AuthenticationService.SavedEmail;
+        private string _savedPassword => AuthenticationService.SavedPassword;
 
-        // platform auth wait
         private bool _waitingPlatformAuth = false;
         private const float PlatformAuthTimeoutSeconds = 120f;
 
@@ -54,14 +53,22 @@ namespace IDosGames
 #endif
         }
 
-        public void AutoLoginWithEmail()
+        public async void AutoLoginWithEmail()
         {
-            AuthService.Instance.LoginWithEmailAddress(_savedEmail, _savedPassword, OnSuccessAutoLogin, OnErrorAutoLogin, OnRetryAutoLogin);
+            var result = await AuthenticationService.LoginWithEmail(_savedEmail, _savedPassword);
+            if (result.Success)
+                OnSuccessAutoLogin(result.Data);
+            else
+                OnErrorAutoLogin(result.Error);
         }
 
-        public void AutoLoginWithDeviceID()
+        public async void AutoLoginWithDeviceID()
         {
-            AuthService.Instance.LoginWithDeviceID(OnSuccessAutoLogin, OnErrorAutoLogin, OnRetryAutoLogin);
+            var result = await AuthenticationService.LoginWithDeviceID();
+            if (result.Success)
+                OnSuccessAutoLogin(result.Data);
+            else
+                OnErrorAutoLogin(result.Error);
         }
 
         private void OnSuccessAutoLogin(ClientStateResponse authContext)
@@ -90,7 +97,7 @@ namespace IDosGames
             Invoke(nameof(OnPlatformAuthTimeout), PlatformAuthTimeoutSeconds);
         }
 
-        public void OnPlatformAuth(string json)
+        public async void OnPlatformAuth(string json)
         {
             Debug.Log("AutoLogin_OnPlatformAuth:" + json);
             if (!_waitingPlatformAuth) return;
@@ -100,8 +107,13 @@ namespace IDosGames
 
             PlatformAuthResponse resp = Newtonsoft.Json.JsonConvert.DeserializeObject<PlatformAuthResponse>(json);
 
-            AuthService.Instance.SetPlatformUser(resp.user);
-            AuthService.Instance.LoginWithPlatformToken(resp.user.AuthToken, OnSuccessAutoLogin, OnErrorAutoLogin, OnRetryAutoLogin);
+            AuthenticationService.PlatformUser = resp.user;
+
+            var result = await AuthenticationService.LoginWithPlatformToken(resp.user.AuthToken);
+            if (result.Success)
+                OnSuccessAutoLogin(result.Data);
+            else
+                OnErrorAutoLogin(result.Error);
         }
 
         private void OnPlatformAuthTimeout()
@@ -114,7 +126,7 @@ namespace IDosGames
 
         private void CheckPlatform()
         {
-            AuthService.WebGLPlatform = WebGLPlatform.None;
+            AuthenticationService.WebGLPlatform = WebGLPlatform.None;
 #if UNITY_WEBGL && !UNITY_EDITOR
 
             WebSDK.FetchPlatform();
@@ -122,16 +134,16 @@ namespace IDosGames
 
             if (WebSDK.platform == "web")
             {
-                AuthService.WebGLPlatform = WebGLPlatform.Web;
+                AuthenticationService.WebGLPlatform = WebGLPlatform.Web;
                 IDosGamesSDKSettings.Instance.BuildForPlatform = Platforms.Web;
             }
             else if (WebSDK.platform == "telegram")
             {
-                AuthService.WebGLPlatform = WebGLPlatform.Telegram;
+                AuthenticationService.WebGLPlatform = WebGLPlatform.Telegram;
                 IDosGamesSDKSettings.Instance.BuildForPlatform = Platforms.Telegram;
 
                 WebSDK.FetchInitDataUnsafe();
-                AuthService.TelegramInitData = WebSDK.initDataUnsafe;
+                AuthenticationService.TelegramInitData = WebSDK.initDataUnsafe;
             }
 
 #endif

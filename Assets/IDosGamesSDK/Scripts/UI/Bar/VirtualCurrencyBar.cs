@@ -10,27 +10,27 @@ namespace IDosGames
         private void OnEnable()
         {
             UpdateAmount();
-            UserInventory.InventoryUpdated += UpdateAmount;
-            UserDataService.VirtualCurrencyUpdated += UpdateAmount;
-            UserDataService.DataUpdated += UpdateAmount;
+            IDosGamesData.User.OnInventoryUpdated += UpdateAmount;
+            IDosGamesData.User.OnVirtualCurrencyUpdated += UpdateAmount;
+            IDosGamesData.User.OnAnyUpdated += UpdateAmount;
         }
 
         private void OnDisable()
         {
-            UserInventory.InventoryUpdated -= UpdateAmount;
-            UserDataService.VirtualCurrencyUpdated -= UpdateAmount;
-            UserDataService.DataUpdated -= UpdateAmount;
+            IDosGamesData.User.OnInventoryUpdated -= UpdateAmount;
+            IDosGamesData.User.OnVirtualCurrencyUpdated -= UpdateAmount;
+            IDosGamesData.User.OnAnyUpdated -= UpdateAmount;
         }
 
         public override void UpdateAmount()
         {
-            if (IGSUserData.UserInventory == null || IGSUserData.UserInventory.VirtualCurrency == null)
+            if (IDosGamesData.User == null || IDosGamesData.User.VirtualCurrency == null)
             {
                 Amount = 0;
                 return;
             }
 
-            Amount = IGSUserData.UserInventory.VirtualCurrency.GetValueOrDefault(_virtualCurrencyID, 0);
+            Amount = IDosGamesData.User.VirtualCurrency.GetValueOrDefault(_virtualCurrencyID, 0);
         }
     }
 }

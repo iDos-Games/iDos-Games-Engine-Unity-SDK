@@ -105,7 +105,7 @@ namespace IDosGames.UI.Social
             btn.onClick.AddListener(() => OnButtonClicked(btn, callback));
         }
 
-        private async void OnButtonClicked(Button btn, Action<string> callback)
+        private void OnButtonClicked(Button btn, Action<string> callback)
         {
             if (_isBusy || callback == null) return;
             _isBusy = true;

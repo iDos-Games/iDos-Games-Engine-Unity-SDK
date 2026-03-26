@@ -60,7 +60,7 @@ namespace IDosGames
                 }
             }
 
-            var transactionHash = await WalletBlockchainService.DepositERC20Token(tokenAddress, platformPoolAddress, requiredAmountWei.ToString(), AuthService.UserID, WalletManager.PrivateKey, BlockchainSettings.ChainID);
+            var transactionHash = await WalletBlockchainService.DepositERC20Token(tokenAddress, platformPoolAddress, requiredAmountWei.ToString(), AuthenticationService.AuthContext.UserID, WalletManager.PrivateKey, BlockchainSettings.ChainID);
 
             TransactionHashAfterTransactionToGame = transactionHash;
 

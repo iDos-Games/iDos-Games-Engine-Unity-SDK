@@ -19,7 +19,7 @@ namespace IDosGames
 			_sellerID.text = sellerID?.ToString();
 			_currencyIcon.sprite = currencyIcon;
 
-			if (sellerID == AuthService.UserID)
+			if (sellerID == AuthenticationService.AuthContext.UserID)
 			{
 				_buyButton.interactable = false;
 			}

@@ -17,7 +17,7 @@ namespace IDosGames
         public static event Action<RaidResponse> OnBoardRaidSuccess;
         public static event Action<BuildResponse> OnBoardBuildSuccess;
 
-        private static IGSAuthenticationContext Ctx => AuthService.GetAuthContext();
+        private static IGSAuthenticationContext Ctx => AuthenticationService.GetAuthContext();
         private static string UserID => Ctx.UserID;
         private static string ClientSessionTicket => Ctx.ClientSessionTicket;
 

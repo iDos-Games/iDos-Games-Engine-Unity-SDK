@@ -166,9 +166,9 @@ namespace IDosGames
         {
             string userName = null;
 #if UNITY_WEBGL
-            if (AuthService.WebGLPlatform == WebGLPlatform.Telegram)
+            if (AuthenticationService.WebGLPlatform == WebGLPlatform.Telegram)
             {
-                //userName = AuthService.TelegramInitData.user.username;
+                //userName = AuthenticationService.TelegramInitData.user.username;
             }
 #endif
             return userName;
@@ -189,7 +189,7 @@ namespace IDosGames
         {
             string platform = null;
 #if UNITY_WEBGL
-            if (AuthService.WebGLPlatform == WebGLPlatform.Telegram)
+            if (AuthenticationService.WebGLPlatform == WebGLPlatform.Telegram)
             {
                 platform = "Telegram";
             }
@@ -375,8 +375,8 @@ namespace IDosGames
 				{ "TitleID", IDosGamesSDKSettings.Instance.TitleID },
                 { "BuildKey", IDosGamesSDKSettings.Instance.BuildKey },
                 { "WebAppLink", WebSDK.webAppLink },
-                { "UserID", AuthService.UserID },
-                { "ClientSessionTicket", AuthService.ClientSessionTicket },
+                { "UserID", AuthenticationService.AuthContext.UserID },
+                { "ClientSessionTicket", AuthenticationService.AuthContext.ClientSessionTicket },
                 { "Receipt", receipt }
             };
 
@@ -421,8 +421,8 @@ namespace IDosGames
         {
             request.TitleID = IDosGamesSDKSettings.Instance.TitleID;
             request.BuildKey = IDosGamesSDKSettings.Instance.BuildKey;
-            request.UserID = AuthService.UserID;
-            request.ClientSessionTicket = AuthService.ClientSessionTicket;
+            request.UserID = AuthenticationService.AuthContext.UserID;
+            request.ClientSessionTicket = AuthenticationService.AuthContext.ClientSessionTicket;
             request.WebAppLink = WebSDK.webAppLink;
 
             var requestBody = (JObject)JToken.FromObject(request);
@@ -434,8 +434,8 @@ namespace IDosGames
         {
             request.TitleID = IDosGamesSDKSettings.Instance.TitleID;
             request.BuildKey = IDosGamesSDKSettings.Instance.BuildKey;
-            request.UserID = AuthService.UserID;
-            request.ClientSessionTicket = AuthService.ClientSessionTicket;
+            request.UserID = AuthenticationService.AuthContext.UserID;
+            request.ClientSessionTicket = AuthenticationService.AuthContext.ClientSessionTicket;
             request.WebAppLink = WebSDK.webAppLink;
 
             var requestBody = (JObject)JToken.FromObject(request);
@@ -451,8 +451,8 @@ namespace IDosGames
         {
             request.TitleID = IDosGamesSDKSettings.Instance.TitleID;
             request.BuildKey = IDosGamesSDKSettings.Instance.BuildKey;
-            request.UserID = AuthService.UserID;
-            request.ClientSessionTicket = AuthService.ClientSessionTicket;
+            request.UserID = AuthenticationService.AuthContext.UserID;
+            request.ClientSessionTicket = AuthenticationService.AuthContext.ClientSessionTicket;
             request.WebAppLink = WebSDK.webAppLink;
 
             var requestBody = (JObject)JToken.FromObject(request);
@@ -486,7 +486,7 @@ namespace IDosGames
 
                     if (result.Contains(MessageCode.SESSION_EXPIRED.ToString()) || result.Contains(MessageCode.INVALID_SESSION_TICKET.ToString()))
                     {
-                        AuthService.Instance.AutoLogin();
+                        _ = AuthenticationService.AutoLogin();
                     }
 
                     if (IDosGamesSDKSettings.Instance.DebugLogging)
@@ -536,7 +536,7 @@ namespace IDosGames
 
                     if (result.Contains(MessageCode.SESSION_EXPIRED.ToString()) || result.Contains(MessageCode.INVALID_SESSION_TICKET.ToString()))
                     {
-                        AuthService.Instance.AutoLogin();
+                        _ = AuthenticationService.AutoLogin();
                     }
 
                     if (IDosGamesSDKSettings.Instance.DebugLogging)

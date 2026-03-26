@@ -12,7 +12,7 @@ namespace IDosGames
         public static event Action<ClaimDailyRewardResponse> OnClaimDailyRewardSuccess;
         public static event Action<List<DailyRewardsDefinition>> OnDailyRewardsDefinitionsReceived;
 
-        private static IGSAuthenticationContext Ctx => AuthService.GetAuthContext();
+        private static IGSAuthenticationContext Ctx => AuthenticationService.GetAuthContext();
         private static string UserID => Ctx.UserID;
         private static string ClientSessionTicket => Ctx.ClientSessionTicket;
 
@@ -148,13 +148,10 @@ namespace IDosGames
         {
             if (response == null) return;
 
-            var inv = IGSUserData.UserInventory;
-            if (inv == null) return;
+            var currency = IDosGamesData.User.VirtualCurrency;
 
-            inv.VirtualCurrency ??= new ();
-
-            if (!string.IsNullOrEmpty(response.RewardCurrencyID)) inv.VirtualCurrency[response.RewardCurrencyID] = response.RewardBalanceNew;
-            if (!string.IsNullOrEmpty(response.LimitCurrencyID)) inv.VirtualCurrency[response.LimitCurrencyID] = response.LimitBalanceNew;
+            if (!string.IsNullOrEmpty(response.RewardCurrencyID)) currency[response.RewardCurrencyID] = response.RewardBalanceNew;
+            if (!string.IsNullOrEmpty(response.LimitCurrencyID)) currency[response.LimitCurrencyID] = response.LimitBalanceNew;
 
             UserDataService.VirtualCurrencyUpdatedInvoke();
         }

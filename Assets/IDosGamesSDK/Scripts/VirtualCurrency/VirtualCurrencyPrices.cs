@@ -1,7 +1,4 @@
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
-using System.Globalization;
 using UnityEngine;
 
 namespace IDosGames
@@ -23,7 +20,7 @@ namespace IDosGames
 		{
 			_instance = this;
 
-			UserDataService.TitlePublicConfigurationUpdated += InitializePrices;
+			IDosGamesData.Config.OnCurrencyDataUpdated += InitializePrices;
 		}
 
 		[RuntimeInitializeOnLoadMethod]
@@ -34,7 +31,7 @@ namespace IDosGames
 
 		private void InitializePrices()
 		{
-			var currencyData = IGSUserData.Currency;
+			var currencyData = IDosGamesData.Config.Currencies;
 
             foreach (var currency in currencyData.CurrencyData)
             {

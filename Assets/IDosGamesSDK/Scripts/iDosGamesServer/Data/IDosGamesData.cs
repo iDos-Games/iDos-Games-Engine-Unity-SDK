@@ -3,6 +3,7 @@ namespace IDosGames
     public static class IDosGamesData
     {
         public static TitleConfig Config { get; private set; } = new ();
+        public static TitleData Title { get; private set; } = new();
         public static UserData User { get; private set; } = new ();
 
         public static bool IsUserLoggedIn => User.IsLoggedIn;

@@ -28,13 +28,13 @@ namespace IDosGames
             JToken premiumReward = Reward[JsonProperty.PREMIUM];
 
             string standardImagePath = standardReward[JsonProperty.IMAGE_PATH].ToString();
-            string standardIconPath = (standardImagePath == JsonProperty.TOKEN_IMAGE_PATH) ? IGSUserData.Currency.CurrencyData.Find(c => c.CurrencyCode == "IG")?.ImageUrl ?? JsonProperty.TOKEN_IMAGE_PATH : standardImagePath;
+            string standardIconPath = (standardImagePath == JsonProperty.TOKEN_IMAGE_PATH) ? IDosGamesData.Config.Currencies.CurrencyData.Find(c => c.CurrencyCode == "IG")?.ImageUrl ?? JsonProperty.TOKEN_IMAGE_PATH : standardImagePath;
 
             _freeRewardItem.Set(standardIconPath, int.Parse($"{standardReward[JsonProperty.AMOUNT]}"));
             _freeRewardCheckMark.gameObject.SetActive(isCompleted);
 
             string premiumImagePath = premiumReward[JsonProperty.IMAGE_PATH].ToString();
-            string premiumIconPath = (premiumImagePath == JsonProperty.TOKEN_IMAGE_PATH) ? IGSUserData.Currency.CurrencyData.Find(c => c.CurrencyCode == "IG")?.ImageUrl ?? JsonProperty.TOKEN_IMAGE_PATH : premiumImagePath;
+            string premiumIconPath = (premiumImagePath == JsonProperty.TOKEN_IMAGE_PATH) ? IDosGamesData.Config.Currencies.CurrencyData.Find(c => c.CurrencyCode == "IG")?.ImageUrl ?? JsonProperty.TOKEN_IMAGE_PATH : premiumImagePath;
 
             _vipRewardItem.Set(premiumIconPath, int.Parse($"{premiumReward[JsonProperty.AMOUNT]}"));
             _vipRewardCheckMark.gameObject.SetActive(isCompleted && UserInventory.HasVIPStatus);

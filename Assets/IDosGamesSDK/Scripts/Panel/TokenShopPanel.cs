@@ -40,7 +40,7 @@ namespace IDosGames
 				var price = GetPriceInRealMoney($"{product[JsonProperty.PRICE_RM]}");
 
                 string imagePath = product[JsonProperty.IMAGE_PATH].ToString();
-                var iconPath = (imagePath == JsonProperty.TOKEN_IMAGE_PATH) ? IGSUserData.Currency.CurrencyData.Find(c => c.CurrencyCode == "IG")?.ImageUrl ?? JsonProperty.TOKEN_IMAGE_PATH : imagePath;
+                var iconPath = (imagePath == JsonProperty.TOKEN_IMAGE_PATH) ? IDosGamesData.Config.Currencies.CurrencyData.Find(c => c.CurrencyCode == "IG")?.ImageUrl ?? JsonProperty.TOKEN_IMAGE_PATH : imagePath;
                 var icon = await ImageLoader.GetSpriteAsync(iconPath);
 
                 var title = VirtualCurrencyPrices.ConverRMtoIGTwithDivider(price).ToString("N0") + " Token";

@@ -1,4 +1,5 @@
 using IDosGames.ServerModels;
+using IDosGames.TitlePublicConfiguration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -35,13 +36,13 @@ namespace IDosGames
 
         private void OnEnable()
         {
-            UserDataService.CustomUserDataUpdated += SetData;
+            IDosGamesData.User.OnAnyUpdated += SetData;
             RewardService.OnClaimSuccess += OnRewardClaimSuccess;
         }
 
         private void OnDisable()
         {
-            UserDataService.CustomUserDataUpdated -= SetData;
+            IDosGamesData.User.OnAnyUpdated -= SetData;
             RewardService.OnClaimSuccess -= OnRewardClaimSuccess;
         }
 
@@ -71,7 +72,7 @@ namespace IDosGames
 
         private void TryPatchWeeklyPointsInCache(int newPoints)
         {
-            var cud = IGSUserData.CustomUserData;
+            var cud = IDosGamesData.User.CustomUserData;
             if (cud?.Data == null) return;
 
             var key = CustomUserDataKey.event_weekly.ToString();
@@ -107,7 +108,7 @@ namespace IDosGames
         {
             if (result == null)
             {
-                _instance.OnErrorUpdateEventForPlayer();
+                OnErrorUpdateEventForPlayer();
             }
             else
             {
@@ -115,20 +116,17 @@ namespace IDosGames
                 {
                     Debug.Log("UpdateEventForPlayer: " + result);
                 }
-                
-                JObject resultData = JsonConvert.DeserializeObject<JObject>(result.ToString());
+
+                JObject resultData = JsonConvert.DeserializeObject<JObject>(result);
                 if (resultData.ContainsKey(JsonProperty.MESSAGE_KEY))
                 {
                     var message = resultData[JsonProperty.MESSAGE_KEY].ToString();
-                    //Message.Show(message);
                     if (message == "MESSAGE_CODE_SUCCESS" || message == "SUCCESS")
                     {
                         UserDataService.RequestUserAllData();
                     }
-
                 }
             }
-
         }
 
         private void OnErrorUpdateEventForPlayer()
@@ -138,10 +136,7 @@ namespace IDosGames
 
         public static void AddEventPoints(int points)
         {
-            if (points <= 0)
-            {
-                return;
-            }
+            if (points <= 0) return;
 
             FunctionParameters parameter = new()
             {
@@ -174,20 +169,28 @@ namespace IDosGames
 
         private void SetData()
         {
-            var playerDataRaw = UserDataService.GetCachedCustomUserData(CustomUserDataKey.event_weekly);
+            var cud = IDosGamesData.User.CustomUserData;
 
-            if (playerDataRaw == string.Empty)
+            if (cud?.Data == null ||
+                !cud.Data.TryGetValue(CustomUserDataKey.event_weekly.ToString(), out var record) ||
+                record == null ||
+                string.IsNullOrEmpty(record.Value))
             {
                 UpdateEventForPlayer();
                 return;
             }
 
-            var playerData = JsonConvert.DeserializeObject<JToken>(playerDataRaw);
+            var playerData = JsonConvert.DeserializeObject<JToken>(record.Value);
 
-            var weeklyEventDataRaw = UserDataService.GetCachedTitlePublicConfig(TitleDataKey.EventWeekly);
-            var weeklyEventData = JsonConvert.DeserializeObject<JToken>(weeklyEventDataRaw);
+            var weeklyEventData = IDosGamesData.Config.TitlePublicConfiguration.EventWeekly;
 
-            EndDate = GetEndDateTime(weeklyEventData);
+            if (weeklyEventData == null)
+            {
+                Debug.LogError("WeeklyEventSystem: EventWeekly config is null.");
+                return;
+            }
+
+            EndDate = weeklyEventData.EndDate ?? default;
             SetPlayerPoints(playerData);
 
             if (IsNeedUpdateEvent(playerData))
@@ -205,7 +208,7 @@ namespace IDosGames
                 return;
             }
 
-            EventType = $"{weeklyEventData[JsonProperty.TYPE]}";
+            EventType = weeklyEventData.Type.ToString();
             SetRewards(EventType);
 
             SetSliderData();
@@ -221,12 +224,27 @@ namespace IDosGames
 
         private void SetRewards(string eventType)
         {
-            var eventRewardsDataRaw = UserDataService.GetCachedTitlePublicConfig(TitleDataKey.EventWeeklyRewards);
-            var weeklyEventRewardsData = JsonConvert.DeserializeObject<JToken>(eventRewardsDataRaw);
+            var allRewards = IDosGamesData.Config.TitlePublicConfiguration.EventWeeklyRewards;
 
-            var currentEvent = weeklyEventRewardsData.FirstOrDefault(x => $"{x[JsonProperty.TYPE]}" == eventType);
+            if (allRewards == null)
+            {
+                Debug.LogError("WeeklyEventSystem: EventWeeklyRewards config is null.");
+                return;
+            }
 
-            Rewards = currentEvent[JsonProperty.REWARDS].ToList();
+            Enum.TryParse(eventType, out TitlePublicConfiguration.EventType parsedType);
+            var currentEvent = allRewards.FirstOrDefault(x => x.Type == parsedType);
+
+            if (currentEvent == null)
+            {
+                Debug.LogError($"WeeklyEventSystem: No rewards found for event type '{eventType}'.");
+                return;
+            }
+
+            // Конвертируем List<Reward> в List<JToken> чтобы не ломать внешние скрипты
+            Rewards = currentEvent.Rewards
+                .Select(r => JToken.FromObject(r))
+                .ToList();
 
             var lastReward = Rewards.Last();
             var firstReward = Rewards.First();
@@ -255,10 +273,7 @@ namespace IDosGames
 
         private void SetSliderData()
         {
-            if (Rewards == null)
-            {
-                return;
-            }
+            if (Rewards == null) return;
 
             int.TryParse($"{PreviousReward[JsonProperty.POINTS]}", out int previousPoints);
             int.TryParse($"{FollowingReward[JsonProperty.POINTS]}", out int followingPoints);
@@ -281,16 +296,11 @@ namespace IDosGames
             }
         }
 
-        private DateTime GetEndDateTime(JToken jToken)
-        {
-            string endDateString = $"{jToken[JsonProperty.END_DATE]}";
-
-            return DateTime.Parse(endDateString, null, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal);
-        }
-
         private bool IsNeedUpdateEvent(JToken playerData)
         {
-            var playerEndDate = GetEndDateTime(playerData);
+            string endDateString = $"{playerData[JsonProperty.END_DATE]}";
+            var playerEndDate = DateTime.Parse(endDateString, null,
+                DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal);
 
             return EndDate > playerEndDate;
         }

@@ -11,25 +11,29 @@ namespace IDosGames
         public Dictionary<string, VirtualCurrencyRechargeTime> VirtualCurrencyRechargeTimes { get; private set; }
         public List<ItemInstance> Inventory { get; private set; }
 
+        public GetCustomUserDataResult CustomUserData { get; private set; }
+
+        public UserSocialState Social { get; private set; } = new ();
         public UserPublicDataModel UserPublicData { get; private set; }
         public BoardLoopState Board { get; private set; }
         public UserQuestState Quests { get; private set; }
         public Dictionary<string, CharacterModel> Characters { get; private set; }
         public Dictionary<string, DailyRewardState> DailyRewards { get; private set; }
-        //public UserSocialState Social { get; private set; }
         //public UserPremiumState Premium { get; private set; }
         public Dictionary<string, PlayerLeaderboardData> LeaderboardData { get; private set; }
 
+        public event Action OnVirtualCurrencyUpdated;
+        public event Action OnVirtualCurrencyRechargeTimesUpdated;
+        public event Action OnInventoryUpdated;
+        public event Action OnCustomUserDataUpdated;
+
+        public event Action OnSocialUpdated;
         public event Action OnUserPublicDataUpdated;
         public event Action OnBoardUpdated;
         public event Action OnQuestsUpdated;
         public event Action OnCharactersUpdated;
-        public event Action OnInventoryUpdated;
-        public event Action OnVirtualCurrencyUpdated;
-        public event Action OnVirtualCurrencyRechargeTimesUpdated;
         public event Action OnDailyRewardsUpdated;
-        public event Action OnSocialUpdated;
-        public event Action OnPremiumUpdated;
+        //public event Action OnPremiumUpdated;
         public event Action OnLeaderboardDataUpdated;
         public event Action OnAnyUpdated;
 
@@ -72,6 +76,13 @@ namespace IDosGames
             OnAnyUpdated?.Invoke();
         }
 
+        internal void ApplyCustomUserData(GetCustomUserDataResult data)
+        {
+            CustomUserData = data;
+            OnCustomUserDataUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
         internal void ApplyVirtualCurrency(Dictionary<string, long> data)
         {
             VirtualCurrency = data;
@@ -93,12 +104,12 @@ namespace IDosGames
             OnAnyUpdated?.Invoke();
         }
 
-        //internal void ApplySocial(UserSocialState data)
-        //{
-        //    Social = data;
-        //    OnSocialUpdated?.Invoke();
-        //    OnAnyUpdated?.Invoke();
-        //}
+        internal void ApplySocial(UserSocialState data)
+        {
+            Social = data;
+            OnSocialUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
 
         //internal void ApplyPremium(UserPremiumState data)
         //{
@@ -124,10 +135,17 @@ namespace IDosGames
             VirtualCurrency = null;
             VirtualCurrencyRechargeTimes = null;
             DailyRewards = null;
-            //Social = null;
+            Social = null;
             //Premium = null;
             LeaderboardData = null;
             IsLoggedIn = false;
         }
+    }
+
+    public class UserSocialState
+    {
+        public List<string> Accepted { get; set; } = new();
+        public List<string> IncomingRequests { get; set; } = new();
+        public List<string> OutgoingRequests { get; set; } = new();
     }
 }

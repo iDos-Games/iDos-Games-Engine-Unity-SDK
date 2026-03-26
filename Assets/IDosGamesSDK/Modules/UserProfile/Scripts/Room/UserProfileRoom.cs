@@ -17,7 +17,7 @@ namespace IDosGames.UserProfile
             _user = playfabID;
             if (string.IsNullOrEmpty(playfabID))
             {
-                _user = AuthService.UserID;
+                _user = AuthenticationService.AuthContext.UserID;
             }
 
             GetProfileData();
@@ -30,7 +30,7 @@ namespace IDosGames.UserProfile
 
         private void GetProfileData()
         {
-            if (_user == AuthService.UserID)
+            if (_user == AuthenticationService.AuthContext.UserID)
             {
                 var data = UserDataService.GetCachedCustomUserData(CustomUserDataKey.equipped_avatar_skins.ToString());
                 if (!string.IsNullOrEmpty(data))

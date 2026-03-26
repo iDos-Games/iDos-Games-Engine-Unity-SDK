@@ -14,7 +14,7 @@ namespace IDosGames
         public static event Action<ClaimMilestoneRewardResponse> OnMilestoneRewardClaimed;
         public static event Action<AddProgressResponse> OnProgressAdded;
 
-        private static IGSAuthenticationContext Ctx => AuthService.GetAuthContext();
+        private static IGSAuthenticationContext Ctx => AuthenticationService.GetAuthContext();
 
         private static QuestRequest CreateBaseRequest()
         {

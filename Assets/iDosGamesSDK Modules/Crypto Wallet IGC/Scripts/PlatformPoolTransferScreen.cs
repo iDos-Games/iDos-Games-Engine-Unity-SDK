@@ -52,7 +52,7 @@ namespace IDosGames
         {
             programIdBase58 = string.IsNullOrWhiteSpace(BlockchainSettings.PlatformPoolContractAddress) ? "FWvDZMpUy9SPgRV6rJSa6fju1VtYejPNqshXpgA9BzsG" : BlockchainSettings.PlatformPoolContractAddress;
             mintAddress = BlockchainSettings.HardTokenContractAddress;
-            userID = AuthService.UserID;
+            userID = AuthenticationService.AuthContext.UserID;
 
             _rpcClient = Web3.Instance.WalletBase.ActiveRpcClient;
             _svc = new IDosGames.SolanaPlatformPoolService(_rpcClient, programIdBase58);

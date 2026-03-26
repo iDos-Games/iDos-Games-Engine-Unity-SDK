@@ -15,12 +15,12 @@ namespace IDosGames
 		private void OnEnable()
 		{
 			UpdateView();
-			AuthService.LoggedIn += UpdateView;
+            AuthenticationService.OnLoggedIn += UpdateView;
 		}
 
 		private void OnDisable()
 		{
-			AuthService.LoggedIn -= UpdateView;
+            AuthenticationService.OnLoggedIn -= UpdateView;
 		}
 
 		private void Start()
@@ -47,24 +47,24 @@ namespace IDosGames
 
 		private void LogOut()
 		{
-			AuthService.Instance.LogOut();
+            AuthenticationService.LogOut();
 		}
 
 		private void UpdateView()
 		{
-			_AuthorizationBtn.gameObject.SetActive(!AuthService.IsLoggedIn);
-			_logOutBtn.gameObject.SetActive(AuthService.IsLoggedIn);
+			_AuthorizationBtn.gameObject.SetActive(!AuthenticationService.IsLoggedIn);
+			_logOutBtn.gameObject.SetActive(AuthenticationService.IsLoggedIn);
 			_deleteAccountButton.gameObject.SetActive(IsActiveDeleteAccountButton());
 		}
 
 		private bool IsActiveDeleteAccountButton()
 		{
 #if UNITY_IOS
-			return AuthService.IsLoggedIn && IDosGamesSDKSettings.Instance.IOSAccountDeletionEnabled;
+			return AuthenticationService.IsLoggedIn && IDosGamesSDKSettings.Instance.IOSAccountDeletionEnabled;
 #elif UNITY_ANDROID
-			return AuthService.IsLoggedIn && IDosGamesSDKSettings.Instance.AndroidAccountDeletionEnabled;
+			return AuthenticationService.IsLoggedIn && IDosGamesSDKSettings.Instance.AndroidAccountDeletionEnabled;
 #else
-			return false;
+            return false;
 #endif
 		}
 
@@ -81,7 +81,7 @@ namespace IDosGames
 		{
 			Message.Show(MessageCode.ACCOUNT_SUCCESS_DELETED);
 			SetActiveDeleteAccountPopUp(false);
-			AuthService.Instance.LogOut();
+            AuthenticationService.LogOut();
 		}
 
 		private void SetActiveDeleteAccountPopUp(bool active)

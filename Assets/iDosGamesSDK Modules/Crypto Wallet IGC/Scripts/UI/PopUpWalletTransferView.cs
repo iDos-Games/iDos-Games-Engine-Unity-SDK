@@ -57,7 +57,7 @@ namespace IDosGames
         {
             _tokenDropdown.options.Clear();
 
-            var hardTokenCurrency = IGSUserData.Currency.CurrencyData.Find(c => c.CurrencyCode == "IG");
+            var hardTokenCurrency = IDosGamesData.Config.Currencies.CurrencyData.Find(c => c.CurrencyCode == "IG");
             string hardTokenImageUrl = hardTokenCurrency?.ImageUrl;
 
             Sprite hardTokenImage = await ImageLoader.GetSpriteAsync(!string.IsNullOrEmpty(hardTokenImageUrl) ? hardTokenImageUrl : "Sprites/Currency/IGT");
@@ -68,7 +68,7 @@ namespace IDosGames
                 image = hardTokenImage
             });
 
-            var softTokenCurrency = IGSUserData.Currency.CurrencyData.Find(c => c.CurrencyCode == "CO");
+            var softTokenCurrency = IDosGamesData.Config.Currencies.CurrencyData.Find(c => c.CurrencyCode == "CO");
             string softTokenImageUrl = softTokenCurrency?.ImageUrl;
 
             Sprite softTokenImage = await ImageLoader.GetSpriteAsync(!string.IsNullOrEmpty(softTokenImageUrl) ? softTokenImageUrl : "Sprites/Currency/IGC");

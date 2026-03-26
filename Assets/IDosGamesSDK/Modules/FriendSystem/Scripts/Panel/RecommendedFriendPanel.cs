@@ -28,13 +28,13 @@ namespace IDosGames.Friends
 
         public void RefreshData()
         {
-            if (IGSUserData.RecommendedFriends == null)
+            if (IDosGamesData.User.Social.OutgoingRequests == null)
             {
                 Refresh();
             }
             else
             {
-                List<string> friendRequests = IGSUserData.RecommendedFriends;
+                List<string> friendRequests = IDosGamesData.User.Social.OutgoingRequests;
                 ProcessRequestResult(friendRequests);
                 IsNeedUpdate = false;
             }
@@ -53,7 +53,7 @@ namespace IDosGames.Friends
 
             var result = await FriendAzureService.GetRecommendedFriends();
 
-            IGSUserData.RecommendedFriends = result;
+            IDosGamesData.User.Social.OutgoingRequests = result;
 
             Loading.HideAllPanels();
 
@@ -109,7 +109,7 @@ namespace IDosGames.Friends
 
             IGSRequest addFriendRequest = new IGSRequest()
             {
-                FriendID = AuthService.UserID
+                FriendID = AuthenticationService.AuthContext.UserID
             };
 
             var result = await FriendAzureService.SendRequestToAdd(addFriendRequest);

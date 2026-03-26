@@ -1,5 +1,6 @@
 using IDosGames.TitlePublicConfiguration;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace IDosGames.UserProfile
@@ -61,22 +62,12 @@ namespace IDosGames.UserProfile
             bool isScrolling = Mathf.Abs(_tabScroll.velocity.x) > 0.1f;
             if (!isScrolling)
             {
-                if (Input.GetMouseButton(0)) // Левая кнопка мыши
+                if (Mouse.current != null && Mouse.current.leftButton.isPressed)
                 {
-                    _userAvatar.transform.Rotate(Vector3.down, Input.GetAxis("Mouse X") * rotationSpeed * ROTATION_SPEED_MULTIPLIER * Time.deltaTime);
+                    float mouseX = Mouse.current.delta.x.ReadValue();
+                    _userAvatar.transform.Rotate(Vector3.down, mouseX * rotationSpeed * ROTATION_SPEED_MULTIPLIER * Time.deltaTime);
                 }
             }
-        }
-
-        private void OnCustomUpdated(string key, CustomUpdateResult result)
-        {
-            if (key == CustomUserDataKey.equipped_avatar_skins.ToString() || result == CustomUpdateResult.SUCCESS)
-            {
-                _popUpChanges.gameObject.SetActive(false);
-                Loading.HideAllPanels();
-                _profileRoom.CloseRoom();
-            }
-
         }
 
         public void RefreshAvatar()
@@ -86,7 +77,7 @@ namespace IDosGames.UserProfile
 
         private void TryCLoseRoom()
         {
-            if (_userID == AuthService.UserID)
+            if (_userID == AuthenticationService.AuthContext.UserID)
             {
 
 
@@ -156,7 +147,7 @@ namespace IDosGames.UserProfile
         public void Init(string playfabID, DefaultAvatarSkin data)
         {
             _cameraMovement.SetTarget(_cameraPositionOnOtherPlayer);
-            if (playfabID == AuthService.UserID)
+            if (playfabID == AuthenticationService.AuthContext.UserID)
             {
                 userInfoPanel.gameObject.SetActive(false);
                 avatarItemsPanel.gameObject.SetActive(true);

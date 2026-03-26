@@ -121,7 +121,7 @@ namespace IDosGames
 					var item = _inviteRewardsView.Rewards.First(x => x.FollowersAmount == (int)rewards[i][JsonProperty.REFERRAL_FOLLOWERS_AMOUNT]);
 
                     string imagePath = reward[JsonProperty.IMAGE_PATH].ToString();
-                    var iconPath = (imagePath == JsonProperty.TOKEN_IMAGE_PATH) ? IGSUserData.Currency.CurrencyData.Find(c => c.CurrencyCode == "IG")?.ImageUrl ?? JsonProperty.TOKEN_IMAGE_PATH : imagePath;
+                    var iconPath = (imagePath == JsonProperty.TOKEN_IMAGE_PATH) ? IDosGamesData.Config.Currencies.CurrencyData.Find(c => c.CurrencyCode == "IG")?.ImageUrl ?? JsonProperty.TOKEN_IMAGE_PATH : imagePath;
 
                     item.Set(iconPath, (int)reward[JsonProperty.AMOUNT]);
 				}
@@ -155,7 +155,7 @@ namespace IDosGames
 			UpdateSubscribedToText(subscribedTo);
 			UpdateNumberOfReferralsText(followersAmount);
 
-			_currentUserReferralCode.text = AuthService.UserID;
+			_currentUserReferralCode.text = AuthenticationService.AuthContext.UserID;
 		}
 
 		public void UpdateSubscribedToText(string subscribedTo)
@@ -186,7 +186,7 @@ namespace IDosGames
 				return false;
 			}
 
-			if (input == AuthService.UserID)
+			if (input == AuthenticationService.AuthContext.UserID)
 			{
 				return false;
 			}

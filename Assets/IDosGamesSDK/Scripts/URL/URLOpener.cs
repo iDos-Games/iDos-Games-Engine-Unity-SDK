@@ -31,7 +31,7 @@ namespace IDosGames
 
         public static void OpenSupport()
         {
-            Application.OpenURL(URL_SUPPORT + "?start=" + IDosGamesSDKSettings.Instance.TitleID + "-" + AuthService.UserID);
+            Application.OpenURL(URL_SUPPORT + "?start=" + IDosGamesSDKSettings.Instance.TitleID + "-" + AuthenticationService.AuthContext.UserID);
         }
 
         public static void OpenRateUs()

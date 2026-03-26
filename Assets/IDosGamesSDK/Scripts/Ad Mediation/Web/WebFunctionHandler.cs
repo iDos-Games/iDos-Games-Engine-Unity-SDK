@@ -38,7 +38,7 @@ namespace IDosGames
 #if UNITY_WEBGL
         public void ShowAd(string blockID, string args = null)
         {
-            if (AuthService.WebGLPlatform == WebGLPlatform.Telegram)
+            if (AuthenticationService.WebGLPlatform == WebGLPlatform.Telegram)
             {
                 _args = args;
                 WebSDK.ShowAdInternal(blockID);

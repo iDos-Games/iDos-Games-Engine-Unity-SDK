@@ -48,8 +48,8 @@ namespace IDosGames
 
             // 2. If there is a key and data on the server, we try to download it.
             if (!string.IsNullOrEmpty(imageKey) &&
-                IGSUserData.ImageData != null &&
-                IGSUserData.ImageData.TryGetValue(imageKey, out string url) &&
+                IDosGamesData.Config.TitlePublicConfiguration.ImageData != null &&
+                IDosGamesData.Config.TitlePublicConfiguration.ImageData.TryGetValue(imageKey, out string url) &&
                 !string.IsNullOrEmpty(url))
             {
                 var downloadedSprite = await ImageLoader.LoadExternalImageAsync(url);

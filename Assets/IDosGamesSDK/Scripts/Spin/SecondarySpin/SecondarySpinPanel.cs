@@ -40,11 +40,11 @@ namespace IDosGames
             {
 #if UNITY_WEBGL
 
-                if (AuthService.WebGLPlatform == WebGLPlatform.Telegram)
+                if (AuthenticationService.WebGLPlatform == WebGLPlatform.Telegram)
                 {
                     WebFunctionHandler.Instance.ShowAd(IDosGamesSDKSettings.Instance.AdsGramBlockID.ToString(), "SecondarySpin");
                 }
-                else if (AuthService.WebGLPlatform == WebGLPlatform.Web)
+                else if (AuthenticationService.WebGLPlatform == WebGLPlatform.Web)
                 {
                     long ticketAmount = UserInventory.GetVirtualCurrencyAmount(VirtualCurrencyID.SS);
 

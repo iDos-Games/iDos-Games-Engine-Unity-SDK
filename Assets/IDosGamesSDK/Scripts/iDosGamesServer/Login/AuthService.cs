@@ -20,11 +20,9 @@ namespace IDosGames
         public static string SavedEmail => PlayerPrefs.GetString(SAVED_AUTH_EMAIL_KEY, string.Empty);
         public static string SavedPassword => PlayerPrefs.GetString(SAVED_AUTH_PASSWORD_KEY, string.Empty);
 
-        public static PlatformUser PlatformUser { get; set; }
-        public static string UserID { get; private set; }
-        public static string ClientSessionTicket { get; private set; }
-        public static string EntityToken { get; private set; }
-        public static IGSAuthenticationContext AuthContext { get; private set; }
+        public static string UserID { get; set; }
+        public static string ClientSessionTicket { get; set; }
+        public static IGSAuthenticationContext AuthContext { get; set; }
 
         public static string TelegramInitData { get; set; }
 
@@ -32,7 +30,7 @@ namespace IDosGames
 
         public static event Action RequestSent;
         public static event Action LoggedIn;
-        public static event Action PlatformSettingsUpdated;
+        //public static event Action PlatformSettingsUpdated;
 
         public static AuthService Instance => _instance;
 
@@ -96,11 +94,6 @@ namespace IDosGames
             return titleID;
         }
 
-        public void SetPlatformUser(PlatformUser platformUser)
-        {
-            PlatformUser = platformUser;
-        }
-
         public async void LoginWithPlatformToken(string authToken, Action<ClientStateResponse> resultCallback = null, Action<string> errorCallback = null, Action retryCallback = null)
         {
             if (string.IsNullOrEmpty(authToken))
@@ -137,7 +130,7 @@ namespace IDosGames
                     var result = await UserService.GetClientState();
                     if (result.Success && result.Data != null && result.Data.AuthContext != null && !string.IsNullOrEmpty(result.Data.AuthContext.ClientSessionTicket))
                     {
-                        SetCredentials(result.Data);
+                        //SetCredentials(result.Data);
                         SaveAuthType(AuthType.iDosGames);
 
                         resultCallback?.Invoke(result.Data);
@@ -197,7 +190,7 @@ namespace IDosGames
 
                 if (result.Success && result.Data != null && result.Data.AuthContext != null && !string.IsNullOrEmpty(result.Data.AuthContext.ClientSessionTicket))
                 {
-                    SetCredentials(result.Data);
+                    //SetCredentials(result.Data);
                     SaveAuthType(AuthType.Device);
 
                     resultCallback?.Invoke(result.Data);
@@ -239,7 +232,7 @@ namespace IDosGames
 
                 if (result.Success && result.Data != null && result.Data.AuthContext != null && !string.IsNullOrEmpty(result.Data.AuthContext.ClientSessionTicket))
                 {
-                    SetCredentials(result.Data);
+                    //SetCredentials(result.Data);
                     SaveAuthType(AuthType.Email);
                     SaveEmailAndPassword(email, password);
 
@@ -280,7 +273,7 @@ namespace IDosGames
 
                 if (result.Success && result.Data != null && result.Data.AuthContext != null && !string.IsNullOrEmpty(result.Data.AuthContext.ClientSessionTicket))
                 {
-                    SetCredentials(result.Data);
+                    //SetCredentials(result.Data);
                     SaveAuthType(AuthType.Device);
                     SaveEmailAndPassword(email, password);
 
@@ -365,73 +358,6 @@ namespace IDosGames
             }
         }
 
-        private void SetCredentials(ClientStateResponse result)
-        {
-            UserID = result.AuthContext.UserID;
-            ClientSessionTicket = result.AuthContext.ClientSessionTicket;
-            EntityToken = result.AuthContext.EntityToken;
-            AuthContext = new IGSAuthenticationContext(result.AuthContext.ClientSessionTicket, result.AuthContext.EntityToken, result.AuthContext.UserID, result.AuthContext.EntityId, result.AuthContext.EntityType, result.AuthContext.TelemetryKey);
-
-            IGSUserData.UserAllDataResult = result;
-
-            void UpdateProperty<T>(T resultProperty, Action<T> updateAction) => updateAction?.Invoke(resultProperty);
-
-            UpdateProperty(result.CatalogItemsResult, value => IGSUserData.CatalogItemsResult = value);
-            UpdateProperty(result.UserInventoryResult, value => IGSUserData.UserInventory = value);
-            UpdateProperty(result.TitlePublicConfiguration, value => IGSUserData.TitlePublicConfiguration = value);
-            UpdateProperty(result.CustomUserDataResult, value => IGSUserData.CustomUserData = value);
-            UpdateProperty(result.LeaderboardResult, value => IGSUserData.Leaderboard = value);
-            UpdateProperty(result.GetCurrencyData, value => IGSUserData.Currency = value);
-            UpdateProperty(result.PlatformSettings, value => IGSUserData.PlatformSettings = value);
-            UpdateProperty(result.TitlePublicConfiguration.ImageData, value => IGSUserData.ImageData = value);
-
-            SetPlatformSettings();
-        }
-
-        public static void SetPlatformSettings()
-        {
-            if (IDosGamesSDKSettings.Instance.BuildForPlatform == Platforms.GooglePlay)
-            {
-                IDosGamesSDKSettings.Instance.AndroidBundleID = IGSUserData.PlatformSettings.GooglePlay.BundleID;
-                IDosGamesSDKSettings.Instance.AdEnabled = IGSUserData.PlatformSettings.GooglePlay.AdSettings.AdEnabled;
-                IDosGamesSDKSettings.Instance.MediationAppKeyAndroid = IGSUserData.PlatformSettings.GooglePlay.AdSettings.AppKey;
-                IDosGamesSDKSettings.Instance.BannerEnabled = IGSUserData.PlatformSettings.GooglePlay.AdSettings.BannerEnabled;
-                IDosGamesSDKSettings.Instance.BannerPosition = IGSUserData.PlatformSettings.GooglePlay.AdSettings.BanerPosition;
-                IDosGamesSDKSettings.Instance.ReferralTrackerLink = IGSUserData.PlatformSettings.GooglePlay.ReferralSystemSettings.ReferralAppLink;
-            }
-            else if (IDosGamesSDKSettings.Instance.BuildForPlatform == Platforms.AppleAppStore)
-            {
-                IDosGamesSDKSettings.Instance.IosBundleID = IGSUserData.PlatformSettings.AppleAppStore.BundleID;
-                IDosGamesSDKSettings.Instance.IosAppStoreID = IGSUserData.PlatformSettings.AppleAppStore.AppStoreID;
-                IDosGamesSDKSettings.Instance.AdEnabled = IGSUserData.PlatformSettings.AppleAppStore.AdSettings.AdEnabled;
-                IDosGamesSDKSettings.Instance.MediationAppKeyIOS = IGSUserData.PlatformSettings.AppleAppStore.AdSettings.AppKey;
-                IDosGamesSDKSettings.Instance.BannerEnabled = IGSUserData.PlatformSettings.AppleAppStore.AdSettings.BannerEnabled;
-                IDosGamesSDKSettings.Instance.BannerPosition = IGSUserData.PlatformSettings.AppleAppStore.AdSettings.BanerPosition;
-                IDosGamesSDKSettings.Instance.ReferralTrackerLink = IGSUserData.PlatformSettings.AppleAppStore.ReferralSystemSettings.ReferralAppLink;
-            }
-            else if (IDosGamesSDKSettings.Instance.BuildForPlatform == Platforms.Telegram)
-            {
-                IDosGamesSDKSettings.Instance.AdEnabled = IGSUserData.PlatformSettings.Telegram.AdSettings.AdEnabled;
-                IDosGamesSDKSettings.Instance.AdsGramBlockID = IGSUserData.PlatformSettings.Telegram.AdSettings.BlockID;
-                IDosGamesSDKSettings.Instance.PlatformCurrencyPriceInCent = IGSUserData.PlatformSettings.Telegram.PlatformCurrencyPriceInCent;
-                IDosGamesSDKSettings.Instance.TelegramWebAppLink = IGSUserData.PlatformSettings.Telegram.ReferralSystemSettings.ReferralAppLink;
-            }
-            else if (IDosGamesSDKSettings.Instance.BuildForPlatform == Platforms.Web)
-            {
-                IDosGamesSDKSettings.Instance.AdEnabled = IGSUserData.PlatformSettings.Web.AdSettings.AdEnabled;
-                IDosGamesSDKSettings.Instance.BannerEnabled = IGSUserData.PlatformSettings.Web.AdSettings.BannerEnabled;
-                IDosGamesSDKSettings.Instance.BannerPosition = IGSUserData.PlatformSettings.Web.AdSettings.BanerPosition;
-                IDosGamesSDKSettings.Instance.PlatformCurrencyPriceInCent = IGSUserData.PlatformSettings.Web.PlatformCurrencyPriceInCent;
-                IDosGamesSDKSettings.Instance.ReferralTrackerLink = IGSUserData.PlatformSettings.Web.ReferralSystemSettings.ReferralAppLink;
-            }
-            else if (IDosGamesSDKSettings.Instance.BuildForPlatform == Platforms.Custom)
-            {
-
-            }
-
-            PlatformSettingsUpdated?.Invoke();
-        }
-
         private void SaveAuthType(AuthType authType)
         {
             PlayerPrefs.SetInt(SAVED_AUTH_TYPE_KEY, (int)authType);
@@ -460,22 +386,6 @@ namespace IDosGames
         {
             var lenght = password.Length;
             return lenght >= PASSWORD_MIN_LENGTH && lenght <= PASSWORD_MAX_LENGTH;
-        }
-
-        public void AutoLogin(Action<ClientStateResponse> resultCallback = null, Action<string> errorCallback = null, Action retryCallback = null)
-        {
-            switch (LastAuthType)
-            {
-                case AuthType.Email:
-                    LoginWithEmailAddress(SavedEmail, SavedPassword, resultCallback, errorCallback, retryCallback);
-                    break;
-                case AuthType.Device:
-                    LoginWithDeviceID(resultCallback, errorCallback, retryCallback);
-                    break;
-                default:
-                    LoginWithDeviceID(resultCallback, errorCallback, retryCallback);
-                    break;
-            }
         }
     }
 }

@@ -61,7 +61,7 @@ namespace IDosGames
                 }
                 else
                 {
-                    if (AuthService.WebGLPlatform == WebGLPlatform.Telegram)
+                    if (AuthenticationService.WebGLPlatform == WebGLPlatform.Telegram)
                     {
 #if UNITY_WEBGL
                         WebFunctionHandler.Instance.ShowAd(IDosGamesSDKSettings.Instance.AdsGramBlockID.ToString(), "FreeSpin");

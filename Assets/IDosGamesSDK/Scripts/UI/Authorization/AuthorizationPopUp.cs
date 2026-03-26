@@ -16,8 +16,8 @@ namespace IDosGames
 		{
 			ResetLogInButton();
 			ResetSignUpButton();
-            _emailInputField.text = AuthService.SavedEmail;
-            _passwordInputField.text = AuthService.SavedPassword;
+            _emailInputField.text = AuthenticationService.SavedEmail;
+            _passwordInputField.text = AuthenticationService.SavedPassword;
         }
 
 		private void ResetLogInButton()
@@ -47,12 +47,13 @@ namespace IDosGames
 			}
 		}
 
-		private void LogIn()
-		{
-			AuthService.Instance.LoginWithEmailAddress(GetEmailInput(), GetPasswordInput(), OnLogInSuccess, ShowError);
-		}
+        private async void LogIn()
+        {
+            var result = await AuthenticationService.LoginWithEmail(GetEmailInput(), GetPasswordInput());
+            if (result.Success) OnLogInSuccess(result.Data);
+        }
 
-		private void TrySignUp()
+        private void TrySignUp()
 		{
 			var isEmailInputCorrect = CheckEmailInput();
 			var isPasswordInputCorrect = CheckPasswordLength();
@@ -60,12 +61,6 @@ namespace IDosGames
 
 			if (isEmailInputCorrect && isPasswordInputCorrect && isPasswordsMatch)
 			{
-				//if (AuthService.AuthContext == null)
-				//{
-				//	Message.Show(MessageCode.MUST_BE_LOGGED_IN_TO_CALL_THIS_FUNCTION);
-				//	return;
-				//}
-
 				SignUp();
 			}
 			else
@@ -74,15 +69,11 @@ namespace IDosGames
 			}
 		}
 
-		private void SignUp()
-		{
-			AuthService.Instance.RegisterUserByEmail(GetEmailInput(), GetPasswordInput(), OnSignUpSuccess, ShowError);
-		}
-
-		private void ShowError(string error)
-		{
-            Message.Show(error);
-		}
+        private async void SignUp()
+        {
+            var result = await AuthenticationService.RegisterWithEmail(GetEmailInput(), GetPasswordInput());
+            if (result.Success) OnSignUpSuccess(result.Data);
+        }
 
         private void ShowErrorMessage(bool isEmailInputCorrect, bool isPasswordInputCorrect, bool isPasswordsMatch = true)
 		{
@@ -114,8 +105,8 @@ namespace IDosGames
 		{
 			var input = GetPasswordInput();
 
-			return AuthService.CheckPasswordLenght(input);
-		}
+			return AuthenticationService.IsValidPasswordLength(input);
+        }
 
 		private bool CheckPasswordsMatch()
 		{
@@ -130,8 +121,8 @@ namespace IDosGames
 		private bool CheckEmailInput()
 		{
 			var input = GetEmailInput();
-			return AuthService.CheckEmailAddress(input);
-		}
+			return AuthenticationService.IsValidEmail(input);
+        }
 
 		private void OnLogInSuccess(ClientStateResponse result)
 		{
@@ -144,11 +135,6 @@ namespace IDosGames
 		{
             UserDataService.ProcessingAllData(result);
             Loading.SwitchToNextScene();
-        }
-
-        private void OnEmailAndPasswordAdded(string result)
-        {
-            Message.Show(MessageCode.SUCCESS_LINK_ACCOUNT_TO_EMAIL);
         }
 
         public string GetEmailInput()

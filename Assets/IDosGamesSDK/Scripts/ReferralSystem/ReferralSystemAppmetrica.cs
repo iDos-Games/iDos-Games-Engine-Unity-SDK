@@ -29,13 +29,13 @@ namespace IDosGames
         private void OnEnable()
         {
             Application.deepLinkActivated += OnDeepLinkActivated;
-            UserDataService.CustomUserDataUpdated += _popUp.ResetView;
+            IDosGamesData.User.OnAnyUpdated += _popUp.ResetView;
         }
 
         private void OnDisable()
         {
             Application.deepLinkActivated -= OnDeepLinkActivated;
-            UserDataService.CustomUserDataUpdated -= _popUp.ResetView;
+            IDosGamesData.User.OnAnyUpdated -= _popUp.ResetView;
         }
 
         public static void Share()
@@ -65,7 +65,7 @@ namespace IDosGames
 
         private static string GetReferralLink()
         {
-            return IDosGamesSDKSettings.Instance.ReferralTrackerLink + $"{REFERRAL_CODE_PARAMETER_TRACKER_LINK}={AuthService.UserID}";
+            return IDosGamesSDKSettings.Instance.ReferralTrackerLink + $"{REFERRAL_CODE_PARAMETER_TRACKER_LINK}={AuthenticationService.AuthContext.UserID}";
         }
 
         private void OnDeepLinkActivated(string url)

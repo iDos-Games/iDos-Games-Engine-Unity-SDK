@@ -11,18 +11,18 @@ namespace IDosGames
 
         private void OnEnable()
         {
-            UserDataService.DataUpdated += CheckData;
+            IDosGamesData.User.OnLeaderboardDataUpdated += CheckData;
         }
 
         private void OnDisable()
         {
-            UserDataService.DataUpdated -= CheckData;
+            IDosGamesData.User.OnLeaderboardDataUpdated -= CheckData;
         }
 
         private void CheckData()
         {
             _leaderboardID = $"{IDosGamesSDKSettings.Instance.TitleID}_{_statisticName}";
-            if (IGSUserData.LeaderboardData != null && IGSUserData.LeaderboardData.TryGetValue(_leaderboardID, out var leaderboardData))
+            if (IDosGamesData.User.LeaderboardData != null && IDosGamesData.User.LeaderboardData.TryGetValue(_leaderboardID, out var leaderboardData))
             {
                 if (leaderboardData.PendingRewardVersion > 0)
                 {

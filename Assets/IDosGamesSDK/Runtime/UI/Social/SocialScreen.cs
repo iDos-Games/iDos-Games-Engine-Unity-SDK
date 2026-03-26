@@ -24,12 +24,12 @@ namespace IDosGames.UI.Social
         [SerializeField] private SocialTimelinePanel _timelinePanel;
 
         private SocialTab _currentTab = SocialTab.Friends;
-        private bool _isActive;
+        //private bool _isActive;
         private bool _isRefreshing;
 
         private void OnEnable()
         {
-            _isActive = true;
+            //_isActive = true;
 
             _tabsView.OnTabSelected += OnTabSelected;
             if (_closeButton != null) _closeButton.onClick.AddListener(Close);
@@ -41,7 +41,7 @@ namespace IDosGames.UI.Social
 
         private void OnDisable()
         {
-            _isActive = false;
+            //_isActive = false;
 
             _tabsView.OnTabSelected -= OnTabSelected;
             if (_closeButton != null) _closeButton.onClick.RemoveAllListeners();

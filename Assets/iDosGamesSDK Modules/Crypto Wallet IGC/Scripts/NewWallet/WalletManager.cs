@@ -23,7 +23,7 @@ namespace IDosGames
 
         private void OnEnable()
         {
-            PLAYER_PREFS_WALLET_ADDRESS = "WalletAddress" + AuthService.UserID;
+            PLAYER_PREFS_WALLET_ADDRESS = "WalletAddress" + AuthenticationService.AuthContext.UserID;
             WalletAddress = PlayerPrefs.GetString(PLAYER_PREFS_WALLET_ADDRESS, null);
 
             if (string.IsNullOrEmpty(WalletAddress))

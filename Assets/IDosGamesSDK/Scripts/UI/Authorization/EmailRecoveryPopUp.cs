@@ -4,125 +4,99 @@ using UnityEngine.UI;
 
 namespace IDosGames
 {
-	public class EmailRecoveryPopUp : PopUp
-	{
-		[SerializeField] private AuthorizationPopUpView _authorizationPopUpView;
-		[SerializeField] private TMP_InputField _emailInputField;
-		[SerializeField] private Button _sendButton;
-
+    public class EmailRecoveryPopUp : PopUp
+    {
+        [SerializeField] private AuthorizationPopUpView _authorizationPopUpView;
+        [SerializeField] private TMP_InputField _emailInputField;
+        [SerializeField] private Button _sendButton;
         [SerializeField] private TMP_InputField _resetTokenInputField;
         [SerializeField] private TMP_InputField _newPasswordInputField;
         [SerializeField] private GameObject _resetPasswordPopup;
 
         private void Start()
-		{
-			ResetSendButton();
-		}
+        {
+            ResetSendButton();
+        }
 
-		private void ResetSendButton()
-		{
-			_sendButton.onClick.RemoveAllListeners();
-			_sendButton.onClick.AddListener(TrySend);
-		}
+        private void ResetSendButton()
+        {
+            _sendButton.onClick.RemoveAllListeners();
+            _sendButton.onClick.AddListener(TrySend);
+        }
 
-		private void TrySend()
-		{
-			bool isEmailInputCorrect = CheckEmailInput();
+        private void TrySend()
+        {
+            if (CheckEmailInput())
+                Send();
+            else
+                ShowErrorMessage();
+        }
 
-			if (isEmailInputCorrect)
-			{
-				Send();
-			}
-			else
-			{
-				ShowErrorMessage();
-			}
-		}
+        private void ShowErrorMessage()
+        {
+            Message.Show(MessageCode.INCORRECT_EMAIL);
+        }
 
-		private void ShowErrorMessage()
-		{
-			Message.Show(MessageCode.INCORRECT_EMAIL);
-		}
-
-		public void ShowResetPasswordPopup()
-		{
-			if(CheckEmailInput())
-			{
+        public void ShowResetPasswordPopup()
+        {
+            if (CheckEmailInput())
                 _resetPasswordPopup.SetActive(true);
-            }
-			else
-			{
-				ShowErrorMessage();
-			}
-		}
+            else
+                ShowErrorMessage();
+        }
 
-        private void Send()
-		{
-			AuthService.Instance.SendAccountRecoveryEmail(GetEmailInput(), OnSendSuccess, AuthService.ShowErrorMessage);
-		}
+        private async void Send()
+        {
+            var result = await AuthenticationService.ForgotPassword(GetEmailInput());
+            if (result.Success)
+                OnSendSuccess();
+        }
 
-		public void SendResetPassword()
-		{
-			bool isValid = CheckPasswordInput();
-
-			if (isValid)
-			{
-                AuthService.Instance.SendResetPassword(GetEmailInput(), GetResetToken(), GetNewPassword(), OnResetPasswordSuccess, AuthService.ShowErrorMessage);
-            }
-			else
-			{
+        public async void SendResetPassword()
+        {
+            if (!CheckPasswordInput())
+            {
                 Message.Show(MessageCode.PASSWORD_VERY_SHORT);
+                return;
             }
+
+            var result = await AuthenticationService.ResetPassword(GetEmailInput(), GetResetToken(), GetNewPassword());
+            if (result.Success)
+                OnResetPasswordSuccess();
         }
 
         private bool CheckEmailInput()
-		{
-			var email = GetEmailInput();
-			return AuthService.CheckEmailAddress(email);
-		}
+        {
+            return AuthenticationService.IsValidEmail(GetEmailInput());
+        }
 
         private bool CheckPasswordInput()
         {
-            var password = GetNewPassword();
-            return AuthService.CheckPasswordLenght(password);
+            return AuthenticationService.IsValidPasswordLength(GetNewPassword());
         }
 
-        private void OnSendSuccess(string result)
-		{
-			if (result == "Success")
-			{
-                Message.Show(MessageCode.PASSWORD_RECOVERY_SENT);
-                _resetPasswordPopup.SetActive(true);
-            }
-			else
-			{
-                Message.Show(MessageCode.SOMETHING_WENT_WRONG);
-            }
-        }
-
-        private void OnResetPasswordSuccess(string result)
+        private void OnSendSuccess()
         {
-			if (result == "Success")
-			{
-                _resetPasswordPopup.SetActive(false);
-                _authorizationPopUpView.CloseRecoveryPopUp();
-                Message.Show(MessageCode.PASSWORD_UPDATED);
-            }
-            else
-			{
-                Message.Show(MessageCode.SOMETHING_WENT_WRONG);
-            }
+            Message.Show(MessageCode.PASSWORD_RECOVERY_SENT);
+            _resetPasswordPopup.SetActive(true);
+        }
+
+        private void OnResetPasswordSuccess()
+        {
+            _resetPasswordPopup.SetActive(false);
+            _authorizationPopUpView.CloseRecoveryPopUp();
+            Message.Show(MessageCode.PASSWORD_UPDATED);
         }
 
         public void SetInputFieldText(string email)
-		{
-			_emailInputField.text = email;
-		}
+        {
+            _emailInputField.text = email;
+        }
 
-		public string GetEmailInput()
-		{
-			return _emailInputField.text;
-		}
+        public string GetEmailInput()
+        {
+            return _emailInputField.text;
+        }
 
         public string GetResetToken()
         {

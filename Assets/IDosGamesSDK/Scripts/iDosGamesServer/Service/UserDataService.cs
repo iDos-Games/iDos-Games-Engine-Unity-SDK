@@ -15,8 +15,6 @@ namespace IDosGames
     {
         public const string CURRENCY_ICONS_IMAGE_PATH = "Sprites/Currency/";
         public const string CATALOG_SKIN = "Item";
-        private const int TASK_DELAY_MILLISECONDS_STEP_REQUEST_ALL_DATA = 10;
-        private const int MILLISECONDS_BEFORE_BREAK_REQUEST_ALL_DATA_SEQUENCE = 10000;
 
         public static event Action DataRequested;
         public static event Action DataUpdated;
@@ -97,26 +95,28 @@ namespace IDosGames
             DataRequested?.Invoke();
 
             UserInventoryReceived?.Invoke(userDataResult.UserInventoryResult);
-            IGSUserData.UserInventory = userDataResult.UserInventoryResult;
+            IDosGamesData.User.ApplyVirtualCurrency(userDataResult.UserInventoryResult.VirtualCurrency);
+            IDosGamesData.User.ApplyVirtualCurrencyRechargeTimes(userDataResult.UserInventoryResult.VirtualCurrencyRechargeTimes);
+            IDosGamesData.User.ApplyInventory(userDataResult.UserInventoryResult.Inventory);
             VirtualCurrencyUpdated?.Invoke();
 
             OnTitlePublicConfigurationReceived(userDataResult.TitlePublicConfiguration);
-            IGSUserData.TitlePublicConfiguration = userDataResult.TitlePublicConfiguration;
+            IDosGamesData.Config.ApplyTitlePublicConfiguration(userDataResult.TitlePublicConfiguration);
 
             OnCatalogItemsReceived(userDataResult.CatalogItemsResult);
-            IGSUserData.CatalogItemsResult = userDataResult.CatalogItemsResult;
+            IDosGamesData.Config.ApplyCatalog(CATALOG_SKIN, userDataResult.CatalogItemsResult);
 
             OnCustomUserDataReceived(userDataResult.CustomUserDataResult);
-            IGSUserData.CustomUserData = userDataResult.CustomUserDataResult;
+            IDosGamesData.User.ApplyCustomUserData(userDataResult.CustomUserDataResult);
 
-            IGSUserData.Leaderboard = userDataResult.LeaderboardResult;
+            IDosGamesData.Title.ApplyLeaderboard(userDataResult.LeaderboardResult);
 
-            IGSUserData.Currency = userDataResult.GetCurrencyData;
+            IDosGamesData.Config.ApplyCurrencies(userDataResult.GetCurrencyData);
 
-            IGSUserData.ImageData = userDataResult.TitlePublicConfiguration.ImageData;
+            IDosGamesData.Config.TitlePublicConfiguration.ImageData = userDataResult.TitlePublicConfiguration.ImageData;
 
-            IGSUserData.LeaderboardData = userDataResult.LeaderboardData;
-            IGSUserData.TitlePublicData = userDataResult.TitlePublicData;
+            IDosGamesData.User.ApplyLeaderboardData(userDataResult.LeaderboardData);
+            IDosGamesData.Config.ApplyTitlePublicData(userDataResult.TitlePublicData);
 
             DataUpdated?.Invoke();
             CustomUserDataUpdated?.Invoke();
@@ -478,7 +478,7 @@ namespace IDosGames
 
             UpdateCachedSkinItems(result);
 
-            IGSUserData.CatalogItemsResult = result;
+            IDosGamesData.Config.ApplyCatalog(CATALOG_SKIN, result);
         }
 
         private static void UpdateCachedSkinItems(GetCatalogItemsResult result)
@@ -597,78 +597,6 @@ namespace IDosGames
             }
 
             UpdateEquippedSkins(_equippedSkins);
-        }
-
-        private static void CheckForEquippedAvatarSkin()
-        {
-            var data = GetCachedCustomUserData(CustomUserDataKey.equipped_avatar_skins);
-
-
-            if (String.IsNullOrEmpty(data))
-            {
-                return;
-            }
-            Dictionary<ClothingType, string> equippedSkins = new Dictionary<ClothingType, string>();
-            var titleData = GetCachedTitlePublicConfig(TitleDataKey.DefaultAvatarSkin);
-            Dictionary<ClothingType, string> defaultSkins = new Dictionary<ClothingType, string>();
-            Debug.Log(titleData);
-            if (!string.IsNullOrEmpty(titleData))
-            {
-                JObject jsonData = JsonConvert.DeserializeObject<JObject>(titleData);
-                JArray titleArray = jsonData.GetValue("Data").Value<JArray>();
-                foreach (var jObject in titleArray)
-                {
-                    var key = jObject.Value<string>("Key");
-                    var value = jObject.Value<string>("Value");
-                    Enum.TryParse(key, out ClothingType clothingTYpe);
-                    if (!defaultSkins.ContainsKey(clothingTYpe))
-                    {
-                        defaultSkins.Add(clothingTYpe, value);
-                    }
-
-                }
-            }
-            var jarray = JsonConvert.DeserializeObject<JArray>(data);
-            foreach (var jObject in jarray)
-            {
-                var key = jObject.Value<string>("Key");
-                var value = jObject.Value<string>("Value");
-                Enum.TryParse(key, out ClothingType type); ;
-                if (!defaultSkins.ContainsKey(type))
-                {
-                    equippedSkins.Add(type, value);
-                }
-
-            }
-            List<ClothingType> removeType = new List<ClothingType>();
-            foreach (var item in equippedSkins)
-            {
-                if (UserInventory.GetItemAmount(item.Value) <= 0)
-                {
-                    removeType.Add(item.Key);
-                }
-            }
-
-            foreach (var item in removeType)
-            {
-                equippedSkins.Remove(item);
-            }
-
-            if (equippedSkins.Count <= 0)
-            {
-                UpdateCustomUserData(CustomUserDataKey.equipped_avatar_skins.ToString(), defaultSkins);
-            }
-            else
-            {
-                foreach (var item in defaultSkins)
-                {
-                    if (!equippedSkins.ContainsKey(item.Key))
-                    {
-                        equippedSkins.Add(item.Key, item.Value);
-                    }
-                }
-                UpdateCustomUserData(CustomUserDataKey.equipped_avatar_skins.ToString(), equippedSkins);
-            }
         }
 
         private static void OnSuccessUpdateEquippedSkins(List<string> equippedSkins)

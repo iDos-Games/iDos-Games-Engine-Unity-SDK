@@ -55,9 +55,9 @@ namespace IDosGames
 
         private static void OnServerDataUpdated()
         {
-            if (IGSUserData.ImageData != null)
+            if (IDosGamesData.Config.TitlePublicConfiguration.ImageData != null)
             {
-                foreach (var kv in IGSUserData.ImageData)
+                foreach (var kv in IDosGamesData.Config.TitlePublicConfiguration.ImageData)
                 {
                     if (kv.Value != null && !string.IsNullOrEmpty(kv.Value))
                     {

@@ -13,12 +13,12 @@ namespace IDosGames
 
 		private void OnEnable()
 		{
-			UserDataService.DataUpdated += CheckForUpdates;
+            IDosGamesData.User.OnAnyUpdated += CheckForUpdates;
 		}
 
 		private void OnDisable()
 		{
-			UserDataService.DataUpdated -= CheckForUpdates;
+            IDosGamesData.User.OnAnyUpdated -= CheckForUpdates;
 		}
 
 		private void CheckForUpdates()
@@ -28,7 +28,7 @@ namespace IDosGames
 				return;
 			}
 			
-			var platformSettings = IGSUserData.PlatformSettings;
+			var platformSettings = IDosGamesData.Config.PlatformSettings;
 			
             if (IDosGamesSDKSettings.Instance.BuildForPlatform == Platforms.GooglePlay)
             {

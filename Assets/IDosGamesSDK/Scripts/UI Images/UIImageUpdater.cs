@@ -51,7 +51,7 @@ namespace IDosGames
             string url = null;
 
             // ѕровер€ем сначала данные с сервера, затем данные imageUrl  
-            if (IGSUserData.ImageData?.TryGetValue(imageType.ToString(), out var serverImageUrl) == true && !string.IsNullOrEmpty(serverImageUrl))
+            if (IDosGamesData.Config.TitlePublicConfiguration.ImageData?.TryGetValue(imageType.ToString(), out var serverImageUrl) == true && !string.IsNullOrEmpty(serverImageUrl))
             {
                 url = serverImageUrl;
             }

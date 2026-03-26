@@ -17,7 +17,7 @@ namespace IDosGames
         public static event Action<Currencies> OnCurrencyDataReceived;
         public static event Action<SuccessResponse> OnServerTimeReceived;
 
-        private static IGSAuthenticationContext Ctx => AuthService.GetAuthContext();
+        private static IGSAuthenticationContext Ctx => AuthenticationService.GetAuthContext();
         private static string UserID => Ctx.UserID;
         private static string ClientSessionTicket => Ctx.ClientSessionTicket;
 
@@ -112,7 +112,7 @@ namespace IDosGames
 
             if (result.Success)
             {
-                IDosGamesData.Config?.ApplyCurrencyData(result.Data);
+                IDosGamesData.Config?.ApplyCurrencies(result.Data);
                 OnCurrencyDataReceived?.Invoke(result.Data);
             }
 

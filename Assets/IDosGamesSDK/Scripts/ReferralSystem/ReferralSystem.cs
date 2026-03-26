@@ -22,19 +22,19 @@ namespace IDosGames
         [Obsolete]
         private void OnEnable()
         {
-            UserDataService.CustomUserDataUpdated += _popUp.ResetView;
+            IDosGamesData.User.OnAnyUpdated += _popUp.ResetView;
         }
 
         [Obsolete]
         private void OnDisable()
         {
-            UserDataService.CustomUserDataUpdated -= _popUp.ResetView;
+            IDosGamesData.User.OnAnyUpdated -= _popUp.ResetView;
         }
 
         [Obsolete]
         private void Start()
         {
-            ReferralCodeKey = "ReferralCodeActivated" + AuthService.UserID;
+            ReferralCodeKey = "ReferralCodeActivated" + AuthenticationService.AuthContext.UserID;
             LoadReferralCodeStatus();
             CreateReferralLink();
             if (!ReferralCodeActivated)
@@ -110,11 +110,11 @@ namespace IDosGames
             string baseLink;
             string titleID = AuthenticationAPI.GetTitleID();
 
-            if (AuthService.WebGLPlatform == WebGLPlatform.Web)
+            if (AuthenticationService.WebGLPlatform == WebGLPlatform.Web)
             {
                 baseLink = "https://idosgames.com/en/app/?id=" + titleID;
             }
-            else if (AuthService.WebGLPlatform == WebGLPlatform.Telegram)
+            else if (AuthenticationService.WebGLPlatform == WebGLPlatform.Telegram)
             {
                 baseLink = IDosGamesSDKSettings.Instance.TelegramWebAppLink;
             }
@@ -126,7 +126,7 @@ namespace IDosGames
 
             // Check if the base link already contains parameters
             char separator = baseLink.Contains("?") ? '&' : '?';
-            ReferralLink = $"{baseLink}{separator}startapp={AuthService.UserID}";
+            ReferralLink = $"{baseLink}{separator}startapp={AuthenticationService.AuthContext.UserID}";
         }
 
         public static void Share()
@@ -141,7 +141,7 @@ namespace IDosGames
 #endif
 
 #if UNITY_WEBGL
-            if (AuthService.WebGLPlatform != WebGLPlatform.None)
+            if (AuthenticationService.WebGLPlatform != WebGLPlatform.None)
             {
                 WebSDK.ShareLink(ReferralLink);
             }

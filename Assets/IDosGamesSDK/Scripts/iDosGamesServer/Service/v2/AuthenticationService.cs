@@ -14,6 +14,7 @@ namespace IDosGames
         private static string SAVED_AUTH_PASSWORD_KEY => "Saved_Auth_Password_" + AuthenticationAPI.GetTitleID();
 
         public static AuthType LastAuthType => (AuthType)PlayerPrefs.GetInt(SAVED_AUTH_TYPE_KEY, (int)AuthType.None);
+        public static bool IsLoggedIn => LastAuthType != AuthType.Device && LastAuthType != AuthType.None;
         public static string SavedEmail => PlayerPrefs.GetString(SAVED_AUTH_EMAIL_KEY, string.Empty);
         public static string SavedPassword => PlayerPrefs.GetString(SAVED_AUTH_PASSWORD_KEY, string.Empty);
 
@@ -25,6 +26,7 @@ namespace IDosGames
         public static event Action OnLoggedOut;
         public static event Action OnRequestSent;
 
+        public static IGSAuthenticationContext AuthContext => _authContext;
         private static IGSAuthenticationContext _authContext;
 
         // ─── Auth context ─────────────────────────────────────────────────────────
@@ -61,6 +63,7 @@ namespace IDosGames
             }
 
             OnRequestSent?.Invoke();
+            Loading.ShowTransparentPanel();
 
             var request = CreateBaseRequest();
             request.PlatformAuthToken = authToken;
@@ -82,6 +85,7 @@ namespace IDosGames
         public static async Task<OperationResult<ClientStateResponse>> LoginWithDeviceID()
         {
             OnRequestSent?.Invoke();
+            Loading.ShowTransparentPanel();
 
             OperationResult<PlatformLoginResponse> tokenResult;
 
@@ -113,6 +117,7 @@ namespace IDosGames
         public static async Task<OperationResult<ClientStateResponse>> LoginWithEmail(string email, string password)
         {
             OnRequestSent?.Invoke();
+            Loading.ShowTransparentPanel();
 
             var request = CreateBaseRequest();
             request.Email = email;
@@ -137,6 +142,7 @@ namespace IDosGames
         public static async Task<OperationResult<ClientStateResponse>> RegisterWithEmail(string email, string password)
         {
             OnRequestSent?.Invoke();
+            Loading.ShowTransparentPanel();
 
             var request = CreateBaseRequest();
             request.Email = email;
@@ -164,6 +170,7 @@ namespace IDosGames
         public static async Task<OperationResult<ClientStateResponse>> LoginWithGoogle(string googleAuthToken)
         {
             OnRequestSent?.Invoke();
+            Loading.ShowTransparentPanel();
 
             var request = CreateBaseRequest();
             request.PlatformAuthToken = googleAuthToken;
@@ -184,6 +191,7 @@ namespace IDosGames
         public static async Task<OperationResult<SuccessResponse>> ForgotPassword(string email)
         {
             OnRequestSent?.Invoke();
+            Loading.ShowTransparentPanel();
 
             var request = CreateBaseRequest();
             request.Email = email;
@@ -199,6 +207,7 @@ namespace IDosGames
         public static async Task<OperationResult<SuccessResponse>> ResetPassword(string email, string resetToken, string password)
         {
             OnRequestSent?.Invoke();
+            Loading.ShowTransparentPanel();
 
             var request = CreateBaseRequest();
             request.Email = email;
@@ -255,6 +264,11 @@ namespace IDosGames
                 ClientSessionTicket = tokenData.TitleClientSessionTicket,
                 ClientSessionTicketExpiration = tokenData.TitleClientSessionTicketExpiration,
             };
+
+            // Синхронизация со старым AuthService пока старый код его использует
+            //AuthService.AuthContext = _authContext;
+            //AuthService.UserID = _authContext.UserID;
+            //AuthService.ClientSessionTicket = _authContext.ClientSessionTicket;
         }
 
         private static async Task<OperationResult<ClientStateResponse>> FetchAndApplyClientState(AuthType authType)
@@ -291,27 +305,19 @@ namespace IDosGames
             if (data.UserInventoryResult != null)
             {
                 user.ApplyInventory(data.UserInventoryResult.Inventory);
-
-                if (data.UserInventoryResult.VirtualCurrency != null)
-                    user.ApplyVirtualCurrency(data.UserInventoryResult.VirtualCurrency);
-
-                if (data.UserInventoryResult.VirtualCurrencyRechargeTimes != null)
-                    user.ApplyVirtualCurrencyRechargeTimes(data.UserInventoryResult.VirtualCurrencyRechargeTimes);
+                if (data.UserInventoryResult.VirtualCurrency != null) user.ApplyVirtualCurrency(data.UserInventoryResult.VirtualCurrency);
+                if (data.UserInventoryResult.VirtualCurrencyRechargeTimes != null) user.ApplyVirtualCurrencyRechargeTimes(data.UserInventoryResult.VirtualCurrencyRechargeTimes);
             }
 
-            if (data.LeaderboardData != null)
-                user.ApplyLeaderboardData(data.LeaderboardData);
+            if (data.CustomUserDataResult != null) user.ApplyCustomUserData(data.CustomUserDataResult);
+            if (data.LeaderboardData != null) user.ApplyLeaderboardData(data.LeaderboardData);
 
             var config = IDosGamesData.Config;
-            if (data.TitlePublicConfiguration != null)
-                config.ApplyTitlePublicConfiguration(data.TitlePublicConfiguration);
-            if (data.TitlePublicData != null)
-                config.ApplyTitlePublicData(data.TitlePublicData);
+            if (data.TitlePublicConfiguration != null) config.ApplyTitlePublicConfiguration(data.TitlePublicConfiguration);
+            if (data.TitlePublicData != null) config.ApplyTitlePublicData(data.TitlePublicData);
             if (data.CatalogItemsResult != null)
             {
-                string catalogVersion = data.CatalogItemsResult.Catalog?.Count > 0
-                    ? data.CatalogItemsResult.Catalog[0].CatalogVersion
-                    : string.Empty;
+                string catalogVersion = data.CatalogItemsResult.Catalog?.Count > 0 ? data.CatalogItemsResult.Catalog[0].CatalogVersion : string.Empty;
                 config.ApplyCatalog(catalogVersion, data.CatalogItemsResult);
             }
             if (data.PlatformSettings != null)
@@ -319,9 +325,10 @@ namespace IDosGames
                 config.ApplyPlatformSettings(data.PlatformSettings);
                 ApplyPlatformSDKSettings(data.PlatformSettings);
             }
-            if (data.GetCurrencyData != null)
-                config.ApplyCurrencyData(data.GetCurrencyData);
 
+            if (data.GetCurrencyData != null) config.ApplyCurrencies(data.GetCurrencyData);
+
+            UserDataService.ProcessingAllData(data);
             IDosGamesData.OnUserLoggedIn();
             SaveAuthType(authType);
         }

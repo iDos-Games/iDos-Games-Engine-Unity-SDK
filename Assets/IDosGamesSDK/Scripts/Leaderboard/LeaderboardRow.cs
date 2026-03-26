@@ -42,7 +42,7 @@ namespace IDosGames
 
 		private void SetPlayerID(string playerID)
 		{
-			if (playerID == AuthService.UserID)
+			if (playerID == AuthenticationService.AuthContext.UserID)
 			{
 				playerID = $"you: {playerID}";
 			}
@@ -69,7 +69,7 @@ namespace IDosGames
 
         private void SetRowFrameColor(string playerID)
 		{
-			if (playerID != AuthService.UserID)
+			if (playerID != AuthenticationService.AuthContext.UserID)
 			{
 				return;
 			}

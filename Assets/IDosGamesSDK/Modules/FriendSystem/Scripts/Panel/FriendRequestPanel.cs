@@ -47,13 +47,13 @@ namespace IDosGames.Friends
 
         public void RefreshData()
         {
-            if (IGSUserData.FriendRequests == null)
+            if (IDosGamesData.User.Social.IncomingRequests == null)
             {
                 Refresh();
             }
             else
             {
-                List<string> friendRequests = IGSUserData.FriendRequests;
+                List<string> friendRequests = IDosGamesData.User.Social.IncomingRequests;
                 ProcessRequestResult(friendRequests);
                 IsNeedUpdate = false;
             }
@@ -73,7 +73,7 @@ namespace IDosGames.Friends
 
             var result = await FriendAzureService.GetPendingFriendRequests();
 
-            IGSUserData.FriendRequests = result;
+            IDosGamesData.User.Social.IncomingRequests = result;
 
             Loading.HideAllPanels();
 
@@ -132,7 +132,7 @@ namespace IDosGames.Friends
 
             IGSRequest friendRequest = new IGSRequest()
             {
-                FriendID = AuthService.UserID
+                FriendID = AuthenticationService.AuthContext.UserID
             };
 
             var result = await FriendAzureService.AcceptRequest(friendRequest);
@@ -171,7 +171,7 @@ namespace IDosGames.Friends
 
             IGSRequest friendRequest = new IGSRequest()
             {
-                FriendID = AuthService.UserID
+                FriendID = AuthenticationService.AuthContext.UserID
             };
 
             var result = await FriendAzureService.RejectRequest(friendRequest);

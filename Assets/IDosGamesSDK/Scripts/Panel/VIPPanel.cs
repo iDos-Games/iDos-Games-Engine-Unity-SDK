@@ -64,7 +64,7 @@ namespace IDosGames
 				var price = GetPriceInRealMoney($"{product[JsonProperty.PRICE_RM]}");
 
                 string currencyImagePath = product[JsonProperty.CURRENCY_IMAGE_PATH].ToString();
-                var currencyIconPath = (currencyImagePath == JsonProperty.TOKEN_IMAGE_PATH) ? IGSUserData.Currency.CurrencyData.Find(c => c.CurrencyCode == "IG")?.ImageUrl ?? JsonProperty.TOKEN_IMAGE_PATH : currencyImagePath;
+                var currencyIconPath = (currencyImagePath == JsonProperty.TOKEN_IMAGE_PATH) ? IDosGamesData.Config.Currencies.CurrencyData.Find(c => c.CurrencyCode == "IG")?.ImageUrl ?? JsonProperty.TOKEN_IMAGE_PATH : currencyImagePath;
                 var currencyIcon = await ImageLoader.GetSpriteAsync(currencyIconPath);
 
                 var currencyID = GetVirtualCurrencyID($"{product[JsonProperty.CURRENCY_ID]}");

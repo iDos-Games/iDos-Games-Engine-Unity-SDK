@@ -28,8 +28,8 @@ namespace IDosGames
 			_price.text = ((int)offer.Price).ToString();
 			_currencyIcon.sprite = currencyIcon;
 
-			_soldText.gameObject.SetActive(offer.SellerID == AuthService.UserID);
-			_boughtText.gameObject.SetActive(offer.SellerID != AuthService.UserID);
+			_soldText.gameObject.SetActive(offer.SellerID == AuthenticationService.AuthContext.UserID);
+			_boughtText.gameObject.SetActive(offer.SellerID != AuthenticationService.AuthContext.UserID);
 		}
 	}
 }

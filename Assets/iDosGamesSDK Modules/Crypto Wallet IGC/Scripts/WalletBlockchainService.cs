@@ -680,7 +680,7 @@ namespace IDosGames
                     Amount = amount,
                     Gas = 100000,
                     GasPrice = new HexBigInteger(Web3.Convert.ToWei(BlockchainSettings.GasPrice, UnitConversion.EthUnit.Gwei)),
-                    Data = string.IsNullOrEmpty(AuthService.UserID) ? Array.Empty<byte>() : Encoding.UTF8.GetBytes(AuthService.UserID)
+                    Data = string.IsNullOrEmpty(AuthenticationService.AuthContext.UserID) ? Array.Empty<byte>() : Encoding.UTF8.GetBytes(AuthenticationService.AuthContext.UserID)
                 };
 
                 var nonce = await GetTransactionCountAsync(fromAddress);

@@ -15,7 +15,7 @@ namespace IDosGames
 
 		public async void Set(string hash, TransactionDirection direction, string itemName, int amount, string imagePath, string urlToOpen)
 		{
-            string iconPath = (imagePath == JsonProperty.TOKEN_IMAGE_PATH) ? IGSUserData.Currency.CurrencyData.Find(c => c.CurrencyCode == "IG")?.ImageUrl ?? JsonProperty.TOKEN_IMAGE_PATH : imagePath;
+            string iconPath = (imagePath == JsonProperty.TOKEN_IMAGE_PATH) ? IDosGamesData.Config.Currencies.CurrencyData.Find(c => c.CurrencyCode == "IG")?.ImageUrl ?? JsonProperty.TOKEN_IMAGE_PATH : imagePath;
             ResetButton(urlToOpen);
 
 			_transactionash.text = hash;

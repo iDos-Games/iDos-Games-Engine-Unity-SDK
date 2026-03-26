@@ -18,10 +18,10 @@ namespace IDosGames
 
 		private void Start()
 		{
-            UserDataService.DataUpdated += RefreshData;
+            IDosGamesData.User.OnAnyUpdated += RefreshData;
 
             //Refresh();
-            if (IGSUserData.Leaderboard != null)
+            if (IDosGamesData.Title.Leaderboard != null)
 			{
                 RefreshData();
 			}
@@ -39,7 +39,7 @@ namespace IDosGames
 
         private void OnDestroy()
         {
-            UserDataService.DataUpdated -= RefreshData;
+            IDosGamesData.User.OnAnyUpdated -= RefreshData;
         }
 
         public void RefreshData()
@@ -67,7 +67,7 @@ namespace IDosGames
                     _view.SetTimer(leaderboard.Frequency);
                 }
 
-                OnSuccessGetLeaderboard(IGSUserData.Leaderboard);
+                OnSuccessGetLeaderboard(IDosGamesData.Title.Leaderboard);
                 _description.Initialize(leaderboard);
             }
         }
@@ -115,7 +115,7 @@ namespace IDosGames
 		{
 			Loading.HideAllPanels();
 
-            IGSUserData.Leaderboard = result;
+            IDosGamesData.Title.ApplyLeaderboard(result);
 
             if (result == null)
 			{

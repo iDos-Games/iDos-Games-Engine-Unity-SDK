@@ -12,13 +12,13 @@ namespace IDosGames
 		{
 			UpdateView();
 
-			AuthService.LoggedIn += UpdateView;
+            AuthenticationService.OnLoggedIn += UpdateView;
 			//LocalizationSystem.OnLanguageChanged += UpdateView;
 		}
 
 		private void OnDisable()
 		{
-			AuthService.LoggedIn -= UpdateView;
+            AuthenticationService.OnLoggedIn -= UpdateView;
 			//LocalizationSystem.OnLanguageChanged -= UpdateView;
 		}
 
@@ -30,12 +30,12 @@ namespace IDosGames
 
 		private void SetUserIDText()
 		{
-			_userID.text = AuthService.UserID;
+			_userID.text = AuthenticationService.AuthContext.UserID;
 		}
 
 		private void SetEmailText()
 		{
-			string email = AuthService.SavedEmail;
+			string email = AuthenticationService.SavedEmail;
 			string haveNotLinkedText = MessageCode.NEED_LOGIN_WITH_EMAIL.ToString(); //LocalizationSystem
 
             _email.text = email != string.Empty ? email : haveNotLinkedText;

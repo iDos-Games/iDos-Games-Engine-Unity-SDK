@@ -56,13 +56,13 @@ namespace IDosGames.Friends
 
         public void RefreshData()
         {
-            if(IGSUserData.Friends == null)
+            if(IDosGamesData.User.Social.Accepted == null)
             {
                 Refresh();
             }
             else
             {
-                List<string> friends = IGSUserData.Friends;
+                List<string> friends = IDosGamesData.User.Social.Accepted;
                 ProcessRequestResult(friends);
                 IsNeedUpdate = false;
             }
@@ -84,7 +84,7 @@ namespace IDosGames.Friends
 
             var result = await FriendAzureService.GetMyFriend();
 
-            IGSUserData.Friends = result;
+            IDosGamesData.User.Social.Accepted = result;
 
             return result;
         }

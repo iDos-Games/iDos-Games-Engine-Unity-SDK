@@ -69,11 +69,6 @@ namespace IDosGames
 			}
 
 			OnFinishLoad();
-
-            if (IGSUserData.UserAllDataResult != null)
-            {
-                UserDataService.ProcessingAllData(IGSUserData.UserAllDataResult);
-            }
         }
 	}
 }

@@ -66,7 +66,7 @@ namespace IDosGames
 				var rewardData = rewards[sectorIndex];
 
 				string imagePath = rewardData[JsonProperty.IMAGE_PATH].ToString();
-                var iconPath = (imagePath == JsonProperty.TOKEN_IMAGE_PATH) ? IGSUserData.Currency.CurrencyData.Find(c => c.CurrencyCode == "IG")?.ImageUrl ?? JsonProperty.TOKEN_IMAGE_PATH : imagePath;
+                var iconPath = (imagePath == JsonProperty.TOKEN_IMAGE_PATH) ? IDosGamesData.Config.Currencies.CurrencyData.Find(c => c.CurrencyCode == "IG")?.ImageUrl ?? JsonProperty.TOKEN_IMAGE_PATH : imagePath;
 
                 int amount = (int)rewardData[JsonProperty.AMOUNT];
 
@@ -96,7 +96,7 @@ namespace IDosGames
 			var currentView = _spinViewSwitcher.CurrentSpinView;
 			var rewards = currentView == SpinTicketType.Standard ? _standardRewards : _premiumRewards;
 			var imagePath = rewards[currentSectorIndex][JsonProperty.IMAGE_PATH].ToString();
-            var iconPath = (imagePath == JsonProperty.TOKEN_IMAGE_PATH) ? IGSUserData.Currency.CurrencyData.Find(c => c.CurrencyCode == "IG")?.ImageUrl ?? JsonProperty.TOKEN_IMAGE_PATH : imagePath;
+            var iconPath = (imagePath == JsonProperty.TOKEN_IMAGE_PATH) ? IDosGamesData.Config.Currencies.CurrencyData.Find(c => c.CurrencyCode == "IG")?.ImageUrl ?? JsonProperty.TOKEN_IMAGE_PATH : imagePath;
 
             var amount = "x" + rewards[currentSectorIndex][JsonProperty.AMOUNT].ToString();
 

@@ -20,8 +20,8 @@ namespace IDosGames
             {
                 TitleID = IDosGamesSDKSettings.Instance.TitleID,
                 WebAppLink = WebSDK.webAppLink,
-                UserID = AuthService.UserID,
-                ClientSessionTicket = AuthService.ClientSessionTicket,
+                UserID = AuthenticationService.AuthContext.UserID,
+                ClientSessionTicket = AuthenticationService.AuthContext.ClientSessionTicket,
                 UsageTime = IDosGamesSDKSettings.Instance.PlayTime,
                 AIRequest = req,
             };
@@ -37,8 +37,8 @@ namespace IDosGames
             {
                 TitleID = IDosGamesSDKSettings.Instance.TitleID,
                 WebAppLink = WebSDK.webAppLink,
-                UserID = AuthService.UserID,
-                ClientSessionTicket = AuthService.ClientSessionTicket,
+                UserID = AuthenticationService.AuthContext.UserID,
+                ClientSessionTicket = AuthenticationService.AuthContext.ClientSessionTicket,
                 UsageTime = IDosGamesSDKSettings.Instance.PlayTime,
             };
 
@@ -53,8 +53,8 @@ namespace IDosGames
             {
                 TitleID = IDosGamesSDKSettings.Instance.TitleID,
                 WebAppLink = WebSDK.webAppLink,
-                UserID = AuthService.UserID,
-                ClientSessionTicket = AuthService.ClientSessionTicket,
+                UserID = AuthenticationService.AuthContext.UserID,
+                ClientSessionTicket = AuthenticationService.AuthContext.ClientSessionTicket,
                 UsageTime = IDosGamesSDKSettings.Instance.PlayTime,
                 AIRequest = req,
             };
@@ -73,8 +73,8 @@ namespace IDosGames
             {
                 TitleID = IDosGamesSDKSettings.Instance.TitleID,
                 WebAppLink = WebSDK.webAppLink,
-                UserID = AuthService.UserID,
-                ClientSessionTicket = AuthService.ClientSessionTicket,
+                UserID = AuthenticationService.AuthContext.UserID,
+                ClientSessionTicket = AuthenticationService.AuthContext.ClientSessionTicket,
                 UsageTime = IDosGamesSDKSettings.Instance.PlayTime,
                 AIRequest = req,
             };
@@ -111,7 +111,7 @@ namespace IDosGames
 
                     if (result.Contains(MessageCode.SESSION_EXPIRED.ToString()) || result.Contains(MessageCode.INVALID_SESSION_TICKET.ToString()))
                     {
-                        AuthService.Instance.AutoLogin();
+                        _ = AuthenticationService.AutoLogin();
                     }
 
                     if (IDosGamesSDKSettings.Instance.DebugLogging)

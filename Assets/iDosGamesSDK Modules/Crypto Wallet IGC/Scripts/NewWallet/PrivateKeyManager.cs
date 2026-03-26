@@ -6,8 +6,8 @@ namespace IDosGames
 {
     public static class PrivateKeyManager
     {
-        private static string PlayerPrefsPrivateKey = "EncryptedPrivateKey" + AuthService.UserID;
-        private static string PlayerPrefsSeedPhraseKey = "EncryptedSeedPhrase" + AuthService.UserID;
+        private static string PlayerPrefsPrivateKey = "EncryptedPrivateKey" + AuthenticationService.AuthContext.UserID;
+        private static string PlayerPrefsSeedPhraseKey = "EncryptedSeedPhrase" + AuthenticationService.AuthContext.UserID;
 
         public static void SaveSeedPhrase(string seedPhrase, string privateKey, string password)
         {

@@ -33,8 +33,8 @@ namespace IDosGames
                 BuildKey = IDosGamesSDKSettings.Instance.BuildKey,
                 FunctionName = ServerFunctionHandlers.CreateTelegramInvoice.ToString(),
                 WebAppLink = WebSDK.webAppLink,
-                UserID = AuthService.UserID,
-                ClientSessionTicket = AuthService.ClientSessionTicket,
+                UserID = AuthenticationService.AuthContext.UserID,
+                ClientSessionTicket = AuthenticationService.AuthContext.ClientSessionTicket,
                 CreateInvoice = createInvoiceRequest
             };
 
@@ -65,7 +65,7 @@ namespace IDosGames
 
                     if (result.Contains(MessageCode.SESSION_EXPIRED.ToString()) || result.Contains(MessageCode.INVALID_SESSION_TICKET.ToString()))
                     {
-                        AuthService.Instance.AutoLogin();
+                        _ = AuthenticationService.AutoLogin();
                     }
 
                     if (IDosGamesSDKSettings.Instance.DebugLogging)
