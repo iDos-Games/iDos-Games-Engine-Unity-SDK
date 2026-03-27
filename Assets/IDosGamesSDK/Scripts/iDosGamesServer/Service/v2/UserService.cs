@@ -108,7 +108,7 @@ namespace IDosGames
 
             if (result.Success)
             {
-                UpdateCachedCurrencies(result.Data);
+                IDosGamesData.User.PatchVirtualCurrency(result.Data.CurrencyID, result.Data.NewBalance);
                 OnVirtualCurrencySubtracted?.Invoke(result.Data);
             }
 
@@ -127,7 +127,7 @@ namespace IDosGames
 
             if (result.Success)
             {
-                UpdateCachedCurrencies(result.Data);
+                IDosGamesData.User.PatchVirtualCurrency(result.Data.UpdatedVirtualCurrencies);
                 OnVirtualCurrencyTransfered?.Invoke(result.Data);
             }
 
@@ -196,31 +196,6 @@ namespace IDosGames
             }
 
             return result;
-        }
-
-        private static void UpdateCachedCurrencies(CurrencyUpdateResponse response)
-        {
-            if (response == null) return;
-
-            var currency = IDosGamesData.User.VirtualCurrency;
-
-            currency[response.CurrencyID] = response.NewBalance;
-
-            IDosGamesData.User.ApplyVirtualCurrency(currency);
-        }
-
-        private static void UpdateCachedCurrencies(CurrencyTransferResponse response)
-        {
-            if (response?.UpdatedVirtualCurrencies == null || response.UpdatedVirtualCurrencies.Count == 0) return;
-
-            var currency = IDosGamesData.User.VirtualCurrency ?? new ();
-
-            foreach (var pair in response.UpdatedVirtualCurrencies)
-            {
-                currency[pair.Key] = pair.Value;
-            }
-
-            IDosGamesData.User.ApplyVirtualCurrency(currency);
         }
     }
 }

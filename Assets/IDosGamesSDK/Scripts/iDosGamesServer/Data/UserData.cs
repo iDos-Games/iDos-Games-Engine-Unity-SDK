@@ -140,6 +140,23 @@ namespace IDosGames
             LeaderboardData = null;
             IsLoggedIn = false;
         }
+
+        internal void PatchVirtualCurrency(string currencyId, long newBalance)
+        {
+            VirtualCurrency ??= new();
+            VirtualCurrency[currencyId] = newBalance;
+            OnVirtualCurrencyUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchVirtualCurrency(Dictionary<string, long> updatedCurrencies)
+        {
+            VirtualCurrency ??= new();
+            foreach (var pair in updatedCurrencies)
+                VirtualCurrency[pair.Key] = pair.Value;
+            OnVirtualCurrencyUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
     }
 
     public class UserSocialState
