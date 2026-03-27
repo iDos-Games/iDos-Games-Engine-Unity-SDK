@@ -19,20 +19,13 @@ namespace IDosGames
         public static event Action FirstTimeDataUpdated;
         public static event Action SkinCatalogItemsUpdated;
 
-        // ── Публичные свойства ────────────────────────────────────────────────
         public static bool _firstTimeDataUpdated = false;
-
         public static IReadOnlyList<SkinCatalogItem> AllSkinsInCatalog => _allSkinsInCatalog.AsReadOnly();
         public static IReadOnlyList<BigInteger> NFTIDs => _nftIDs.AsReadOnly();
         public static IReadOnlyList<string> EquippedSkins => _equippedSkins.AsReadOnly();
-
-        /// <summary>Есть ли у пользователя VIP-статус.</summary>
         public static bool HasVIPStatus { get; private set; }
-
-        /// <summary>Максимум перезарядки вторичного спин-тикета.</summary>
         public static int SecondarySpinTicketRechargeMax { get; private set; }
 
-        // ── Приватные коллекции (скины) ───────────────────────────────────────
         private static readonly Dictionary<string, RarityType> _skinCollectionRarity = new();
         private static readonly Dictionary<string, float> _skinCollectionProfit = new();
         private static readonly Dictionary<string, SkinCatalogItem> _skinItems = new();
@@ -45,8 +38,6 @@ namespace IDosGames
         public static IReadOnlyList<AvatarSkinCatalogItem> AllAvatarSkinsInCatalog
             => _allAvatarSkinsInCatalog?.AsReadOnly();
 
-        // ── Приватные коллекции (инвентарь) ──────────────────────────────────
-        // Производные структуры для быстрого доступа; источник данных — UserData.Inventory
         private static readonly Dictionary<string, int> _eachItemAmounts = new();
         private static readonly Dictionary<string, long> _virtualCurrencyAmounts = new();
         private static readonly Dictionary<SpinTicketType, int> _spinTickets = new();
@@ -54,7 +45,6 @@ namespace IDosGames
         private static readonly List<ItemInstance> _inventoryItemsFull = new();
         private static readonly Dictionary<string, List<ItemInstance>> _inventoryItemsByItemId = new();
 
-        // ── Singleton / init ──────────────────────────────────────────────────
         private static DataService _instance;
         public static DataService Instance => _instance;
 
@@ -74,31 +64,23 @@ namespace IDosGames
             _instance = new DataService();
         }
 
-        // ═════════════════════════════════════════════════════════════════════
-        //  Основной поток данных
-        // ═════════════════════════════════════════════════════════════════════
-
         public static void ProcessingAllData(ClientStateResponse userDataResult)
         {
-            // — Применяем всё в UserData / TitleConfig (единый источник правды) —
             IDosGamesData.User.ApplyVirtualCurrency(userDataResult.UserInventoryResult.VirtualCurrency);
             IDosGamesData.User.ApplyVirtualCurrencyRechargeTimes(userDataResult.UserInventoryResult.VirtualCurrencyRechargeTimes);
             IDosGamesData.User.ApplyInventory(userDataResult.UserInventoryResult.Inventory);
+            IDosGamesData.User.ApplyCustomUserData(userDataResult.CustomUserDataResult);
+            IDosGamesData.User.ApplyLeaderboardData(userDataResult.LeaderboardData);
 
             IDosGamesData.Config.ApplyTitlePublicConfiguration(userDataResult.TitlePublicConfiguration);
             IDosGamesData.Config.TitlePublicConfiguration.ImageData = userDataResult.TitlePublicConfiguration.ImageData;
-
-            OnCatalogItemsReceived(userDataResult.CatalogItemsResult);
             IDosGamesData.Config.ApplyCatalog(CATALOG_SKIN, userDataResult.CatalogItemsResult);
-
-            IDosGamesData.User.ApplyCustomUserData(userDataResult.CustomUserDataResult);
-
-            IDosGamesData.Title.ApplyLeaderboard(userDataResult.LeaderboardResult);
             IDosGamesData.Config.ApplyCurrencies(userDataResult.GetCurrencyData);
-            IDosGamesData.User.ApplyLeaderboardData(userDataResult.LeaderboardData);
             IDosGamesData.Config.ApplyTitlePublicData(userDataResult.TitlePublicData);
 
-            // — Производные кэши инвентаря (строятся из UserData.Inventory) —
+            IDosGamesData.Title.ApplyLeaderboard(userDataResult.LeaderboardResult);
+
+            UpdateCachedSkinItems(userDataResult.CatalogItemsResult);
             RebuildInventoryCaches();
 
             if (!_firstTimeDataUpdated)
@@ -108,16 +90,6 @@ namespace IDosGames
             }
         }
 
-        // ═════════════════════════════════════════════════════════════════════
-        //  Инвентарь — производные кэши (пересчитываются из UserData.Inventory)
-        // ═════════════════════════════════════════════════════════════════════
-
-        /// <summary>
-        /// Перестраивает все производные коллекции инвентаря на основе
-        /// актуальных данных из <see cref="IDosGamesData.User"/>.
-        /// Вызывается автоматически при каждом изменении UserData.Inventory /
-        /// VirtualCurrency / VirtualCurrencyRechargeTimes.
-        /// </summary>
         private static void RebuildInventoryCaches()
         {
             var user = IDosGamesData.User;
@@ -210,10 +182,6 @@ namespace IDosGames
                 await ValidateVIPSubscription();
         }
 
-        // ═════════════════════════════════════════════════════════════════════
-        //  Публичный API — инвентарь (делегирует к кэшам, источник — UserData)
-        // ═════════════════════════════════════════════════════════════════════
-
         public static IReadOnlyList<ItemInstance> GetInventoryItemsFull()
             => _inventoryItemsFull;
 
@@ -225,9 +193,6 @@ namespace IDosGames
                 : Array.Empty<ItemInstance>();
         }
 
-        /// <summary>
-        /// Возвращает первый ItemInstanceId для указанного ItemID или null.
-        /// </summary>
         public static string GetItemInstanceId(string itemId)
         {
             if (string.IsNullOrEmpty(itemId)) return null;
@@ -236,9 +201,6 @@ namespace IDosGames
             return _inventoryItemsFull.FirstOrDefault(x => x?.ItemId == itemId)?.ItemInstanceId;
         }
 
-        /// <summary>
-        /// Возвращает список всех ItemInstanceId для указанного ItemID.
-        /// </summary>
         public static List<string> GetItemInstanceIds(string itemId)
         {
             var result = new List<string>();
@@ -285,10 +247,6 @@ namespace IDosGames
             _chestKeyFragments.TryGetValue(fragmentType, out int amount);
             return amount;
         }
-
-        // ═════════════════════════════════════════════════════════════════════
-        //  Публичный API — кэш конфигурации и каталога
-        // ═════════════════════════════════════════════════════════════════════
 
         public static string GetCachedTitlePublicConfig(TitleDataKey dataKey)
             => GetCachedTitlePublicConfig(dataKey.ToString());
@@ -380,10 +338,6 @@ namespace IDosGames
             return 2f;
         }
 
-        // ═════════════════════════════════════════════════════════════════════
-        //  Экипировка скинов
-        // ═════════════════════════════════════════════════════════════════════
-
         public static void UpdateEquippedSkins(List<string> equippedSkins)
         {
             JArray jArray = JArray.FromObject(equippedSkins);
@@ -441,16 +395,6 @@ namespace IDosGames
         private static void OnErrorUpdateEquippedSkins()
             => Message.Show(MessageCode.FAILED_TO_UPDATE_EQUIPPED_SKINS);
 
-        // ═════════════════════════════════════════════════════════════════════
-        //  Каталог скинов
-        // ═════════════════════════════════════════════════════════════════════
-
-        private static void OnCatalogItemsReceived(GetCatalogItemsResult result)
-        {
-            UpdateCachedSkinItems(result);
-            IDosGamesData.Config.ApplyCatalog(CATALOG_SKIN, result);
-        }
-
         private static void UpdateCachedSkinItems(GetCatalogItemsResult result)
         {
             if (result.Catalog == null) return;
@@ -506,10 +450,6 @@ namespace IDosGames
                 }
             }
         }
-
-        // ═════════════════════════════════════════════════════════════════════
-        //  VIP / Custom user data
-        // ═════════════════════════════════════════════════════════════════════
 
         public static void UpdateCustomUserData(string key, object data)
             => _ = UserService.UpdateCustomUserData(key, data);
