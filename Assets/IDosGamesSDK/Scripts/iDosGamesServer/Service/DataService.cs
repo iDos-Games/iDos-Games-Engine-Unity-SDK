@@ -70,8 +70,6 @@ namespace IDosGames
         private static DataService _instance;
         public static DataService Instance => _instance;
 
-        private static bool _continueRequestAllDataSequence;
-
         private DataService()
         {
             _instance = this;
@@ -80,8 +78,6 @@ namespace IDosGames
             // Когда в UserData обновился инвентарь — синхронизируем производные кэши
             IDosGamesData.User.OnInventoryUpdated += RebuildInventoryCaches;
             IDosGamesData.User.OnCustomUserDataUpdated += SetEquippedSkinsList;
-
-            AllDataRequestError += _ => _continueRequestAllDataSequence = true;
         }
 
         [RuntimeInitializeOnLoadMethod]
@@ -127,20 +123,6 @@ namespace IDosGames
                 _firstTimeDataUpdated = true;
                 FirstTimeDataUpdated?.Invoke();
             }
-        }
-
-        public static void RequestUserAllData()
-        {
-            IGSClientAPI.GetUserAllData(
-                resultCallback: ProcessingAllData,
-                notConnectionErrorCallback: OnAllDataRequestError,
-                connectionErrorCallback: () => { RequestUserAllData(); TryInvokeDataRequestAgain(); });
-        }
-
-        private static void TryInvokeDataRequestAgain()
-        {
-            if (!_continueRequestAllDataSequence)
-                DataRequested?.Invoke();
         }
 
         // ═════════════════════════════════════════════════════════════════════
@@ -576,8 +558,8 @@ namespace IDosGames
             OnVIPSubscriptionValidated();
         }
 
-        private static void OnVIPSubscriptionValidated()
-            => RequestUserAllData();
+        private static async void OnVIPSubscriptionValidated()
+            => await UserService.GetClientState();
 
         private static void OnAllDataRequestError(string error)
             => AllDataRequestError?.Invoke(error);

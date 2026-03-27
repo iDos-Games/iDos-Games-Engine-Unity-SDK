@@ -158,7 +158,7 @@ namespace IDosGames.Friends
                 {
                     item.gameObject.SetActive(false);
                     Message.Show(jObjectResult["Message"].ToString());
-                    DataService.RequestUserAllData();
+                    await UserService.GetClientState();
                     IsNeedUpdate = true;
                     FriendAdded?.Invoke();
                 }
@@ -197,7 +197,7 @@ namespace IDosGames.Friends
                 {
                     item.gameObject.SetActive(false);
                     Message.Show(jObjectResult["Message"].ToString());
-                    DataService.RequestUserAllData();
+                    await UserService.GetClientState();
                     IsNeedUpdate = true;
                 }
             }

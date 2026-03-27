@@ -215,7 +215,7 @@ namespace IDosGames
                 Message.Show(jObjectResult["Message"].ToString());
             }
 
-            DataService.RequestUserAllData();
+            await UserService.GetClientState();
             Refresh();
 
             OfferChanged?.Invoke();
@@ -249,7 +249,7 @@ namespace IDosGames
                 Message.Show(jObjectResult["Message"].ToString());
             }
 
-            DataService.RequestUserAllData();
+            await UserService.GetClientState();
             Refresh();
 
             OfferChanged?.Invoke();

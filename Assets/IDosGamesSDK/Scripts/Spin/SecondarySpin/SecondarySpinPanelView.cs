@@ -39,10 +39,10 @@ namespace IDosGames
 			Loading.BlockTouch();
 		}
 
-		private void OnSpinEnded(int currentSectorIndex)
+		private async void OnSpinEnded(int currentSectorIndex)
 		{
-			DataService.RequestUserAllData();
-			Loading.UnblockTouch();
+            await UserService.GetClientState();
+            Loading.UnblockTouch();
 			ShowRewardMessage(currentSectorIndex);
 		}
 

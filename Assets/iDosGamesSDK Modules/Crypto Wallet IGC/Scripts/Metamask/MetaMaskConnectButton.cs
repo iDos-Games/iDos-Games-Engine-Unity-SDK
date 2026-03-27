@@ -117,7 +117,7 @@ namespace IDosGames
                 if (result != null)
                 {
                     Debug.Log($"Transfer successful. Transaction hash: {result}");
-                    DataService.RequestUserAllData();
+                    await UserService.GetClientState();
                 }
                 else
                 {

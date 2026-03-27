@@ -104,7 +104,7 @@ namespace IDosGames
              );
         }
 
-        private void OnResultUpdateEventForPlayer(string result)
+        private async void OnResultUpdateEventForPlayer(string result)
         {
             if (result == null)
             {
@@ -123,7 +123,7 @@ namespace IDosGames
                     var message = resultData[JsonProperty.MESSAGE_KEY].ToString();
                     if (message == "MESSAGE_CODE_SUCCESS" || message == "SUCCESS")
                     {
-                        DataService.RequestUserAllData();
+                        await UserService.GetClientState();
                     }
                 }
             }

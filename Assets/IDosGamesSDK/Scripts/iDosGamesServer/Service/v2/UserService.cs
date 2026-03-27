@@ -43,6 +43,7 @@ namespace IDosGames
             if (result.Success)
             {
                 IDosGamesSDKSettings.Instance.PlayTime = 0;
+                DataService.ProcessingAllData(result.Data);
                 OnClientStateReceived?.Invoke(result.Data);
             }
 

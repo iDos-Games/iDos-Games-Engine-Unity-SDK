@@ -11,12 +11,12 @@ namespace IDosGames
             
         }
 
-        private void OnDisable()
+        private async void OnDisable()
         {
             if (!string.IsNullOrEmpty(ShopSystem._payload))
             {
                 ShopSystem._payload = null;
-                DataService.RequestUserAllData();
+                await UserService.GetClientState();
             }
         }
     }

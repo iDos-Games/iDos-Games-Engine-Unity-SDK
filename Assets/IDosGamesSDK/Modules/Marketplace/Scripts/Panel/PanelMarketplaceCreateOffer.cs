@@ -119,9 +119,9 @@ namespace IDosGames
 			}
 
 			ResetPanel();
-			DataService.RequestUserAllData();
+            await UserService.GetClientState();
 
-			OfferCreated?.Invoke();
+            OfferCreated?.Invoke();
 		}
 #endif
 

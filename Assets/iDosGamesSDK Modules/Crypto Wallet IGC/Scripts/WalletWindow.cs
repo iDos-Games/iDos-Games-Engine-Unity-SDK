@@ -92,7 +92,7 @@ namespace IDosGames
                     GetTokenImagePath(virtualCurrencyID));
 
                 _walletManager.RefreshWalletBalance();
-                DataService.RequestUserAllData();
+                await UserService.GetClientState();
             }
 
             Message.Show(transferResult);
@@ -184,7 +184,7 @@ namespace IDosGames
                     DataService.GetCachedSkinItem(skinID).ImagePath);
 
                 _walletManager.RefreshWalletBalance();
-                DataService.RequestUserAllData();
+                await UserService.GetClientState();
             }
 
             Message.Show(transferResult);
