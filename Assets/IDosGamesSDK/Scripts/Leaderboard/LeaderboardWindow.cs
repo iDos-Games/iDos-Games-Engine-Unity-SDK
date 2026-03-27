@@ -44,7 +44,7 @@ namespace IDosGames
 
         public void RefreshData()
         {
-            var titleData = UserDataService.GetCachedTitlePublicConfig(TitleDataKey.Leaderboards);
+            var titleData = DataService.GetCachedTitlePublicConfig(TitleDataKey.Leaderboards);
             var leaderboardsArray = JsonConvert.DeserializeObject<List<Leaderboard>>(titleData);
 
             if (leaderboardsArray == null || !leaderboardsArray.Any())
@@ -74,7 +74,7 @@ namespace IDosGames
 
         public void Refresh()
         {
-            var titleData = UserDataService.GetCachedTitlePublicConfig(TitleDataKey.Leaderboards);
+            var titleData = DataService.GetCachedTitlePublicConfig(TitleDataKey.Leaderboards);
             var leaderboardsArray = JsonConvert.DeserializeObject<List<Leaderboard>>(titleData);
 
             if (leaderboardsArray == null || !leaderboardsArray.Any())
@@ -107,7 +107,7 @@ namespace IDosGames
 		{
 			Loading.ShowTransparentPanel();
 
-            IGSClientAPI.GetUserAllData(resultCallback: (result) => { OnSuccessGetLeaderboard(result.LeaderboardResult); UserDataService.ProcessingAllData(result); }, notConnectionErrorCallback: OnErrorGetLeaderboard, connectionErrorCallback: null);
+            IGSClientAPI.GetUserAllData(resultCallback: (result) => { OnSuccessGetLeaderboard(result.LeaderboardResult); DataService.ProcessingAllData(result); }, notConnectionErrorCallback: OnErrorGetLeaderboard, connectionErrorCallback: null);
 
         }
 

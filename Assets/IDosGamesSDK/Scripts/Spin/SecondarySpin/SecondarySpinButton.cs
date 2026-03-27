@@ -58,7 +58,7 @@ namespace IDosGames
 
         private void SetUsesLeftText(long ticketsAmount)
         {
-            _usesLeft.text = $"{ticketsAmount}/{UserInventory.SecondarySpinTicketRechargeMax}";
+            _usesLeft.text = $"{ticketsAmount}/{DataService.SecondarySpinTicketRechargeMax}";
         }
 
         private void SetActiveUsesLeftText(bool active)

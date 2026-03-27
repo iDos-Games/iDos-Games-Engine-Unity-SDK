@@ -129,7 +129,7 @@ namespace IDosGames
 
 				var currencyName = virtualCurrencyID == VirtualCurrencyID.IG ? JsonProperty.IGT.ToUpper() : JsonProperty.IGC.ToUpper();
 
-                string imagePath = UserDataService.CURRENCY_ICONS_IMAGE_PATH + currencyName;
+                string imagePath = DataService.CURRENCY_ICONS_IMAGE_PATH + currencyName;
                 string iconPath = (imagePath == JsonProperty.TOKEN_IMAGE_PATH) ? IDosGamesData.Config.Currencies.CurrencyData.Find(c => c.CurrencyCode == "IG")?.ImageUrl ?? JsonProperty.TOKEN_IMAGE_PATH : imagePath;
 
                 Sprite currencyIcon = await ImageLoader.GetSpriteAsync(iconPath);

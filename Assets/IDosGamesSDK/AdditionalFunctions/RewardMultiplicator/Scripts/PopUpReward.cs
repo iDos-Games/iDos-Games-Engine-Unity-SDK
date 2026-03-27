@@ -27,7 +27,7 @@ namespace IDosGames
         {
             if (AdMediation.Instance != null)
             {
-                if (!UserInventory.HasVIPStatus)
+                if (!DataService.HasVIPStatus)
                 {
                     AdMediation.Instance.ShowInterstitialAd();
                 }

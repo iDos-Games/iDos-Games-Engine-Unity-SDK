@@ -52,7 +52,7 @@ namespace IDosGames
 				return;
 			}
 
-			var reward = UserInventory.HasVIPStatus ?
+			var reward = DataService.HasVIPStatus ?
 				WeeklyEventSystem.FollowingReward[JsonProperty.PREMIUM] :
 				WeeklyEventSystem.FollowingReward[JsonProperty.STANDARD];
 

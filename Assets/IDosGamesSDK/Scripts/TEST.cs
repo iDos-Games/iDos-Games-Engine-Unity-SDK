@@ -14,12 +14,12 @@ namespace IDosGames
 
         public void SaveValueToServer()
         {
-            UserDataService.UpdateCustomUserData("test", "test value");
+            _ = UserService.UpdateCustomUserData("test", "test value");
         }
 
         public void GetValue()
         {
-            string value = UserDataService.GetCachedCustomUserData("test");
+            string value = DataService.GetCachedCustomUserData("test");
             Debug.Log(value);
         }
 

@@ -15,7 +15,7 @@ namespace IDosGames
 
 		private void UpdateShop()
 		{
-			UserDataService.RequestUserAllData();
+			DataService.RequestUserAllData();
 		}
 	}
 }

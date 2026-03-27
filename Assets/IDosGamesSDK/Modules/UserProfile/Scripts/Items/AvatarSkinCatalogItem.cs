@@ -31,8 +31,8 @@ namespace IDosGames.UserProfile
             int.TryParse($"{nftIDData}", out int nftID);
             NFTID = nftID;
 
-            Profit = UserDataService.GetSkinProfitByCollection(Collection);
-            Rarity = UserDataService.GetSkinRarityByCollection(Collection);
+            Profit = DataService.GetSkinProfitByCollection(Collection);
+            Rarity = DataService.GetSkinRarityByCollection(Collection);
 
 
             AvatarType = ObjectType.Split("_")[0].ToString();

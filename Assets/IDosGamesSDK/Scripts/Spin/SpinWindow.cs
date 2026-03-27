@@ -25,7 +25,7 @@ namespace IDosGames
 
         private void TryToSpin(SpinTicketType type)
         {
-            var ticketAmount = UserInventory.GetSpinTicketAmount(type);
+            var ticketAmount = DataService.GetSpinTicketAmount(type);
 
             if (ticketAmount <= 0)
             {

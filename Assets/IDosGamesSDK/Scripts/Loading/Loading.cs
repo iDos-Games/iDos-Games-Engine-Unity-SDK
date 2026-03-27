@@ -32,8 +32,8 @@ namespace IDosGames
                 IGSClientAPI.ServerFunctionResponsed += UnblockTouch;
             }
 
-            UserDataService.DataRequested += ShowTransparentPanel;
-			UserDataService.DataUpdated += HideTransparentPanel;
+            DataService.DataRequested += ShowTransparentPanel;
+			DataService.DataUpdated += HideTransparentPanel;
 			AuthService.RequestSent += ShowTransparentPanel;
 			SceneSwitcher.SwitchSceneStarted += ShowOpaquePanel;
 			SceneSwitcher.SwitchSceneFinished += HideOpaquePanel;
@@ -59,8 +59,8 @@ namespace IDosGames
                 IGSClientAPI.ServerFunctionResponsed -= UnblockTouch;
             }
 
-            UserDataService.DataRequested -= ShowTransparentPanel;
-			UserDataService.DataUpdated -= HideTransparentPanel;
+            DataService.DataRequested -= ShowTransparentPanel;
+			DataService.DataUpdated -= HideTransparentPanel;
 			AuthService.RequestSent -= ShowTransparentPanel;
 			SceneSwitcher.SwitchSceneStarted -= ShowOpaquePanel;
 			SceneSwitcher.SwitchSceneFinished -= HideOpaquePanel;

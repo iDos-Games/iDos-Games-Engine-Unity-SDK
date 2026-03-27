@@ -85,7 +85,7 @@ namespace IDosGames
             {
                 Loading.ShowTransparentPanel();
 
-                Product product = UserDataService.GetProductForRealMoney(_iapProcessedProductID);
+                Product product = DataService.GetProductForRealMoney(_iapProcessedProductID);
                 float starPrice = (float)IDosGamesSDKSettings.Instance.PlatformCurrencyPriceInCent;
 
                 int priceRM = int.Parse(product.PriceRM);
@@ -102,7 +102,7 @@ namespace IDosGames
 
         public static void BuyForVirtualCurrency(string ID, VirtualCurrencyID currencyID, float price)
         {
-            if (UserInventory.GetVirtualCurrencyAmount(currencyID.ToString()) < price)
+            if (DataService.GetVirtualCurrencyAmount(currencyID.ToString()) < price)
             {
                 //Message.Show(MessageCode.NOT_ENOUGH_FUNDS);
 
@@ -144,14 +144,14 @@ namespace IDosGames
                 if (resultData[JsonProperty.MESSAGE_KEY] != null)
                 {
                     Message.Show(resultData[JsonProperty.MESSAGE_KEY].ToString());
-                    UserDataService.RequestUserAllData();
+                    DataService.RequestUserAllData();
                 }
             }
         }
 
         public static void BuySpecialItem(string ID, VirtualCurrencyID currencyID, float price)
         {
-            if (UserInventory.GetVirtualCurrencyAmount(currencyID.ToString()) < price)
+            if (DataService.GetVirtualCurrencyAmount(currencyID.ToString()) < price)
             {
                 //Message.Show(MessageCode.NOT_ENOUGH_FUNDS);
 
@@ -188,7 +188,7 @@ namespace IDosGames
 
         public static void BuyDailyItem(string ID, VirtualCurrencyID currencyID, float price)
         {
-            if (UserInventory.GetVirtualCurrencyAmount(currencyID.ToString()) < price)
+            if (DataService.GetVirtualCurrencyAmount(currencyID.ToString()) < price)
             {
                 //Message.Show(MessageCode.NOT_ENOUGH_FUNDS);
 
@@ -222,7 +222,7 @@ namespace IDosGames
         {
             _freeProductID = ID;
 
-            if (showAd && !UserInventory.HasVIPStatus) //&& AdMediation.Instance != null
+            if (showAd && !DataService.HasVIPStatus) //&& AdMediation.Instance != null
             {
                 if (AdMediation.Instance != null)
                 {
@@ -276,11 +276,11 @@ namespace IDosGames
 
         private void UpdateProductsData()
         {
-            var dataProductsForRealMoney = UserDataService.GetCachedTitlePublicConfig(TitleDataKey.ProductsForRealMoney);
-            var dataProductsForVirtualCurrency = UserDataService.GetCachedTitlePublicConfig(TitleDataKey.ProductsForVirtualCurrency);
-            var dataSpecialProducts = UserDataService.GetCachedTitlePublicConfig(TitleDataKey.ShopSpecialProducts);
-            var dataDailyOffer = UserDataService.GetCachedTitlePublicConfig(TitleDataKey.ShopDailyProducts);
-            var dataDailyFreeProducts = UserDataService.GetCachedTitlePublicConfig(TitleDataKey.ShopDailyFreeProducts);
+            var dataProductsForRealMoney = DataService.GetCachedTitlePublicConfig(TitleDataKey.ProductsForRealMoney);
+            var dataProductsForVirtualCurrency = DataService.GetCachedTitlePublicConfig(TitleDataKey.ProductsForVirtualCurrency);
+            var dataSpecialProducts = DataService.GetCachedTitlePublicConfig(TitleDataKey.ShopSpecialProducts);
+            var dataDailyOffer = DataService.GetCachedTitlePublicConfig(TitleDataKey.ShopDailyProducts);
+            var dataDailyFreeProducts = DataService.GetCachedTitlePublicConfig(TitleDataKey.ShopDailyFreeProducts);
 
             ProductsForRealMoney = JsonConvert.DeserializeObject<JArray>(dataProductsForRealMoney);
             ProductsForRealMoney ??= new JArray();

@@ -31,7 +31,7 @@ namespace IDosGames
 
 			foreach (var skin in skins)
 			{
-				int amount = UserInventory.GetItemAmount(skin.ItemID);
+				int amount = DataService.GetItemAmount(skin.ItemID);
 
 				if (amount == 0)
 				{

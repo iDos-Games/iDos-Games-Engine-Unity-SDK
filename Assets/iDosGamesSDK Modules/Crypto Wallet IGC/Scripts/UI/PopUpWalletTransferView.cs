@@ -163,7 +163,7 @@ namespace IDosGames
 
 			if (direction == TransactionDirection.UsersCryptoWallet)
 			{
-				amount = UserInventory.GetVirtualCurrencyAmount(tokenInput.ToString());
+				amount = DataService.GetVirtualCurrencyAmount(tokenInput.ToString());
 			}
 			else
 			{
@@ -192,7 +192,7 @@ namespace IDosGames
 			{
 				if (direction == TransactionDirection.UsersCryptoWallet)
 				{
-					amount = UserInventory.GetItemAmount(skinInput.ItemID);
+					amount = DataService.GetItemAmount(skinInput.ItemID);
 				}
 				else
 				{

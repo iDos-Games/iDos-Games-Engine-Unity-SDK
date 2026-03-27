@@ -34,7 +34,7 @@ namespace IDosGames
 
 		private void SetEquipButton(string itemID, bool isEqipped)
 		{
-			int amountInInventory = UserInventory.GetItemAmount(itemID);
+			int amountInInventory = DataService.GetItemAmount(itemID);
 
 			if (!isEqipped && amountInInventory > 0)
 			{

@@ -22,7 +22,7 @@ namespace IDosGames
 		{
 			bool enabled = false;
 
-			var titleData = UserDataService.GetCachedTitlePublicConfig(TitleDataKey.SystemState);
+			var titleData = DataService.GetCachedTitlePublicConfig(TitleDataKey.SystemState);
 
 			if (titleData == string.Empty)
 			{

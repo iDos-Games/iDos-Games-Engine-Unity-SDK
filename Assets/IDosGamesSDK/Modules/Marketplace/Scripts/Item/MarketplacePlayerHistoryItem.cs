@@ -16,10 +16,10 @@ namespace IDosGames
 
 		public virtual async void Fill(MarketplaceActiveOffer offer, Sprite currencyIcon)
 		{
-			SkinCatalogItem item = UserDataService.GetCachedSkinItem(offer?.ItemID);
+			SkinCatalogItem item = DataService.GetCachedSkinItem(offer?.ItemID);
             if (item == null)
             {
-                item = UserDataService.GetAvatarSkinItem(offer?.ItemID);
+                item = DataService.GetAvatarSkinItem(offer?.ItemID);
             }
             _icon.sprite = await ImageLoader.GetSpriteAsync(item.ImagePath);
 			_rarityBackground.color = Rarity.GetColor(item.Rarity);

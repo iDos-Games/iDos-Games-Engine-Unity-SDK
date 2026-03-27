@@ -115,7 +115,7 @@ namespace IDosGames
 
         private void UpdateFriendAlarm()
         {
-            var friend_request = UserDataService.GetCachedCustomUserData(CustomUserDataKey.friend_requests);
+            var friend_request = DataService.GetCachedCustomUserData(CustomUserDataKey.friend_requests);
 
 
             List<string> friends = new List<string>();
@@ -135,8 +135,8 @@ namespace IDosGames
 
         private void UpdateSpinAlarm()
         {
-            var premiumTiketsAmount = UserInventory.GetSpinTicketAmount(SpinTicketType.Premium);
-            var standardTiketsAmount = UserInventory.GetSpinTicketAmount(SpinTicketType.Standard);
+            var premiumTiketsAmount = DataService.GetSpinTicketAmount(SpinTicketType.Premium);
+            var standardTiketsAmount = DataService.GetSpinTicketAmount(SpinTicketType.Standard);
 
             SetAlarmState(AlarmType.AvailablePremiumSpin, premiumTiketsAmount > 0);
             SetAlarmState(AlarmType.AvailableStandardSpin, standardTiketsAmount > 0);
@@ -144,17 +144,17 @@ namespace IDosGames
 
         private void UpdateChestAlarm()
         {
-            int commonKey1 = UserInventory.GetChestKeyFragmentAmount(ChestKeyFragmentType.Common_1);
-            int commonKey2 = UserInventory.GetChestKeyFragmentAmount(ChestKeyFragmentType.Common_2);
-            int commonKey3 = UserInventory.GetChestKeyFragmentAmount(ChestKeyFragmentType.Common_3);
+            int commonKey1 = DataService.GetChestKeyFragmentAmount(ChestKeyFragmentType.Common_1);
+            int commonKey2 = DataService.GetChestKeyFragmentAmount(ChestKeyFragmentType.Common_2);
+            int commonKey3 = DataService.GetChestKeyFragmentAmount(ChestKeyFragmentType.Common_3);
 
-            int rareKey1 = UserInventory.GetChestKeyFragmentAmount(ChestKeyFragmentType.Rare_1);
-            int rareKey2 = UserInventory.GetChestKeyFragmentAmount(ChestKeyFragmentType.Rare_2);
-            int rareKey3 = UserInventory.GetChestKeyFragmentAmount(ChestKeyFragmentType.Rare_3);
+            int rareKey1 = DataService.GetChestKeyFragmentAmount(ChestKeyFragmentType.Rare_1);
+            int rareKey2 = DataService.GetChestKeyFragmentAmount(ChestKeyFragmentType.Rare_2);
+            int rareKey3 = DataService.GetChestKeyFragmentAmount(ChestKeyFragmentType.Rare_3);
 
-            int legendaryKey1 = UserInventory.GetChestKeyFragmentAmount(ChestKeyFragmentType.Legendary_1);
-            int legendaryKey2 = UserInventory.GetChestKeyFragmentAmount(ChestKeyFragmentType.Legendary_2);
-            int legendaryKey3 = UserInventory.GetChestKeyFragmentAmount(ChestKeyFragmentType.Legendary_3);
+            int legendaryKey1 = DataService.GetChestKeyFragmentAmount(ChestKeyFragmentType.Legendary_1);
+            int legendaryKey2 = DataService.GetChestKeyFragmentAmount(ChestKeyFragmentType.Legendary_2);
+            int legendaryKey3 = DataService.GetChestKeyFragmentAmount(ChestKeyFragmentType.Legendary_3);
 
             bool hasChest = false;
 
@@ -176,8 +176,8 @@ namespace IDosGames
 
         private void UpdateShopAlarms()
         {
-            var playerData = UserDataService.GetCachedCustomUserData(CustomUserDataKey.shop_daily_free_products);
-            var dataDailyFreeProductsData = UserDataService.GetCachedTitlePublicConfig(TitleDataKey.ShopDailyFreeProducts);
+            var playerData = DataService.GetCachedCustomUserData(CustomUserDataKey.shop_daily_free_products);
+            var dataDailyFreeProductsData = DataService.GetCachedTitlePublicConfig(TitleDataKey.ShopDailyFreeProducts);
 
             var freeProducts = JsonConvert.DeserializeObject<JArray>(dataDailyFreeProductsData);
             freeProducts ??= new JArray();
@@ -208,7 +208,7 @@ namespace IDosGames
 
         private bool IsNeedUpdateDailyFreeProducts()
         {
-            var playerData = UserDataService.GetCachedCustomUserData(CustomUserDataKey.shop_daily_free_products);
+            var playerData = DataService.GetCachedCustomUserData(CustomUserDataKey.shop_daily_free_products);
 
             if (playerData == string.Empty)
             {
@@ -218,7 +218,7 @@ namespace IDosGames
             var jsonData = JsonConvert.DeserializeObject<JObject>(playerData);
             var playerLastUpdateDate = GetEndDateTime(jsonData);
 
-            var dailyOfferData = UserDataService.GetCachedTitlePublicConfig(TitleDataKey.ShopDailyProducts);
+            var dailyOfferData = DataService.GetCachedTitlePublicConfig(TitleDataKey.ShopDailyProducts);
             var offerData = JsonConvert.DeserializeObject<JObject>(dailyOfferData);
 
             if (GetEndDateTime(offerData) > playerLastUpdateDate)

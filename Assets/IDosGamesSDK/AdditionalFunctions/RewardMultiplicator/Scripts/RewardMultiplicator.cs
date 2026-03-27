@@ -78,7 +78,7 @@ namespace IDosGames
 
         public void ClaimX5Reward()
         {
-            if (UserInventory.HasVIPStatus)
+            if (DataService.HasVIPStatus)
             {
                 _popUpReward.SetActive(false);
                 ClaimRewardSystem.ClaimCoinReward(_currentCoinReward, 5, _currentEventReward);

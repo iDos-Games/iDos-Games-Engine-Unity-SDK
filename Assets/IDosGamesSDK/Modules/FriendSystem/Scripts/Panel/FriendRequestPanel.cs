@@ -33,7 +33,7 @@ namespace IDosGames.Friends
 
         private void Start()
         {
-            var TitleDataRaw = UserDataService.GetCachedTitlePublicConfig("friends");
+            var TitleDataRaw = DataService.GetCachedTitlePublicConfig("friends");
             if (!string.IsNullOrEmpty(TitleDataRaw))
             {
                 var friendsData = JsonConvert.DeserializeObject<JObject>(TitleDataRaw);
@@ -158,7 +158,7 @@ namespace IDosGames.Friends
                 {
                     item.gameObject.SetActive(false);
                     Message.Show(jObjectResult["Message"].ToString());
-                    UserDataService.RequestUserAllData();
+                    DataService.RequestUserAllData();
                     IsNeedUpdate = true;
                     FriendAdded?.Invoke();
                 }
@@ -197,7 +197,7 @@ namespace IDosGames.Friends
                 {
                     item.gameObject.SetActive(false);
                     Message.Show(jObjectResult["Message"].ToString());
-                    UserDataService.RequestUserAllData();
+                    DataService.RequestUserAllData();
                     IsNeedUpdate = true;
                 }
             }

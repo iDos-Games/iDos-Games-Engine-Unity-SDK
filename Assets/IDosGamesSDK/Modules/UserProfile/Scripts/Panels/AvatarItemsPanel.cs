@@ -126,11 +126,11 @@ namespace IDosGames.UserProfile
 
             List<AvatarSkinCatalogItem> skins = new();
 
-            foreach (var skin in UserDataService.AllAvatarSkinsInCatalog)
+            foreach (var skin in DataService.AllAvatarSkinsInCatalog)
             {
                 if (skin.AvatarType == _clothingType.ToString().ToLower())
                 {
-                    var amount = UserInventory.GetItemAmount(skin.ItemID);
+                    var amount = DataService.GetItemAmount(skin.ItemID);
                     if (amount > 0)
                     {
                         skins.Add(skin);
@@ -157,7 +157,7 @@ namespace IDosGames.UserProfile
             List<AvatarSkinCatalogItem> skins = new();
 
 
-            foreach (var skin in UserDataService.AllAvatarSkinsInCatalog)
+            foreach (var skin in DataService.AllAvatarSkinsInCatalog)
             {
                 if (skin.AvatarType == _clothingType.ToString().ToLower())
                 {

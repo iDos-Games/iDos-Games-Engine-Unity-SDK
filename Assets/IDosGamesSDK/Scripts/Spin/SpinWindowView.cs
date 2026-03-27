@@ -41,14 +41,14 @@ namespace IDosGames
 
 		private void OnSpinEnded(int currentSectorIndex)
 		{
-            UserDataService.RequestUserAllData();
+            DataService.RequestUserAllData();
             Loading.UnblockTouch();
 			ShowRewardMessage(currentSectorIndex);
 		}
 
 		private void InitializeRewardsData()
 		{
-			string data = UserDataService.GetCachedTitlePublicConfig(TitleDataKey.SpinRewards);
+			string data = DataService.GetCachedTitlePublicConfig(TitleDataKey.SpinRewards);
 			var items = JsonConvert.DeserializeObject<List<JObject>>(data);
 
 			foreach (var item in items)

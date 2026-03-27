@@ -34,7 +34,7 @@ namespace IDosGames.UserProfile
 
         private void SetEquipButton(string itemID, bool isEqipped)
         {
-            int amountInInventory = UserInventory.GetItemAmount(itemID);
+            int amountInInventory = DataService.GetItemAmount(itemID);
             if (!isEqipped && amountInInventory > 0)
             {
                 _equipButton.onClick.RemoveAllListeners();
@@ -51,7 +51,7 @@ namespace IDosGames.UserProfile
         private void SetUnequipButton(string itemID, bool isEqipped)
         {
 
-            var skinItem = UserDataService.GetAvatarSkinItem(itemID);
+            var skinItem = DataService.GetAvatarSkinItem(itemID);
             var avatarType = UppercaseFirstLetter(skinItem.AvatarType);
             var type = ConvertToClothingType(avatarType);
 

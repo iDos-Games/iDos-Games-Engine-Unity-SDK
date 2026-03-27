@@ -35,7 +35,7 @@ namespace IDosGames
                 Destroy(child.gameObject);
             }
             _camera.transform.SetLocalPositionAndRotation(_cameraDefaultPosition, _cameraDefaultRotation);
-            var skinItem = UserDataService.GetCachedSkinItem(itemID);
+            var skinItem = DataService.GetCachedSkinItem(itemID);
             if (skinItem != null)
             {
                 var inspectionData = _objectInspectionData.GetInspectionData(skinItem.ObjectType);
@@ -61,7 +61,7 @@ namespace IDosGames
 
             else if (skinItem == null)
             {
-                var avatarItem = UserDataService.GetAvatarSkinItem(itemID);
+                var avatarItem = DataService.GetAvatarSkinItem(itemID);
                 if (avatarItem != null)
                 {
                     SetCameraPosition(avatarItem.ClothingType);
@@ -92,7 +92,7 @@ namespace IDosGames
 
         public void OpenAvatarRoom(string itemID)
         {
-            var avatarItem = UserDataService.GetAvatarSkinItem(itemID);
+            var avatarItem = DataService.GetAvatarSkinItem(itemID);
         }
         public void SwitchAutoRotation()
         {

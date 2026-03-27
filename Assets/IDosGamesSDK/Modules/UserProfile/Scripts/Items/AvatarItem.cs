@@ -25,7 +25,7 @@ namespace IDosGames.UserProfile
             AvatarData = item;
             _icon.sprite = await ImageLoader.GetSpriteAsync(item.ImagePath);
             _rarityBackground.color = Rarity.GetColor(item.Rarity);
-            var amount = UserInventory.GetItemAmount(item.ItemID);
+            var amount = DataService.GetItemAmount(item.ItemID);
             UpdateAmount(amount);
             _name.text = item.DisplayName;
         }

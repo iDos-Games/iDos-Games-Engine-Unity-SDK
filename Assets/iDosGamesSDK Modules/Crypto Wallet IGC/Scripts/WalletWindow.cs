@@ -92,7 +92,7 @@ namespace IDosGames
                     GetTokenImagePath(virtualCurrencyID));
 
                 _walletManager.RefreshWalletBalance();
-                UserDataService.RequestUserAllData();
+                DataService.RequestUserAllData();
             }
 
             Message.Show(transferResult);
@@ -113,7 +113,7 @@ namespace IDosGames
                 bool balance = await WalletService.HasSufficientBalanceForGas(150000);
 				if (balance)
 				{
-                    var nftID = UserDataService.GetCachedSkinItem(skinID).NFTID;
+                    var nftID = DataService.GetCachedSkinItem(skinID).NFTID;
                     transferResult = await WalletService.TransferNFTToGame(nftID, amount);
                     transactionHash = WalletService.TransactionHashAfterTransactionToGame;
                     Loading.HideAllPanels();
@@ -156,7 +156,7 @@ namespace IDosGames
                 bool balance = await WalletService.HasSufficientBalanceForGas(150000);
                 if (balance)
                 {
-                    var nftID = UserDataService.GetCachedSkinItem(skinID).NFTID;
+                    var nftID = DataService.GetCachedSkinItem(skinID).NFTID;
                     transferResult = await WalletService.TransferNFTToExternalAddress(nftID, amount, WalletManager.ToAddress);
                     transactionHash = WalletService.TransactionHashAfterTransferToExternalAddress;
                     Loading.HideAllPanels();
@@ -180,11 +180,11 @@ namespace IDosGames
             {
                 int chainID = BlockchainSettings.ChainID;
                 WalletTransactionHistory.SaveNewItem(chainID, transactionHash, direction,
-                    UserDataService.GetCachedSkinItem(skinID).DisplayName, amount,
-                    UserDataService.GetCachedSkinItem(skinID).ImagePath);
+                    DataService.GetCachedSkinItem(skinID).DisplayName, amount,
+                    DataService.GetCachedSkinItem(skinID).ImagePath);
 
                 _walletManager.RefreshWalletBalance();
-                UserDataService.RequestUserAllData();
+                DataService.RequestUserAllData();
             }
 
             Message.Show(transferResult);

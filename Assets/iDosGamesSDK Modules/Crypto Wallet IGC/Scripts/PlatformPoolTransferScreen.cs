@@ -257,7 +257,7 @@ namespace IDosGames
                 if (serverOk)
                 {
                     Message.Show(MessageCode.TRANSACTION_SUCCESS);
-                    UserDataService.RequestUserAllData();
+                    DataService.RequestUserAllData();
                 }
                 else
                 {
@@ -378,7 +378,7 @@ namespace IDosGames
                     return;
                 }
 
-                UserDataService.RequestUserAllData();
+                DataService.RequestUserAllData();
             }
             catch (Exception ex)
             {

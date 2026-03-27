@@ -27,12 +27,12 @@ namespace IDosGames
             _view.HideAllVoidTexts();
             UpdateUserInventoryItemsItems();
 
-            UserDataService.EquippedSkinsUpdated += OnSuccessUpdateEquippedSkins;
+            DataService.EquippedSkinsUpdated += OnSuccessUpdateEquippedSkins;
         }
 
         private void OnDisable()
         {
-            UserDataService.EquippedSkinsUpdated -= OnSuccessUpdateEquippedSkins;
+            DataService.EquippedSkinsUpdated -= OnSuccessUpdateEquippedSkins;
         }
 
         public int GetCurrentProfitAmount()
@@ -41,7 +41,7 @@ namespace IDosGames
 
             foreach (var itemID in _temporaryEquippedSkins)
             {
-                var skinItem = UserDataService.GetCachedSkinItem(itemID);
+                var skinItem = DataService.GetCachedSkinItem(itemID);
 
                 if (skinItem != null)
                 {
@@ -72,13 +72,13 @@ namespace IDosGames
         public void EquipSkin(string itemID)
         {
             //unequip item with same object type if exists
-            var itemObjectType = UserDataService.GetCachedSkinItem(itemID).ObjectType;
+            var itemObjectType = DataService.GetCachedSkinItem(itemID).ObjectType;
 
             string itemIDWithSameObjectType = string.Empty;
 
             foreach (var equippedSkinID in _temporaryEquippedSkins)
             {
-                if (UserDataService.GetCachedSkinItem(equippedSkinID).ObjectType == itemObjectType)
+                if (DataService.GetCachedSkinItem(equippedSkinID).ObjectType == itemObjectType)
                 {
                     itemIDWithSameObjectType = equippedSkinID;
                     break;
@@ -139,7 +139,7 @@ namespace IDosGames
 
         public void UpdateEquippedSkins()
         {
-            UserDataService.UpdateEquippedSkins(_temporaryEquippedSkins);
+            DataService.UpdateEquippedSkins(_temporaryEquippedSkins);
         }
 
         public void OnSuccessUpdateEquippedSkins()
@@ -149,7 +149,7 @@ namespace IDosGames
 
         private void InititalizeTemporaryEquippedSkins()
         {
-            _temporaryEquippedSkins = new(UserDataService.EquippedSkins);
+            _temporaryEquippedSkins = new(DataService.EquippedSkins);
             _view.UpdateCurrentProfitAmountText(GetCurrentProfitAmount());
         }
 
@@ -159,13 +159,13 @@ namespace IDosGames
 
             List<SkinCatalogItem> skins = new();
 
-            foreach (var skin in UserDataService.AllSkinsInCatalog)
+            foreach (var skin in DataService.AllSkinsInCatalog)
             {
                 if (skin is AvatarSkinCatalogItem)
                 {
                     continue;
                 }
-                var amount = UserInventory.GetItemAmount(skin.ItemID);
+                var amount = DataService.GetItemAmount(skin.ItemID);
 
                 if (amount > 0)
                 {
@@ -186,7 +186,7 @@ namespace IDosGames
 
             List<SkinCatalogItem> skins = new List<SkinCatalogItem>();
 
-            foreach (var skin in UserDataService.AllSkinsInCatalog)
+            foreach (var skin in DataService.AllSkinsInCatalog)
             {
                 if (skin is AvatarSkinCatalogItem)
                 {
@@ -226,12 +226,12 @@ namespace IDosGames
 
         private bool AreEquippedSkinsChanged()
         {
-            if (UserDataService.EquippedSkins.Count != _temporaryEquippedSkins.Count)
+            if (DataService.EquippedSkins.Count != _temporaryEquippedSkins.Count)
             {
                 return true;
             }
 
-            foreach (var item in UserDataService.EquippedSkins)
+            foreach (var item in DataService.EquippedSkins)
             {
                 if (_temporaryEquippedSkins.Contains(item) == false)
                 {

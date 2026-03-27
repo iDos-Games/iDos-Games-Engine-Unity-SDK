@@ -41,7 +41,7 @@ namespace IDosGames
 			//SoftTokenBalanceInWei = await WalletService.GetTokenBalance(VirtualCurrencyID.CO);
 			NativeTokenBalanceInWei = await WalletService.GetNativeTokenBalanceInWei();
 
-			var balanceNFTList = await WalletService.GetNFTBalance(new(UserDataService.NFTIDs));
+			var balanceNFTList = await WalletService.GetNFTBalance(new(DataService.NFTIDs));
 			UpdateNFTBalance(balanceNFTList);
 
 			UpdateUI();
@@ -54,14 +54,14 @@ namespace IDosGames
 
 			int sum = 0;
 
-			for (int i = 0; i < UserDataService.NFTIDs.Count; i++)
+			for (int i = 0; i < DataService.NFTIDs.Count; i++)
 			{
 				if (nftIDs.Count <= i)
 				{
 					continue;
 				}
 
-				_eachNFTAmount[(int)UserDataService.NFTIDs[i]] = (int)nftIDs[i];
+				_eachNFTAmount[(int)DataService.NFTIDs[i]] = (int)nftIDs[i];
 				sum += (int)nftIDs[i];
 			}
 

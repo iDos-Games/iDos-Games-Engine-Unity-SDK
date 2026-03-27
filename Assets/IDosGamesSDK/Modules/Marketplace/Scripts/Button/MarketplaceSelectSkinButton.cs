@@ -42,9 +42,9 @@ namespace IDosGames
 		{
 			List<SkinCatalogItem> skins = new();
 
-			foreach (var skin in UserDataService.AllSkinsInCatalog)
+			foreach (var skin in DataService.AllSkinsInCatalog)
 			{
-				var amount = UserInventory.GetItemAmount(skin.ItemID);
+				var amount = DataService.GetItemAmount(skin.ItemID);
 
 				if (amount > 0)
 				{

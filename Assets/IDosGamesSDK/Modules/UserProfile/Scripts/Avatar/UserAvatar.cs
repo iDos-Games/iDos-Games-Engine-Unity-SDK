@@ -148,7 +148,7 @@ namespace IDosGames.UserProfile
 
         public void EquipSkin(string itemID)
         {
-            var skinItem = UserDataService.GetAvatarSkinItem(itemID);
+            var skinItem = DataService.GetAvatarSkinItem(itemID);
 
             if (_tempEquippedSkins.ContainsKey(skinItem.ClothingType))
             {
@@ -162,7 +162,7 @@ namespace IDosGames.UserProfile
 
             if (inspectedSkin != null)
             {
-                var inspectedSkinItem = UserDataService.GetAvatarSkinItem(inspectedSkin);
+                var inspectedSkinItem = DataService.GetAvatarSkinItem(inspectedSkin);
                 castamizationElements.FirstOrDefault(x => x.Type == inspectedSkinItem.ClothingType && x.AvatarMeshVersion.ToLower() == inspectedSkinItem.AvatarMeshVersion).Deactivate();
                 OnUnequippedAvatarSkin?.Invoke(inspectedSkin);
                 inspectedSkin = null;
@@ -186,7 +186,7 @@ namespace IDosGames.UserProfile
 
         public void UnequipSkin(string itemID)
         {
-            var skinItem = UserDataService.GetAvatarSkinItem(itemID);
+            var skinItem = DataService.GetAvatarSkinItem(itemID);
             if (_tempEquippedSkins.ContainsKey(skinItem.ClothingType))
             {
 
@@ -202,7 +202,7 @@ namespace IDosGames.UserProfile
             UnequipInspectSkin();
 
 
-            var skinItem = UserDataService.GetAvatarSkinItem(itemID);
+            var skinItem = DataService.GetAvatarSkinItem(itemID);
             if (_tempEquippedSkins.ContainsKey(skinItem.ClothingType))
             {
                 temporarilyRemovedSkin = _tempEquippedSkins[skinItem.ClothingType];
@@ -321,7 +321,7 @@ namespace IDosGames.UserProfile
         {
             if (inspectedSkin != null)
             {
-                var inspectedSkinItem = UserDataService.GetAvatarSkinItem(inspectedSkin);
+                var inspectedSkinItem = DataService.GetAvatarSkinItem(inspectedSkin);
 
                 castamizationElements.FirstOrDefault(x => x.Type == inspectedSkinItem.ClothingType && x.AvatarMeshVersion.ToLower() == inspectedSkinItem.AvatarMeshVersion).Deactivate();
                 OnUnequippedAvatarSkin?.Invoke(inspectedSkin);
@@ -356,7 +356,7 @@ namespace IDosGames.UserProfile
         {
             if (inspectedSkin != null)
             {
-                var inspectedSkinItem = UserDataService.GetAvatarSkinItem(inspectedSkin);
+                var inspectedSkinItem = DataService.GetAvatarSkinItem(inspectedSkin);
 
                 castamizationElements.FirstOrDefault(x => x.Type == inspectedSkinItem.ClothingType && x.AvatarMeshVersion.ToLower() == inspectedSkinItem.AvatarMeshVersion).Deactivate();
                 OnUnequippedAvatarSkin?.Invoke(inspectedSkin);

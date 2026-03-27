@@ -81,7 +81,7 @@ namespace IDosGames
 
 			if (_view.GetTransferDirection() == TransactionDirection.UsersCryptoWallet)
 			{
-				if (UserInventory.GetVirtualCurrencyAmount(VirtualCurrencyID.WK.ToString()) < 1)
+				if (DataService.GetVirtualCurrencyAmount(VirtualCurrencyID.WK.ToString()) < 1)
 				{
 					Message.Show(MessageCode.TO_WITHDRAW_FROM_GAME_YOU_NEED_WK);
 					ShopSystem.PopUpSystem.ShowWKPopUp();

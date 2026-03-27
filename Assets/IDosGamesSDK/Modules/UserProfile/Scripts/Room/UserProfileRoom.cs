@@ -32,7 +32,7 @@ namespace IDosGames.UserProfile
         {
             if (_user == AuthenticationService.AuthContext.UserID)
             {
-                var data = UserDataService.GetCachedCustomUserData(CustomUserDataKey.equipped_avatar_skins.ToString());
+                var data = DataService.GetCachedCustomUserData(CustomUserDataKey.equipped_avatar_skins.ToString());
                 if (!string.IsNullOrEmpty(data))
                 {
                     if (_equipedAvatarSkins == null)
@@ -44,7 +44,7 @@ namespace IDosGames.UserProfile
                 }
                 else
                 {
-                    var defaultSkin = UserDataService.GetCachedTitlePublicConfig(TitleDataKey.DefaultAvatarSkin);
+                    var defaultSkin = DataService.GetCachedTitlePublicConfig(TitleDataKey.DefaultAvatarSkin);
                     if (!string.IsNullOrEmpty(defaultSkin))
                     {
                         _equipedAvatarSkins = JsonConvert.DeserializeObject<DefaultAvatarSkin>(defaultSkin);
@@ -65,7 +65,7 @@ namespace IDosGames.UserProfile
             {
                 IGSClientAPI.GetUserAllData
                     (
-                    resultCallback: (result) => { UserDataService.ProcessingAllData(result); OnDataReceived(result.CustomUserDataResult); }, 
+                    resultCallback: (result) => { DataService.ProcessingAllData(result); OnDataReceived(result.CustomUserDataResult); }, 
                     notConnectionErrorCallback: null, 
                     connectionErrorCallback: null
                     );
@@ -91,7 +91,7 @@ namespace IDosGames.UserProfile
             }
             else
             {
-                var defaultSkin = UserDataService.GetCachedTitlePublicConfig(TitleDataKey.DefaultAvatarSkin);
+                var defaultSkin = DataService.GetCachedTitlePublicConfig(TitleDataKey.DefaultAvatarSkin);
                 if (!string.IsNullOrEmpty(defaultSkin))
                 {
                     DefaultAvatarSkin jsonData = JsonConvert.DeserializeObject<DefaultAvatarSkin>(defaultSkin);

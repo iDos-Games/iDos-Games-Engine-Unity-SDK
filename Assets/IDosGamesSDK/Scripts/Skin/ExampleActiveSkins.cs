@@ -27,14 +27,14 @@ namespace IDosGames
 
         private void OnEnable()
 		{
-			UserDataService.SkinCatalogItemsUpdated += UpdateSkinsView;
-			UserDataService.EquippedSkinsUpdated += UpdateSkinsView;
+			DataService.SkinCatalogItemsUpdated += UpdateSkinsView;
+			DataService.EquippedSkinsUpdated += UpdateSkinsView;
 		}
 
 		private void OnDisable()
 		{
-			UserDataService.SkinCatalogItemsUpdated -= UpdateSkinsView;
-			UserDataService.EquippedSkinsUpdated -= UpdateSkinsView;
+			DataService.SkinCatalogItemsUpdated -= UpdateSkinsView;
+			DataService.EquippedSkinsUpdated -= UpdateSkinsView;
 		}
 
 		private async void UpdateSkinsView()
@@ -45,9 +45,9 @@ namespace IDosGames
 			_m4.sprite = _m4DefaultSkin;
             _usp9.sprite = _usp9DefaultSkin;
 
-            foreach (var item in UserDataService.EquippedSkins)
+            foreach (var item in DataService.EquippedSkins)
 			{
-				var skinItem = UserDataService.GetCachedSkinItem(item);
+				var skinItem = DataService.GetCachedSkinItem(item);
 
 				if (skinItem == null)
 				{

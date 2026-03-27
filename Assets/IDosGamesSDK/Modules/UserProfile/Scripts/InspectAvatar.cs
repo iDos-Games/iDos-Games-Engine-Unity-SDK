@@ -22,7 +22,7 @@ namespace IDosGames.UserProfile
 
         public void InspectAvatarSkin(string itemID)
         {
-            var skinItem = UserDataService.GetAvatarSkinItem(itemID);
+            var skinItem = DataService.GetAvatarSkinItem(itemID);
 
 
             var model = Instantiate(_male, _root);
@@ -54,7 +54,7 @@ namespace IDosGames.UserProfile
         private void SetDefaultSkins(AvatarSkinCatalogItem skinItem)
         {
 
-            var defaultSkin = UserDataService.GetCachedTitlePublicConfig(TitleDataKey.DefaultAvatarSkin);
+            var defaultSkin = DataService.GetCachedTitlePublicConfig(TitleDataKey.DefaultAvatarSkin);
             JObject json = JsonConvert.DeserializeObject<JObject>(defaultSkin);
 
 
@@ -73,7 +73,7 @@ namespace IDosGames.UserProfile
                 {
                     continue;
                 }
-                var defaultItem = UserDataService.GetAvatarSkinItem(item.Value);
+                var defaultItem = DataService.GetAvatarSkinItem(item.Value);
                 EquipSkin(defaultItem);
 
             }

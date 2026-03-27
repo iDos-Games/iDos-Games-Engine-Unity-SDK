@@ -58,7 +58,7 @@ namespace IDosGames
 
 			List<SkinCatalogItem> skins = new();
 
-			foreach (var skin in UserDataService.AllSkinsInCatalog)
+			foreach (var skin in DataService.AllSkinsInCatalog)
 			{
 				if (skin.NFTID == 0)
 				{
@@ -75,7 +75,7 @@ namespace IDosGames
 					}
 				}
 
-				var amount = isFromCryptoWallet ? _cryptoBalancePanel.GetNFTAmount(skin.NFTID) : UserInventory.GetItemAmount(skin.ItemID);
+				var amount = isFromCryptoWallet ? _cryptoBalancePanel.GetNFTAmount(skin.NFTID) : DataService.GetItemAmount(skin.ItemID);
 
 				if (amount > 0)
 				{

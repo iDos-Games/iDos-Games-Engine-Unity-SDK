@@ -123,7 +123,7 @@ namespace IDosGames
                     var message = resultData[JsonProperty.MESSAGE_KEY].ToString();
                     if (message == "MESSAGE_CODE_SUCCESS" || message == "SUCCESS")
                     {
-                        UserDataService.RequestUserAllData();
+                        DataService.RequestUserAllData();
                     }
                 }
             }

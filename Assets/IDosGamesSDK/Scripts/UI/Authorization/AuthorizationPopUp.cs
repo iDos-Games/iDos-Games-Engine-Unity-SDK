@@ -127,13 +127,13 @@ namespace IDosGames
 		private void OnLogInSuccess(ClientStateResponse result)
 		{
 			//Message.Show(MessageCode.SUCCESS_LOGGED_IN);
-			UserDataService.ProcessingAllData(result);
+			DataService.ProcessingAllData(result);
             Loading.SwitchToNextScene();
         }
 
 		private void OnSignUpSuccess(ClientStateResponse result)
 		{
-            UserDataService.ProcessingAllData(result);
+            DataService.ProcessingAllData(result);
             Loading.SwitchToNextScene();
         }
 

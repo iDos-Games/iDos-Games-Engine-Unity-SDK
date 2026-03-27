@@ -24,7 +24,7 @@ namespace IDosGames
         {
             if (AdMediation.Instance != null)
             {
-                if (!UserInventory.HasVIPStatus)
+                if (!DataService.HasVIPStatus)
                 {
                     AdMediation.Instance.ShowInterstitialAd();
                 }
@@ -46,7 +46,7 @@ namespace IDosGames
                 }
                 else if (AuthenticationService.WebGLPlatform == WebGLPlatform.Web)
                 {
-                    long ticketAmount = UserInventory.GetVirtualCurrencyAmount(VirtualCurrencyID.SS);
+                    long ticketAmount = DataService.GetVirtualCurrencyAmount(VirtualCurrencyID.SS);
 
                     if (ticketAmount <= 0)
                     {
@@ -77,7 +77,7 @@ namespace IDosGames
             }
             else
             {
-                long ticketAmount = UserInventory.GetVirtualCurrencyAmount(VirtualCurrencyID.SS);
+                long ticketAmount = DataService.GetVirtualCurrencyAmount(VirtualCurrencyID.SS);
 
                 if (ticketAmount <= 0)
                 {
@@ -92,7 +92,7 @@ namespace IDosGames
 
         public void TryToSpinCoin()
         {
-            long coinAmount = UserInventory.GetVirtualCurrencyAmount(VirtualCurrencyID.CO);
+            long coinAmount = DataService.GetVirtualCurrencyAmount(VirtualCurrencyID.CO);
 
             if (coinAmount >= 100)
             {

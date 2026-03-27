@@ -19,7 +19,7 @@ namespace IDosGames
 
 		public override void UpdateAmount()
 		{
-			Amount = UserInventory.GetSpinTicketAmount(_spinTicketType);
+			Amount = DataService.GetSpinTicketAmount(_spinTicketType);
 		}
 	}
 }

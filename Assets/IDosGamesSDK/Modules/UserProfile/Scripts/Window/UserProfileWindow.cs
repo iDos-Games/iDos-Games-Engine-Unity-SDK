@@ -110,7 +110,7 @@ namespace IDosGames.UserProfile
             Loading.ShowTransparentPanel();
             var saveData = _userAvatar.GetUpdateData();
             UserProfileRoom._equipedAvatarSkins = saveData;
-            UserDataService.UpdateCustomUserData(CustomUserDataKey.equipped_avatar_skins.ToString(), saveData);
+            _ = UserService.UpdateCustomUserData(CustomUserDataKey.equipped_avatar_skins.ToString(), saveData);
         }
 
         public void MoveCameraTo(ClothingType clothingType)

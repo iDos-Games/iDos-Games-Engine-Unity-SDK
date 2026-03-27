@@ -50,7 +50,7 @@ namespace IDosGames
         static ImageLoader()
         {
             LoadCache();
-            UserDataService.FirstTimeDataUpdated += OnServerDataUpdated;
+            DataService.FirstTimeDataUpdated += OnServerDataUpdated;
         }
 
         private static void OnServerDataUpdated()

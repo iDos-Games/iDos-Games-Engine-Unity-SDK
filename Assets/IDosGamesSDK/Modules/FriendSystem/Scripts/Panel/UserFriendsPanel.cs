@@ -46,7 +46,7 @@ namespace IDosGames.Friends
 
         private void Awake()
         {
-            var TitleDataRaw = UserDataService.GetCachedTitlePublicConfig("friends");
+            var TitleDataRaw = DataService.GetCachedTitlePublicConfig("friends");
             if (!string.IsNullOrEmpty(TitleDataRaw))
             {
                 var friendsData = JsonConvert.DeserializeObject<JObject>(TitleDataRaw);

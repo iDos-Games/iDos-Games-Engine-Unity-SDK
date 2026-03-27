@@ -36,7 +36,7 @@ namespace IDosGames
 
 			foreach (var skin in skins)
 			{
-				int amount = fromCryptoWallet ? _cryptoBalancePanel.GetNFTAmount(skin.NFTID) : UserInventory.GetItemAmount(skin.ItemID);
+				int amount = fromCryptoWallet ? _cryptoBalancePanel.GetNFTAmount(skin.NFTID) : DataService.GetItemAmount(skin.ItemID);
 
 				if (amount == 0)
 				{

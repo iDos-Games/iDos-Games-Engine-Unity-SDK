@@ -42,7 +42,7 @@ namespace IDosGames
 
         private async void InitializeFreeProducts(JArray products)
         {
-            var playerData = UserDataService.GetCachedCustomUserData(CustomUserDataKey.shop_daily_free_products);
+            var playerData = DataService.GetCachedCustomUserData(CustomUserDataKey.shop_daily_free_products);
 
             if (IsNeedUpdateDailyFreeProducts(playerData))
             {
@@ -111,7 +111,7 @@ namespace IDosGames
 
         private bool IsNeedToShowAd(int productAmountInOffer, int productAmountInPlayer)
         {
-            if (UserInventory.HasVIPStatus)
+            if (DataService.HasVIPStatus)
             {
                 return false;
             }
@@ -192,7 +192,7 @@ namespace IDosGames
 
         private void OnUpdateDailyFreeProducts()
         {
-            UserDataService.RequestUserAllData();
+            DataService.RequestUserAllData();
         }
 
         private void OnErrorUpdateDailyFreeProducts()

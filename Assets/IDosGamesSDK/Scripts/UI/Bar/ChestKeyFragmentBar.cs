@@ -21,7 +21,7 @@ namespace IDosGames
 
 		public override void UpdateAmount()
 		{
-			Amount = UserInventory.GetChestKeyFragmentAmount(_fragmentType);
+			Amount = DataService.GetChestKeyFragmentAmount(_fragmentType);
 		}
 	}
 }

@@ -36,7 +36,7 @@ namespace IDosGames
 
 			if (_bannerShowed == false)
 			{
-				if (!UserInventory.HasVIPStatus)
+				if (!DataService.HasVIPStatus)
 				{
 					if (_adMediation != null)
 					{
@@ -48,7 +48,7 @@ namespace IDosGames
 
 			if (_bannerShowed)
 			{
-				if (UserInventory.HasVIPStatus)
+				if (DataService.HasVIPStatus)
 				{
 					if (_adMediation != null)
 					{

@@ -63,7 +63,7 @@ namespace IDosGames
 			{
 				AddRewardToDictionaries(playerReward[JsonProperty.STANDARD]);
 
-				if (UserInventory.HasVIPStatus)
+				if (DataService.HasVIPStatus)
 				{
 					AddRewardToDictionaries(playerReward[JsonProperty.PREMIUM]);
 				}

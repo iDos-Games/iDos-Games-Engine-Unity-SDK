@@ -171,7 +171,7 @@ namespace IDosGames
 
                 var currencyName = virtualCurrencyID == VirtualCurrencyID.IG ? JsonProperty.IGT.ToUpper() : JsonProperty.IGC.ToUpper();
 
-                string imagePath = UserDataService.CURRENCY_ICONS_IMAGE_PATH + currencyName;
+                string imagePath = DataService.CURRENCY_ICONS_IMAGE_PATH + currencyName;
                 string iconPath = (imagePath == JsonProperty.TOKEN_IMAGE_PATH) ? IDosGamesData.Config.Currencies.CurrencyData.Find(c => c.CurrencyCode == "IG")?.ImageUrl ?? JsonProperty.TOKEN_IMAGE_PATH : imagePath;
 
                 Sprite currencyIcon = await ImageLoader.GetSpriteAsync(iconPath);
@@ -215,7 +215,7 @@ namespace IDosGames
                 Message.Show(jObjectResult["Message"].ToString());
             }
 
-            UserDataService.RequestUserAllData();
+            DataService.RequestUserAllData();
             Refresh();
 
             OfferChanged?.Invoke();
@@ -223,10 +223,10 @@ namespace IDosGames
 
         private void ShowDeleteConfirmationPopUp(MarketplaceActiveOffer offer, Sprite currencyIcon)
         {
-            var item = UserDataService.GetCachedSkinItem(offer?.ItemID);
+            var item = DataService.GetCachedSkinItem(offer?.ItemID);
             if (item == null)
             {
-                item = UserDataService.GetAvatarSkinItem(offer?.ItemID);
+                item = DataService.GetAvatarSkinItem(offer?.ItemID);
             }
             _deleteConfirmationPopUp.FullSet(() => DeleteOffer(offer), item.DisplayName, ((int)offer.Price).ToString(), currencyIcon);
             _deleteConfirmationPopUp.gameObject.SetActive(true);
@@ -249,7 +249,7 @@ namespace IDosGames
                 Message.Show(jObjectResult["Message"].ToString());
             }
 
-            UserDataService.RequestUserAllData();
+            DataService.RequestUserAllData();
             Refresh();
 
             OfferChanged?.Invoke();

@@ -11,7 +11,7 @@ namespace IDosGames
 
         public static async void ClaimTokenReward(int baseValue, float multiplier = 1, int points = 0, bool includeReferral = false)
         {
-            if (UserInventory.HasVIPStatus)
+            if (DataService.HasVIPStatus)
             {
                 RewardAnimations.ShowIgtAnimation();
                 if (points > 0) RewardAnimations.ShowEventPointAnimation();
@@ -35,9 +35,9 @@ namespace IDosGames
         {
             var amount = 0;
 
-            foreach (var itemID in UserDataService.EquippedSkins)
+            foreach (var itemID in DataService.EquippedSkins)
             {
-                amount += (int)UserDataService.GetCachedSkinItem(itemID).Profit;
+                amount += (int)DataService.GetCachedSkinItem(itemID).Profit;
             }
 
             return amount;

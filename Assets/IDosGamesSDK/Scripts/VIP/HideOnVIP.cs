@@ -17,7 +17,7 @@ namespace IDosGames
 
 		private void UpdateView()
 		{
-			if (UserInventory.HasVIPStatus)
+			if (DataService.HasVIPStatus)
 			{
 				gameObject.SetActive(false);
 			}

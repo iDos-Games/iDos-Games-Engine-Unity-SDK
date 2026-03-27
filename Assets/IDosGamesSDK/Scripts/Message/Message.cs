@@ -36,7 +36,7 @@ namespace IDosGames
             HttpService.OnGlobalError += Show;
             HttpService.ConnectionError += OnHttpConnectionError;
             IGSClientAPI.ConnectionError += StartDelayShowConnectionError;
-			UserDataService.AllDataRequestError += OnAllDataRequestError;
+			DataService.AllDataRequestError += OnAllDataRequestError;
             IGSService.ConnectionError += ShowConnectionError;
 #if IDOSGAMES_MOBILE_IAP
             IAPService.NotInitialized += OnIAPServiceNotInitialized;
@@ -48,7 +48,7 @@ namespace IDosGames
             HttpService.OnGlobalError -= Show;
             HttpService.ConnectionError -= OnHttpConnectionError;
             IGSClientAPI.ConnectionError -= StartDelayShowConnectionError;
-			UserDataService.AllDataRequestError -= OnAllDataRequestError;
+			DataService.AllDataRequestError -= OnAllDataRequestError;
             IGSService.ConnectionError -= ShowConnectionError;
 #if IDOSGAMES_MOBILE_IAP
             IAPService.NotInitialized -= OnIAPServiceNotInitialized;

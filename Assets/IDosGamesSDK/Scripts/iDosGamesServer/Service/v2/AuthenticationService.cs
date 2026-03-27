@@ -328,7 +328,7 @@ namespace IDosGames
 
             if (data.GetCurrencyData != null) config.ApplyCurrencies(data.GetCurrencyData);
 
-            UserDataService.ProcessingAllData(data);
+            DataService.ProcessingAllData(data);
             IDosGamesData.OnUserLoggedIn();
             SaveAuthType(authType);
         }

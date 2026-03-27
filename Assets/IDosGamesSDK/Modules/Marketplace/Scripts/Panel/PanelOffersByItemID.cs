@@ -154,7 +154,7 @@ namespace IDosGames
 
                 var currencyName = virtualCurrencyID == VirtualCurrencyID.IG ? JsonProperty.IGT.ToUpper() : JsonProperty.IGC.ToUpper();
 
-                string imagePath = UserDataService.CURRENCY_ICONS_IMAGE_PATH + currencyName;
+                string imagePath = DataService.CURRENCY_ICONS_IMAGE_PATH + currencyName;
                 string iconPath = (imagePath == JsonProperty.TOKEN_IMAGE_PATH) ? IDosGamesData.Config.Currencies.CurrencyData.Find(c => c.CurrencyCode == "IG")?.ImageUrl ?? JsonProperty.TOKEN_IMAGE_PATH : imagePath;
 
                 Sprite currencyIcon = await ImageLoader.GetSpriteAsync(iconPath);
@@ -172,10 +172,10 @@ namespace IDosGames
 
         private void ShowConfirmationPopUp(MarketplaceActiveOffer offer, Sprite currencyIcon)
         {
-            var skinItem = UserDataService.GetCachedSkinItem(offer.ItemID);
+            var skinItem = DataService.GetCachedSkinItem(offer.ItemID);
             if (skinItem == null)
             {
-                skinItem = UserDataService.GetAvatarSkinItem(offer.ItemID);
+                skinItem = DataService.GetAvatarSkinItem(offer.ItemID);
             }
 
             _popUpConfirmation.FullSet(() => BuyOffer(offer), skinItem.DisplayName, ((int)offer.Price).ToString(), currencyIcon);
@@ -186,7 +186,7 @@ namespace IDosGames
         {
             Enum.TryParse(offer.CurrencyID, out VirtualCurrencyID virtualCurrencyID);
 
-            long balance = UserInventory.GetVirtualCurrencyAmount(virtualCurrencyID.ToString());
+            long balance = DataService.GetVirtualCurrencyAmount(virtualCurrencyID.ToString());
 
             if (balance < offer.Price)
             {
@@ -221,7 +221,7 @@ namespace IDosGames
 
             OfferBuyed?.Invoke();
 
-            UserDataService.RequestUserAllData();
+            DataService.RequestUserAllData();
             Refresh();
         }
 

@@ -16,7 +16,7 @@ namespace IDosGames
             if (!string.IsNullOrEmpty(ShopSystem._payload))
             {
                 ShopSystem._payload = null;
-                UserDataService.RequestUserAllData();
+                DataService.RequestUserAllData();
             }
         }
     }

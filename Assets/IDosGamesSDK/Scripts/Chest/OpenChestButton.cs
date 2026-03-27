@@ -97,7 +97,7 @@ namespace IDosGames
 
 		private bool HasKeyFragment(ChestKeyFragmentType type)
 		{
-			if (UserInventory.GetChestKeyFragmentAmount(type) > 0)
+			if (DataService.GetChestKeyFragmentAmount(type) > 0)
 			{
 				return true;
 			}

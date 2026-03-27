@@ -75,7 +75,7 @@ namespace IDosGames
 
 		public void ResetView()
 		{
-			var referralSystemData = UserDataService.GetCachedCustomUserData(CustomUserDataKey.referral_system);
+			var referralSystemData = DataService.GetCachedCustomUserData(CustomUserDataKey.referral_system);
 			var properties = JsonConvert.DeserializeObject<JObject>(referralSystemData);
 
 			properties ??= new JObject();
@@ -106,8 +106,8 @@ namespace IDosGames
 
 		private void ResetInviteRewards(string followersAmount)
 		{
-			var referralInviteRewardsData = UserDataService.GetCachedTitlePublicConfig(TitleDataKey.ReferralInviteRewards);
-			var userReadOnlyReferralInviteRewardsData = UserDataService.GetCachedCustomUserData(CustomUserDataKey.referral_invite_rewards);
+			var referralInviteRewardsData = DataService.GetCachedTitlePublicConfig(TitleDataKey.ReferralInviteRewards);
+			var userReadOnlyReferralInviteRewardsData = DataService.GetCachedCustomUserData(CustomUserDataKey.referral_invite_rewards);
 
 			var rewards = JsonConvert.DeserializeObject<JArray>(referralInviteRewardsData);
 			rewards ??= new JArray();

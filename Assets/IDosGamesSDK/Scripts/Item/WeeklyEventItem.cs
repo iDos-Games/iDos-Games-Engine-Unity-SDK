@@ -37,9 +37,9 @@ namespace IDosGames
             string premiumIconPath = (premiumImagePath == JsonProperty.TOKEN_IMAGE_PATH) ? IDosGamesData.Config.Currencies.CurrencyData.Find(c => c.CurrencyCode == "IG")?.ImageUrl ?? JsonProperty.TOKEN_IMAGE_PATH : premiumImagePath;
 
             _vipRewardItem.Set(premiumIconPath, int.Parse($"{premiumReward[JsonProperty.AMOUNT]}"));
-            _vipRewardCheckMark.gameObject.SetActive(isCompleted && UserInventory.HasVIPStatus);
+            _vipRewardCheckMark.gameObject.SetActive(isCompleted && DataService.HasVIPStatus);
 
-            _lockIcon.gameObject.SetActive(!UserInventory.HasVIPStatus);
+            _lockIcon.gameObject.SetActive(!DataService.HasVIPStatus);
             _levelSlider.value = isCompleted ? 1 : 0;
             _levelText.text = $"{Reward[JsonProperty.ID]}";
         }

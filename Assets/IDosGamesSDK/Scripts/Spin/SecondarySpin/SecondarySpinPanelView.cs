@@ -41,14 +41,14 @@ namespace IDosGames
 
 		private void OnSpinEnded(int currentSectorIndex)
 		{
-			UserDataService.RequestUserAllData();
+			DataService.RequestUserAllData();
 			Loading.UnblockTouch();
 			ShowRewardMessage(currentSectorIndex);
 		}
 
 		private void InitializeRewardsData()
 		{
-			string data = UserDataService.GetCachedTitlePublicConfig(TitleDataKey.SecondarySpinRewards);
+			string data = DataService.GetCachedTitlePublicConfig(TitleDataKey.SecondarySpinRewards);
 			var items = JsonConvert.DeserializeObject<List<JObject>>(data);
 
 			foreach (var item in items)
@@ -75,9 +75,9 @@ namespace IDosGames
 
 		public void ResetSpinButton(Action<bool> action)
 		{
-            long ticketsAmount = UserInventory.GetVirtualCurrencyAmount(VirtualCurrencyID.SS);
+            long ticketsAmount = DataService.GetVirtualCurrencyAmount(VirtualCurrencyID.SS);
 
-			bool showAd = IsNeedToShowAd(ticketsAmount, UserInventory.SecondarySpinTicketRechargeMax);
+			bool showAd = IsNeedToShowAd(ticketsAmount, DataService.SecondarySpinTicketRechargeMax);
 
 			_spinButton.Set(() => action?.Invoke(showAd), ticketsAmount, showAd);
 		}
@@ -94,7 +94,7 @@ namespace IDosGames
 
 		private bool IsNeedToShowAd(long ticketsAmount, long maxTickets)
 		{
-			if (UserInventory.HasVIPStatus)
+			if (DataService.HasVIPStatus)
 			{
 				return false;
 			}
