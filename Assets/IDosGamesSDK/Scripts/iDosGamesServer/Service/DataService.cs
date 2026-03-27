@@ -16,20 +16,8 @@ namespace IDosGames
         public const string CURRENCY_ICONS_IMAGE_PATH = "Sprites/Currency/";
         public const string CATALOG_SKIN = "Item";
 
-        // ── Общие события ─────────────────────────────────────────────────────
-        public static event Action DataRequested;
-        public static event Action DataUpdated;
-        public static event Action<string> AllDataRequestError;
         public static event Action FirstTimeDataUpdated;
-
-        // ── Инвентарь ─────────────────────────────────────────────────────────
-        /// <summary>Вызывается после каждого обновления инвентаря пользователя.</summary>
-        public static event Action InventoryUpdated;
-
-        // ── Скины / каталог ───────────────────────────────────────────────────
-        public static event Action CustomUserDataUpdated;
         public static event Action SkinCatalogItemsUpdated;
-        public static event Action EquippedSkinsUpdated;
 
         // ── Публичные свойства ────────────────────────────────────────────────
         public static bool _firstTimeDataUpdated = false;
@@ -92,8 +80,6 @@ namespace IDosGames
 
         public static void ProcessingAllData(ClientStateResponse userDataResult)
         {
-            DataRequested?.Invoke();
-
             // — Применяем всё в UserData / TitleConfig (единый источник правды) —
             IDosGamesData.User.ApplyVirtualCurrency(userDataResult.UserInventoryResult.VirtualCurrency);
             IDosGamesData.User.ApplyVirtualCurrencyRechargeTimes(userDataResult.UserInventoryResult.VirtualCurrencyRechargeTimes);
@@ -114,9 +100,6 @@ namespace IDosGames
 
             // — Производные кэши инвентаря (строятся из UserData.Inventory) —
             RebuildInventoryCaches();
-
-            DataUpdated?.Invoke();
-            CustomUserDataUpdated?.Invoke();
 
             if (!_firstTimeDataUpdated)
             {
@@ -200,8 +183,6 @@ namespace IDosGames
 
             // Снятие скинов которых больше нет в инвентаре
             CheckForEquippedSkinInInventory();
-
-            InventoryUpdated?.Invoke();
         }
 
         private static void SetChestKeyFragments()
@@ -455,7 +436,6 @@ namespace IDosGames
         private static void OnSuccessUpdateEquippedSkins(List<string> equippedSkins)
         {
             _equippedSkins = equippedSkins;
-            EquippedSkinsUpdated?.Invoke();
         }
 
         private static void OnErrorUpdateEquippedSkins()
@@ -559,9 +539,6 @@ namespace IDosGames
         }
 
         private static async void OnVIPSubscriptionValidated()
-            => await UserService.GetClientState();
-
-        private static void OnAllDataRequestError(string error)
-            => AllDataRequestError?.Invoke(error);
+            => await UserService.GetUserInventory();
     }
 }

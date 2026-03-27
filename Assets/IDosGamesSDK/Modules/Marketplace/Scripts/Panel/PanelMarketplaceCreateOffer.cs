@@ -119,7 +119,7 @@ namespace IDosGames
 			}
 
 			ResetPanel();
-            await UserService.GetClientState();
+            _ = UserService.GetUserInventory();
 
             OfferCreated?.Invoke();
 		}

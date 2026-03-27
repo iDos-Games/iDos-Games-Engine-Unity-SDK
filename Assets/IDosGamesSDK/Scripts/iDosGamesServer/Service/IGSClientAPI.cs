@@ -1,5 +1,3 @@
-using IDosGames.ClientModels;
-using IDosGames.TitlePublicConfiguration;
 using Newtonsoft.Json;
 using System;
 using System.Threading;

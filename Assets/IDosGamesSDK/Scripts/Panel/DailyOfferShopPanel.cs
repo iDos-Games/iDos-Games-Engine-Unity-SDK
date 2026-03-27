@@ -190,9 +190,9 @@ namespace IDosGames
                 );
         }
 
-        private async void OnUpdateDailyFreeProducts()
+        private void OnUpdateDailyFreeProducts()
         {
-            await UserService.GetClientState();
+            _ = UserService.GetUserInventory();
         }
 
         private void OnErrorUpdateDailyFreeProducts()

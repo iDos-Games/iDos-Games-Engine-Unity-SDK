@@ -27,12 +27,12 @@ namespace IDosGames
             _view.HideAllVoidTexts();
             UpdateUserInventoryItemsItems();
 
-            DataService.EquippedSkinsUpdated += OnSuccessUpdateEquippedSkins;
+            UserService.OnCustomUserDataUpdated += OnSuccessUpdateEquippedSkins;
         }
 
         private void OnDisable()
         {
-            DataService.EquippedSkinsUpdated -= OnSuccessUpdateEquippedSkins;
+            UserService.OnCustomUserDataUpdated -= OnSuccessUpdateEquippedSkins;
         }
 
         public int GetCurrentProfitAmount()
@@ -142,7 +142,7 @@ namespace IDosGames
             DataService.UpdateEquippedSkins(_temporaryEquippedSkins);
         }
 
-        public void OnSuccessUpdateEquippedSkins()
+        public void OnSuccessUpdateEquippedSkins(SuccessResponse success)
         {
             gameObject.SetActive(false);
         }

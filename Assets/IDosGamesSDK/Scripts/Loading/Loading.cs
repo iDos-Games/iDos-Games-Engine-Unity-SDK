@@ -23,6 +23,7 @@ namespace IDosGames
 		{
 			if (IDosGamesSDKSettings.Instance.ShowLoadingOnExecuteServerFunction)
 			{
+                HttpService.OnBusyStateChanged += OnHttpBusyStateChanged;
                 IGSClientAPI.ServerFunctionCalled += ShowTransparentPanel;
                 IGSClientAPI.ServerFunctionResponsed += HideTransparentPanel;
 			}
@@ -32,9 +33,6 @@ namespace IDosGames
                 IGSClientAPI.ServerFunctionResponsed += UnblockTouch;
             }
 
-            DataService.DataRequested += ShowTransparentPanel;
-			DataService.DataUpdated += HideTransparentPanel;
-			AuthService.RequestSent += ShowTransparentPanel;
 			SceneSwitcher.SwitchSceneStarted += ShowOpaquePanel;
 			SceneSwitcher.SwitchSceneFinished += HideOpaquePanel;
 			Message.Showed += HideAllPanels;
@@ -50,6 +48,7 @@ namespace IDosGames
 		{
 			if (IDosGamesSDKSettings.Instance.ShowLoadingOnExecuteServerFunction)
 			{
+                HttpService.OnBusyStateChanged -= OnHttpBusyStateChanged;
                 IGSClientAPI.ServerFunctionCalled -= ShowTransparentPanel;
                 IGSClientAPI.ServerFunctionResponsed -= HideTransparentPanel;
 			}
@@ -59,9 +58,6 @@ namespace IDosGames
                 IGSClientAPI.ServerFunctionResponsed -= UnblockTouch;
             }
 
-            DataService.DataRequested -= ShowTransparentPanel;
-			DataService.DataUpdated -= HideTransparentPanel;
-			AuthService.RequestSent -= ShowTransparentPanel;
 			SceneSwitcher.SwitchSceneStarted -= ShowOpaquePanel;
 			SceneSwitcher.SwitchSceneFinished -= HideOpaquePanel;
 			Message.Showed -= HideAllPanels;
@@ -70,6 +66,18 @@ namespace IDosGames
 			IAPService.PurchaseInitiated -= ShowTransparentPanel;
 			IAPService.PurchaseProcessStarted -= HideTransparentPanel;
 #endif
+        }
+
+        private static void OnHttpBusyStateChanged(bool isBusy)
+        {
+            if (isBusy)
+            {
+                ShowTransparentPanel();
+            }
+            else
+            {
+                HideTransparentPanel();
+            }
         }
 
         public static void ShowTransparentPanel()

@@ -257,7 +257,7 @@ namespace IDosGames
                 if (serverOk)
                 {
                     Message.Show(MessageCode.TRANSACTION_SUCCESS);
-                    await UserService.GetClientState();
+                    _ = UserService.GetUserInventory();
                 }
                 else
                 {
@@ -378,7 +378,7 @@ namespace IDosGames
                     return;
                 }
 
-                await UserService.GetClientState();
+                _ = UserService.GetUserInventory();
             }
             catch (Exception ex)
             {

@@ -132,7 +132,7 @@ namespace IDosGames
             );
         }
 
-        private static async void OnSuccessPurchase(string result)
+        private static void OnSuccessPurchase(string result)
         {
             if (result == null)
             {
@@ -144,7 +144,7 @@ namespace IDosGames
                 if (resultData[JsonProperty.MESSAGE_KEY] != null)
                 {
                     Message.Show(resultData[JsonProperty.MESSAGE_KEY].ToString());
-                    await UserService.GetClientState();
+                    _ = UserService.GetUserInventory();
                 }
             }
         }

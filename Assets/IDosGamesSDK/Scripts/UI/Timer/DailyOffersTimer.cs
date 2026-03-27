@@ -13,9 +13,9 @@ namespace IDosGames
 			TimerStopped -= UpdateShop;
 		}
 
-		private async void UpdateShop()
+		private void UpdateShop()
 		{
-            await UserService.GetClientState();
+            _ = UserService.GetUserInventory();
         }
 	}
 }

@@ -36,7 +36,6 @@ namespace IDosGames
             HttpService.OnGlobalError += Show;
             HttpService.ConnectionError += OnHttpConnectionError;
             IGSClientAPI.ConnectionError += StartDelayShowConnectionError;
-			DataService.AllDataRequestError += OnAllDataRequestError;
             IGSService.ConnectionError += ShowConnectionError;
 #if IDOSGAMES_MOBILE_IAP
             IAPService.NotInitialized += OnIAPServiceNotInitialized;
@@ -48,7 +47,6 @@ namespace IDosGames
             HttpService.OnGlobalError -= Show;
             HttpService.ConnectionError -= OnHttpConnectionError;
             IGSClientAPI.ConnectionError -= StartDelayShowConnectionError;
-			DataService.AllDataRequestError -= OnAllDataRequestError;
             IGSService.ConnectionError -= ShowConnectionError;
 #if IDOSGAMES_MOBILE_IAP
             IAPService.NotInitialized -= OnIAPServiceNotInitialized;
@@ -155,12 +153,6 @@ namespace IDosGames
 		public static string MessageResult(string serverResponse)
 		{
 			return JObject.Parse(serverResponse)?["Message"]?.ToString();
-        }
-
-        private void OnAllDataRequestError(string error)
-		{
-			Show($"<color=red><b>{MessageCode.SOMETHING_WENT_WRONG.ToString()}</b></color> \n\n" +
-				error); //LocalizationSystem
         }
 
         private void OnHttpConnectionError(string error)

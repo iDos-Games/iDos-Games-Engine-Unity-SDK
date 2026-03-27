@@ -22,12 +22,12 @@ namespace IDosGames
 
 		private void OnEnable()
 		{
-			AuthService.LoggedIn += CloseMainPopUp;
+            AuthenticationService.OnLoggedIn += CloseMainPopUp;
 		}
 
 		private void OnDisable()
 		{
-			AuthService.LoggedIn -= CloseMainPopUp;
+            AuthenticationService.OnLoggedIn -= CloseMainPopUp;
 		}
 
 		private void Start()

@@ -28,16 +28,21 @@ namespace IDosGames
         private void OnEnable()
 		{
 			DataService.SkinCatalogItemsUpdated += UpdateSkinsView;
-			DataService.EquippedSkinsUpdated += UpdateSkinsView;
+            UserService.OnCustomUserDataUpdated += UpdateSkinView;
 		}
 
 		private void OnDisable()
 		{
 			DataService.SkinCatalogItemsUpdated -= UpdateSkinsView;
-			DataService.EquippedSkinsUpdated -= UpdateSkinsView;
+            UserService.OnCustomUserDataUpdated -= UpdateSkinView;
 		}
 
-		private async void UpdateSkinsView()
+		private void UpdateSkinView(SuccessResponse success)
+		{
+			UpdateSkinsView();
+        }
+
+        private async void UpdateSkinsView()
 		{
 			_ak47.sprite = _ak47DefaultSkin;
 			_awm.sprite = _awmDefaultSkin;

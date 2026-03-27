@@ -221,7 +221,7 @@ namespace IDosGames
 
             OfferBuyed?.Invoke();
 
-            await UserService.GetClientState();
+            _ = UserService.GetUserInventory();
             Refresh();
         }
 

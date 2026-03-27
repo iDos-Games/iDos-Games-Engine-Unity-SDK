@@ -39,8 +39,7 @@ namespace IDosGames
             );
         }
 
-
-        private async void OnSuccessResponseChestResult(string result)
+        private void OnSuccessResponseChestResult(string result)
         {
             if (result != null)
             {
@@ -50,7 +49,7 @@ namespace IDosGames
 
                 _rewardRoom.ShowReward(_chestRarity, item);
 
-                await UserService.GetClientState();
+                _ = UserService.GetUserInventory();
             }
             else
             {
