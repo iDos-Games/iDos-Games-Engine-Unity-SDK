@@ -22,6 +22,7 @@ namespace IDosGames
         public static bool IsBusy => Volatile.Read(ref _inFlightRequests) > 0;
         private const float THROTTLE_SECONDS = 1.2f;
         private static readonly Dictionary<string, float> _lastCallTime = new();
+        private static readonly HashSet<string> _inFlightEndpoints = new();
 
         private static bool TryThrottle(string endpoint)
         {
@@ -65,6 +66,12 @@ namespace IDosGames
         public static async Task<OperationResult<T>> Post<T>(string endpoint, object payload, string clientSessionTicket = null, bool silent = false, int timeoutSeconds = 12)
         {
             if (!TryThrottle(endpoint)) return OperationResult<T>.Throttled();
+
+            if (!_inFlightEndpoints.Add(endpoint))
+            {
+                Debug.LogWarning($"[HttpService] Duplicate request skipped: {endpoint}");
+                return OperationResult<T>.Throttled();
+            }
 
             RaiseBusy();
 
@@ -128,6 +135,7 @@ namespace IDosGames
             }
             finally
             {
+                _inFlightEndpoints.Remove(endpoint);
                 LowerBusy();
             }
         }

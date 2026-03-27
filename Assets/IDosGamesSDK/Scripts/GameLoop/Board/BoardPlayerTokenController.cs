@@ -56,9 +56,9 @@ namespace IDosGames
             }
         }
 
-        public void RollWithMultiplierFromUI(int multiplicator)
+        public async void RollWithMultiplierFromUI(int multiplicator)
         {
-            _ = RollWithMultiplier(multiplicator);
+            await RollWithMultiplier(multiplicator);
         }
 
         private async Task RollWithMultiplier(int multiplicator)
