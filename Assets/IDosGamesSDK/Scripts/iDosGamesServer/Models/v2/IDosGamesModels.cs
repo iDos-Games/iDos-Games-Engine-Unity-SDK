@@ -15,12 +15,16 @@ namespace IDosGames
         public bool Success { get; set; }
         public string Error { get; set; }
         public T Data { get; set; }
+        public bool IsThrottled { get; set; }
 
         public static OperationResult<T> Ok(T data)
             => new OperationResult<T> { Success = true, Data = data, Error = null };
 
         public static OperationResult<T> Fail(string error)
             => new OperationResult<T> { Success = false, Data = default, Error = error };
+
+        public static OperationResult<T> Throttled()
+            => new() { Success = false, Error = "Throttled", IsThrottled = true };
     }
 
     [Serializable]

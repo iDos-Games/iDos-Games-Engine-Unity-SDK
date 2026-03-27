@@ -6,6 +6,7 @@ using UnityEngine.Networking;
 using Newtonsoft.Json;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using System.Collections.Generic;
 
 namespace IDosGames
 {
@@ -19,6 +20,26 @@ namespace IDosGames
         private static readonly string BASE_URL = "https://api.idosgames.com";
         private static int _inFlightRequests = 0;
         public static bool IsBusy => Volatile.Read(ref _inFlightRequests) > 0;
+        private const float THROTTLE_SECONDS = 1.2f;
+        private static readonly Dictionary<string, float> _lastCallTime = new();
+
+        private static bool TryThrottle(string endpoint)
+        {
+            float now = Time.realtimeSinceStartup;
+
+            if (_lastCallTime.TryGetValue(endpoint, out float last))
+            {
+                float elapsed = now - last;
+                if (elapsed < THROTTLE_SECONDS)
+                {
+                    Debug.LogWarning($"[HttpService] Throttled: {endpoint} — wait {THROTTLE_SECONDS - elapsed:F2}s");
+                    return false;
+                }
+            }
+
+            _lastCallTime[endpoint] = now;
+            return true;
+        }
 
         private static void RaiseBusy()
         {
@@ -43,6 +64,8 @@ namespace IDosGames
 
         public static async Task<OperationResult<T>> Post<T>(string endpoint, object payload, string clientSessionTicket = null, bool silent = false, int timeoutSeconds = 12)
         {
+            if (!TryThrottle(endpoint)) return OperationResult<T>.Throttled();
+
             RaiseBusy();
 
             try
