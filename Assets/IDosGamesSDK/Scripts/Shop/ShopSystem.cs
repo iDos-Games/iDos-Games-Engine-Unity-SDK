@@ -1,8 +1,8 @@
-using IDosGames.ClientModels;
-using IDosGames.CloudScriptModels;
+using IDosGames.TitlePublicConfiguration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace IDosGames
@@ -17,12 +17,6 @@ namespace IDosGames
 
         [SerializeField] private ShopPopUpSystem _popUpSystem;
         public static ShopPopUpSystem PopUpSystem => _instance._popUpSystem;
-
-        public static JArray ProductsForRealMoney { get; private set; }
-        public static JArray ProductsForVirtualCurrency { get; private set; }
-        public static JArray SpecialOfferProducts { get; private set; }
-        public static JObject DailyOfferData { get; private set; }
-        public static JArray DailyFreeProducts { get; private set; }
 
         private static string _iapProcessedProductID;
         private static string _freeProductID;
@@ -46,13 +40,11 @@ namespace IDosGames
 
         private void OnEnable()
         {
-            VirtualCurrencyPrices.PricesUpdated += UpdateProductsData;
             IAPValidator.PurchaseValidated += GrantItemsAfterIAPPurchase;
         }
 
         private void OnDisable()
         {
-            VirtualCurrencyPrices.PricesUpdated -= UpdateProductsData;
             IAPValidator.PurchaseValidated -= GrantItemsAfterIAPPurchase;
         }
 
@@ -272,30 +264,6 @@ namespace IDosGames
                 _iapProcessedProductID = PlayerPrefs.GetString(PLAYER_PREFS_AFTER_IAP_NOT_GRANTED_PRODUCT);
                 GrantItemsAfterIAPPurchase(_iapProcessedProductID);
             }
-        }
-
-        private void UpdateProductsData()
-        {
-            var dataProductsForRealMoney = DataService.GetCachedTitlePublicConfig(TitleDataKey.ProductsForRealMoney);
-            var dataProductsForVirtualCurrency = DataService.GetCachedTitlePublicConfig(TitleDataKey.ProductsForVirtualCurrency);
-            var dataSpecialProducts = DataService.GetCachedTitlePublicConfig(TitleDataKey.ShopSpecialProducts);
-            var dataDailyOffer = DataService.GetCachedTitlePublicConfig(TitleDataKey.ShopDailyProducts);
-            var dataDailyFreeProducts = DataService.GetCachedTitlePublicConfig(TitleDataKey.ShopDailyFreeProducts);
-
-            ProductsForRealMoney = JsonConvert.DeserializeObject<JArray>(dataProductsForRealMoney);
-            ProductsForRealMoney ??= new JArray();
-
-            ProductsForVirtualCurrency = JsonConvert.DeserializeObject<JArray>(dataProductsForVirtualCurrency);
-            ProductsForVirtualCurrency ??= new JArray();
-
-            SpecialOfferProducts = JsonConvert.DeserializeObject<JArray>(dataSpecialProducts);
-            SpecialOfferProducts ??= new JArray();
-
-            DailyOfferData = JsonConvert.DeserializeObject<JObject>(dataDailyOffer);
-            DailyOfferData ??= new JObject();
-
-            DailyFreeProducts = JsonConvert.DeserializeObject<JArray>(dataDailyFreeProducts);
-            DailyFreeProducts ??= new JArray();
         }
 
         private static void GrantItemsAfterIAPPurchase(string ID)

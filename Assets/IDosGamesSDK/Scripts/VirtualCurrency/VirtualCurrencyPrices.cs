@@ -14,8 +14,6 @@ namespace IDosGames
 
 		public static float ExchangeRate { get; private set; }
 
-		public static event Action PricesUpdated;
-
 		private VirtualCurrencyPrices()
 		{
 			_instance = this;
@@ -52,8 +50,6 @@ namespace IDosGames
             }
 
 			ExchangeRate = GetExchangeRate();
-
-			PricesUpdated?.Invoke();
 		}
 
         private float GetExchangeRate()

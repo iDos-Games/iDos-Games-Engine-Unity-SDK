@@ -1,5 +1,3 @@
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -68,38 +66,23 @@ namespace IDosGames
             gameObject.SetActive(GetEnableState());
 		}
 
-		private bool GetEnableState()
-		{
-			bool enabled = true;
+        private bool GetEnableState()
+        {
+            var systemState = IDosGamesData.Config.TitlePublicConfiguration?.SystemState;
 
-			var titleData = DataService.GetCachedTitlePublicConfig(TitleDataKey.SystemState);
-
-			if (titleData == string.Empty)
-			{
-				return enabled;
-			}
-
-			var systemStateData = JsonConvert.DeserializeObject<JObject>(titleData);
-
-			var platformData = systemStateData[JsonProperty.WALLET];
-
-			string state = string.Empty;
+            if (systemState?.Wallet == null)
+            {
+                return true;
+            }
 
 #if UNITY_ANDROID
-			state = $"{platformData[JsonProperty.ANDROID]}";
+            return systemState.Wallet.Android;
 #elif UNITY_IOS
-			state = $"{platformData[JsonProperty.IOS]}";
+            return systemState.Wallet.Ios;
+#else
+            return true;
 #endif
-
-			if (state == string.Empty)
-			{
-				return enabled;
-			}
-
-			enabled = state == JsonProperty.ENABLED_VALUE;
-
-			return enabled;
-		}
+        }
 
         private static ChainType ParseChainType(string value)
         {

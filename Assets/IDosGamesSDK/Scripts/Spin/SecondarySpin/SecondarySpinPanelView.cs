@@ -1,5 +1,4 @@
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using IDosGames.TitlePublicConfiguration;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -14,9 +13,9 @@ namespace IDosGames
 		[SerializeField] private SecondarySpinButton _spinButton;
 		[SerializeField] private SpinSectorItem[] _spinSectorItems;
 
-		private readonly List<JObject> _rewards = new();
+        private readonly List<ItemOrCurrency> _rewards = new();
 
-		private void OnEnable()
+        private void OnEnable()
 		{
 			_spinWheel.SpinStarted += OnSpinStarted;
 			_spinWheel.SpinEnded += OnSpinEnded;
@@ -46,34 +45,35 @@ namespace IDosGames
 			ShowRewardMessage(currentSectorIndex);
 		}
 
-		private void InitializeRewardsData()
-		{
-			string data = DataService.GetCachedTitlePublicConfig(TitleDataKey.SecondarySpinRewards);
-			var items = JsonConvert.DeserializeObject<List<JObject>>(data);
+        private void InitializeRewardsData()
+        {
+            var items = IDosGamesData.Config.TitlePublicConfiguration?.SecondarySpinRewards;
+            if (items == null) return;
 
-			foreach (var item in items)
-			{
-				_rewards.Add((JObject)item[JsonProperty.REWARD]);
-			}
-		}
+            foreach (var item in items)
+            {
+                _rewards.Add(item.Reward);
+            }
+        }
 
-		private void SetSpinSectorItems(List<JObject> rewards)
-		{
-			for (int i = 0; i < _spinSectorItems.Length; i++)
-			{
-				int sectorIndex = _spinSectorItems[i].SectorIndex - 1;
-				var rewardData = rewards[sectorIndex];
+        private void SetSpinSectorItems(List<ItemOrCurrency> rewards)
+        {
+            for (int i = 0; i < _spinSectorItems.Length; i++)
+            {
+                int sectorIndex = _spinSectorItems[i].SectorIndex - 1;
+                var reward = rewards[sectorIndex];
 
-                string imagePath = rewardData[JsonProperty.IMAGE_PATH].ToString();
-                var iconPath = (imagePath == JsonProperty.TOKEN_IMAGE_PATH) ? IDosGamesData.Config.Currencies.CurrencyData.Find(c => c.CurrencyCode == "IG")?.ImageUrl ?? JsonProperty.TOKEN_IMAGE_PATH : imagePath;
+                var imagePath = reward.ImagePath;
+                var iconPath = (imagePath == JsonProperty.TOKEN_IMAGE_PATH)
+                    ? IDosGamesData.Config.Currencies.CurrencyData.Find(c => c.CurrencyCode == "IG")?.ImageUrl ?? JsonProperty.TOKEN_IMAGE_PATH
+                    : imagePath;
 
-                int amount = (int)rewardData[JsonProperty.AMOUNT];
+                int amount = (int)(reward.Amount ?? 0);
+                _spinSectorItems[i].Set(iconPath, amount);
+            }
+        }
 
-				_spinSectorItems[i].Set(iconPath, amount);
-			}
-		}
-
-		public void ResetSpinButton(Action<bool> action)
+        public void ResetSpinButton(Action<bool> action)
 		{
             long ticketsAmount = DataService.GetVirtualCurrencyAmount(VirtualCurrencyID.SS);
 
@@ -82,17 +82,18 @@ namespace IDosGames
 			_spinButton.Set(() => action?.Invoke(showAd), ticketsAmount, showAd);
 		}
 
-		private void ShowRewardMessage(int currentSectorIndex)
-		{
-            var imagePath = _rewards[currentSectorIndex][JsonProperty.IMAGE_PATH].ToString();
-            var iconPath = (imagePath == JsonProperty.TOKEN_IMAGE_PATH) ? IDosGamesData.Config.Currencies.CurrencyData.Find(c => c.CurrencyCode == "IG")?.ImageUrl ?? JsonProperty.TOKEN_IMAGE_PATH : imagePath;
+        private void ShowRewardMessage(int currentSectorIndex)
+        {
+            var reward = _rewards[currentSectorIndex];
+            var imagePath = reward.ImagePath;
+            var iconPath = (imagePath == JsonProperty.TOKEN_IMAGE_PATH)
+                ? IDosGamesData.Config.Currencies.CurrencyData.Find(c => c.CurrencyCode == "IG")?.ImageUrl ?? JsonProperty.TOKEN_IMAGE_PATH
+                : imagePath;
+            var amount = "x" + (reward.Amount ?? 0).ToString();
+            Message.ShowReward(amount, iconPath);
+        }
 
-			var amount = "x" + _rewards[currentSectorIndex][JsonProperty.AMOUNT].ToString();
-
-			Message.ShowReward(amount, iconPath);
-		}
-
-		private bool IsNeedToShowAd(long ticketsAmount, long maxTickets)
+        private bool IsNeedToShowAd(long ticketsAmount, long maxTickets)
 		{
 			if (DataService.HasVIPStatus)
 			{

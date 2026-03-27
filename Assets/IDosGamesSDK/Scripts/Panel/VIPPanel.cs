@@ -1,5 +1,6 @@
-using Newtonsoft.Json.Linq;
+using IDosGames.TitlePublicConfiguration;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace IDosGames
@@ -11,72 +12,53 @@ namespace IDosGames
 		[SerializeField] private VIPItem _itemForRM;
 		[SerializeField] private VIPItem _itemForVirtualCurrency;
 
-		public override void InitializePanel()
-		{
-			var RMProducts = ShopSystem.ProductsForRealMoney;
-			var VCProducts = ShopSystem.ProductsForVirtualCurrency;
+        public override void InitializePanel()
+        {
+            var RMProducts = IDosGamesData.Config.TitlePublicConfiguration.ProductsForRealMoney;
+            var VCProducts = IDosGamesData.Config.TitlePublicConfiguration.ProductsForVirtualCurrency;
 
-			if (RMProducts != null)
-			{
-				InitializeRMProduct(RMProducts);
-			}
+            if (RMProducts != null) InitializeRMProduct(RMProducts);
+            if (VCProducts != null) InitializeVCProduct(VCProducts);
+        }
 
-			if (VCProducts != null)
-			{
-				InitializeVCProduct(VCProducts);
-			}
-		}
+        private void InitializeRMProduct(List<ProductForRealMoney> RMProducts)
+        {
+            foreach (var product in RMProducts)
+            {
+                if (product.ItemClass != PANEL_CLASS) continue;
 
-		private void InitializeRMProduct(JArray RMProducts)
-		{
-			foreach (var product in RMProducts)
-			{
-				var itemClass = $"{product[JsonProperty.ITEM_CLASS]}";
+                var itemID = product.ItemID;
+                var price = GetPriceInRealMoney(product.PriceRM.ToString());
+                _itemForRM.Fill(() => ShopSystem.BuyForRealMoney(itemID), $"${price}");
+                break;
+            }
+        }
 
-				if (itemClass != PANEL_CLASS)
-				{
-					continue;
-				}
+        private async void InitializeVCProduct(List<ProductForVirtualCurrency> VCProducts)
+        {
+            foreach (var product in VCProducts)
+            {
+                if (product.ItemClass != PANEL_CLASS) continue;
 
-				var itemID = $"{product[JsonProperty.ITEM_ID]}";
+                var itemID = product.ItemID;
+                var price = GetPriceInRealMoney(product.PriceRM.ToString());
 
-				var price = GetPriceInRealMoney($"{product[JsonProperty.PRICE_RM]}");
-
-				_itemForRM.Fill(() => ShopSystem.BuyForRealMoney(itemID), $"${price}");
-
-				break;
-			}
-		}
-
-		private async void InitializeVCProduct(JArray VCProducts)
-		{
-			foreach (var product in VCProducts)
-			{
-				var itemClass = $"{product[JsonProperty.ITEM_CLASS]}";
-
-				if (itemClass != PANEL_CLASS)
-				{
-					continue;
-				}
-
-				var itemID = $"{product[JsonProperty.ITEM_ID]}";
-
-				var price = GetPriceInRealMoney($"{product[JsonProperty.PRICE_RM]}");
-
-                string currencyImagePath = product[JsonProperty.CURRENCY_IMAGE_PATH].ToString();
-                var currencyIconPath = (currencyImagePath == JsonProperty.TOKEN_IMAGE_PATH) ? IDosGamesData.Config.Currencies.CurrencyData.Find(c => c.CurrencyCode == "IG")?.ImageUrl ?? JsonProperty.TOKEN_IMAGE_PATH : currencyImagePath;
+                var currencyImagePath = product.CurrencyImagePath;
+                var currencyIconPath = (currencyImagePath == JsonProperty.TOKEN_IMAGE_PATH)
+                    ? IDosGamesData.Config.Currencies.CurrencyData.Find(c => c.CurrencyCode == "IG")?.ImageUrl ?? JsonProperty.TOKEN_IMAGE_PATH
+                    : currencyImagePath;
                 var currencyIcon = await ImageLoader.GetSpriteAsync(currencyIconPath);
 
-                var currencyID = GetVirtualCurrencyID($"{product[JsonProperty.CURRENCY_ID]}");
+                var currencyID = GetVirtualCurrencyID(product.CurrencyID);
+                price = GetPriceInVirtualCurrency(price, currencyID);
 
-				price = GetPriceInVirtualCurrency(price, currencyID);
+                Action onclickCalback = () => ShopSystem.PopUpSystem.ShowConfirmationPopUp(
+                    () => ShopSystem.BuyForVirtualCurrency(itemID, currencyID, price),
+                    product.Name, $"{price}", currencyIcon);
 
-				Action onclickCalback = () => ShopSystem.PopUpSystem.ShowConfirmationPopUp(() => ShopSystem.BuyForVirtualCurrency(itemID, currencyID, price), product[JsonProperty.NAME].ToString(), $"{price}", currencyIcon);
-
-				_itemForVirtualCurrency.Fill(onclickCalback, $"{price:N0}");
-
-				break;
-			}
-		}
-	}
+                _itemForVirtualCurrency.Fill(onclickCalback, $"{price:N0}");
+                break;
+            }
+        }
+    }
 }

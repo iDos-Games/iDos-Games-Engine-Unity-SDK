@@ -19,7 +19,6 @@ namespace IDosGames.UserProfile
             {
                 _user = AuthenticationService.AuthContext.UserID;
             }
-
             GetProfileData();
         }
 
@@ -28,7 +27,12 @@ namespace IDosGames.UserProfile
             SetActiveRoom(false);
         }
 
-        private void GetProfileData()
+        private DefaultAvatarSkin GetDefaultAvatarSkin()
+        {
+            return IDosGamesData.Config.TitlePublicConfiguration?.DefaultAvatarSkin;
+        }
+
+        private async void GetProfileData()
         {
             if (_user == AuthenticationService.AuthContext.UserID)
             {
@@ -39,36 +43,38 @@ namespace IDosGames.UserProfile
                     {
                         _equipedAvatarSkins = JsonConvert.DeserializeObject<DefaultAvatarSkin>(data);
                     }
-                    
+
                     _profileWindow.Init(_user, _equipedAvatarSkins);
                 }
                 else
                 {
-                    var defaultSkin = DataService.GetCachedTitlePublicConfig(TitleDataKey.DefaultAvatarSkin);
-                    if (!string.IsNullOrEmpty(defaultSkin))
+                    var defaultSkin = GetDefaultAvatarSkin();
+                    if (defaultSkin != null)
                     {
-                        _equipedAvatarSkins = JsonConvert.DeserializeObject<DefaultAvatarSkin>(defaultSkin);
-
-                        if(IDosGamesSDKSettings.Instance.DebugLogging)
+                        _equipedAvatarSkins = defaultSkin;
+                        if (IDosGamesSDKSettings.Instance.DebugLogging)
                         {
                             Debug.Log(_equipedAvatarSkins.ToString());
                         }
-                        
+
                         _profileWindow.Init(_user, _equipedAvatarSkins);
                     }
                 }
+
                 Loading.HideAllPanels();
                 SetActiveRoom(true);
-
             }
             else
             {
-                IGSClientAPI.GetUserAllData
-                    (
-                    resultCallback: (result) => { DataService.ProcessingAllData(result); OnDataReceived(result.CustomUserDataResult); }, 
-                    notConnectionErrorCallback: null, 
-                    connectionErrorCallback: null
-                    );
+                var result = await UserService.GetClientState();
+                if (result.Success)
+                {
+                    OnDataReceived(result.Data.CustomUserDataResult);
+                }
+                else
+                {
+                    Loading.HideAllPanels();
+                }
             }
         }
 
@@ -81,8 +87,8 @@ namespace IDosGames.UserProfile
                 {
                     dataString = data.Value.Value;
                 }
-
             }
+
             if (!string.IsNullOrEmpty(dataString))
             {
                 DefaultAvatarSkin jsonData = JsonConvert.DeserializeObject<DefaultAvatarSkin>(dataString);
@@ -91,18 +97,16 @@ namespace IDosGames.UserProfile
             }
             else
             {
-                var defaultSkin = DataService.GetCachedTitlePublicConfig(TitleDataKey.DefaultAvatarSkin);
-                if (!string.IsNullOrEmpty(defaultSkin))
+                var defaultSkin = GetDefaultAvatarSkin();
+                if (defaultSkin != null)
                 {
-                    DefaultAvatarSkin jsonData = JsonConvert.DeserializeObject<DefaultAvatarSkin>(defaultSkin);
-                    Debug.Log(jsonData.ToString());
-                    _profileWindow.Init(_user, jsonData);
+                    Debug.Log(defaultSkin.ToString());
+                    _profileWindow.Init(_user, defaultSkin);
                 }
             }
 
             Loading.HideAllPanels();
             SetActiveRoom(true);
-
         }
     }
 }

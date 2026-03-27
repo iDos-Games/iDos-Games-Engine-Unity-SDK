@@ -177,28 +177,23 @@ namespace IDosGames
         private void UpdateShopAlarms()
         {
             var playerData = DataService.GetCachedCustomUserData(CustomUserDataKey.shop_daily_free_products);
-            var dataDailyFreeProductsData = DataService.GetCachedTitlePublicConfig(TitleDataKey.ShopDailyFreeProducts);
-
-            var freeProducts = JsonConvert.DeserializeObject<JArray>(dataDailyFreeProductsData);
-            freeProducts ??= new JArray();
+            var freeProducts = IDosGamesData.Config.TitlePublicConfiguration?.ShopDailyFreeProducts;
 
             int availableFreeProducts = 0;
 
-            foreach (var product in freeProducts)
+            if (freeProducts != null)
             {
-                if ($"{product[JsonProperty.ENABLED]}" != JsonProperty.ENABLED_VALUE)
+                foreach (var product in freeProducts)
                 {
-                    continue;
-                };
+                    if (!product.Enabled) continue;
 
-                var itemID = $"{product[JsonProperty.ITEM_ID]}";
+                    int productAmountInPlayer = GetAvailabeFreeProductsAmountInPlayer(product.ItemID, playerData);
 
-                int productAmountInPlayer = GetAvailabeFreeProductsAmountInPlayer(itemID, playerData);
-
-                if (productAmountInPlayer > 0)
-                {
-                    availableFreeProducts++;
-                    break;
+                    if (productAmountInPlayer > 0)
+                    {
+                        availableFreeProducts++;
+                        break;
+                    }
                 }
             }
 
@@ -218,15 +213,10 @@ namespace IDosGames
             var jsonData = JsonConvert.DeserializeObject<JObject>(playerData);
             var playerLastUpdateDate = GetEndDateTime(jsonData);
 
-            var dailyOfferData = DataService.GetCachedTitlePublicConfig(TitleDataKey.ShopDailyProducts);
-            var offerData = JsonConvert.DeserializeObject<JObject>(dailyOfferData);
+            var shopDailyProducts = IDosGamesData.Config.TitlePublicConfiguration?.ShopDailyProducts;
+            var offerEndDate = shopDailyProducts?.EndDate?.ToUniversalTime() ?? DateTime.MinValue;
 
-            if (GetEndDateTime(offerData) > playerLastUpdateDate)
-            {
-                return true;
-            }
-
-            return false;
+            return offerEndDate > playerLastUpdateDate;
         }
 
         private int GetAvailabeFreeProductsAmountInPlayer(string itemID, string playerData)

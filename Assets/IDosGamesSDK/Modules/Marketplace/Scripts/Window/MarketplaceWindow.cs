@@ -1,5 +1,3 @@
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -41,29 +39,22 @@ namespace IDosGames
 			OpenAllOffersPanel();
 		}
 
-		private void SetCommissions()
-		{
-			var commissionDataRaw = DataService.GetCachedTitlePublicConfig(TitleDataKey.CommissionRoyaltyPercentage);
+        private void SetCommissions()
+        {
+            var commission = IDosGamesData.Config.TitlePublicConfiguration?.CommissionRoyaltyPercentage;
 
-			if (commissionDataRaw == string.Empty)
-			{
-				return;
-			}
+            if (commission == null)
+            {
+                return;
+            }
 
-			var commissionData = JsonConvert.DeserializeObject<JObject>(commissionDataRaw);
+            CompanyCommission = commission.Company > 0 ? commission.Company : 0;
+            ReferralCommission = commission.Referral > 0 ? commission.Referral : 0;
+            AuthorCommission = commission.Author > 0 ? commission.Author : 0;
+            SumOfAllCommissions = CompanyCommission + ReferralCommission + AuthorCommission;
+        }
 
-			int.TryParse(commissionData[JsonProperty.COMPANY]?.ToString(), out int companyCommission);
-			int.TryParse(commissionData[JsonProperty.REFERRAL]?.ToString(), out int referralCommission);
-			int.TryParse(commissionData[JsonProperty.AUTHOR]?.ToString(), out int authorCommission);
-
-			CompanyCommission = companyCommission > 0 ? companyCommission : 0;
-			ReferralCommission = referralCommission > 0 ? referralCommission : 0;
-			AuthorCommission = authorCommission > 0 ? authorCommission : 0;
-
-			SumOfAllCommissions = CompanyCommission + ReferralCommission + AuthorCommission;
-		}
-
-		public void InspectSkin(string itemID)
+        public void InspectSkin(string itemID)
 		{
 			_skinInspectionRoom.OpenRoom(itemID);
 		}

@@ -104,53 +104,48 @@ namespace IDosGames
 			ResetInviteRewards(followersAmount);
 		}
 
-		private void ResetInviteRewards(string followersAmount)
-		{
-			var referralInviteRewardsData = DataService.GetCachedTitlePublicConfig(TitleDataKey.ReferralInviteRewards);
-			var userReadOnlyReferralInviteRewardsData = DataService.GetCachedCustomUserData(CustomUserDataKey.referral_invite_rewards);
+        private void ResetInviteRewards(string followersAmount)
+        {
+            var userReadOnlyReferralInviteRewardsData = DataService.GetCachedCustomUserData(CustomUserDataKey.referral_invite_rewards);
+            var rewards = IDosGamesData.Config.TitlePublicConfiguration?.ReferralInviteRewards;
 
-			var rewards = JsonConvert.DeserializeObject<JArray>(referralInviteRewardsData);
-			rewards ??= new JArray();
+            if (rewards != null)
+            {
+                foreach (var rewardDef in rewards)
+                {
+                    if (rewardDef?.Reward == null) continue;
 
-			for (int i = 0; i < rewards.Count; i++)
-			{
-				var reward = rewards[i][JsonProperty.REWARD];
+                    var item = _inviteRewardsView.Rewards.First(x => x.FollowersAmount == rewardDef.FollowersAmount);
 
-				if (reward != null)
-				{
-					var item = _inviteRewardsView.Rewards.First(x => x.FollowersAmount == (int)rewards[i][JsonProperty.REFERRAL_FOLLOWERS_AMOUNT]);
+                    var imagePath = rewardDef.Reward.ImagePath;
+                    var iconPath = (imagePath == JsonProperty.TOKEN_IMAGE_PATH)
+                        ? IDosGamesData.Config.Currencies.CurrencyData.Find(c => c.CurrencyCode == "IG")?.ImageUrl ?? JsonProperty.TOKEN_IMAGE_PATH
+                        : imagePath;
 
-                    string imagePath = reward[JsonProperty.IMAGE_PATH].ToString();
-                    var iconPath = (imagePath == JsonProperty.TOKEN_IMAGE_PATH) ? IDosGamesData.Config.Currencies.CurrencyData.Find(c => c.CurrencyCode == "IG")?.ImageUrl ?? JsonProperty.TOKEN_IMAGE_PATH : imagePath;
+                    item.Set(iconPath, (int)(rewardDef.Reward.Amount ?? 0));
+                }
+            }
 
-                    item.Set(iconPath, (int)reward[JsonProperty.AMOUNT]);
-				}
-			}
+            var userInviteRewardsData = JsonConvert.DeserializeObject<JArray>(userReadOnlyReferralInviteRewardsData);
+            userInviteRewardsData ??= new JArray();
 
-			var UserInviteRewardsData = JsonConvert.DeserializeObject<JArray>(userReadOnlyReferralInviteRewardsData);
+            foreach (var inviteRewardItem in _inviteRewardsView.Rewards)
+            {
+                inviteRewardItem.SetActiveCheckMark(false);
+            }
 
-			UserInviteRewardsData ??= new JArray();
+            for (int i = 0; i < userInviteRewardsData.Count; i++)
+            {
+                bool.TryParse((string)userInviteRewardsData[i][JsonProperty.IS_GRANTED], out bool isGranted);
+                var item = _inviteRewardsView.Rewards.First(x => x.FollowersAmount == (int)userInviteRewardsData[i][JsonProperty.REFERRAL_FOLLOWERS_AMOUNT]);
+                item.SetActiveCheckMark(isGranted);
+            }
 
-			foreach (var inviteRewardItem in _inviteRewardsView.Rewards)
-			{
-				inviteRewardItem.SetActiveCheckMark(false);
-			}
+            int.TryParse(followersAmount, out int invites);
+            _inviteRewardsView.SetSliderValue(invites);
+        }
 
-			for (int i = 0; i < UserInviteRewardsData.Count; i++)
-			{
-				bool.TryParse((string)UserInviteRewardsData[i][JsonProperty.IS_GRANTED], out bool isGranted);
-
-				var item = _inviteRewardsView.Rewards.First(x => x.FollowersAmount == (int)UserInviteRewardsData[i][JsonProperty.REFERRAL_FOLLOWERS_AMOUNT]);
-
-				item.SetActiveCheckMark(isGranted);
-			}
-
-			int.TryParse(followersAmount, out int invites);
-
-			_inviteRewardsView.SetSliderValue(invites);
-		}
-
-		public void UpdateView(string subscribedTo, string followersAmount)
+        public void UpdateView(string subscribedTo, string followersAmount)
 		{
 			UpdateSubscribedToText(subscribedTo);
 			UpdateNumberOfReferralsText(followersAmount);

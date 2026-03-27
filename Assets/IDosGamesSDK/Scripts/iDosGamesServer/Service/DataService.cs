@@ -182,45 +182,6 @@ namespace IDosGames
                 await ValidateVIPSubscription();
         }
 
-        public static IReadOnlyList<ItemInstance> GetInventoryItemsFull()
-            => _inventoryItemsFull;
-
-        public static IReadOnlyList<ItemInstance> GetInventoryItemsFull(string itemId)
-        {
-            if (string.IsNullOrWhiteSpace(itemId)) return Array.Empty<ItemInstance>();
-            return _inventoryItemsByItemId.TryGetValue(itemId, out var list)
-                ? (IReadOnlyList<ItemInstance>)list
-                : Array.Empty<ItemInstance>();
-        }
-
-        public static string GetItemInstanceId(string itemId)
-        {
-            if (string.IsNullOrEmpty(itemId)) return null;
-            if (_inventoryItemsByItemId.TryGetValue(itemId, out var list) && list?.Count > 0)
-                return list[0].ItemInstanceId;
-            return _inventoryItemsFull.FirstOrDefault(x => x?.ItemId == itemId)?.ItemInstanceId;
-        }
-
-        public static List<string> GetItemInstanceIds(string itemId)
-        {
-            var result = new List<string>();
-            if (string.IsNullOrEmpty(itemId)) return result;
-
-            if (_inventoryItemsByItemId.TryGetValue(itemId, out var list) && list?.Count > 0)
-            {
-                foreach (var it in list)
-                    if (!string.IsNullOrEmpty(it?.ItemInstanceId))
-                        result.Add(it.ItemInstanceId);
-                return result;
-            }
-
-            foreach (var it in _inventoryItemsFull)
-                if (it?.ItemId == itemId && !string.IsNullOrEmpty(it.ItemInstanceId))
-                    result.Add(it.ItemInstanceId);
-
-            return result;
-        }
-
         public static int GetItemAmount(string itemID)
         {
             _eachItemAmounts.TryGetValue(itemID, out int amount);
@@ -248,21 +209,6 @@ namespace IDosGames
             return amount;
         }
 
-        public static string GetCachedTitlePublicConfig(TitleDataKey dataKey)
-            => GetCachedTitlePublicConfig(dataKey.ToString());
-
-        public static string GetCachedTitlePublicConfig(string dataKey)
-        {
-            var config = IDosGamesData.Config.TitlePublicConfiguration;
-            if (config == null) return string.Empty;
-
-            var jObject = JObject.FromObject(config);
-            var property = jObject.GetValue(dataKey, StringComparison.OrdinalIgnoreCase);
-            if (property == null) return string.Empty;
-
-            return property is JValue ? property.ToString() : JsonConvert.SerializeObject(property);
-        }
-
         public static string GetCachedCustomUserData(CustomUserDataKey dataKey)
             => GetCachedCustomUserData(dataKey.ToString());
 
@@ -280,9 +226,6 @@ namespace IDosGames
             _skinItems.TryGetValue(itemID, out var item);
             return item ?? (SkinCatalogItem)GetAvatarSkinItem(itemID);
         }
-
-        public static bool IsSkinEquipped(string itemID)
-            => _equippedSkins.Contains(itemID);
 
         public static RarityType GetSkinRarityByCollection(string collection)
         {
@@ -304,38 +247,34 @@ namespace IDosGames
 
         public static Product GetProductForRealMoney(string productID)
         {
-            var products = ShopSystem.ProductsForRealMoney;
+            var products = IDosGamesData.Config.TitlePublicConfiguration.ProductsForRealMoney;
             if (products == null) return null;
 
             foreach (var product in products)
             {
-                if (product[JsonProperty.ITEM_ID]?.ToString() != productID) continue;
+                if (product.ItemID != productID) continue;
 
                 return new Product
                 {
-                    Name = product[JsonProperty.NAME]?.ToString(),
-                    ItemID = product[JsonProperty.ITEM_ID]?.ToString(),
-                    ProductType = product[JsonProperty.PRODUCT_TYPE]?.ToString(),
-                    ItemClass = product[JsonProperty.ITEM_CLASS]?.ToString(),
-                    PriceRM = product[JsonProperty.PRICE_RM]?.ToString(),
-                    ImagePath = product[JsonProperty.IMAGE_PATH]?.ToString(),
-                    ItemsToGrant = product[JsonProperty.ITEMS_TO_GRANT]?.ToObject<List<ItemToGrant>>()
+                    Name = product.Name,
+                    ItemID = product.ItemID,
+                    ProductType = product.ProductType,
+                    ItemClass = product.ItemClass,
+                    PriceRM = product.PriceRM.ToString(),
+                    ImagePath = product.ImagePath,
+                    ItemsToGrant = product.ItemsToGrant?.ConvertAll(x => new ItemToGrant
+                    {
+                        Type = x.Type?.ToString(),
+                        CurrencyID = x.CurrencyID,
+                        Catalog = x.Catalog,
+                        ItemID = x.ItemID,
+                        Amount = x.Amount?.ToString(),
+                        ImagePath = x.ImagePath
+                    })
                 };
             }
 
             return null;
-        }
-
-        public static float GetTelegramStarPrice()
-        {
-            string titleData = GetCachedTitlePublicConfig(TitleDataKey.telegram_settings);
-            if (string.IsNullOrEmpty(titleData)) return 2f;
-
-            var obj = JsonConvert.DeserializeObject<JObject>(titleData);
-            if (obj.ContainsKey(JsonProperty.STAR_PRICE_IN_CENT))
-                return float.Parse(obj[JsonProperty.STAR_PRICE_IN_CENT].ToString());
-
-            return 2f;
         }
 
         public static void UpdateEquippedSkins(List<string> equippedSkins)
@@ -450,9 +389,6 @@ namespace IDosGames
                 }
             }
         }
-
-        public static void UpdateCustomUserData(string key, object data)
-            => _ = UserService.UpdateCustomUserData(key, data);
 
         public static async Task ValidateVIPSubscription(string receipt = null)
         {

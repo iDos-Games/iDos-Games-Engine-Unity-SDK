@@ -1,5 +1,4 @@
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using IDosGames.TitlePublicConfiguration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,29 +22,26 @@ namespace IDosGames.UserProfile
         public void InspectAvatarSkin(string itemID)
         {
             var skinItem = DataService.GetAvatarSkinItem(itemID);
-
-
             var model = Instantiate(_male, _root);
             castamizationElements = FindAllCustomizationElements(model.transform);
+
             foreach (var element in castamizationElements)
             {
                 element.Deactivate();
             }
+
             SetModelTransform(model.transform);
-
-
             EquipSkin(skinItem);
             SetDefaultSkins(skinItem);
-
         }
 
         private void SetModelTransform(Transform transform)
         {
             transform.SetLocalPositionAndRotation(_defaultPosition, Quaternion.Euler(Vector3.zero));
         }
+
         private void EquipSkin(AvatarSkinCatalogItem skinItem)
         {
-
             var castamozationElement = castamizationElements.FirstOrDefault(x => x.Type == skinItem.ClothingType && x.AvatarMeshVersion.ToLower() == skinItem.AvatarMeshVersion);
             castamozationElement.Activate();
             castamozationElement.SetTexture(skinItem.TexturePath);
@@ -53,41 +49,44 @@ namespace IDosGames.UserProfile
 
         private void SetDefaultSkins(AvatarSkinCatalogItem skinItem)
         {
+            var defaultSkin = IDosGamesData.Config.TitlePublicConfiguration?.DefaultAvatarSkin?.Data;
 
-            var defaultSkin = DataService.GetCachedTitlePublicConfig(TitleDataKey.DefaultAvatarSkin);
-            JObject json = JsonConvert.DeserializeObject<JObject>(defaultSkin);
-
-
-
-            var jArray = json.GetValue("Data").Value<JArray>();
-
-
-            Dictionary<string, string> resultDictionary = jArray
-                .Select(item => (JProperty)item.First)
-                .ToDictionary(property => property.Name, property => property.Value.ToString());
-
-            foreach (var item in resultDictionary)
+            if (defaultSkin == null)
             {
-                var defaultType = ConvertToClothingType(item.Key);
-                if (defaultType == skinItem.ClothingType)
-                {
-                    continue;
-                }
-                var defaultItem = DataService.GetAvatarSkinItem(item.Value);
-                EquipSkin(defaultItem);
-
+                return;
             }
 
+            var defaultSkinMap = new Dictionary<string, string>
+            {
+                { nameof(DefaultAvatarSkinData.Body),    defaultSkin.Body },
+                { nameof(DefaultAvatarSkinData.Glasses), defaultSkin.Glasses },
+                { nameof(DefaultAvatarSkinData.Hands),   defaultSkin.Hands },
+                { nameof(DefaultAvatarSkinData.Hat),     defaultSkin.Hat },
+                { nameof(DefaultAvatarSkinData.Mask),    defaultSkin.Mask },
+                { nameof(DefaultAvatarSkinData.Pants),   defaultSkin.Pants },
+                { nameof(DefaultAvatarSkinData.Shoes),   defaultSkin.Shoes },
+                { nameof(DefaultAvatarSkinData.Torso),   defaultSkin.Torso },
+            };
 
+            foreach (var item in defaultSkinMap)
+            {
+                if (string.IsNullOrEmpty(item.Value)) continue;
 
+                var defaultType = ConvertToClothingType(item.Key);
+                if (defaultType == skinItem.ClothingType) continue;
 
+                var defaultItem = DataService.GetAvatarSkinItem(item.Value);
+                EquipSkin(defaultItem);
+            }
         }
+
         public List<CustomizationElement> FindAllCustomizationElements(Transform transform)
         {
             List<CustomizationElement> customizationElements = new List<CustomizationElement>();
             FindCustomizationElementsRecursive(customizationElements, transform);
             return customizationElements;
         }
+
         private static void FindCustomizationElementsRecursive(List<CustomizationElement> elements, Transform parent)
         {
             foreach (Transform child in parent)
@@ -108,9 +107,7 @@ namespace IDosGames.UserProfile
             {
                 return (ClothingType)Enum.Parse(typeof(ClothingType), value);
             }
-
             return ClothingType.None;
-
         }
     }
 }

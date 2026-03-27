@@ -1,6 +1,8 @@
+using IDosGames.TitlePublicConfiguration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace IDosGames
@@ -18,18 +20,24 @@ namespace IDosGames
 
         public override void InitializePanel()
         {
-            var freeProducts = ShopSystem.DailyFreeProducts;
-            var offerData = ShopSystem.DailyOfferData;
+            var freeProducts = IDosGamesData.Config.TitlePublicConfiguration.ShopDailyFreeProducts;
+            var offerData = IDosGamesData.Config.TitlePublicConfiguration.ShopDailyProducts;
 
-            var products = offerData[JsonProperty.PRODUCTS];
+            if (offerData == null) return;
 
-            _endDate = GetEndDateTime(offerData);
+            if (offerData.EndDate.HasValue)
+            {
+                _endDate = offerData.EndDate.Value.ToUniversalTime();
+            }
+            else
+            {
+                _endDate = DateTime.MinValue;
+            }
+
             UpdateTimer(_endDate);
 
-            if (products == null)
-            {
-                return;
-            }
+            var products = offerData.Products;
+            if (products == null) return;
 
             foreach (Transform child in _content)
             {
@@ -40,7 +48,7 @@ namespace IDosGames
             InitializePaidProducts(products);
         }
 
-        private async void InitializeFreeProducts(JArray products)
+        private async void InitializeFreeProducts(List<ShopDailyFreeProduct> products)
         {
             var playerData = DataService.GetCachedCustomUserData(CustomUserDataKey.shop_daily_free_products);
 
@@ -52,37 +60,31 @@ namespace IDosGames
 
             foreach (var product in products)
             {
-                if (!(bool)product[JsonProperty.ENABLED])
-                {
-                    continue;
-                }
+                if (!product.Enabled) continue;
 
                 var productItem = Instantiate(_dailyFreeOfferPrefab, _content);
+                var itemID = product.ItemID;
 
-                var itemID = $"{product[JsonProperty.ITEM_ID]}";
-
-                string imagePath = product[JsonProperty.IMAGE_PATH].ToString();
-                var iconPath = (imagePath == JsonProperty.TOKEN_IMAGE_PATH) ? IDosGamesData.Config.Currencies.CurrencyData.Find(c => c.CurrencyCode == "IG")?.ImageUrl ?? JsonProperty.TOKEN_IMAGE_PATH : imagePath;
+                var imagePath = product.ImagePath;
+                var iconPath = (imagePath == JsonProperty.TOKEN_IMAGE_PATH)
+                    ? IDosGamesData.Config.Currencies.CurrencyData.Find(c => c.CurrencyCode == "IG")?.ImageUrl ?? JsonProperty.TOKEN_IMAGE_PATH
+                    : imagePath;
                 var icon = await ImageLoader.GetSpriteAsync(iconPath);
 
-                var title = $"{product[JsonProperty.NAME]}";
-
-                var itemClass = $"{product[JsonProperty.ITEM_CLASS]}";
+                var title = product.Name;
+                var itemClass = product.ItemClass;
 
                 int productAmountInPlayer = GetProductAmountInPlayer(itemID, playerData);
-                int productAmountInOffer = GetProductAmountInOffer(itemID, products);
+                int productAmountInOffer = product.Amount;
 
                 string quantityAmount = $"{productAmountInPlayer}/{productAmountInOffer}";
-
                 productItem.View.SetQuantity(quantityAmount);
 
                 bool isNeedShowAd = IsNeedToShowAd(productAmountInOffer, productAmountInPlayer);
                 bool isNeedBlock = productAmountInPlayer < 1;
 
                 if (isNeedBlock)
-                {
                     productItem.View.Block();
-                }
                 else
                 {
                     productItem.View.UnBlock();
@@ -126,18 +128,11 @@ namespace IDosGames
             return isNeed;
         }
 
-        private string GetItemAmountToGrant(JToken product)
+        private string GetItemAmountToGrant(ShopDailyFreeProduct product)
         {
-            string amount = string.Empty;
-
-            JArray items = (JArray)product[JsonProperty.ITEMS_TO_GRANT];
-
-            if (items.Count > 0)
-            {
-                amount = $"{items[0][JsonProperty.AMOUNT]}";
-            }
-
-            return amount;
+            if (product.ItemsToGrant != null && product.ItemsToGrant.Count > 0)
+                return product.ItemsToGrant[0].Amount?.ToString() ?? string.Empty;
+            return string.Empty;
         }
 
         private int GetProductAmountInPlayer(string itemID, string playerData)
@@ -157,22 +152,6 @@ namespace IDosGames
                         int.TryParse($"{product[JsonProperty.AMOUNT]}", out amount);
                         break;
                     }
-                }
-            }
-
-            return amount;
-        }
-
-        private int GetProductAmountInOffer(string itemID, JArray products)
-        {
-            int amount = 0;
-
-            foreach (var product in products)
-            {
-                if ($"{product[JsonProperty.ITEM_ID]}" == itemID)
-                {
-                    int.TryParse($"{product[JsonProperty.AMOUNT]}", out amount);
-                    break;
                 }
             }
 
@@ -202,60 +181,49 @@ namespace IDosGames
 
         private bool IsNeedUpdateDailyFreeProducts(string playerData)
         {
-            if (string.IsNullOrEmpty(playerData))
-            {
-                return true;
-            }
+            if (string.IsNullOrEmpty(playerData)) return true;
 
             var jsonData = JsonConvert.DeserializeObject<JObject>(playerData);
 
-            var playerLastUpdateDate = GetEndDateTime(jsonData);
+            string endDateString = $"{jsonData[JsonProperty.END_DATE]}";
+            if (string.IsNullOrEmpty(endDateString)) return true;
 
-            if (_endDate > playerLastUpdateDate)
-            {
+            DateTimeOffset playerLastUpdateDate = DateTimeOffset.Parse(endDateString, null, System.Globalization.DateTimeStyles.AssumeUniversal);
 
-                return true;
-            }
-
-            return false;
+            return _endDate > playerLastUpdateDate.UtcDateTime;
         }
 
-        private async void InitializePaidProducts(JToken products)
+        private async void InitializePaidProducts(List<ShopDailyProduct> products)
         {
             foreach (var product in products)
             {
                 var productItem = Instantiate(_dailyPaidOfferPrefab, _content);
+                var itemID = product.ItemID;
+                var price = GetPriceInRealMoney(product.PriceRM.ToString());
 
-                var itemID = $"{product[JsonProperty.ITEM_ID]}";
-
-                var price = GetPriceInRealMoney($"{product[JsonProperty.PRICE_RM]}");
-
-                string imagePath = product[JsonProperty.IMAGE_PATH].ToString();
-                var iconPath = (imagePath == JsonProperty.TOKEN_IMAGE_PATH) ? IDosGamesData.Config.Currencies.CurrencyData.Find(c => c.CurrencyCode == "IG")?.ImageUrl ?? JsonProperty.TOKEN_IMAGE_PATH : imagePath;
+                var imagePath = product.ImagePath;
+                var iconPath = (imagePath == JsonProperty.TOKEN_IMAGE_PATH)
+                    ? IDosGamesData.Config.Currencies.CurrencyData.Find(c => c.CurrencyCode == "IG")?.ImageUrl ?? JsonProperty.TOKEN_IMAGE_PATH
+                    : imagePath;
                 var icon = await ImageLoader.GetSpriteAsync(iconPath);
 
-                var title = $"{product[JsonProperty.NAME]}";
+                var title = product.Name;
 
-                string currencyImagePath = product[JsonProperty.CURRENCY_IMAGE_PATH].ToString();
-                var currencyIconPath = (currencyImagePath == JsonProperty.TOKEN_IMAGE_PATH) ? IDosGamesData.Config.Currencies.CurrencyData.Find(c => c.CurrencyCode == "IG")?.ImageUrl ?? JsonProperty.TOKEN_IMAGE_PATH : currencyImagePath;
+                var currencyImagePath = product.CurrencyImagePath;
+                var currencyIconPath = (currencyImagePath == JsonProperty.TOKEN_IMAGE_PATH)
+                    ? IDosGamesData.Config.Currencies.CurrencyData.Find(c => c.CurrencyCode == "IG")?.ImageUrl ?? JsonProperty.TOKEN_IMAGE_PATH
+                    : currencyImagePath;
                 var currencyIcon = await ImageLoader.GetSpriteAsync(currencyIconPath);
 
-                var currencyID = GetVirtualCurrencyID($"{product[JsonProperty.CURRENCY_ID]}");
-
+                var currencyID = GetVirtualCurrencyID(product.CurrencyID);
                 price = GetPriceInVirtualCurrency(price, currencyID);
 
-                Action onclickCalback = () => ShopSystem.PopUpSystem.ShowConfirmationPopUp(() => ShopSystem.BuyDailyItem(itemID, currencyID, price), title, $"{price}", currencyIcon);
+                Action onclickCalback = () => ShopSystem.PopUpSystem.ShowConfirmationPopUp(
+                    () => ShopSystem.BuyDailyItem(itemID, currencyID, price),
+                    title, $"{price}", currencyIcon);
 
                 productItem.Fill(onclickCalback, title, $"{price:N0}", icon, currencyIcon);
             }
-        }
-
-        private DateTime GetEndDateTime(JToken jToken)
-        {
-            string endDateString = $"{jToken[JsonProperty.END_DATE]}";
-            DateTimeOffset endDateTimeOffset = DateTimeOffset.Parse(endDateString, null, System.Globalization.DateTimeStyles.AssumeUniversal);
-            DateTime endDate = endDateTimeOffset.UtcDateTime;
-            return endDate;
         }
 
         private void UpdateTimer(DateTime endDate)

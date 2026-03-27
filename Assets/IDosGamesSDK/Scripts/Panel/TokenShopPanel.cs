@@ -10,46 +10,34 @@ namespace IDosGames
 		[SerializeField] private ShopItem _itemPrefab;
 		[SerializeField] private Transform _content;
 
-		public override async void InitializePanel()
-		{
-			var products = ShopSystem.ProductsForRealMoney;
+        public override async void InitializePanel()
+        {
+            var products = IDosGamesData.Config.TitlePublicConfiguration.ProductsForRealMoney;
+            if (products == null) return;
 
-			if (products == null)
-			{
-				return;
-			}
+            foreach (Transform child in _content)
+            {
+                Destroy(child.gameObject);
+            }
 
-			foreach (Transform child in _content)
-			{
-				Destroy(child.gameObject);
-			}
+            foreach (var product in products)
+            {
+                if (product.ItemClass != PANEL_CLASS) continue;
 
-			foreach (var product in products)
-			{
-				var itemClass = $"{product[JsonProperty.ITEM_CLASS]}";
+                var productItem = Instantiate(_itemPrefab, _content);
+                var itemID = product.ItemID;
+                var price = GetPriceInRealMoney(product.PriceRM.ToString());
 
-				if (itemClass != PANEL_CLASS)
-				{
-					continue;
-				}
-
-				var productItem = Instantiate(_itemPrefab, _content);
-
-				var itemID = $"{product[JsonProperty.ITEM_ID]}";
-
-				var price = GetPriceInRealMoney($"{product[JsonProperty.PRICE_RM]}");
-
-                string imagePath = product[JsonProperty.IMAGE_PATH].ToString();
-                var iconPath = (imagePath == JsonProperty.TOKEN_IMAGE_PATH) ? IDosGamesData.Config.Currencies.CurrencyData.Find(c => c.CurrencyCode == "IG")?.ImageUrl ?? JsonProperty.TOKEN_IMAGE_PATH : imagePath;
+                var imagePath = product.ImagePath;
+                var iconPath = (imagePath == JsonProperty.TOKEN_IMAGE_PATH)
+                    ? IDosGamesData.Config.Currencies.CurrencyData.Find(c => c.CurrencyCode == "IG")?.ImageUrl ?? JsonProperty.TOKEN_IMAGE_PATH
+                    : imagePath;
                 var icon = await ImageLoader.GetSpriteAsync(iconPath);
 
                 var title = VirtualCurrencyPrices.ConverRMtoIGTwithDivider(price).ToString("N0") + " Token";
-
-				Action onclickCalback = () => ShopSystem.BuyForRealMoney(itemID);
-
-				productItem.Fill(onclickCalback, title, $"${price}", icon);
-			}
-		}
-
-	}
+                Action onclickCalback = () => ShopSystem.BuyForRealMoney(itemID);
+                productItem.Fill(onclickCalback, title, $"${price}", icon);
+            }
+        }
+    }
 }
