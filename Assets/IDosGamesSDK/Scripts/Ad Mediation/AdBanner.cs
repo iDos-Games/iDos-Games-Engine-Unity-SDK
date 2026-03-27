@@ -14,12 +14,12 @@ namespace IDosGames
 
 		private void OnEnable()
 		{
-			UserInventory.InventoryUpdated += OnInventoryUpdated;
+            IDosGamesData.User.OnInventoryUpdated += OnInventoryUpdated;
 		}
 
 		private void OnDisable()
 		{
-			UserInventory.InventoryUpdated -= OnInventoryUpdated;
+            IDosGamesData.User.OnInventoryUpdated -= OnInventoryUpdated;
 		}
 
 		private void OnInventoryUpdated()

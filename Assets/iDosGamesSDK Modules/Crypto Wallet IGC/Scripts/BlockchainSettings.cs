@@ -1,6 +1,5 @@
 using IDosGames.TitlePublicConfiguration;
 using Newtonsoft.Json;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -40,16 +39,14 @@ namespace IDosGames
         [RuntimeInitializeOnLoadMethod]
         private static void Initialize()
         {
-            UserDataService.TitlePublicConfigurationUpdated += SetWallet;
+            IDosGamesData.Config.OnTitlePublicConfigurationUpdated += SetWallet;
         }
 
         public static async void SetWallet()
         {
 #if IDOSGAMES_CRYPTO_WALLET
-            
-            string titleData = UserDataService.GetCachedTitlePublicConfig(TitleDataKey.CryptoWallet);
 
-            List<CryptoWallet> cryptoWallets = JsonConvert.DeserializeObject<List<CryptoWallet>>(titleData);
+            var cryptoWallets = IDosGamesData.Config.TitlePublicConfiguration.CryptoWallet;
 
             if (cryptoWallets != null && cryptoWallets.Count > 0)
             {

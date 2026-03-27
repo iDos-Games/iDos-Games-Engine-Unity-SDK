@@ -41,13 +41,13 @@ namespace IDosGames
 
         public void RefreshData()
         {
-            if (string.IsNullOrEmpty(IGSUserData.MarketplaceGroupedOffers))
+            if (string.IsNullOrEmpty(IDosGamesData.Title.MarketplaceGroupedOffers))
             {
                 Refresh();
             }
             else
             {
-                string offers = IGSUserData.MarketplaceGroupedOffers;
+                string offers = IDosGamesData.Title.MarketplaceGroupedOffers;
                 ProcessRequestResult(offers);
                 IsNeedUpdate = false;
             }
@@ -72,7 +72,7 @@ namespace IDosGames
 
 			var result = await IGSService.GetDataFromMarketplace(request);
 
-			IGSUserData.MarketplaceGroupedOffers = result;
+            IDosGamesData.Title.MarketplaceGroupedOffers = result;
 
             Loading.HideAllPanels();
 

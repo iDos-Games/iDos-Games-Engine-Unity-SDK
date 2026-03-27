@@ -43,13 +43,13 @@ namespace IDosGames
 
         public void RefreshData()
         {
-            if (string.IsNullOrEmpty(IGSUserData.MarketplaceActiveOffers))
+            if (string.IsNullOrEmpty(IDosGamesData.Title.MarketplaceActiveOffers))
             {
                 Refresh();
             }
             else
             {
-                string activeOffers = IGSUserData.MarketplaceActiveOffers;
+                string activeOffers = IDosGamesData.Title.MarketplaceActiveOffers;
                 _continuationToken = null;
                 _destoyChildrenOnInstantiate = true;
                 ProcessRequestDataResult(activeOffers);
@@ -81,7 +81,7 @@ namespace IDosGames
 
             Loading.HideAllPanels();
 
-            IGSUserData.MarketplaceActiveOffers = result;
+            IDosGamesData.Title.MarketplaceActiveOffers = result;
 
             return result;
         }

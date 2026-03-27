@@ -24,12 +24,12 @@ namespace IDosGames
 		private void OnEnable()
 		{
 			UpdateUI();
-			UserInventory.InventoryUpdated += UpdateUI;
+			IDosGamesData.User.OnInventoryUpdated += UpdateUI;
 		}
 
 		private void OnDisable()
 		{
-			UserInventory.InventoryUpdated -= UpdateUI;
+			IDosGamesData.User.OnInventoryUpdated -= UpdateUI;
 		}
 
 		private void OnClickOpenButton()

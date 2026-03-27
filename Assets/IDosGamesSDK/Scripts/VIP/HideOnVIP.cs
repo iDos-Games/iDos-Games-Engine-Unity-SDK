@@ -7,12 +7,12 @@ namespace IDosGames
 		private void OnEnable()
 		{
 			UpdateView();
-			UserInventory.InventoryUpdated += UpdateView;
+            IDosGamesData.User.OnAnyUpdated += UpdateView;
 		}
 
 		private void OnDisable()
 		{
-			UserInventory.InventoryUpdated -= UpdateView;
+            IDosGamesData.User.OnAnyUpdated -= UpdateView;
 		}
 
 		private void UpdateView()

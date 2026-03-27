@@ -24,26 +24,17 @@ namespace IDosGames
         public static bool _firstTimeDataUpdated = false;
 
         public static event Action<GetUserInventoryResult> UserInventoryReceived;
-        public static event Action<TitlePublicConfigurationModel> TitlePublicConfigurationReceived;
-        public static event Action<GetCustomUserDataResult> CustomUserDataReceived;
         public static event Action<GetCatalogItemsResult> SkinCatalogReceived;
 
-        public static event Action TitlePublicConfigurationUpdated;
         public static event Action CustomUserDataUpdated;
         public static event Action SkinCatalogItemsUpdated;
         public static event Action EquippedSkinsUpdated;
-        public static event Action VirtualCurrencyUpdated;
 
         public static IReadOnlyList<SkinCatalogItem> AllSkinsInCatalog => _allSkinsInCatalog.AsReadOnly();
 
         public static IReadOnlyList<BigInteger> NFTIDs => _nftIDs.AsReadOnly();
 
         public static IReadOnlyList<string> EquippedSkins => _equippedSkins.AsReadOnly();
-
-        private static readonly Dictionary<TitleDataKey, string> _titleData = new();
-        private static readonly Dictionary<string, string> _titleDataRaw = new();
-        private static readonly Dictionary<CustomUserDataKey, string> _playerData = new();
-        private static readonly Dictionary<string, string> _playerDataRaw = new();
 
         private static readonly Dictionary<string, RarityType> _skinCollectionRarity = new();
         private static readonly Dictionary<string, float> _skinCollectionProfit = new();
@@ -74,12 +65,8 @@ namespace IDosGames
             IAPValidator.VIPSubscriptionValidated += OnVIPSubscriptionValidated;
             UserInventory.InventoryUpdated += CheckForEquippedSkinInInventory;
             CustomUserDataUpdated += SetEquippedSkinsList;
-            // UserInventory.InventoryUpdated += CheckForEquippedAvatarSkin;
-            //FirstTimeDataUpdated += RequestSkinCatalogItems;
 
             UserInventoryReceived += (result) => _continueRequestAllDataSequence = true;
-            TitlePublicConfigurationReceived += (result) => _continueRequestAllDataSequence = true;
-            CustomUserDataReceived += (result) => _continueRequestAllDataSequence = true;
             SkinCatalogReceived += (result) => _continueRequestAllDataSequence = true;
             AllDataRequestError += (error) => _continueRequestAllDataSequence = true;
         }
@@ -98,15 +85,12 @@ namespace IDosGames
             IDosGamesData.User.ApplyVirtualCurrency(userDataResult.UserInventoryResult.VirtualCurrency);
             IDosGamesData.User.ApplyVirtualCurrencyRechargeTimes(userDataResult.UserInventoryResult.VirtualCurrencyRechargeTimes);
             IDosGamesData.User.ApplyInventory(userDataResult.UserInventoryResult.Inventory);
-            VirtualCurrencyUpdated?.Invoke();
 
-            OnTitlePublicConfigurationReceived(userDataResult.TitlePublicConfiguration);
             IDosGamesData.Config.ApplyTitlePublicConfiguration(userDataResult.TitlePublicConfiguration);
 
             OnCatalogItemsReceived(userDataResult.CatalogItemsResult);
             IDosGamesData.Config.ApplyCatalog(CATALOG_SKIN, userDataResult.CatalogItemsResult);
 
-            OnCustomUserDataReceived(userDataResult.CustomUserDataResult);
             IDosGamesData.User.ApplyCustomUserData(userDataResult.CustomUserDataResult);
 
             IDosGamesData.Title.ApplyLeaderboard(userDataResult.LeaderboardResult);
@@ -128,71 +112,9 @@ namespace IDosGames
             }
         }
 
-        public static void VirtualCurrencyUpdatedInvoke()
-        {
-            VirtualCurrencyUpdated?.Invoke();
-        }
-
         public static void RequestUserAllData()
         {
             IGSClientAPI.GetUserAllData(resultCallback: ProcessingAllData, notConnectionErrorCallback: OnAllDataRequestError, connectionErrorCallback: () => { RequestUserAllData(); TryInvokeDataRequestAgain(); });
-        }
-
-        public static void RequestUserInventory()
-        {
-            IGSClientAPI.GetUserInventory
-            (
-                resultCallback: (result) => UserInventoryReceived?.Invoke(result),
-                notConnectionErrorCallback: OnRequestUserInventoryError,
-                connectionErrorCallback: () =>
-                {
-                    RequestUserInventory();
-                    TryInvokeDataRequestAgain();
-                }
-            );
-        }
-
-        public static void RequestTitlePublicConfiguration()
-        {
-            IGSClientAPI.GetTitlePublicConfiguration(
-
-                resultCallback: OnTitlePublicConfigurationReceived,
-                notConnectionErrorCallback: OnRequestTitlePublicConfigurationError,
-                connectionErrorCallback: () =>
-                {
-                    RequestTitlePublicConfiguration();
-                    TryInvokeDataRequestAgain();
-                }
-                );
-        }
-
-        public static void RequestCustomUserData()
-        {
-            IGSClientAPI.GetCustomUserData
-            (
-                resultCallback: OnCustomUserDataReceived,
-                notConnectionErrorCallback: OnRequestCustomUserDataError,
-                connectionErrorCallback: () =>
-                {
-                    RequestCustomUserData();
-                    TryInvokeDataRequestAgain();
-                }
-            );
-        }
-
-        public static void RequestSkinCatalogItems()
-        {
-            IGSClientAPI.GetCatalogItems
-            (
-                catalogVersion: CATALOG_SKIN,
-                resultCallback: OnCatalogItemsReceived,
-                notConnectionErrorCallback: OnRequestSkinCatalogItemsError,
-                connectionErrorCallback: () =>
-                {
-                    RequestSkinCatalogItems();
-                    TryInvokeDataRequestAgain();
-                }
-            );
         }
 
         // Processing of Received Data
@@ -206,30 +128,46 @@ namespace IDosGames
 
         public static string GetCachedTitlePublicConfig(TitleDataKey dataKey)
         {
-            _titleData.TryGetValue(dataKey, out string data);
+            var config = IDosGamesData.Config.TitlePublicConfiguration;
+            if (config == null) return string.Empty;
 
-            return $"{data}";
+            var jObject = JObject.FromObject(config);
+            var property = jObject.GetValue(dataKey.ToString(), StringComparison.OrdinalIgnoreCase);
+
+            if (property == null) return string.Empty;
+
+            return property is JValue ? property.ToString() : JsonConvert.SerializeObject(property);
         }
 
         public static string GetCachedTitlePublicConfig(string dataKey)
         {
-            _titleDataRaw.TryGetValue(dataKey, out string data);
+            var config = IDosGamesData.Config.TitlePublicConfiguration;
+            if (config == null) return string.Empty;
 
-            return $"{data}";
+            var jObject = JObject.FromObject(config);
+            var property = jObject.GetValue(dataKey, StringComparison.OrdinalIgnoreCase);
+
+            if (property == null) return string.Empty;
+
+            return property is JValue ? property.ToString() : JsonConvert.SerializeObject(property);
         }
 
         public static string GetCachedCustomUserData(CustomUserDataKey dataKey)
         {
-            _playerData.TryGetValue(dataKey, out string data);
+            var cud = IDosGamesData.User.CustomUserData;
+            if (cud?.Data == null) return string.Empty;
 
-            return $"{data}";
+            cud.Data.TryGetValue(dataKey.ToString(), out var record);
+            return record?.Value ?? string.Empty;
         }
 
         public static string GetCachedCustomUserData(string dataKey)
         {
-            _playerDataRaw.TryGetValue(dataKey, out string data);
+            var cud = IDosGamesData.User.CustomUserData;
+            if (cud?.Data == null) return string.Empty;
 
-            return $"{data}";
+            cud.Data.TryGetValue(dataKey, out var record);
+            return record?.Value ?? string.Empty;
         }
 
         public static SkinCatalogItem GetCachedSkinItem(string itemID)
@@ -374,94 +312,19 @@ namespace IDosGames
             OnVIPSubscriptionValidated();
         }
 
-        private static void OnTitlePublicConfigurationReceived(TitlePublicConfigurationModel result)
-        {
-            TitlePublicConfigurationReceived?.Invoke(result);
-
-            TitlePublicConfiguration = result;
-
-            UpdateCachedTitlePublicConfiguration(result);
-        }
-
-        private static void UpdateCachedTitlePublicConfiguration(TitlePublicConfigurationModel result)
-        {
-            JObject jsonObject = JObject.FromObject(result);
-            Dictionary<string, string> dataDictionary = ConvertJObjectToDictionary(jsonObject);
-            foreach (var data in dataDictionary)
-            {
-                _titleDataRaw[data.Key] = data.Value;
-
-                if (Enum.TryParse(data.Key, true, out TitleDataKey dataKey))
-                {
-                    _titleData[dataKey] = data.Value;
-                }
-
-
-            }
-            TitlePublicConfigurationUpdated?.Invoke();
-        }
-
-        private static Dictionary<string, string> ConvertJObjectToDictionary(JObject jsonObject)
-        {
-            Dictionary<string, string> result = new Dictionary<string, string>();
-
-            foreach (var property in jsonObject.Properties())
-            {
-                if (property.Value is JValue)
-                {
-                    // Если значение - JValue, добавляем его в Dictionary
-                    result[property.Name] = ((JValue)property.Value).Value?.ToString();
-                }
-                else if (property.Value is JObject)
-                {
-                    result[property.Name] = JsonConvert.SerializeObject(property.Value);
-                }
-                else if (property.Value is JArray)
-                {
-                    result[property.Name] = JsonConvert.SerializeObject(property.Value);
-                }
-
-            }
-
-            return result;
-        }
-
-        private static void OnCustomUserDataReceived(GetCustomUserDataResult result)
-        {
-            CustomUserDataReceived?.Invoke(result);
-
-            UpdateCachedCustomUserData(result);
-        }
-
-        private static void UpdateCachedCustomUserData(GetCustomUserDataResult result)
-        {
-            foreach (var data in result.Data)
-            {
-                _playerDataRaw[data.Key] = data.Value.Value;
-
-                if (Enum.TryParse(data.Key, true, out CustomUserDataKey dataKey))
-                {
-                    _playerData[dataKey] = data.Value.Value;
-                }
-            }
-
-            CustomUserDataUpdated?.Invoke();
-        }
-
         private static void SetEquippedSkinsList()
         {
             _equippedSkins.Clear();
 
-            var equppedSkinsData = GetCachedCustomUserData(CustomUserDataKey.equipped_skins);
+            var cud = IDosGamesData.User.CustomUserData;
+            if (cud?.Data == null) return;
 
-            if (equppedSkinsData == string.Empty)
-            {
-                return;
-            }
+            if (!cud.Data.TryGetValue(CustomUserDataKey.equipped_skins.ToString(), out var record)
+                || string.IsNullOrEmpty(record?.Value)) return;
 
             try
             {
-                _equippedSkins = JsonConvert.DeserializeObject<List<string>>(equppedSkinsData);
+                _equippedSkins = JsonConvert.DeserializeObject<List<string>>(record.Value);
                 _equippedSkins ??= new();
             }
             catch (JsonReaderException)
@@ -530,38 +393,22 @@ namespace IDosGames
 
         private static void SetSkinCollectionRarityAndProfit()
         {
-            string collectionRarityData = GetCachedTitlePublicConfig(TitleDataKey.SkinCollectionRarity);
+            var collectionRarities = IDosGamesData.Config.TitlePublicConfiguration?.SkinCollectionRarity;
 
-            JArray collectionRarities = new();
-
-            try
+            if (collectionRarities == null)
             {
-                collectionRarities = JsonConvert.DeserializeObject<JArray>(collectionRarityData);
-                collectionRarities ??= new();
-            }
-            catch (JsonReaderException)
-            {
-                Debug.LogError("Incorrect skin_collection_rarity format in TitleData. JsonReaderException.");
+                Debug.LogError("Incorrect SkinCollectionRarity format in TitlePublicConfiguration.");
+                return;
             }
 
             foreach (var collectionRarity in collectionRarities)
             {
-                List<string> collections = new();
+                if (collectionRarity.Collections == null) continue;
 
-                try
-                {
-                    collections = JsonConvert.DeserializeObject<List<string>>($"{collectionRarity[JsonProperty.COLLECTIONS]}");
-                    collections ??= new();
-                }
-                catch (JsonReaderException)
-                {
-                    Debug.LogError("Incorrect skin_collection_rarity format in TitleData. JsonReaderException.");
-                }
+                Enum.TryParse(collectionRarity.Rarity, true, out RarityType rarity);
+                float profit = collectionRarity.Profit;
 
-                Enum.TryParse($"{collectionRarity[JsonProperty.RARITY]}", true, out RarityType rarity);
-                float.TryParse($"{collectionRarity[JsonProperty.PROFIT]}", out float profit);
-
-                foreach (var collection in collections)
+                foreach (var collection in collectionRarity.Collections)
                 {
                     _skinCollectionRarity[collection] = rarity;
                     _skinCollectionProfit[collection] = profit;
@@ -603,26 +450,6 @@ namespace IDosGames
         {
             _equippedSkins = equippedSkins;
             EquippedSkinsUpdated?.Invoke();
-        }
-
-        private static void OnRequestUserInventoryError(string error)
-        {
-            OnAllDataRequestError(error);
-        }
-
-        private static void OnRequestTitlePublicConfigurationError(string error)
-        {
-            OnAllDataRequestError(error);
-        }
-
-        private static void OnRequestCustomUserDataError(string error)
-        {
-            OnAllDataRequestError(error);
-        }
-
-        private static void OnRequestSkinCatalogItemsError(string error)
-        {
-            OnAllDataRequestError(error);
         }
 
         private static void OnErrorUpdateEquippedSkins()

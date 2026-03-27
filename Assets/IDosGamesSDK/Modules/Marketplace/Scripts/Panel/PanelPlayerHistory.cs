@@ -37,13 +37,13 @@ namespace IDosGames
 
         public void RefreshData()
         {
-            if (string.IsNullOrEmpty(IGSUserData.MarketplaceHistory))
+            if (string.IsNullOrEmpty(IDosGamesData.Title.MarketplaceHistory))
             {
                 Refresh();
             }
             else
             {
-                string history = IGSUserData.MarketplaceHistory;
+                string history = IDosGamesData.Title.MarketplaceHistory;
                 _continuationToken = null;
                 _destoyChildrenOnInstantiate = true;
                 ProcessRequestDataResult(history);
@@ -73,7 +73,7 @@ namespace IDosGames
 
 			var result = await IGSService.GetDataFromMarketplace(requestBody);
 
-            IGSUserData.MarketplaceHistory = result;
+            IDosGamesData.Title.MarketplaceHistory = result;
 
             Loading.HideAllPanels();
 

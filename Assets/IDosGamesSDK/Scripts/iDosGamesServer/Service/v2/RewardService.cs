@@ -153,7 +153,7 @@ namespace IDosGames
             if (!string.IsNullOrEmpty(response.RewardCurrencyID)) currency[response.RewardCurrencyID] = response.RewardBalanceNew;
             if (!string.IsNullOrEmpty(response.LimitCurrencyID)) currency[response.LimitCurrencyID] = response.LimitBalanceNew;
 
-            UserDataService.VirtualCurrencyUpdatedInvoke();
+            IDosGamesData.User.ApplyVirtualCurrency(currency);
         }
     }
 }

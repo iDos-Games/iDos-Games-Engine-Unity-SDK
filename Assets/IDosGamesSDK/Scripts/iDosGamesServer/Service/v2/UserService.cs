@@ -56,6 +56,9 @@ namespace IDosGames
 
             if (result.Success)
             {
+                IDosGamesData.User.ApplyInventory(result.Data.Inventory);
+                IDosGamesData.User.ApplyVirtualCurrency(result.Data.VirtualCurrency);
+                IDosGamesData.User.ApplyVirtualCurrencyRechargeTimes(result.Data.VirtualCurrencyRechargeTimes);
                 OnUserInventoryReceived?.Invoke(result.Data);
             }
 
@@ -69,6 +72,7 @@ namespace IDosGames
 
             if (result.Success)
             {
+                IDosGamesData.User.ApplyCustomUserData(result.Data);
                 OnCustomUserDataReceived?.Invoke(result.Data);
             }
 
@@ -92,7 +96,7 @@ namespace IDosGames
             return result;
         }
 
-        public static async Task<OperationResult<CurrencyUpdateResponse>> SubtractVirtualCurrency(string currencyId, int amount)
+        public static async Task<OperationResult<CurrencyUpdateResponse>> SubtractVirtualCurrency(string currencyId, long amount)
         {
             var request = CreateBaseRequest();
 
@@ -110,7 +114,7 @@ namespace IDosGames
             return result;
         }
 
-        public static async Task<OperationResult<CurrencyTransferResponse>> TransferVirtualCurrency(string fromCurrencyID, string toCurrencyID, int transferAmount)
+        public static async Task<OperationResult<CurrencyTransferResponse>> TransferVirtualCurrency(string fromCurrencyID, string toCurrencyID, long transferAmount)
         {
             var request = CreateBaseRequest();
 
@@ -122,13 +126,14 @@ namespace IDosGames
 
             if (result.Success)
             {
+                UpdateCachedCurrencies(result.Data);
                 OnVirtualCurrencyTransfered?.Invoke(result.Data);
             }
 
             return result;
         }
 
-        public static async Task<OperationResult<ConsumeItemResponse>> ConsumeItem(string itemInstanceID, int consumeAmount, string catalogVersion = null, string itemId = null )
+        public static async Task<OperationResult<ConsumeItemResponse>> ConsumeItem(string itemInstanceID, long consumeAmount, string catalogVersion = null, string itemId = null )
         {
             var request = CreateBaseRequest();
 
@@ -200,7 +205,21 @@ namespace IDosGames
 
             currency[response.CurrencyID] = response.NewBalance;
 
-            UserDataService.VirtualCurrencyUpdatedInvoke();
+            IDosGamesData.User.ApplyVirtualCurrency(currency);
+        }
+
+        private static void UpdateCachedCurrencies(CurrencyTransferResponse response)
+        {
+            if (response?.UpdatedVirtualCurrencies == null || response.UpdatedVirtualCurrencies.Count == 0) return;
+
+            var currency = IDosGamesData.User.VirtualCurrency ?? new ();
+
+            foreach (var pair in response.UpdatedVirtualCurrencies)
+            {
+                currency[pair.Key] = pair.Value;
+            }
+
+            IDosGamesData.User.ApplyVirtualCurrency(currency);
         }
     }
 }

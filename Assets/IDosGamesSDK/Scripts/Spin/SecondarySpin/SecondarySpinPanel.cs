@@ -8,7 +8,7 @@ namespace IDosGames
 
         private void OnEnable()
         {
-            UserInventory.InventoryUpdated += ResetSpinButton;
+            IDosGamesData.User.OnInventoryUpdated += ResetSpinButton;
             WebFunctionHandler.Instance.OnAdCompleteEvent += WebAdComplete;
 
             ResetSpinButton();
@@ -16,7 +16,7 @@ namespace IDosGames
 
         private void OnDisable()
         {
-            UserInventory.InventoryUpdated -= ResetSpinButton;
+            IDosGamesData.User.OnInventoryUpdated -= ResetSpinButton;
             WebFunctionHandler.Instance.OnAdCompleteEvent -= WebAdComplete;
         }
 

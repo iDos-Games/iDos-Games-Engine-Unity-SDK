@@ -9,11 +9,11 @@ namespace IDosGames.ServerModels
         public string Key { get; set; }
         public object Value { get; set; }
         public string CurrencyID { get; set; }
-        public int SubtractAmount { get; set; }
+        public long SubtractAmount { get; set; }
 
         public string FromCurrencyID { get; set; }
         public string ToCurrencyID { get; set; }
-        public int TransferAmount { get; set; } = 1;
+        public long TransferAmount { get; set; } = 1;
 
         public string ItemInstanceID { get; set; }
     }
@@ -22,7 +22,7 @@ namespace IDosGames.ServerModels
     public class CurrencyUpdateResponse
     {
         public string CurrencyID { get; set; }
-        public int NewBalance { get; set; }
+        public long NewBalance { get; set; }
     }
 
     [Serializable]
@@ -41,8 +41,8 @@ namespace IDosGames.ServerModels
     {
         public string FromCurrencyID { get; set; }
         public string ToCurrencyID { get; set; }
-        public int TransferAmount { get; set; }
-        public Dictionary<string, int> UpdatedVirtualCurrencies { get; set; }
+        public long TransferAmount { get; set; }
+        public Dictionary<string, long> UpdatedVirtualCurrencies { get; set; }
     }
 
     [Serializable]
@@ -51,7 +51,7 @@ namespace IDosGames.ServerModels
         public string ItemID { get; set; }
         public string ItemInstanceID { get; set; }
         public string CatalogVersion { get; set; }
-        public int ConsumedAmount { get; set; }
+        public long ConsumedAmount { get; set; }
     }
 
     public enum UserAction
