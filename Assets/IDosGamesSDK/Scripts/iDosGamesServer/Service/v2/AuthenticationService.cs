@@ -264,11 +264,6 @@ namespace IDosGames
                 ClientSessionTicket = tokenData.TitleClientSessionTicket,
                 ClientSessionTicketExpiration = tokenData.TitleClientSessionTicketExpiration,
             };
-
-            // Синхронизация со старым AuthService пока старый код его использует
-            //AuthService.AuthContext = _authContext;
-            //AuthService.UserID = _authContext.UserID;
-            //AuthService.ClientSessionTicket = _authContext.ClientSessionTicket;
         }
 
         private static async Task<OperationResult<ClientStateResponse>> FetchAndApplyClientState(AuthType authType)
@@ -301,32 +296,7 @@ namespace IDosGames
                 ctx.EntityType,
                 ctx.TelemetryKey);
 
-            var user = IDosGamesData.User;
-            if (data.UserInventoryResult != null)
-            {
-                user.ApplyInventory(data.UserInventoryResult.Inventory);
-                if (data.UserInventoryResult.VirtualCurrency != null) user.ApplyVirtualCurrency(data.UserInventoryResult.VirtualCurrency);
-                if (data.UserInventoryResult.VirtualCurrencyRechargeTimes != null) user.ApplyVirtualCurrencyRechargeTimes(data.UserInventoryResult.VirtualCurrencyRechargeTimes);
-            }
-
-            if (data.CustomUserDataResult != null) user.ApplyCustomUserData(data.CustomUserDataResult);
-            if (data.LeaderboardData != null) user.ApplyLeaderboardData(data.LeaderboardData);
-
-            var config = IDosGamesData.Config;
-            if (data.TitlePublicConfiguration != null) config.ApplyTitlePublicConfiguration(data.TitlePublicConfiguration);
-            if (data.TitlePublicData != null) config.ApplyTitlePublicData(data.TitlePublicData);
-            if (data.CatalogItemsResult != null)
-            {
-                string catalogVersion = data.CatalogItemsResult.Catalog?.Count > 0 ? data.CatalogItemsResult.Catalog[0].CatalogVersion : string.Empty;
-                config.ApplyCatalog(catalogVersion, data.CatalogItemsResult);
-            }
-            if (data.PlatformSettings != null)
-            {
-                config.ApplyPlatformSettings(data.PlatformSettings);
-                ApplyPlatformSDKSettings(data.PlatformSettings);
-            }
-
-            if (data.GetCurrencyData != null) config.ApplyCurrencies(data.GetCurrencyData);
+            ApplyPlatformSDKSettings(data.PlatformSettings);
 
             DataService.ProcessingAllData(data);
             IDosGamesData.OnUserLoggedIn();

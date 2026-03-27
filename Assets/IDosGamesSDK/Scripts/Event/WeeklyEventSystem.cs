@@ -1,5 +1,4 @@
 using IDosGames.ServerModels;
-using IDosGames.TitlePublicConfiguration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -32,6 +31,11 @@ namespace IDosGames
             {
                 _instance = this;
             }
+        }
+
+        private void Start()
+        {
+            SetData();
         }
 
         private void OnEnable()
@@ -123,7 +127,7 @@ namespace IDosGames
                     var message = resultData[JsonProperty.MESSAGE_KEY].ToString();
                     if (message == "MESSAGE_CODE_SUCCESS" || message == "SUCCESS")
                     {
-                        _ = UserService.GetUserInventory();
+                        _ = UserService.GetCustomUserData();
                     }
                 }
             }

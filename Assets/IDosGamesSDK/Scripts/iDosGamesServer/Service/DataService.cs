@@ -77,6 +77,7 @@ namespace IDosGames
             IDosGamesData.Config.ApplyCatalog(CATALOG_SKIN, userDataResult.CatalogItemsResult);
             IDosGamesData.Config.ApplyCurrencies(userDataResult.GetCurrencyData);
             IDosGamesData.Config.ApplyTitlePublicData(userDataResult.TitlePublicData);
+            IDosGamesData.Config.ApplyPlatformSettings(userDataResult.PlatformSettings);
 
             IDosGamesData.Title.ApplyLeaderboard(userDataResult.LeaderboardResult);
 

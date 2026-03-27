@@ -14,7 +14,7 @@ namespace IDosGames
         private readonly List<AlarmObject> _alarmObjects = new();
         private readonly Dictionary<AlarmType, bool> _alarmStates = new();
 
-        public const int DELAY_CHECK_OPENED_WINDOWS = 2;
+        public const int DELAY_CHECK_OPENED_WINDOWS = 0;
 
         private void Awake()
         {
@@ -29,6 +29,8 @@ namespace IDosGames
         private void Start()
         {
             Invoke(nameof(CheckWindowsOpened), DELAY_CHECK_OPENED_WINDOWS);
+            OnInventoryUpdated();
+            OnUserReadOnlyDataUpdated();
         }
 
         private void OnEnable()

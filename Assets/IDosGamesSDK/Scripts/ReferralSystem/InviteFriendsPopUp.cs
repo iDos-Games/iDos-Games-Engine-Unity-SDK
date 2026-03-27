@@ -39,7 +39,12 @@ namespace IDosGames
 			}
 		}
 
-		private void ResetActivateButton()
+        private void OnEnable()
+        {
+            ResetView();
+        }
+
+        private void ResetActivateButton()
 		{
 			_activateButton.interactable = false;
 			_activateButton.onClick.RemoveAllListeners();

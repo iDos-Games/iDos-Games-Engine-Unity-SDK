@@ -171,7 +171,7 @@ namespace IDosGames
 
         private void OnUpdateDailyFreeProducts()
         {
-            _ = UserService.GetUserInventory();
+            _ = UserService.GetCustomUserData();
         }
 
         private void OnErrorUpdateDailyFreeProducts()

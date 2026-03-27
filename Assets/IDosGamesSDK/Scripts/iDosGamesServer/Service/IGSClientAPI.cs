@@ -17,25 +17,6 @@ namespace IDosGames
         public static event Action ServerFunctionCalled;
         public static event Action ServerFunctionResponsed;
 
-        public static async void GetUserAllData(Action<ClientStateResponse> resultCallback, Action<string> notConnectionErrorCallback, Action connectionErrorCallback = null)
-        {
-            ServerFunctionCalled?.Invoke();
-
-            try
-            {
-                ClientStateResponse response = await IGSService.GetUserAllData(AuthenticationService.AuthContext.UserID, AuthenticationService.AuthContext.ClientSessionTicket);
-                if (response != null)
-                {
-                    resultCallback?.Invoke(response);
-                    ServerFunctionResponsed?.Invoke();
-                }
-            }
-            catch (Exception ex)
-            {
-                OnIGSError(ex.Message, notConnectionErrorCallback, connectionErrorCallback);
-            }
-        }
-
         public static async void ClaimTournamentReward(string statisticName, Action<UserLeaderboardRewards> resultCallback, Action<string> notConnectionErrorCallback = null, Action connectionErrorCallback = null)
         {
             ServerFunctionCalled?.Invoke();
