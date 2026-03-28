@@ -54,8 +54,8 @@ namespace IDosGames
 
             IAPValidator.VIPSubscriptionValidated += OnVIPSubscriptionValidated;
             // Когда в UserData обновился инвентарь — синхронизируем производные кэши
-            IDosGamesData.User.OnInventoryUpdated += RebuildInventoryCaches;
-            IDosGamesData.User.OnCustomUserDataUpdated += SetEquippedSkinsList;
+            IDosGamesData.User.OnAnyUpdated += RebuildInventoryCaches;
+            IDosGamesData.User.OnAnyUpdated += SetEquippedSkinsList;
         }
 
         [RuntimeInitializeOnLoadMethod]

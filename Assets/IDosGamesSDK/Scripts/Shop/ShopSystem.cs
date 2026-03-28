@@ -136,6 +136,7 @@ namespace IDosGames
                 if (resultData[JsonProperty.MESSAGE_KEY] != null)
                 {
                     Message.Show(resultData[JsonProperty.MESSAGE_KEY].ToString());
+                    _ = UserService.GetCustomUserData();
                     _ = UserService.GetUserInventory();
                 }
             }

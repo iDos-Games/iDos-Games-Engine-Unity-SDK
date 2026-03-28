@@ -8,7 +8,7 @@ namespace IDosGames
 
         private void OnEnable()
         {
-            IDosGamesData.User.OnInventoryUpdated += ResetSpinButton;
+            IDosGamesData.User.OnAnyUpdated += ResetSpinButton;
             WebFunctionHandler.Instance.OnAdCompleteEvent += WebAdComplete;
 
             ResetSpinButton();
@@ -16,7 +16,7 @@ namespace IDosGames
 
         private void OnDisable()
         {
-            IDosGamesData.User.OnInventoryUpdated -= ResetSpinButton;
+            IDosGamesData.User.OnAnyUpdated -= ResetSpinButton;
             WebFunctionHandler.Instance.OnAdCompleteEvent -= WebAdComplete;
         }
 
@@ -134,6 +134,7 @@ namespace IDosGames
 
                 _view.SpinWheel.Spin(targetIndex);
 
+                _ = UserService.GetCustomUserData();
                 Loading.HideAllPanels();
             }
             else

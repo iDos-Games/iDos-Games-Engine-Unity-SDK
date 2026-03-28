@@ -115,22 +115,7 @@ namespace IDosGames
 
                 _spinWheel.Spin(targetIndex);
 
-                //AdditionalDataService.RequestAllData();
-                //Loading.HideAllPanels();
-            }
-            else
-            {
-                Message.Show(MessageCode.SOMETHING_WENT_WRONG);
-            }
-        }
-
-        private void OnSuccessResponseSpinResult(CloudScriptModels.ExecuteFunctionResult result)
-        {
-            if (result != null && result.FunctionResult != null)
-            {
-                int.TryParse(result.FunctionResult.ToString(), out int targetIndex);
-
-                _spinWheel.Spin(targetIndex);
+                _ = UserService.GetCustomUserData();
             }
             else
             {
