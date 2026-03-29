@@ -9,7 +9,7 @@ namespace IDosGames
     {
         public void Test()
         {
-            Character();
+            
         }
 
         public void SaveValueToServer()
