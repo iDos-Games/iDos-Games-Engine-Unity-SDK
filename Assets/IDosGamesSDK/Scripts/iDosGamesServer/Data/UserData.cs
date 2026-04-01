@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using IDosGames.ClientModels;
 using IDosGames.ServerModels;
+using IDosGames.TitlePublicConfiguration;
 
 namespace IDosGames
 {
@@ -156,6 +158,240 @@ namespace IDosGames
                 VirtualCurrency[pair.Key] = pair.Value;
             OnVirtualCurrencyUpdated?.Invoke();
             OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchCharacter(string characterId, Action<CharacterModel> patch)
+        {
+            Characters ??= new();
+            if (!Characters.TryGetValue(characterId, out var character))
+            {
+                character = new CharacterModel { CharacterID = characterId };
+                Characters[characterId] = character;
+            }
+            patch(character);
+            OnCharactersUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchConsumedResource(ItemOrCurrency resource, long newBalance)
+        {
+            if (resource == null) return;
+
+            if (resource.Type == ItemType.VirtualCurrency)
+            {
+                PatchVirtualCurrency(resource.CurrencyID, newBalance);
+            }
+            else if (resource.Type == ItemType.Item)
+            {
+                Inventory ??= new();
+                var item = Inventory.FirstOrDefault(i => i.ItemId == resource.ItemID
+                    && (resource.Catalog == null || i.CatalogVersion == resource.Catalog));
+                if (item != null)
+                {
+                    item.RemainingUses -= (int)resource.Amount.Value;
+                    if (item.RemainingUses <= 0)
+                        Inventory.Remove(item);
+                }
+                OnInventoryUpdated?.Invoke();
+                OnAnyUpdated?.Invoke();
+            }
+        }
+
+        internal void ConsumeResources(List<ItemOrCurrency> consumed)
+        {
+            if (consumed == null) return;
+
+            foreach (var resource in consumed)
+            {
+                if (resource.Type == ItemType.VirtualCurrency)
+                {
+                    VirtualCurrency ??= new();
+                    if (VirtualCurrency.ContainsKey(resource.CurrencyID))
+                        VirtualCurrency[resource.CurrencyID] -= resource.Amount.Value;
+                }
+                else if (resource.Type == ItemType.Item)
+                {
+                    Inventory ??= new();
+                    var item = Inventory.FirstOrDefault(i => i.ItemId == resource.ItemID
+                        && (resource.Catalog == null || i.CatalogVersion == resource.Catalog));
+                    if (item != null)
+                    {
+                        item.RemainingUses -= (int)resource.Amount.Value;
+                        if (item.RemainingUses <= 0)
+                            Inventory.Remove(item);
+                    }
+                }
+            }
+
+            OnVirtualCurrencyUpdated?.Invoke();
+            OnInventoryUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void GrantResources(List<ItemOrCurrency> granted)
+        {
+            if (granted == null) return;
+
+            foreach (var resource in granted)
+            {
+                if (resource.Type == ItemType.VirtualCurrency)
+                {
+                    VirtualCurrency ??= new();
+                    if (VirtualCurrency.ContainsKey(resource.CurrencyID))
+                        VirtualCurrency[resource.CurrencyID] += resource.Amount.Value;
+                    else
+                        VirtualCurrency[resource.CurrencyID] = resource.Amount.Value;
+                }
+                else if (resource.Type == ItemType.Item)
+                {
+                    Inventory ??= new();
+                    var item = Inventory.FirstOrDefault(i => i.ItemId == resource.ItemID
+                        && (resource.Catalog == null || i.CatalogVersion == resource.Catalog));
+                    if (item != null)
+                    {
+                        if (item.RemainingUses.HasValue)
+                            item.RemainingUses += (int)resource.Amount.Value;
+                    }
+                    else
+                    {
+                        Inventory.Add(new ItemInstance
+                        {
+                            ItemId = resource.ItemID,
+                            CatalogVersion = resource.Catalog,
+                            RemainingUses = resource.Amount.HasValue ? (int)resource.Amount.Value : null
+                        });
+                    }
+                }
+            }
+
+            OnVirtualCurrencyUpdated?.Invoke();
+            OnInventoryUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchResources(List<ItemOrCurrency> resources)
+        {
+            if (resources == null) return;
+
+            foreach (var resource in resources)
+            {
+                if (resource.Type == ItemType.VirtualCurrency)
+                {
+                    VirtualCurrency ??= new();
+                    VirtualCurrency[resource.CurrencyID] = resource.Amount.Value;
+                }
+                else if (resource.Type == ItemType.Item)
+                {
+                    Inventory ??= new();
+                    var item = Inventory.FirstOrDefault(i => i.ItemId == resource.ItemID
+                        && (resource.Catalog == null || i.CatalogVersion == resource.Catalog));
+                    if (item != null)
+                        item.RemainingUses = resource.Amount.HasValue ? (int)resource.Amount.Value : null;
+                }
+            }
+
+            OnVirtualCurrencyUpdated?.Invoke();
+            OnInventoryUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchCharacterEquipment(string characterId, string slotId, EquippedItem item)
+        {
+            if (Characters == null || !Characters.TryGetValue(characterId, out var character)) return;
+
+            character.Equipment ??= new();
+
+            if (item == null)
+                character.Equipment.Remove(slotId);
+            else
+                character.Equipment[slotId] = item;
+
+            OnCharactersUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void ClearAllCharactersEquipment()
+        {
+            if (Characters == null) return;
+
+            foreach (var character in Characters.Values)
+                character.Equipment?.Clear();
+
+            OnCharactersUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchQuestStatus(string questId, string cycleId, QuestStatus newStatus)
+        {
+            if (Quests == null) return;
+
+            var progress = FindQuestProgress(questId, cycleId);
+            if (progress == null) return;
+
+            progress.Status = newStatus;
+            if (newStatus == QuestStatus.Claimed)
+                progress.ClaimedAtUtc = DateTime.UtcNow;
+
+            OnQuestsUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchClaimedMilestone(string cycleId, string milestoneId)
+        {
+            if (Quests?.Cycles == null) return;
+            if (!Quests.Cycles.TryGetValue(cycleId, out var cycle)) return;
+
+            cycle.ClaimedMilestoneIDs ??= new List<string>();
+            if (!cycle.ClaimedMilestoneIDs.Contains(milestoneId))
+                cycle.ClaimedMilestoneIDs.Add(milestoneId);
+
+            OnQuestsUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchQuestObjectiveProgress(QuestProgressUpdate update)
+        {
+            if (Quests == null) return;
+
+            var progress = FindQuestProgress(update.QuestID, update.CycleID);
+            if (progress == null) return;
+
+            progress.Objectives ??= new Dictionary<string, UserQuestObjectiveProgress>();
+            if (!progress.Objectives.TryGetValue(update.ObjectiveID, out var obj))
+            {
+                obj = new UserQuestObjectiveProgress { ObjectiveID = update.ObjectiveID };
+                progress.Objectives[update.ObjectiveID] = obj;
+            }
+
+            obj.CurrentValue = update.NewValue;
+            obj.Completed = update.ObjectiveCompleted;
+            if (update.ObjectiveCompleted && obj.CompletedAtUtc == null)
+                obj.CompletedAtUtc = DateTime.UtcNow;
+
+            progress.Status = update.QuestStatus;
+
+            OnQuestsUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        private UserQuestProgress FindQuestProgress(string questId, string cycleId)
+        {
+            if (string.IsNullOrEmpty(cycleId))
+            {
+                if (Quests.PermanentQuests != null &&
+                    Quests.PermanentQuests.TryGetValue(questId, out var p))
+                    return p;
+
+                return null;
+            }
+
+            if (Quests.Cycles != null &&
+                Quests.Cycles.TryGetValue(cycleId, out var cycle) &&
+                cycle.Quests != null &&
+                cycle.Quests.TryGetValue(questId, out var cp))
+                return cp;
+
+            return null;
         }
     }
 

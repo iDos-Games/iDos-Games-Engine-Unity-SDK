@@ -39,7 +39,14 @@ namespace IDosGames
         public static async Task<OperationResult<CharacterDefinitions>> GetCharacterDefinitions()
         {
             var request = CreateBaseRequest();
-            return await CharacterAPI.GetCharacterDefinitions(request);
+            var result = await CharacterAPI.GetCharacterDefinitions(request);
+
+            if (result.Success)
+            {
+                IDosGamesData.Config.PatchCharacterDefinitions(result.Data);
+            }
+
+            return result;
         }
 
         /// <summary>
@@ -52,6 +59,7 @@ namespace IDosGames
 
             if (result.Success)
             {
+                IDosGamesData.User.ApplyCharacters(result.Data.Characters);
                 OnCharactersUpdated?.Invoke(result.Data);
             }
 
@@ -73,6 +81,13 @@ namespace IDosGames
 
             if (result.Success)
             {
+                var targetId = characterId ?? DefaultData.Main;
+                IDosGamesData.User.PatchCharacter(targetId, c =>
+                {
+                    c.StatLevels ??= new();
+                    c.StatLevels[result.Data.StatID] = result.Data.StatLevel;
+                });
+                IDosGamesData.User.PatchConsumedResource(result.Data.ConsumedResource, result.Data.ConsumedResourceBalance);
                 OnStatUpgradeSuccess?.Invoke(result.Data);
             }
 
@@ -88,6 +103,12 @@ namespace IDosGames
 
             if (result.Success)
             {
+                var targetId = result.Data.CharacterID ?? characterId ?? DefaultData.Main;
+                IDosGamesData.User.PatchCharacter(targetId, c =>
+                {
+                    c.Level = result.Data.NewLevel;
+                });
+                IDosGamesData.User.ConsumeResources(result.Data.ConsumedResources);
                 OnCharacterLevelUpgradeSuccess?.Invoke(result.Data);
             }
 
@@ -104,6 +125,16 @@ namespace IDosGames
 
             if (result.Success)
             {
+                var targetId = characterId ?? DefaultData.Main;
+                foreach (var pair in itemsToEquip)
+                {
+                    IDosGamesData.User.PatchCharacterEquipment(targetId, pair.SlotID, new EquippedItem
+                    {
+                        SlotID = pair.SlotID,
+                        ItemID = pair.ItemID,
+                        ItemInstanceID = pair.ItemInstanceID
+                    });
+                }
                 OnEquipItems?.Invoke(result.Data);
             }
 
@@ -120,6 +151,11 @@ namespace IDosGames
 
             if (result.Success)
             {
+                var targetId = characterId ?? DefaultData.Main;
+                foreach (var slotId in unequipSlotIDs)
+                {
+                    IDosGamesData.User.PatchCharacterEquipment(targetId, slotId, null);
+                }
                 OnUnequipItems?.Invoke(result.Data);
             }
 
@@ -134,6 +170,7 @@ namespace IDosGames
 
             if (result.Success)
             {
+                IDosGamesData.User.ClearAllCharactersEquipment();
                 OnUnequipAllCharacters?.Invoke(result.Data);
             }
 

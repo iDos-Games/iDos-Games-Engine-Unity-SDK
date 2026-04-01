@@ -62,5 +62,19 @@ namespace IDosGames
             OnCurrencyDataUpdated?.Invoke();
             OnAnyUpdated?.Invoke();
         }
+
+        internal void PatchCharacterDefinitions(CharacterDefinitions data)
+        {
+            TitlePublicConfiguration.CharacterDefinitions = data;
+            OnTitlePublicConfigurationUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchQuestDefinitions(QuestDefinitions data)
+        {
+            TitlePublicConfiguration.QuestDefinitions = data;
+            OnTitlePublicConfigurationUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
     }
 }

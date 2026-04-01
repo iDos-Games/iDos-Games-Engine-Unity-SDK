@@ -63,7 +63,7 @@ namespace IDosGames.ClientModels
         public int StatLevel { get; set; }
 
         public ItemOrCurrency ConsumedResource { get; set; }
-        public int ConsumedResourceBalance { get; set; }
+        public long ConsumedResourceBalance { get; set; }
     }
 
     [Serializable]

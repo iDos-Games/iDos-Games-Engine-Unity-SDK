@@ -30,9 +30,10 @@ namespace IDosGames
 
         public void Character()
         {
+            _ = CharacterService.GetUserCharacters();
             //_ = CharacterService.UpgradeStatLevel("Health");
             //_ = CharacterService.UpgradeCharacterLevel();
-            _ = CharacterService.UnequipAllCharacters();
+            //_ = CharacterService.UnequipAllCharacters();
 
             List<EquipSlotPair> itemsToEquip = new List<EquipSlotPair>
             {
@@ -63,9 +64,10 @@ namespace IDosGames
 
         public void Quest()
         {
-            _ = QuestService.GetUserQuestState();
-            //_ = QuestService.AddProgress("Metric1", 1);
-            _ = QuestService.ClaimQuestReward("Quest1", "Daily");
+            //_ = QuestService.GetQuestDefinitions();
+            //_ = QuestService.GetUserQuestState();
+            _ = QuestService.AddProgress("Metric1", 1);
+            //_ = QuestService.ClaimQuestReward("Quest1", "Daily");
             //_ = QuestService.ClaimMilestoneReward("Daily", "3");
         }
 

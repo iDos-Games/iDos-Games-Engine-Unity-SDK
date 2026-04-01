@@ -9,7 +9,6 @@ namespace IDosGames
     {
         public static event Action<QuestDefinitions> OnQuestDefinitionsUpdated;
         public static event Action<GetUserQuestStateResponse> OnQuestStateUpdated;
-        public static event Action<SuccessResponse> OnQuestCyclesRefreshed;
         public static event Action<ClaimQuestRewardResponse> OnQuestRewardClaimed;
         public static event Action<ClaimMilestoneRewardResponse> OnMilestoneRewardClaimed;
         public static event Action<AddProgressResponse> OnProgressAdded;
@@ -32,7 +31,11 @@ namespace IDosGames
             var request = CreateBaseRequest();
             var result = await QuestAPI.GetQuestDefinitions(request);
 
-            if (result.Success) OnQuestDefinitionsUpdated?.Invoke(result.Data);
+            if (result.Success)
+            {
+                IDosGamesData.Config.PatchQuestDefinitions(result.Data);
+                OnQuestDefinitionsUpdated?.Invoke(result.Data);
+            }
 
             return result;
         }
@@ -44,17 +47,11 @@ namespace IDosGames
 
             var result = await QuestAPI.GetUserQuestState(request);
 
-            if (result.Success) OnQuestStateUpdated?.Invoke(result.Data);
-
-            return result;
-        }
-
-        public static async Task<OperationResult<SuccessResponse>> RefreshQuestCycles()
-        {
-            var request = CreateBaseRequest();
-            var result = await QuestAPI.RefreshQuestCycles(request);
-
-            if (result.Success) OnQuestCyclesRefreshed?.Invoke(result.Data);
+            if (result.Success)
+            {
+                IDosGamesData.User.ApplyQuests(result.Data.State);
+                OnQuestStateUpdated?.Invoke(result.Data);
+            }
 
             return result;
         }
@@ -69,7 +66,12 @@ namespace IDosGames
 
             var result = await QuestAPI.ClaimQuestReward(request);
 
-            if (result.Success) OnQuestRewardClaimed?.Invoke(result.Data);
+            if (result.Success)
+            {
+                IDosGamesData.User.PatchQuestStatus(result.Data.QuestID, result.Data.CycleID, result.Data.NewStatus);
+                IDosGamesData.User.GrantResources(result.Data.GrantedRewards);
+                OnQuestRewardClaimed?.Invoke(result.Data);
+            }
 
             return result;
         }
@@ -82,7 +84,12 @@ namespace IDosGames
 
             var result = await QuestAPI.ClaimMilestoneReward(request);
 
-            if (result.Success) OnMilestoneRewardClaimed?.Invoke(result.Data);
+            if (result.Success)
+            {
+                IDosGamesData.User.PatchClaimedMilestone(result.Data.CycleID, result.Data.MilestoneID);
+                IDosGamesData.User.GrantResources(result.Data.GrantedRewards);
+                OnMilestoneRewardClaimed?.Invoke(result.Data);
+            }
 
             return result;
         }
@@ -95,7 +102,12 @@ namespace IDosGames
 
             var result = await QuestAPI.AddProgress(request);
 
-            if (result.Success) OnProgressAdded?.Invoke(result.Data);
+            if (result.Success)
+            {
+                foreach (var update in result.Data.Updates) IDosGamesData.User.PatchQuestObjectiveProgress(update);
+
+                OnProgressAdded?.Invoke(result.Data);
+            }
 
             return result;
         }
