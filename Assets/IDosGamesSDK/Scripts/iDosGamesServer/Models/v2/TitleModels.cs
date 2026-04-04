@@ -1,6 +1,6 @@
 using System;
 
-namespace IDosGames.ServerModels
+namespace IDosGames
 {
     [Serializable]
     public class TitleRequest : IGSRequest

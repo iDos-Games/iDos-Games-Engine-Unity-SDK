@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using IDosGames.ClientModels;
-using IDosGames.ServerModels;
 using IDosGames.TitlePublicConfiguration;
 
 namespace IDosGames

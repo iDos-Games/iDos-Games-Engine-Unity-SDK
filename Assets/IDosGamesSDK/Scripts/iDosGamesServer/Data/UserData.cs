@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using IDosGames.ClientModels;
-using IDosGames.ServerModels;
 using IDosGames.TitlePublicConfiguration;
 
 namespace IDosGames
@@ -13,6 +12,7 @@ namespace IDosGames
         public Dictionary<string, VirtualCurrencyRechargeTime> VirtualCurrencyRechargeTimes { get; private set; }
         public List<ItemInstance> Inventory { get; private set; }
 
+        public UserLimitedTimeEventsState LimitedTimeEvents { get; private set; }
         public GetCustomUserDataResult CustomUserData { get; private set; }
 
         public UserSocialState Social { get; private set; } = new ();
@@ -28,6 +28,7 @@ namespace IDosGames
         public event Action OnVirtualCurrencyUpdated;
         public event Action OnVirtualCurrencyRechargeTimesUpdated;
         public event Action OnInventoryUpdated;
+        public event Action OnLimitedTimeEventsUpdated;
         public event Action OnCustomUserDataUpdated;
 
         public event Action OnSocialUpdated;
@@ -77,6 +78,48 @@ namespace IDosGames
         {
             Inventory = data;
             OnInventoryUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void ApplyLimitedTimeEvents(UserLimitedTimeEventsState data)
+        {
+            LimitedTimeEvents = data;
+            OnLimitedTimeEventsUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void ApplyLimitedTimeEventsFromActive(GetActiveEventsResponse data)
+        {
+            if (data?.ActiveEvents == null) return;
+
+            LimitedTimeEvents ??= new UserLimitedTimeEventsState
+            {
+                ScheduledEvents = new(),
+                EventChains = new(),
+            };
+
+            foreach (var info in data.ActiveEvents)
+            {
+                if (info.Progress == null) continue;
+
+                if (info.EventType == ActiveEventType.Chained && !string.IsNullOrEmpty(info.ID))
+                {
+                    if (!LimitedTimeEvents.EventChains.TryGetValue(info.ID, out var chain))
+                    {
+                        chain = new UserEventChainProgress { EventChainID = info.ID };
+                        LimitedTimeEvents.EventChains[info.ID] = chain;
+                    }
+                    chain.CurrentEventProgress = info.Progress;
+                    if (info.CurrentCycleIndex.HasValue) chain.CurrentCycleIndex = info.CurrentCycleIndex.Value;
+                    if (info.CurrentEventOrder.HasValue) chain.CurrentEventOrder = info.CurrentEventOrder.Value;
+                }
+                else if (!string.IsNullOrEmpty(info.ID))
+                {
+                    LimitedTimeEvents.ScheduledEvents[info.ID] = info.Progress;
+                }
+            }
+
+            OnLimitedTimeEventsUpdated?.Invoke();
             OnAnyUpdated?.Invoke();
         }
 
@@ -504,6 +547,114 @@ namespace IDosGames
             Board ??= new BoardLoopState();
             patch(Board);
             OnBoardUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        // ---------- Patch: Scheduled — increment token balance ----------
+        internal void PatchScheduledEventTokenBalance(string eventId, long grantAmount)
+        {
+            LimitedTimeEvents ??= new UserLimitedTimeEventsState { ScheduledEvents = new(), EventChains = new() };
+            LimitedTimeEvents.ScheduledEvents ??= new();
+
+            if (!LimitedTimeEvents.ScheduledEvents.TryGetValue(eventId, out var progress))
+            {
+                progress = new UserEventProgress { EventID = eventId };
+                LimitedTimeEvents.ScheduledEvents[eventId] = progress;
+            }
+            progress.TokenBalance += grantAmount;
+            progress.TokensEarnedTotal += grantAmount;
+            OnLimitedTimeEventsUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        // ---------- Patch: Scheduled — set absolute token balance (after Spend) ----------
+        internal void PatchScheduledEventTokenBalanceDirect(string eventId, long newBalance)
+        {
+            if (LimitedTimeEvents?.ScheduledEvents == null) return;
+            if (!LimitedTimeEvents.ScheduledEvents.TryGetValue(eventId, out var progress)) return;
+            progress.TokenBalance = newBalance;
+            OnLimitedTimeEventsUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        // ---------- Patch: Scheduled — push claimed milestone ----------
+        internal void PatchScheduledEventClaimedMilestone(string eventId, string milestoneId)
+        {
+            if (LimitedTimeEvents?.ScheduledEvents == null) return;
+            if (!LimitedTimeEvents.ScheduledEvents.TryGetValue(eventId, out var progress)) return;
+            progress.ClaimedMilestoneIDs ??= new();
+            if (!progress.ClaimedMilestoneIDs.Contains(milestoneId))
+                progress.ClaimedMilestoneIDs.Add(milestoneId);
+            OnLimitedTimeEventsUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        // ---------- Patch: Scheduled — push claimed streak day ----------
+        internal void PatchScheduledEventClaimedStreakDay(string eventId, int streakDay)
+        {
+            if (LimitedTimeEvents?.ScheduledEvents == null) return;
+            if (!LimitedTimeEvents.ScheduledEvents.TryGetValue(eventId, out var progress)) return;
+            progress.ClaimedStreakDays ??= new();
+            if (!progress.ClaimedStreakDays.Contains(streakDay))
+                progress.ClaimedStreakDays.Add(streakDay);
+            OnLimitedTimeEventsUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        // ---------- Patch: Chain — increment token balance ----------
+        internal void PatchEventChainTokenBalance(string chainId, long grantAmount)
+        {
+            LimitedTimeEvents ??= new UserLimitedTimeEventsState { ScheduledEvents = new(), EventChains = new() };
+            LimitedTimeEvents.EventChains ??= new();
+
+            if (!LimitedTimeEvents.EventChains.TryGetValue(chainId, out var chain))
+            {
+                chain = new UserEventChainProgress { EventChainID = chainId };
+                LimitedTimeEvents.EventChains[chainId] = chain;
+            }
+            chain.CurrentEventProgress ??= new UserEventProgress();
+            chain.CurrentEventProgress.TokenBalance += grantAmount;
+            chain.CurrentEventProgress.TokensEarnedTotal += grantAmount;
+            OnLimitedTimeEventsUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        // ---------- Patch: Chain — set absolute token balance (after Spend) ----------
+        internal void PatchEventChainTokenBalanceDirect(string chainId, long newBalance)
+        {
+            if (LimitedTimeEvents?.EventChains == null) return;
+            if (!LimitedTimeEvents.EventChains.TryGetValue(chainId, out var chain)) return;
+            if (chain.CurrentEventProgress == null) return;
+            chain.CurrentEventProgress.TokenBalance = newBalance;
+            OnLimitedTimeEventsUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        // ---------- Patch: Chain — push claimed milestone ----------
+        internal void PatchEventChainClaimedMilestone(string chainId, string milestoneId)
+        {
+            if (LimitedTimeEvents?.EventChains == null) return;
+            if (!LimitedTimeEvents.EventChains.TryGetValue(chainId, out var chain)) return;
+            var progress = chain.CurrentEventProgress;
+            if (progress == null) return;
+            progress.ClaimedMilestoneIDs ??= new();
+            if (!progress.ClaimedMilestoneIDs.Contains(milestoneId))
+                progress.ClaimedMilestoneIDs.Add(milestoneId);
+            OnLimitedTimeEventsUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        // ---------- Patch: Chain — push claimed streak day ----------
+        internal void PatchEventChainClaimedStreakDay(string chainId, int streakDay)
+        {
+            if (LimitedTimeEvents?.EventChains == null) return;
+            if (!LimitedTimeEvents.EventChains.TryGetValue(chainId, out var chain)) return;
+            var progress = chain.CurrentEventProgress;
+            if (progress == null) return;
+            progress.ClaimedStreakDays ??= new();
+            if (!progress.ClaimedStreakDays.Contains(streakDay))
+                progress.ClaimedStreakDays.Add(streakDay);
+            OnLimitedTimeEventsUpdated?.Invoke();
             OnAnyUpdated?.Invoke();
         }
     }

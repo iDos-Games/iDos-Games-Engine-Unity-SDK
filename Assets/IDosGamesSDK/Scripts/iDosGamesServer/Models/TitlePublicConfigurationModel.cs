@@ -42,6 +42,7 @@ namespace IDosGames.TitlePublicConfiguration
         public List<DailyRewardsDefinition> DailyRewardsDefinitions { get; set; }
         public List<CurrencyTransferPair> AllowedCurrencyTransferPairs { get; set; }
         public QuestDefinitions QuestDefinitions { get; set; }
+        public LimitedTimeEventsDefinition LimitedTimeEvents { get; set; }
     }
 
     public class AiCustomSetting

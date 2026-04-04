@@ -2,7 +2,7 @@ using IDosGames.ClientModels;
 using System;
 using System.Collections.Generic;
 
-namespace IDosGames.ServerModels
+namespace IDosGames
 {
     [Serializable]
     public class UserRequest : IGSRequest

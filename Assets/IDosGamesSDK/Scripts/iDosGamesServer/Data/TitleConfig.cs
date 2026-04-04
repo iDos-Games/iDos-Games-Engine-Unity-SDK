@@ -112,5 +112,12 @@ namespace IDosGames
             OnTitlePublicConfigurationUpdated?.Invoke();
             OnAnyUpdated?.Invoke();
         }
+
+        internal void PatchLimitedTimeEventsDefinition(LimitedTimeEventsDefinition data)
+        {
+            TitlePublicConfiguration.LimitedTimeEvents = data;
+            OnTitlePublicConfigurationUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
     }
 }

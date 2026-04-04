@@ -2,7 +2,7 @@ using IDosGames.TitlePublicConfiguration;
 using System;
 using System.Collections.Generic;
 
-namespace IDosGames.ServerModels
+namespace IDosGames
 {
     public enum LootboxAction
     {

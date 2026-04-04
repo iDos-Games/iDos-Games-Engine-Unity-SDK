@@ -128,6 +128,7 @@ namespace IDosGames.ClientModels
 
         public List<ItemOrCurrency> GrantedRewards { get; set; }
         public List<ItemOrCurrency> ConsumedResources { get; set; }
+        public List<EventTokenGrantInfo> EventTokenGrants { get; set; }
 
         public string ActionRequired { get; set; } // "ATTACK" / "RAID" / null
         public RollActionData ActionData { get; set; }

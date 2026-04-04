@@ -1,5 +1,4 @@
 using System.Threading.Tasks;
-using IDosGames.ServerModels;
 
 namespace IDosGames
 {
