@@ -102,7 +102,6 @@ namespace IDosGames.ClientModels
         // RAID mini-game (server sanitizes layout in GetUserBoardState; can still be present in Raid response)
         public List<HeistSymbol> RaidLayout { get; set; }
         public List<int> OpenedIndices { get; set; }
-        public long CurrentTotalStolen { get; set; }
     }
 
     [Serializable]
@@ -128,6 +127,7 @@ namespace IDosGames.ClientModels
         public string LandedTileType { get; set; }
 
         public List<ItemOrCurrency> GrantedRewards { get; set; }
+        public List<ItemOrCurrency> ConsumedResources { get; set; }
 
         public string ActionRequired { get; set; } // "ATTACK" / "RAID" / null
         public RollActionData ActionData { get; set; }
@@ -137,7 +137,7 @@ namespace IDosGames.ClientModels
     public class AttackResponse
     {
         public string Status { get; set; } // "HIT", "BLOCKED"
-        public long Reward { get; set; }
+        public ItemOrCurrency RewardResource { get; set; }
     }
 
     [Serializable]
@@ -145,7 +145,7 @@ namespace IDosGames.ClientModels
     {
         public string Status { get; set; } // "CONTINUE", "FINISHED_SMALL", ...
         public HeistSymbol FoundSymbol { get; set; }
-        public long TotalStolen { get; set; }
+        public ItemOrCurrency StolenResource { get; set; }
         public int OpenedIndex { get; set; }
         public int AttemptsLeft { get; set; }
 

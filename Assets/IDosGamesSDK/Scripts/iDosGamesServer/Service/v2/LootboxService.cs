@@ -1,6 +1,8 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using IDosGames.ServerModels;
+using IDosGames.TitlePublicConfiguration;
 
 namespace IDosGames
 {
@@ -32,8 +34,10 @@ namespace IDosGames
             var request = CreateBaseRequest();
 
             var result = await LootboxAPI.GetDefinitions(request);
+
             if (result.Success)
             {
+                IDosGamesData.Config.ApplyLootboxDefinitions(result.Data.LootboxDefinitions);
                 OnDefinitionsReceived?.Invoke(result.Data);
             }
 
@@ -58,6 +62,24 @@ namespace IDosGames
 
             if (result.Success)
             {
+                var definition = IDosGamesData.Config.TitlePublicConfiguration.LootboxDefinitions ?.Find(l => l.LootboxID == lootboxId);
+                var option = definition?.PriceOptions?.Find(o => o.OptionID == selectedOptionId);
+                if (option?.RequiredResources != null)
+                {
+                    var toConsume = option.RequiredResources.Select(r => new ItemOrCurrency
+                    {
+                        Type = r.Type,
+                        CurrencyID = r.CurrencyID,
+                        ItemID = r.ItemID,
+                        Catalog = r.Catalog,
+                        Amount = r.Amount * count
+                    }).ToList();
+                    IDosGamesData.User.ConsumeResources(toConsume);
+                }
+
+                var allGranted = result.Data.Results?.SelectMany(r => r).ToList();
+                IDosGamesData.User.GrantResources(allGranted);
+
                 OnLootboxOpened?.Invoke(result.Data);
             }
 

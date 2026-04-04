@@ -32,6 +32,11 @@ namespace IDosGames
             return await SendRequest<GetUserInventoryResult>(UserAction.GetUserInventory, request);
         }
 
+        public static async Task<OperationResult<VirtualCurrencyResponse>> GetVirtualCurrency(UserRequest request)
+        {
+            return await SendRequest<VirtualCurrencyResponse>(UserAction.GetVirtualCurrency, request);
+        }
+
         public static async Task<OperationResult<GetCustomUserDataResult>> GetCustomUserData(UserRequest request)
         {
             return await SendRequest<GetCustomUserDataResult>(UserAction.GetCustomUserData, request);

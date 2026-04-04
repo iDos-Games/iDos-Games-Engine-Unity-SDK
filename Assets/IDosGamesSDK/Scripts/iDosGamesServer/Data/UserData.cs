@@ -23,6 +23,7 @@ namespace IDosGames
         public Dictionary<string, DailyRewardState> DailyRewards { get; private set; }
         //public UserPremiumState Premium { get; private set; }
         public Dictionary<string, PlayerLeaderboardData> LeaderboardData { get; private set; }
+        public List<BattleStepConfig> PvPBattleStrategy { get; private set; }
 
         public event Action OnVirtualCurrencyUpdated;
         public event Action OnVirtualCurrencyRechargeTimesUpdated;
@@ -38,6 +39,7 @@ namespace IDosGames
         //public event Action OnPremiumUpdated;
         public event Action OnLeaderboardDataUpdated;
         public event Action OnAnyUpdated;
+        public event Action OnPvPBattleStrategyUpdated;
 
         public bool IsLoggedIn { get; internal set; }
 
@@ -127,6 +129,21 @@ namespace IDosGames
             OnAnyUpdated?.Invoke();
         }
 
+        internal void ApplyPvPBattleStrategy(List<BattleStepConfig> data)
+        {
+            PvPBattleStrategy = data;
+            OnPvPBattleStrategyUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchSocialRecommended(List<string> userIds)
+        {
+            Social ??= new();
+            Social.RecommendedFriends = userIds;
+            OnSocialUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
         internal void Clear()
         {
             UserPublicData = null;
@@ -140,6 +157,7 @@ namespace IDosGames
             Social = null;
             //Premium = null;
             LeaderboardData = null;
+            PvPBattleStrategy = null;
             IsLoggedIn = false;
         }
 
@@ -393,6 +411,101 @@ namespace IDosGames
 
             return null;
         }
+
+        internal void PatchDailyReward(string calendarId, DailyRewardState data)
+        {
+            DailyRewards ??= new();
+            DailyRewards[calendarId] = data;
+            OnDailyRewardsUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchSocialAccepted(List<string> userIds)
+        {
+            Social ??= new();
+            Social.Accepted = userIds;
+            OnSocialUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchSocialIncomingRequests(List<string> userIds)
+        {
+            Social ??= new();
+            Social.IncomingRequests = userIds;
+            OnSocialUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchSocialOutgoingAdd(string userId)
+        {
+            Social ??= new();
+            Social.OutgoingRequests ??= new();
+            if (!Social.OutgoingRequests.Contains(userId))
+                Social.OutgoingRequests.Add(userId);
+            OnSocialUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchSocialAcceptRequest(string userId)
+        {
+            Social ??= new();
+            Social.IncomingRequests?.Remove(userId);
+            Social.Accepted ??= new();
+            if (!Social.Accepted.Contains(userId))
+                Social.Accepted.Add(userId);
+            OnSocialUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchSocialRemoveIncoming(string userId)
+        {
+            Social ??= new();
+            Social.IncomingRequests?.Remove(userId);
+            OnSocialUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchSocialRemoveFriend(string userId)
+        {
+            Social ??= new();
+            Social.Accepted?.Remove(userId);
+            OnSocialUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchConsumedItemInstance(string itemInstanceId, long consumedAmount)
+        {
+            if (Inventory == null) return;
+            var item = Inventory.FirstOrDefault(i => i.ItemInstanceId == itemInstanceId);
+            if (item != null)
+            {
+                item.RemainingUses -= (int)consumedAmount;
+                if (item.RemainingUses <= 0) Inventory.Remove(item);
+            }
+            OnInventoryUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchCustomUserData(string key, string value)
+        {
+            CustomUserData ??= new GetCustomUserDataResult { Data = new() };
+            CustomUserData.Data ??= new();
+            CustomUserData.Data[key] = new UserDataRecord
+            {
+                Value = value,
+                LastUpdated = DateTime.UtcNow
+            };
+            OnCustomUserDataUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchBoard(Action<BoardLoopState> patch)
+        {
+            Board ??= new BoardLoopState();
+            patch(Board);
+            OnBoardUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
     }
 
     public class UserSocialState
@@ -400,5 +513,6 @@ namespace IDosGames
         public List<string> Accepted { get; set; } = new();
         public List<string> IncomingRequests { get; set; } = new();
         public List<string> OutgoingRequests { get; set; } = new();
+        public List<string> RecommendedFriends { get; set; } = new();
     }
 }

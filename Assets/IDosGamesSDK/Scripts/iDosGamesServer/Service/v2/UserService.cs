@@ -16,6 +16,7 @@ namespace IDosGames
         public static event Action<ConsumeItemResponse> OnItemConsumed;
         public static event Action<SuccessResponse> OnUserAccountDeleted;
         public static event Action<UsageTimeStats> OnUsageTimeReceived;
+        public static event Action<VirtualCurrencyResponse> OnVirtualCurrencyReceived;
 
         private static IGSAuthenticationContext Ctx => AuthenticationService.GetAuthContext();
         private static string UserID => Ctx.UserID;
@@ -65,6 +66,21 @@ namespace IDosGames
             return result;
         }
 
+        public static async Task<OperationResult<VirtualCurrencyResponse>> GetVirtualCurrency()
+        {
+            var request = CreateBaseRequest();
+            var result = await UserAPI.GetVirtualCurrency(request);
+
+            if (result.Success)
+            {
+                IDosGamesData.User.ApplyVirtualCurrency(result.Data.VirtualCurrency);
+                IDosGamesData.User.ApplyVirtualCurrencyRechargeTimes(result.Data.VirtualCurrencyRechargeTimes);
+                OnVirtualCurrencyReceived?.Invoke(result.Data);
+            }
+
+            return result;
+        }
+
         public static async Task<OperationResult<GetCustomUserDataResult>> GetCustomUserData()
         {
             var request = CreateBaseRequest();
@@ -90,6 +106,7 @@ namespace IDosGames
 
             if (result.Success)
             {
+                IDosGamesData.User.PatchCustomUserData(key, value?.ToString());
                 OnCustomUserDataUpdated?.Invoke(result.Data);
             }
 
@@ -148,6 +165,7 @@ namespace IDosGames
 
             if (result.Success)
             {
+                IDosGamesData.User.PatchConsumedItemInstance(result.Data.ItemInstanceID, result.Data.ConsumedAmount);
                 OnItemConsumed?.Invoke(result.Data);
             }
 

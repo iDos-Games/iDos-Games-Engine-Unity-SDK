@@ -171,7 +171,7 @@ namespace IDosGames
             bool isHit = response?.Status == "HIT";
 
             resultTitleText.text = isHit ? "HIT!" : "BLOCKED!";
-            resultRewardText.text = isHit ? $"+ {response.Reward:N0} coins" : "";
+            //resultRewardText.text = isHit ? $"+ {response.Reward:N0} coins" : "";
             resultIcon.sprite = isHit ? hitSprite : blockedSprite;
 
             resultOverlay.SetActive(true);

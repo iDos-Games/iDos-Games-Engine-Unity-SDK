@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using IDosGames.ClientModels;
 
@@ -47,6 +48,7 @@ namespace IDosGames
 
             if (result.Success)
             {
+                IDosGamesData.User.PatchSocialAccepted(result.Data.Select(f => f.UserID).ToList());
                 OnFriendsListUpdated?.Invoke(result.Data);
             }
 
@@ -60,6 +62,7 @@ namespace IDosGames
 
             if (result.Success)
             {
+                IDosGamesData.User.PatchSocialIncomingRequests(result.Data.Select(f => f.UserID).ToList());
                 OnIncomingRequestsUpdated?.Invoke(result.Data);
             }
 
@@ -75,6 +78,7 @@ namespace IDosGames
 
             if (result.Success)
             {
+                IDosGamesData.User.PatchSocialRecommended(result.Data.Select(f => f.UserID).ToList());
                 OnRecommendedFriendsUpdated?.Invoke(result.Data);
             }
 
@@ -90,6 +94,7 @@ namespace IDosGames
 
             if (result.Success)
             {
+                IDosGamesData.User.PatchSocialOutgoingAdd(targetUserId);
                 OnSendFriendRequestSuccess?.Invoke(result.Data);
             }
 
@@ -105,6 +110,7 @@ namespace IDosGames
 
             if (result.Success)
             {
+                IDosGamesData.User.PatchSocialAcceptRequest(requesterUserId);
                 OnAcceptFriendRequestSuccess?.Invoke(result.Data);
             }
 
@@ -120,6 +126,7 @@ namespace IDosGames
 
             if (result.Success)
             {
+                IDosGamesData.User.PatchSocialRemoveIncoming(requesterUserId);
                 OnDeclineFriendRequestSuccess?.Invoke(result.Data);
             }
 
@@ -135,6 +142,7 @@ namespace IDosGames
 
             if (result.Success)
             {
+                IDosGamesData.User.PatchSocialRemoveFriend(friendUserId);
                 OnRemoveFriendSuccess?.Invoke(result.Data);
             }
 

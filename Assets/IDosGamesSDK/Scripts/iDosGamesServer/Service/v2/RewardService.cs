@@ -36,6 +36,7 @@ namespace IDosGames
 
             if (result.Success)
             {
+                IDosGamesData.Config.ApplyDailyRewardsDefinitions(result.Data);
                 OnDailyRewardsDefinitionsReceived?.Invoke(result.Data);
             }
 
@@ -51,6 +52,8 @@ namespace IDosGames
 
             if (result.Success)
             {
+                IDosGamesData.User.PatchDailyReward(result.Data.CalendarID, result.Data.DailyState);
+                IDosGamesData.User.GrantResources(result.Data.GrantedRewards);
                 OnClaimDailyRewardSuccess?.Invoke(result.Data);
             }
 
@@ -148,12 +151,8 @@ namespace IDosGames
         {
             if (response == null) return;
 
-            var currency = IDosGamesData.User.VirtualCurrency;
-
-            if (!string.IsNullOrEmpty(response.RewardCurrencyID)) currency[response.RewardCurrencyID] = response.RewardBalanceNew;
-            if (!string.IsNullOrEmpty(response.LimitCurrencyID)) currency[response.LimitCurrencyID] = response.LimitBalanceNew;
-
-            IDosGamesData.User.ApplyVirtualCurrency(currency);
+            if (!string.IsNullOrEmpty(response.RewardCurrencyID)) IDosGamesData.User.PatchVirtualCurrency(response.RewardCurrencyID, response.RewardBalanceNew);
+            if (!string.IsNullOrEmpty(response.LimitCurrencyID)) IDosGamesData.User.PatchVirtualCurrency(response.LimitCurrencyID, response.LimitBalanceNew);
         }
     }
 }

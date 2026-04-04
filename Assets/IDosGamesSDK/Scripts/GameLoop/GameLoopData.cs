@@ -193,14 +193,6 @@ namespace IDosGames
         private void SetRollResponse(BoardRollResponse data)
         {
             LastRollResponse = data;
-
-            if (BoardState != null && data != null)
-            {
-                BoardState.Position = data.NewPosition;
-                BoardState.CyclesCompleted += data.CyclesCompletedDelta;
-                BoardState.LastRollAtUtc = DateTime.UtcNow;
-            }
-
             OnDataUpdated?.Invoke();
         }
 
@@ -220,18 +212,8 @@ namespace IDosGames
         {
             LastBuildResponse = data;
 
-            if (BoardState != null && data != null && BoardState.BuildingStates != null)
+            if (data != null)
             {
-                var state = BoardState.BuildingStates.Find(x => x != null && x.SlotIndex == data.BuiltIndex);
-                if (state != null)
-                {
-                    state.Level = data.NewLevel;
-                    state.IsDamaged = false;
-
-                    if (data.MaxLevelRewardClaimed)
-                        state.MaxLevelRewardClaimed = true;
-                }
-
                 if (data.StageComplete)
                 {
                     if (data.CompletionReward != null && data.CompletionReward.Count > 0)

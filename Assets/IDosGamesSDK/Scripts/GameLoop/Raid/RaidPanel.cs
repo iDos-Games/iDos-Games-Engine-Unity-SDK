@@ -120,9 +120,8 @@ namespace IDosGames
 
             var pending = GameLoopData.Instance?.BoardState?.Pending;
             int attempts = pending != null ? (12 - (pending.OpenedIndices?.Count ?? 0)) : 3;
-            long stolen = pending?.CurrentTotalStolen ?? 0;
 
-            UpdateHUD(attempts, stolen);
+            UpdateHUD(attempts, null);
             InitCells(pending);
 
             _interactable = true;
@@ -173,7 +172,7 @@ namespace IDosGames
             InitFastMode(pending);
 
             int attempts = 12 - (_localOpenedIndices?.Count ?? 0);
-            UpdateHUD(attempts, 0);
+            UpdateHUD(attempts, null);
             InitCells(pending);
 
             _interactable = true;
@@ -346,7 +345,7 @@ namespace IDosGames
                 yield return StartCoroutine(cell.RevealRoutine(foundSprite));
             }
 
-            UpdateHUD(attemptsLeft, 0);
+            UpdateHUD(attemptsLeft, null);
 
             if (tier != null)
             {
@@ -383,7 +382,7 @@ namespace IDosGames
                 yield break;
             }
 
-            yield return StartCoroutine(ShowFastRaidResult(tier, serverResponse.TotalStolen));
+            yield return StartCoroutine(ShowFastRaidResult(tier, serverResponse.StolenResource));
         }
 
         private async Task SendFastRaidRequestAsync(
@@ -412,7 +411,7 @@ namespace IDosGames
             }
         }
 
-        private IEnumerator ShowFastRaidResult(string tier, long totalStolen)
+        private IEnumerator ShowFastRaidResult(string tier, ItemOrCurrency stolenResource)
         {
             string title = tier switch
             {
@@ -423,7 +422,9 @@ namespace IDosGames
             };
 
             resultTitleText.text = title;
-            resultAmountText.text = $"+ {totalStolen:N0} монет";
+            resultAmountText.text = stolenResource != null
+                ? $"+ {stolenResource.Amount:N0} {stolenResource.Name ?? stolenResource.CurrencyID}"
+                : "Ничего не украдено";
 
             resultOverlay.SetActive(true);
             yield return StartCoroutine(PunchScale(resultOverlay.transform, 0.3f));
@@ -480,7 +481,7 @@ namespace IDosGames
                 yield return StartCoroutine(cell.RevealRoutine(foundSprite));
             }
 
-            UpdateHUD(response.AttemptsLeft, response.TotalStolen);
+            UpdateHUD(response.AttemptsLeft, response.StolenResource);
 
             bool finished = response.Status != "CONTINUE";
 
@@ -526,7 +527,9 @@ namespace IDosGames
             };
 
             resultTitleText.text = title;
-            resultAmountText.text = $"+ {response.TotalStolen:N0} монет";
+            resultAmountText.text = response.StolenResource != null
+                ? $"+ {response.StolenResource.Amount:N0} {response.StolenResource.Name ?? response.StolenResource.CurrencyID}"
+                : "Nothing was stolen";
 
             resultOverlay.SetActive(true);
             yield return StartCoroutine(PunchScale(resultOverlay.transform, 0.3f));
@@ -536,10 +539,13 @@ namespace IDosGames
         }
 
         // -----------------------------------------------------------------------
-        private void UpdateHUD(int attemptsLeft, long totalStolen)
+        private void UpdateHUD(int attemptsLeft, ItemOrCurrency stolenResource)
         {
-            if (attemptsText != null) attemptsText.text = $"Попыток: {attemptsLeft}";
-            if (totalStolenText != null) totalStolenText.text = $"Украдено: {totalStolen:N0}";
+            if (attemptsText != null) attemptsText.text = $"Attempts: {attemptsLeft}";
+
+            if (totalStolenText != null) totalStolenText.text = stolenResource != null
+                    ? $"Stolen: {stolenResource.Amount:N0}"
+                    : "Stolen: 0";
         }
 
         private RaidCell GetCell(int digIndex)

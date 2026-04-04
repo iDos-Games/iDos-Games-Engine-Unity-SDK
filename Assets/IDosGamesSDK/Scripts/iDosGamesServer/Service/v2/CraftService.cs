@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using IDosGames.ClientModels;
+using IDosGames.TitlePublicConfiguration;
 
 namespace IDosGames
 {
@@ -30,7 +32,14 @@ namespace IDosGames
         public static async Task<OperationResult<CraftDefinitionsResponse>> GetDefinitions()
         {
             var request = CreateBaseRequest();
-            return await CraftAPI.GetDefinitions(request);
+            var result = await CraftAPI.GetDefinitions(request);
+
+            if (result.Success)
+            {
+                IDosGamesData.Config.ApplyCraftDefinitions(result.Data.CraftDefinitions);
+            }
+
+            return result;
         }
 
         public static async Task<OperationResult<CraftResponse>> Craft(string craftID, List<string> inputItemIDs, int count = 1, int optionID = 0)
@@ -45,6 +54,20 @@ namespace IDosGames
 
             if (result.Success)
             {
+                var toConsume = inputItemIDs.Select(id => new ItemOrCurrency
+                {
+                    Type = ItemType.Item,
+                    ItemID = id,
+                    Amount = count
+                }).ToList();
+                IDosGamesData.User.ConsumeResources(toConsume);
+
+                var outputs = result.Data.Results
+                    .Where(r => r.Output != null)
+                    .Select(r => r.Output)
+                    .ToList();
+                IDosGamesData.User.GrantResources(outputs);
+
                 OnCraftSuccess?.Invoke(result.Data);
             }
 

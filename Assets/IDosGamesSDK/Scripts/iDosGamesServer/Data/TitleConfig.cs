@@ -63,6 +63,42 @@ namespace IDosGames
             OnAnyUpdated?.Invoke();
         }
 
+        internal void ApplyCraftDefinitions(List<CraftDefinition> data)
+        {
+            TitlePublicConfiguration.CraftDefinitions = data;
+            OnTitlePublicConfigurationUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void ApplyGameLoops(GameLoopsDefinition data)
+        {
+            TitlePublicConfiguration.GameLoops = data;
+            OnTitlePublicConfigurationUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void ApplyDailyRewardsDefinitions(List<DailyRewardsDefinition> data)
+        {
+            TitlePublicConfiguration.DailyRewardsDefinitions = data;
+            OnTitlePublicConfigurationUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void ApplyLootboxDefinitions(List<LootboxDefinition> data)
+        {
+            TitlePublicConfiguration.LootboxDefinitions = data;
+            OnTitlePublicConfigurationUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchBoardDefinition(BoardLoopDefinition data)
+        {
+            TitlePublicConfiguration.GameLoops ??= new GameLoopsDefinition();
+            TitlePublicConfiguration.GameLoops.Board = data;
+            OnTitlePublicConfigurationUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
         internal void PatchCharacterDefinitions(CharacterDefinitions data)
         {
             TitlePublicConfiguration.CharacterDefinitions = data;

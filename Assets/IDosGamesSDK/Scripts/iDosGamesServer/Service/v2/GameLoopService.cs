@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using IDosGames.ClientModels;
 using IDosGames.TitlePublicConfiguration;
@@ -43,10 +44,7 @@ namespace IDosGames
 
             if (result.Success)
             {
-                if (IDosGamesData.Config == null) return OperationResult<GameLoopsDefinition>.Fail("IDosGamesData.Config is null");
-                if (IDosGamesData.Config.TitlePublicConfiguration == null) return OperationResult<GameLoopsDefinition>.Fail("TitlePublicConfiguration is not loaded");
-
-                IDosGamesData.Config.TitlePublicConfiguration.GameLoops = result.Data;
+                IDosGamesData.Config.ApplyGameLoops(result.Data);
                 OnGameLoopsUpdated?.Invoke(result.Data);
             }
 
@@ -60,12 +58,7 @@ namespace IDosGames
 
             if (result.Success)
             {
-                if (IDosGamesData.Config == null) return OperationResult<BoardLoopDefinition>.Fail("IDosGamesData.Config is null");
-                if (IDosGamesData.Config.TitlePublicConfiguration == null) return OperationResult<BoardLoopDefinition>.Fail("TitlePublicConfiguration is not loaded");
-
-                IDosGamesData.Config.TitlePublicConfiguration.GameLoops ??= new GameLoopsDefinition();
-                IDosGamesData.Config.TitlePublicConfiguration.GameLoops.Board = result.Data;
-
+                IDosGamesData.Config.PatchBoardDefinition(result.Data);
                 OnBoardDefinitionUpdated?.Invoke(result.Data);
             }
 
@@ -81,12 +74,7 @@ namespace IDosGames
 
             if (result.Success)
             {
-                if (IDosGamesData.Config == null) return OperationResult<BoardLoopDefinition>.Fail("IDosGamesData.Config is null");
-                if (IDosGamesData.Config.TitlePublicConfiguration == null) return OperationResult<BoardLoopDefinition>.Fail("TitlePublicConfiguration is not loaded");
-
-                IDosGamesData.Config.TitlePublicConfiguration.GameLoops ??= new GameLoopsDefinition();
-                IDosGamesData.Config.TitlePublicConfiguration.GameLoops.Board = result.Data;
-
+                IDosGamesData.Config.PatchBoardDefinition(result.Data);
                 OnBoardDefinitionUpdated?.Invoke(result.Data);
             }
 
@@ -116,6 +104,32 @@ namespace IDosGames
 
             if (result.Success)
             {
+                IDosGamesData.User.PatchBoard(b =>
+                {
+                    b.Position = result.Data.NewPosition;
+                    b.CyclesCompleted += result.Data.CyclesCompletedDelta;
+                    b.LastRollAtUtc = DateTime.UtcNow;
+
+                    if (result.Data.ActionRequired != null && result.Data.ActionData != null)
+                    {
+                        b.Pending = new BoardPendingInteraction
+                        {
+                            Type = result.Data.ActionRequired,
+                            TargetUserID = result.Data.ActionData.TargetUserID,
+                            TargetPublicData = result.Data.ActionData.PublicData,
+                            TargetBuildingStates = result.Data.ActionData.TargetBuildingStates,
+                            TargetHasShield = result.Data.ActionData.TargetHasShield,
+                            RollMultiplier = rollMultiplier,
+                            ExpiresAtUtc = DateTime.UtcNow.AddMinutes(5)
+                        };
+                    }
+                    else
+                    {
+                        b.Pending = null;
+                    }
+                });
+                IDosGamesData.User.ConsumeResources(result.Data.ConsumedResources);
+                IDosGamesData.User.GrantResources(result.Data.GrantedRewards);
                 OnBoardRollSuccess?.Invoke(result.Data);
             }
 
@@ -131,6 +145,8 @@ namespace IDosGames
 
             if (result.Success)
             {
+                IDosGamesData.User.PatchBoard(b => b.Pending = null);
+                IDosGamesData.User.GrantResources(new List<ItemOrCurrency> { result.Data.RewardResource });
                 OnBoardAttackSuccess?.Invoke(result.Data);
             }
 
@@ -146,6 +162,18 @@ namespace IDosGames
 
             if (result.Success)
             {
+                IDosGamesData.User.PatchBoard(b =>
+                {
+                    if (b.Pending != null)
+                    {
+                        b.Pending.OpenedIndices ??= new();
+                        if (!b.Pending.OpenedIndices.Contains(result.Data.OpenedIndex)) b.Pending.OpenedIndices.Add(result.Data.OpenedIndex);
+                        if (result.Data.Status != "CONTINUE") b.Pending = null;
+                    }
+                });
+
+                if (result.Data.StolenResource != null) IDosGamesData.User.GrantResources(new List<ItemOrCurrency> { result.Data.StolenResource });
+
                 OnBoardRaidSuccess?.Invoke(result.Data);
             }
 
@@ -161,6 +189,10 @@ namespace IDosGames
 
             if (result.Success)
             {
+                IDosGamesData.User.PatchBoard(b => b.Pending = null);
+
+                if (result.Data.StolenResource != null) IDosGamesData.User.GrantResources(new List<ItemOrCurrency> { result.Data.StolenResource });
+
                 OnBoardRaidSuccess?.Invoke(result.Data);
             }
 
@@ -176,6 +208,32 @@ namespace IDosGames
 
             if (result.Success)
             {
+                IDosGamesData.User.PatchBoard(b =>
+                {
+                    b.BuildingStates ??= new();
+                    var building = b.BuildingStates.FirstOrDefault(s => s.SlotIndex == result.Data.BuiltIndex);
+                    if (building != null)
+                    {
+                        building.Level = result.Data.NewLevel;
+                        building.IsDamaged = false;
+                        if (result.Data.MaxLevelRewardClaimed) building.MaxLevelRewardClaimed = true;
+                    }
+
+                    if (result.Data.StageComplete)
+                    {
+                        b.StageLevel += 1;
+                        b.Position = 0;
+                        b.Pending = null;
+                        b.BuildingStates = null; // сервер вернёт новые состояния при следующем GetUserBoardState
+                    }
+                });
+
+                IDosGamesData.User.ConsumeResources(new List<ItemOrCurrency> { result.Data.ConsumedResource });
+
+                if (result.Data.CompletionReward != null) IDosGamesData.User.GrantResources(result.Data.CompletionReward);
+
+                if (result.Data.MaxLevelRewardClaimed && result.Data.MaxLevelReward != null) IDosGamesData.User.GrantResources(result.Data.MaxLevelReward);
+
                 OnBoardBuildSuccess?.Invoke(result.Data);
             }
 

@@ -1,3 +1,4 @@
+using IDosGames.ClientModels;
 using System;
 using System.Collections.Generic;
 
@@ -54,6 +55,15 @@ namespace IDosGames.ServerModels
         public long ConsumedAmount { get; set; }
     }
 
+
+    [Serializable]
+    public class VirtualCurrencyResponse
+    {
+        public string UserID { get; set; }
+        public Dictionary<string, long> VirtualCurrency { get; set; }
+        public Dictionary<string, VirtualCurrencyRechargeTime> VirtualCurrencyRechargeTimes { get; set; }
+    }
+
     public enum UserAction
     {
         GetClientState,
@@ -66,5 +76,6 @@ namespace IDosGames.ServerModels
         AddUsageTime,
         TransferVirtualCurrency,
         ConsumeItem,
+        GetVirtualCurrency,
     }
 }

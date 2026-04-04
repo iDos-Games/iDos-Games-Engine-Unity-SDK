@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using IDosGames.ClientModels;
+using IDosGames.TitlePublicConfiguration;
 
 namespace IDosGames
 {
@@ -45,6 +46,7 @@ namespace IDosGames
 
             if (result.Success)
             {
+                IDosGamesData.User.PatchVirtualCurrency(currencyId, (IDosGamesData.User.VirtualCurrency?[currencyId] ?? 0) - entryFee);
                 OnMatchCreated?.Invoke(result.Data);
             }
 
@@ -69,6 +71,18 @@ namespace IDosGames
 
             if (result.Success)
             {
+                if (result.Data.WinnerUserID == UserID && !result.Data.IsDraw)
+                {
+                    IDosGamesData.User.GrantResources(new List<ItemOrCurrency>
+                    {
+                        new ItemOrCurrency
+                        {
+                            Type = ItemType.VirtualCurrency,
+                            CurrencyID = result.Data.CurrencyID,
+                            Amount = result.Data.PrizeAmount
+                        }
+                    });
+                }
                 OnBattleFinished?.Invoke(result.Data);
             }
 
@@ -110,7 +124,14 @@ namespace IDosGames
             var request = CreateBaseRequest();
             request.BattleStrategy = strategy;
 
-            return await MatchAPI.SaveStrategy(request);
+            var result = await MatchAPI.SaveStrategy(request);
+
+            if (result.Success)
+            {
+                IDosGamesData.User.ApplyPvPBattleStrategy(strategy);
+            }
+
+            return result;
         }
     }
 }

@@ -63,7 +63,7 @@ namespace IDosGames.ClientModels
         public string MatchID;
         public string TargetUserID;
         public string CurrencyID;
-        public int EntryFeeAmount;
+        public long EntryFeeAmount;
         public List<BattleStepConfig> BattleStrategy;
         public string CharacterID;
         public string RuleID;
@@ -72,8 +72,8 @@ namespace IDosGames.ClientModels
         public int Page = 0;
         public int PageSize = 20;
         public List<string> Statuses;
-        public int? MinEntryFeeAmount;
-        public int? MaxEntryFeeAmount;
+        public long? MinEntryFeeAmount;
+        public long? MaxEntryFeeAmount;
         public bool OnlyPublic = false;
     }
 
@@ -87,7 +87,7 @@ namespace IDosGames.ClientModels
         public MatchStatus Status;
         public string MatchID;
         public string RewardPoolCurrencyID;
-        public int RewardPoolAmount;
+        public long RewardPoolAmount;
     }
 
     [Serializable]
@@ -115,9 +115,9 @@ namespace IDosGames.ClientModels
         public string MatchID;
         public string CreatorID;
         public string CurrencyID;
-        public int EntryFeeAmount;
+        public long EntryFeeAmount;
         public MatchStatus Status;
-        public int RewardPoolAmount;
+        public long RewardPoolAmount;
         public string CreatorCharacterID;
         public List<BattleStepConfig> CreatorStrategy;
         public DateTime CreatedAt;
@@ -129,7 +129,8 @@ namespace IDosGames.ClientModels
     {
         public string WinnerUserID;
         public string LoserUserID;
-        public int PrizeAmount;
+        public string CurrencyID;
+        public long PrizeAmount;
         public bool IsDraw;
 
         public List<BattleLogEntry> BattleLog = new();
