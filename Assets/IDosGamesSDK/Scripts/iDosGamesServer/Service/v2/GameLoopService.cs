@@ -130,6 +130,18 @@ namespace IDosGames
                 });
                 IDosGamesData.User.ConsumeResources(result.Data.ConsumedResources);
                 IDosGamesData.User.GrantResources(result.Data.GrantedRewards);
+
+                if (result.Data.EventTokenGrants != null)
+                {
+                    foreach (var grant in result.Data.EventTokenGrants)
+                    {
+                        if (!string.IsNullOrEmpty(grant.EventChainID))
+                            IDosGamesData.User.PatchEventChainTokenBalance(grant.EventChainID, grant.Amount);
+                        else if (!string.IsNullOrEmpty(grant.EventID))
+                            IDosGamesData.User.PatchScheduledEventTokenBalance(grant.EventID, grant.Amount);
+                    }
+                }
+
                 OnBoardRollSuccess?.Invoke(result.Data);
             }
 
