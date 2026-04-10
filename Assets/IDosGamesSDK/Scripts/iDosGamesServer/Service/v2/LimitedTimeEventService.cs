@@ -233,6 +233,17 @@ namespace IDosGames
                 if (result.Data.VipRewards != null) all.AddRange(result.Data.VipRewards);
                 IDosGamesData.User.GrantResources(all);
 
+                if (result.Data.CrossEventTokenGrants != null)
+                {
+                    foreach (var grant in result.Data.CrossEventTokenGrants)
+                    {
+                        if (!string.IsNullOrEmpty(grant.EventChainID))
+                            IDosGamesData.User.PatchEventChainTokenBalance(grant.EventChainID, grant.Amount);
+                        else if (!string.IsNullOrEmpty(grant.EventID))
+                            IDosGamesData.User.PatchScheduledEventTokenBalance(grant.EventID, grant.Amount);
+                    }
+                }
+
                 OnMilestoneClaimed?.Invoke(result.Data);
             }
 
@@ -289,10 +300,16 @@ namespace IDosGames
                 if (result.Data.VipRewards != null) all.AddRange(result.Data.VipRewards);
                 IDosGamesData.User.GrantResources(all);
 
-                // BonusTokens are already applied server-side; local state will reflect
-                // after the next GetActiveEvents / GetUserState call.
-                // ASSUMPTION: UI should call GetActiveEvents after ClaimStreakReward to
-                // refresh TokenBalance if BonusTokens > 0.
+                if (result.Data.CrossEventTokenGrants != null)
+                {
+                    foreach (var grant in result.Data.CrossEventTokenGrants)
+                    {
+                        if (!string.IsNullOrEmpty(grant.EventChainID))
+                            IDosGamesData.User.PatchEventChainTokenBalance(grant.EventChainID, grant.Amount);
+                        else if (!string.IsNullOrEmpty(grant.EventID))
+                            IDosGamesData.User.PatchScheduledEventTokenBalance(grant.EventID, grant.Amount);
+                    }
+                }
 
                 OnStreakRewardClaimed?.Invoke(result.Data);
             }

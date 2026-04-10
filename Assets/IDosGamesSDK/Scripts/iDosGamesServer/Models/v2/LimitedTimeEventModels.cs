@@ -40,6 +40,7 @@ namespace IDosGames.ClientModels
         StorePurchase,
         DailyLogin,
         ReferralInvite,
+        MilestoneReward,
         CustomAction,
     }
 
@@ -126,6 +127,7 @@ namespace IDosGames.ClientModels
         public string MilestoneID { get; set; }
         public List<ItemOrCurrency> StandardRewards { get; set; }
         public List<ItemOrCurrency> VipRewards { get; set; }
+        public List<EventTokenGrantInfo> CrossEventTokenGrants { get; set; }
         public bool IsVip { get; set; }
     }
 
@@ -146,6 +148,7 @@ namespace IDosGames.ClientModels
         public int StreakDay { get; set; }
         public List<ItemOrCurrency> StandardRewards { get; set; }
         public List<ItemOrCurrency> VipRewards { get; set; }
+        public List<EventTokenGrantInfo> CrossEventTokenGrants { get; set; }
         public long BonusTokens { get; set; }
     }
 
@@ -258,7 +261,7 @@ namespace IDosGames.ClientModels
         public string EventChainID { get; set; }
         public string DisplayName { get; set; }
         public string Description { get; set; }
-        public List<string> ImagesPath { get; set; }
+        public List<string> AssetPaths { get; set; }
         public DateTime AnchorUtc { get; set; }
         public bool IsActive { get; set; }
         public int MaxCycles { get; set; }
@@ -286,7 +289,7 @@ namespace IDosGames.ClientModels
     {
         public string DisplayName { get; set; }
         public string Description { get; set; }
-        public List<string> ImagesPath { get; set; }
+        public List<string> AssetPaths { get; set; }
         public string Category { get; set; }
         public EventTokenDefinition Token { get; set; }
         public List<EventTokenSource> TokenSources { get; set; }
@@ -309,7 +312,7 @@ namespace IDosGames.ClientModels
     {
         public string TokenID { get; set; }
         public string DisplayName { get; set; }
-        public List<string> ImagesPath { get; set; }
+        public List<string> AssetPaths { get; set; }
         public long MaxBalance { get; set; }
         public long MaxPerGrant { get; set; }
         public long DailyEarnCap { get; set; }
@@ -343,7 +346,7 @@ namespace IDosGames.ClientModels
     {
         public string WindowID { get; set; }
         public string DisplayName { get; set; }
-        public List<string> ImagesPath { get; set; }
+        public List<string> AssetPaths { get; set; }
         public double Multiplier { get; set; }
         public BonusWindowScheduleType ScheduleType { get; set; }
         public DateTime? StartUtc { get; set; }
@@ -361,7 +364,7 @@ namespace IDosGames.ClientModels
         public long MinTokensEarned { get; set; }
         public double Multiplier { get; set; }
         public string TierName { get; set; }
-        public List<string> ImagesPath { get; set; }
+        public List<string> AssetPaths { get; set; }
     }
 
     [Serializable]
@@ -377,9 +380,10 @@ namespace IDosGames.ClientModels
     {
         public int RequiredStreakDays { get; set; }
         public string DisplayName { get; set; }
-        public List<string> ImagesPath { get; set; }
+        public List<string> AssetPaths { get; set; }
         public List<ItemOrCurrency> Rewards { get; set; }
         public List<EventVipReward> VipRewards { get; set; }
+        public List<EventTokenReward> TokenRewards { get; set; }
         public long BonusTokens { get; set; }
     }
 
@@ -388,7 +392,7 @@ namespace IDosGames.ClientModels
     {
         public string ModifierID { get; set; }
         public string DisplayName { get; set; }
-        public List<string> ImagesPath { get; set; }
+        public List<string> AssetPaths { get; set; }
         public EventModifierTarget Target { get; set; }
         public ModifierOperation Operation { get; set; }
         public double Value { get; set; }
@@ -400,7 +404,7 @@ namespace IDosGames.ClientModels
     {
         public string ThemeID { get; set; }
         public string BoardAssetID { get; set; }
-        public List<string> ImagesPath { get; set; }
+        public List<string> AssetPaths { get; set; }
         public Dictionary<string, string> ColorPalette { get; set; }
         public string AudioAssetID { get; set; }
         public Dictionary<string, string> CustomParams { get; set; }
@@ -423,7 +427,7 @@ namespace IDosGames.ClientModels
     {
         public string MilestoneID { get; set; }
         public string DisplayName { get; set; }
-        public List<string> ImagesPath { get; set; }
+        public List<string> AssetPaths { get; set; }
         public long RequiredTokensEarned { get; set; }
         public List<ItemOrCurrency> Rewards { get; set; }
         public List<EventVipReward> VipRewards { get; set; }
@@ -438,6 +442,14 @@ namespace IDosGames.ClientModels
         public string RequiredPremiumID { get; set; }
         public string Label { get; set; }
         public List<ItemOrCurrency> Rewards { get; set; }
+    }
+
+    [Serializable]
+    public class EventTokenReward
+    {
+        public string EventID { get; set; }
+        public string EventChainID { get; set; }
+        public long Amount { get; set; }
     }
 
     [Serializable]
