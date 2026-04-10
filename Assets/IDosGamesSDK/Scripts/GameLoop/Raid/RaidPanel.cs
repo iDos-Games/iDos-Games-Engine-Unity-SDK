@@ -96,7 +96,7 @@ namespace IDosGames
             resultOverlay.SetActive(false);
 
             // Определяем режим
-            var boardDef = GameLoopData.Instance?.BoardDefinition;
+            var boardDef = BoardGameManager.Instance?.BoardDefinition;
             bool configIsSequential = boardDef != null && boardDef.RaidMode == RaidMode.Sequential;
 
             if (configIsSequential)
@@ -118,7 +118,7 @@ namespace IDosGames
         {
             _isFastMode = false;
 
-            var pending = GameLoopData.Instance?.BoardState?.Pending;
+            var pending = BoardGameManager.Instance?.BoardState?.Pending;
             int attempts = pending != null ? (12 - (pending.OpenedIndices?.Count ?? 0)) : 3;
 
             UpdateHUD(attempts, null);

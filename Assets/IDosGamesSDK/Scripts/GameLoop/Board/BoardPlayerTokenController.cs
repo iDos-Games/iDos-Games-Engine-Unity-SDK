@@ -22,14 +22,14 @@ namespace IDosGames
 
         private void OnEnable()
         {
-            if (GameLoopData.Instance != null)
-                GameLoopData.Instance.OnBoardReady += SnapToCurrentPosition;
+            if (BoardGameManager.Instance != null)
+                BoardGameManager.Instance.OnBoardReady += SnapToCurrentPosition;
         }
 
         private void OnDisable()
         {
-            if (GameLoopData.Instance != null)
-                GameLoopData.Instance.OnBoardReady -= SnapToCurrentPosition;
+            if (BoardGameManager.Instance != null)
+                BoardGameManager.Instance.OnBoardReady -= SnapToCurrentPosition;
         }
 
         private void Start()
@@ -39,7 +39,7 @@ namespace IDosGames
 
         public void SnapToCurrentPosition()
         {
-            var data = GameLoopData.Instance;
+            var data = BoardGameManager.Instance;
             if (data == null || data.BoardState == null || ringRenderer == null || playerToken == null)
                 return;
 

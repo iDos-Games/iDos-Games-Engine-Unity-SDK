@@ -83,7 +83,7 @@ namespace IDosGames
 
         private void RefreshBuildingSlots()
         {
-            var stage = GameLoopData.Instance?.CurrentStage;
+            var stage = BoardGameManager.Instance?.CurrentStage;
             var targetStates = _currentTarget?.TargetBuildingStates;
 
             for (int i = 0; i < buildingSlots.Count; i++)

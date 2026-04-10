@@ -30,17 +30,17 @@ namespace IDosGames
 
         private void OnEnable()
         {
-            if (GameLoopData.Instance != null && autoRenderOnBoardReady)
-                GameLoopData.Instance.OnBoardReady += RenderFromCurrentTemplate;
+            if (BoardGameManager.Instance != null && autoRenderOnBoardReady)
+                BoardGameManager.Instance.OnBoardReady += RenderFromCurrentTemplate;
 
-            if (autoRenderOnBoardReady && GameLoopData.Instance != null && GameLoopData.Instance.IsBoardReady)
+            if (autoRenderOnBoardReady && BoardGameManager.Instance != null && BoardGameManager.Instance.IsBoardReady)
                 RenderFromCurrentTemplate();
         }
 
         private void OnDisable()
         {
-            if (GameLoopData.Instance != null && autoRenderOnBoardReady)
-                GameLoopData.Instance.OnBoardReady -= RenderFromCurrentTemplate;
+            if (BoardGameManager.Instance != null && autoRenderOnBoardReady)
+                BoardGameManager.Instance.OnBoardReady -= RenderFromCurrentTemplate;
         }
 
         [ContextMenu("Render From Current Template")]
@@ -48,7 +48,7 @@ namespace IDosGames
         {
             ClearSpawnedTiles();
 
-            var template = GameLoopData.Instance?.CurrentTemplate;
+            var template = BoardGameManager.Instance?.CurrentTemplate;
             if (template?.Tiles == null || template.Tiles.Count == 0)
             {
                 Debug.LogWarning("[BoardHexRingRenderer] CurrentTemplate or Tiles is empty");
@@ -92,8 +92,8 @@ namespace IDosGames
                 _viewByTileIndex[tile.Index] = view;
             }
 
-            if (GameLoopData.Instance?.BoardState != null)
-                SetHighlightedTileIndex(GameLoopData.Instance.BoardState.Position);
+            if (BoardGameManager.Instance?.BoardState != null)
+                SetHighlightedTileIndex(BoardGameManager.Instance.BoardState.Position);
         }
 
         private Vector2 GetPseudoHexRingPosition(int index, int totalCount)

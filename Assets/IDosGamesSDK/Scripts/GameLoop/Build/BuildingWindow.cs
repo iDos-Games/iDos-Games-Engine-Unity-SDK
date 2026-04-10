@@ -22,10 +22,10 @@ namespace IDosGames
 
         private void OnEnable()
         {
-            if (GameLoopData.Instance != null)
+            if (BoardGameManager.Instance != null)
             {
-                GameLoopData.Instance.OnBoardReady += Refresh;
-                GameLoopData.Instance.OnDataUpdated += Refresh;
+                BoardGameManager.Instance.OnBoardReady += Refresh;
+                BoardGameManager.Instance.OnDataUpdated += Refresh;
             }
 
             Refresh();
@@ -33,19 +33,19 @@ namespace IDosGames
 
         private void OnDisable()
         {
-            if (GameLoopData.Instance != null)
+            if (BoardGameManager.Instance != null)
             {
-                GameLoopData.Instance.OnBoardReady -= Refresh;
-                GameLoopData.Instance.OnDataUpdated -= Refresh;
+                BoardGameManager.Instance.OnBoardReady -= Refresh;
+                BoardGameManager.Instance.OnDataUpdated -= Refresh;
             }
         }
 
         public void Refresh()
         {
-            if (GameLoopData.Instance == null || !GameLoopData.Instance.IsBoardReady)
+            if (BoardGameManager.Instance == null || !BoardGameManager.Instance.IsBoardReady)
                 return;
 
-            var data = GameLoopData.Instance;
+            var data = BoardGameManager.Instance;
             var stage = data.CurrentStage;
             var state = data.BoardState;
 
