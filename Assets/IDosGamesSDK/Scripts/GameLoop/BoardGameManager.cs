@@ -22,6 +22,7 @@ namespace IDosGames
 
         [Header("3D")]
         [SerializeField] private Transform playerToken;
+        [SerializeField] private Transform tokenMesh;
         [SerializeField] private Transform[] tiles;
         [SerializeField] private float stepDuration = 0.3f;
         [SerializeField] private float hopHeight = 0.3f;
@@ -119,6 +120,8 @@ namespace IDosGames
 
             try
             {
+                await PlayDiceHideAsync();
+
                 var result = await GameLoopService.BoardLoopRoll(multiplicator);
 
                 if (result?.Data == null)
@@ -126,6 +129,8 @@ namespace IDosGames
                     Debug.LogWarning("[GameLoopData] Roll result is null");
                     return;
                 }
+
+                await PlayDiceAnimationAsync(result.Data.Steps);
 
                 await PlayRollAnimationAsync(result.Data);
 
@@ -197,13 +202,24 @@ namespace IDosGames
             {
                 time += Time.deltaTime;
                 float t = Mathf.Clamp01(time / duration);
+
                 Vector3 pos = Vector3.Lerp(from, to, t);
-                pos.y += Mathf.Sin(t * Mathf.PI) * hopHeight;
                 playerToken.position = pos;
+
+                float jumpY = Mathf.Sin(t * Mathf.PI) * hopHeight;
+                if (tokenMesh != null)
+                {
+                    tokenMesh.localPosition = new Vector3(0, jumpY, 0);
+                }
+
                 yield return null;
             }
 
             playerToken.position = to;
+            if (tokenMesh != null)
+            {
+                tokenMesh.localPosition = Vector3.zero;
+            }
 
             if (toTile != null)
             {
@@ -405,6 +421,22 @@ namespace IDosGames
             }
 
             OnDataUpdated?.Invoke();
+        }
+
+        private Task PlayDiceHideAsync()
+        {
+            var tcs = new TaskCompletionSource<bool>();
+            if (DiceAnimator.Instance == null) { tcs.TrySetResult(true); return tcs.Task; }
+            DiceAnimator.Instance.PlayHideBeforeRoll(() => tcs.TrySetResult(true));
+            return tcs.Task;
+        }
+
+        private Task PlayDiceAnimationAsync(int steps)
+        {
+            var tcs = new TaskCompletionSource<bool>();
+            if (DiceAnimator.Instance == null) { tcs.TrySetResult(true); return tcs.Task; }
+            DiceAnimator.Instance.PlayDiceRoll(steps, () => tcs.TrySetResult(true));
+            return tcs.Task;
         }
     }
 }
