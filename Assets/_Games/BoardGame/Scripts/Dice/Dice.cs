@@ -20,23 +20,36 @@ namespace IDosGames
         private bool _isClone;
 
         private Transform _graphicTransform;
-        private DiceLocomotion _locomotion;
-        private DiceLocomotion _simulationLocomotion;
         private GameObject _simulationObject;
 
         private readonly List<Pose> _trajectory = new();
         public List<Pose> Trajectory => _trajectory;
 
-        public Collider SimulationCollider => _simulationLocomotion.Collider;
-        public DiceLocomotion SimulationLocomotion => _simulationLocomotion;
         public UnityAction OnSimulationStationary = delegate { };
 
-        public Pose GetPose() => _locomotion.GetPose();
         private RollData _rollData = RollData.Default;
         public RollData RollData => _rollData;
 
         public UnityEvent OnRollStart = new();
         public UnityEvent<int> OnRollEnd = new();
+
+        private Dice _simulationDice;
+        public Collider SimulationCollider => _simulationDice.Collider;
+        public Dice SimulationDice => _simulationDice;
+        private Rigidbody _rb;
+        public Rigidbody RB => _rb;
+
+        private Collider _collider;
+        public Collider Collider
+        {
+            get
+            {
+                if (_collider == null)
+                    _collider = GetComponent<Collider>();
+
+                return _collider;
+            }
+        }
 
         [System.Serializable]
         public struct Face
@@ -50,16 +63,10 @@ namespace IDosGames
             }
         }
 
-        private void SetClone(out GameObject obj)
+        private void Awake()
         {
-            enabled = false;
-            _isClone = true;
-            obj = gameObject;
-            foreach (Transform childs in transform)
-            {
-                if (childs.gameObject != gameObject) DestroyImmediate(childs.gameObject);
-            }
-            DestroyImmediate(this);
+            _rb = GetComponent<Rigidbody>();
+            _rb.isKinematic = true;
         }
 
         private void Start()
@@ -67,7 +74,6 @@ namespace IDosGames
             if (_isClone) return;
             CreateGfx();
             DestroyRenderComponents(gameObject);
-            SetupLocomotion();
             SetupProjection();
         }
 
@@ -78,9 +84,23 @@ namespace IDosGames
             DestroySimulation();
         }
 
+        private void SetClone(out GameObject obj, bool destroyDiceComponent)
+        {
+            enabled = false;
+            _isClone = true;
+            obj = gameObject;
+
+            foreach (Transform childs in transform)
+            {
+                if (childs.gameObject != gameObject) DestroyImmediate(childs.gameObject);
+            }
+
+            if (destroyDiceComponent) DestroyImmediate(this);
+        }
+
         private void CreateGfx()
         {
-            Instantiate(this, transform, true).SetClone(out var createdGfx);
+            Instantiate(this, transform, true).SetClone(out var createdGfx, true);
             if (hideGraphicObject) createdGfx.hideFlags = HideFlags.HideInHierarchy;
             else createdGfx.hideFlags = HideFlags.NotEditable;
 
@@ -88,20 +108,16 @@ namespace IDosGames
             _graphicTransform = createdGfx.transform;
         }
 
-        private void SetupLocomotion()
-        {
-            _locomotion = gameObject.AddComponent<DiceLocomotion>();
-        }
-
         private void SetupProjection()
         {
             var transformCache = transform;
-            Instantiate(this, transformCache.position, transformCache.rotation).SetClone(out var createdSimulation);
+            Instantiate(this, transformCache.position, transformCache.rotation)
+                .SetClone(out var createdSimulation, false);
 
             _simulationObject = createdSimulation;
-            _simulationLocomotion = createdSimulation.GetComponent<DiceLocomotion>();
+            _simulationDice = createdSimulation.GetComponent<Dice>();
 
-            Physics.IgnoreCollision(_locomotion.Collider, _simulationLocomotion.Collider);
+            Physics.IgnoreCollision(Collider, _simulationDice.Collider);
             _diceManager.AddDice(this);
         }
 
@@ -117,15 +133,13 @@ namespace IDosGames
 
         public void PlaySimulation()
         {
-            if (!_locomotion || !enabled) return;
+            if (!enabled) return;
             if (_rollData.faceValue != RollData.RandomFace) ChangeOutcome(_rollData.faceValue);
 
             OnRollStart?.Invoke();
 
-            if (_usePlaybackTime)
-                _play = _locomotion.PlayInTime(Trajectory, () => OnRollEnd?.Invoke(_rollData.faceValue), PlaybackTime);
-            else
-                _play = _locomotion.Play(Trajectory, () => OnRollEnd?.Invoke(_rollData.faceValue));
+            if (_usePlaybackTime) _play = PlayInTime(Trajectory, () => OnRollEnd?.Invoke(_rollData.faceValue), PlaybackTime);
+            else _play = Play(Trajectory, () => OnRollEnd?.Invoke(_rollData.faceValue));
 
             StartCoroutine(_play);
         }
@@ -236,18 +250,23 @@ namespace IDosGames
 
         public void RollSimulation(Vector3 force, Vector3 torque)
         {
-            _simulationLocomotion.Roll(force, torque);
+            _simulationDice.Roll(force, torque);
         }
 
         public void AddPoseToTrajectory()
         {
-            _trajectory.Add(_simulationLocomotion.GetPose());
+            _trajectory.Add(_simulationDice.GetPose());
         }
 
         public bool IsStationaryOnStep()
         {
-            return ApproxEqual(SimulationLocomotion.RB.angularVelocity, Vector3.zero) &&
-                   ApproxEqual(SimulationLocomotion.RB.linearVelocity, Vector3.zero);
+            return ApproxEqual(_simulationDice.RB.angularVelocity, Vector3.zero) && ApproxEqual(_simulationDice.RB.linearVelocity, Vector3.zero);
+        }
+
+        public void ResetSimulationDice()
+        {
+            _trajectory.Clear();
+            _simulationDice.ResetDice(GetPose());
         }
 
         private bool ApproxEqual(Vector3 a, Vector3 b)
@@ -255,12 +274,6 @@ namespace IDosGames
             return Mathf.Approximately(a.x, b.x) &&
                    Mathf.Approximately(a.y, b.y) &&
                    Mathf.Approximately(a.z, b.z);
-        }
-
-        public void ResetSimulationDice()
-        {
-            _trajectory.Clear();
-            _simulationLocomotion.ResetDice(GetPose());
         }
 
         public void DestroySimulation()
@@ -285,6 +298,63 @@ namespace IDosGames
             if (_graphicTransform == null) return;
             _graphicTransform.localRotation = rotation;
         }
+
+        public IEnumerator Play(List<Pose> projectory, UnityAction onComplete)
+        {
+            Pose[] poses = new Pose[projectory.Count];
+            projectory.CopyTo(poses);
+            var wait = new WaitForFixedUpdate();
+
+            foreach (var pose in poses)
+            {
+                _rb.MovePosition(pose.position);
+                _rb.MoveRotation(pose.rotation);
+                yield return wait;
+            }
+
+            onComplete?.Invoke();
+        }
+
+        public IEnumerator PlayInTime(List<Pose> projectory, UnityAction onComplete, float completeTime = 1f)
+        {
+            Pose[] poses = new Pose[projectory.Count];
+            projectory.CopyTo(poses);
+
+            int currentPoint = 0;
+            int targetPoint = poses.Length - 1;
+
+            float elapsedTime = 0f;
+            while (elapsedTime < completeTime)
+            {
+                float t = elapsedTime / completeTime;
+                currentPoint = Mathf.Min((int)(t * targetPoint), targetPoint);
+
+                var pose = poses[currentPoint];
+                _rb.MovePosition(pose.position);
+                _rb.MoveRotation(pose.rotation);
+
+                elapsedTime += Time.fixedDeltaTime;
+                yield return new WaitForFixedUpdate();
+            }
+
+            onComplete?.Invoke();
+        }
+
+        public void ResetDice(Pose pose)
+        {
+            _rb.isKinematic = true;
+            _rb.position = pose.position;
+            _rb.rotation = pose.rotation;
+        }
+
+        public void Roll(Vector3 force, Vector3 torque)
+        {
+            _rb.isKinematic = false;
+            _rb.AddForce(force, ForceMode.Impulse);
+            _rb.AddTorque(torque, ForceMode.Impulse);
+        }
+
+        public Pose GetPose() => new(_rb.position, _rb.rotation);
     }
 
     [System.Serializable]

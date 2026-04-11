@@ -97,18 +97,12 @@ namespace IDosGames
 
             // ќпредел€ем режим
             var boardDef = BoardGameManager.Instance?.BoardDefinition;
-            bool configIsSequential = boardDef != null && boardDef.RaidMode == RaidMode.Sequential;
+            bool isFastMode = boardDef != null && boardDef.RaidMode == RaidMode.Fast;
 
-            if (configIsSequential)
-            {
-                // Sequential Ч используем уже имеющийс€ pending, без доп. запроса
-                InitSequentialAndShow();
-            }
-            else
-            {
-                // Fast Ч сначала получаем свежий стейт с layout, потом показываем
+            if (isFastMode)
                 StartCoroutine(InitFastAndShowCoroutine());
-            }
+            else
+                InitSequentialAndShow();
         }
 
         // -----------------------------------------------------------------------
@@ -181,25 +175,43 @@ namespace IDosGames
 
         private async Task FetchBoardStateAsync(Action<BoardLoopState> onSuccess, Action onFail)
         {
-            try
-            {
-                var result = await GameLoopService.GetUserBoardState();
+            const int maxRetries = 3;
+            const float retryDelaySeconds = 1.2f;
 
-                if (result != null && result.Success && result.Data != null)
-                {
-                    onSuccess?.Invoke(result.Data);
-                }
-                else
-                {
-                    Debug.LogWarning($"[RaidPanel] GetUserBoardState failed: {result?.Error}");
-                    onFail?.Invoke();
-                }
-            }
-            catch (Exception ex)
+            for (int attempt = 0; attempt < maxRetries; attempt++)
             {
-                Debug.LogError($"[RaidPanel] GetUserBoardState exception: {ex}");
-                onFail?.Invoke();
+                try
+                {
+                    if (attempt > 0)
+                    {
+                        await Task.Delay(TimeSpan.FromSeconds(retryDelaySeconds * attempt));
+                    }
+
+                    var result = await GameLoopService.GetUserBoardState();
+                    if (result != null && result.Success && result.Data != null)
+                    {
+                        onSuccess?.Invoke(result.Data);
+                        return;
+                    }
+
+                    bool isThrottled = result?.Error != null && result.Error.Contains("Throttled", StringComparison.OrdinalIgnoreCase);
+
+                    if (!isThrottled)
+                    {
+                        onFail?.Invoke();
+                        return;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError($"[RaidPanel] GetUserBoardState exception: {ex}");
+                    onFail?.Invoke();
+                    return;
+                }
             }
+
+            Debug.LogWarning("[RaidPanel] GetUserBoardState failed after all retries.");
+            onFail?.Invoke();
         }
 
         // -----------------------------------------------------------------------
