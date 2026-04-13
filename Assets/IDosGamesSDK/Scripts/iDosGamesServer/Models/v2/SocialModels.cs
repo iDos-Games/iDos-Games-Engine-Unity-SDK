@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace IDosGames.ClientModels
 {
@@ -77,5 +78,17 @@ namespace IDosGames.ClientModels
         public long Amount { get; set; }
         public bool IsBlocked { get; set; }
         public string TargetObjectName { get; set; }
+    }
+
+    [Serializable]
+    public class FriendsListResponse
+    {
+        public List<FriendPublicProfile> Friends { get; set; } = new();
+    }
+
+    [Serializable]
+    public class TimelineResponse
+    {
+        public List<SocialTimelineEventDocument> Events { get; set; } = new();
     }
 }

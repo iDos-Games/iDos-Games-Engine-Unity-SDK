@@ -28,31 +28,42 @@ namespace IDosGames
     public class RewardResponse
     {
         public string RewardCurrencyID { get; set; } // "CO" / "IG"
-        public int RewardGranted { get; set; }       // How much was accrued
-        public int RewardBalanceNew { get; set; }    // New reward balance
+        public long RewardGranted { get; set; }       // How much was accrued
+        public long RewardBalanceNew { get; set; }    // New reward balance
 
         public string LimitCurrencyID { get; set; }  // "CL" / "TL"
-        public int LimitSpent { get; set; }          // How much of the limit was written off
-        public int LimitBalanceNew { get; set; }     // New balance limit
+        public long LimitSpent { get; set; }          // How much of the limit was written off
+        public long LimitBalanceNew { get; set; }     // New balance limit
 
-        public int ReferralGranted { get; set; }     // How much was credited to the referral
-        public int PointsAdded { get; set; }         // How many points were added
+        public long ReferralGranted { get; set; }     // How much was credited to the referral
+        public long PointsAdded { get; set; }         // How many points were added
     }
 
     [Serializable]
     public class ClaimDailyRewardResponse
     {
         public string CalendarID { get; set; }
-        public DailyRewardState DailyState { get; set; } // Updated calendar state (so the client knows what day is next)
+        public UserDailyRewardState DailyState { get; set; } // Updated calendar state (so the client knows what day is next)
         public List<ItemOrCurrency> GrantedRewards { get; set; } // List of what was actually issued (copy from the config of the day)
     }
 
     [Serializable]
-    public class DailyRewardState
+    public class UserDailyRewardState
     {
         public DateTime LastClaimTime { get; set; }
         public int CollectedDays { get; set; }
-        public string CalendarID { get; set; }
+    }
+
+    [Serializable]
+    public class DailyRewardsDefinitionsResponse
+    {
+        public List<DailyRewardsDefinition> DailyRewardsDefinitions { get; set; }
+    }
+
+    [Serializable]
+    public class UserDailyRewardStateResponse
+    {
+        public Dictionary<string, UserDailyRewardState> DailyRewards { get; set; }
     }
 
     public enum RewardAction
@@ -62,5 +73,6 @@ namespace IDosGames
         ClaimItemProfit,
         ClaimDailyReward,
         GetDailyRewardsDefinitions,
+        GetUserDailyRewardsState,
     }
 }

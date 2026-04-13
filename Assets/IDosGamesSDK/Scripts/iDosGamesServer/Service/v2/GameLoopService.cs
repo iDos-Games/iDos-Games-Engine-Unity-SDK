@@ -120,7 +120,7 @@ namespace IDosGames
                             TargetBuildingStates = result.Data.ActionData.TargetBuildingStates,
                             TargetHasShield = result.Data.ActionData.TargetHasShield,
                             RollMultiplier = rollMultiplier,
-                            ExpiresAtUtc = DateTime.UtcNow.AddMinutes(5)
+                            ExpiresAtUtc = DateTime.UtcNow.AddMinutes(15)
                         };
                     }
                     else

@@ -1,6 +1,4 @@
-using System.Collections.Generic;
 using System.Threading.Tasks;
-using IDosGames.TitlePublicConfiguration;
 
 namespace IDosGames
 {
@@ -42,9 +40,14 @@ namespace IDosGames
             return await SendRequest<ClaimDailyRewardResponse>(RewardAction.ClaimDailyReward, request);
         }
 
-        public static async Task<OperationResult<List<DailyRewardsDefinition>>> GetDailyRewardsDefinitions(RewardRequest request)
+        public static async Task<OperationResult<DailyRewardsDefinitionsResponse>> GetDailyRewardsDefinitions(RewardRequest request)
         {
-            return await SendRequest<List<DailyRewardsDefinition>>(RewardAction.GetDailyRewardsDefinitions, request);
+            return await SendRequest<DailyRewardsDefinitionsResponse>(RewardAction.GetDailyRewardsDefinitions, request);
+        }
+
+        public static async Task<OperationResult<UserDailyRewardStateResponse>> GetUserDailyRewardsState(RewardRequest request)
+        {
+            return await SendRequest<UserDailyRewardStateResponse>(RewardAction.GetUserDailyRewardsState, request);
         }
     }
 }

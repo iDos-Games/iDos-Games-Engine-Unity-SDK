@@ -114,7 +114,7 @@ namespace IDosGames.ClientModels
         public List<string> TokenImagesPath { get; set; }
         public long Amount { get; set; }
         public string Source { get; set; }
-        public bool VipBonusApplied { get; set; }
+        public bool PremiumBonusApplied { get; set; }
         public bool BonusWindowActive { get; set; }
         public double ProgressiveMultiplier { get; set; }
     }
@@ -125,10 +125,10 @@ namespace IDosGames.ClientModels
         public string EventID { get; set; }
         public string EventChainID { get; set; }
         public string MilestoneID { get; set; }
-        public List<ItemOrCurrency> StandardRewards { get; set; }
-        public List<ItemOrCurrency> VipRewards { get; set; }
+        public List<ItemOrCurrency> BaseRewards { get; set; }
+        public List<ItemOrCurrency> PremiumRewards { get; set; }
         public List<EventTokenGrantInfo> CrossEventTokenGrants { get; set; }
-        public bool IsVip { get; set; }
+        public bool IsPremium { get; set; }
     }
 
     [Serializable]
@@ -146,8 +146,8 @@ namespace IDosGames.ClientModels
         public string EventID { get; set; }
         public string EventChainID { get; set; }
         public int StreakDay { get; set; }
-        public List<ItemOrCurrency> StandardRewards { get; set; }
-        public List<ItemOrCurrency> VipRewards { get; set; }
+        public List<ItemOrCurrency> BaseRewards { get; set; }
+        public List<ItemOrCurrency> PremiumRewards { get; set; }
         public List<EventTokenGrantInfo> CrossEventTokenGrants { get; set; }
         public long BonusTokens { get; set; }
     }
@@ -333,7 +333,7 @@ namespace IDosGames.ClientModels
     {
         public EventTokenSourceType SourceType { get; set; }
         public long BaseAmount { get; set; }
-        public double VipMultiplier { get; set; }
+        public double PremiumMultiplier { get; set; }
         public int MinPremiumTierForBonus { get; set; }
         public long DailyCapFromSource { get; set; }
         public int DailyTriggerCap { get; set; }
@@ -382,7 +382,9 @@ namespace IDosGames.ClientModels
         public string DisplayName { get; set; }
         public List<string> AssetPaths { get; set; }
         public List<ItemOrCurrency> Rewards { get; set; }
-        public List<EventVipReward> VipRewards { get; set; }
+        public List<PremiumTierReward> PremiumRewards { get; set; }
+        public PremiumRewardsMode PremiumRewardsMode { get; set; }
+        public bool PremiumStackLowerTiers { get; set; }
         public List<EventTokenReward> TokenRewards { get; set; }
         public long BonusTokens { get; set; }
     }
@@ -430,18 +432,12 @@ namespace IDosGames.ClientModels
         public List<string> AssetPaths { get; set; }
         public long RequiredTokensEarned { get; set; }
         public List<ItemOrCurrency> Rewards { get; set; }
-        public List<EventVipReward> VipRewards { get; set; }
+        public List<PremiumTierReward> PremiumRewards { get; set; }
+        public PremiumRewardsMode PremiumRewardsMode { get; set; }
+        public bool PremiumStackLowerTiers { get; set; }
+        public List<EventTokenReward> TokenRewards { get; set; }
         public int SortOrder { get; set; }
         public bool IsFeatured { get; set; }
-    }
-
-    [Serializable]
-    public class EventVipReward
-    {
-        public int MinPremiumTier { get; set; }
-        public string RequiredPremiumID { get; set; }
-        public string Label { get; set; }
-        public List<ItemOrCurrency> Rewards { get; set; }
     }
 
     [Serializable]
@@ -457,7 +453,7 @@ namespace IDosGames.ClientModels
     {
         public string RankRange { get; set; }
         public List<ItemOrCurrency> Rewards { get; set; }
-        public List<EventVipReward> VipRewards { get; set; }
+        public List<PremiumTierReward> PremiumRewards { get; set; }
     }
 
     [Serializable]

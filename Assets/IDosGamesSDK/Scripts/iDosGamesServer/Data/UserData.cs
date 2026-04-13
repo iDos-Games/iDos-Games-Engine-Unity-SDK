@@ -20,10 +20,15 @@ namespace IDosGames
         public BoardLoopState Board { get; private set; }
         public UserQuestState Quests { get; private set; }
         public Dictionary<string, CharacterModel> Characters { get; private set; }
-        public Dictionary<string, DailyRewardState> DailyRewards { get; private set; }
-        //public UserPremiumState Premium { get; private set; }
+        public Dictionary<string, UserDailyRewardState> DailyRewards { get; private set; }
+        public UserPremiumState Premium { get; private set; }
         public Dictionary<string, PlayerLeaderboardData> LeaderboardData { get; private set; }
         public List<BattleStepConfig> PvPBattleStrategy { get; private set; }
+        public UserDealOffersState DealOffers { get; private set; }
+        public List<ActiveDealSlotInfo> ActiveDealSlots { get; private set; }
+        public Dictionary<string, UserLeaderboardProgress> LeaderboardProgress { get; private set; } // leaderboardId -> прогресс текущего игрока
+        public UserReferralState Referral { get; private set; }
+        public UserStoreState Store { get; private set; }
 
         public event Action OnVirtualCurrencyUpdated;
         public event Action OnVirtualCurrencyRechargeTimesUpdated;
@@ -37,10 +42,15 @@ namespace IDosGames
         public event Action OnQuestsUpdated;
         public event Action OnCharactersUpdated;
         public event Action OnDailyRewardsUpdated;
-        //public event Action OnPremiumUpdated;
+        public event Action OnPremiumUpdated;
         public event Action OnLeaderboardDataUpdated;
         public event Action OnAnyUpdated;
         public event Action OnPvPBattleStrategyUpdated;
+        public event Action OnDealOffersUpdated;
+        public event Action OnActiveDealSlotsUpdated;
+        public event Action OnLeaderboardProgressUpdated;
+        public event Action OnReferralUpdated;
+        public event Action OnStoreUpdated;
 
         public bool IsLoggedIn { get; internal set; }
 
@@ -144,7 +154,7 @@ namespace IDosGames
             OnAnyUpdated?.Invoke();
         }
 
-        internal void ApplyDailyRewards(Dictionary<string, DailyRewardState> data)
+        internal void ApplyDailyRewards(Dictionary<string, UserDailyRewardState> data)
         {
             DailyRewards = data;
             OnDailyRewardsUpdated?.Invoke();
@@ -158,12 +168,12 @@ namespace IDosGames
             OnAnyUpdated?.Invoke();
         }
 
-        //internal void ApplyPremium(UserPremiumState data)
-        //{
-        //    Premium = data;
-        //    OnPremiumUpdated?.Invoke();
-        //    OnAnyUpdated?.Invoke();
-        //}
+        internal void ApplyPremium(UserPremiumState data)
+        {
+            Premium = data;
+            OnPremiumUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
 
         internal void ApplyLeaderboardData(Dictionary<string, PlayerLeaderboardData> data)
         {
@@ -176,6 +186,34 @@ namespace IDosGames
         {
             PvPBattleStrategy = data;
             OnPvPBattleStrategyUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void ApplyDealOffers(UserDealOffersState data)
+        {
+            DealOffers = data;
+            OnDealOffersUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void ApplyActiveDealSlots(List<ActiveDealSlotInfo> data)
+        {
+            ActiveDealSlots = data;
+            OnActiveDealSlotsUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void ApplyReferralState(UserReferralState data)
+        {
+            Referral = data;
+            OnReferralUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void ApplyStoreState(UserStoreState data)
+        {
+            Store = data;
+            OnStoreUpdated?.Invoke();
             OnAnyUpdated?.Invoke();
         }
 
@@ -198,10 +236,15 @@ namespace IDosGames
             VirtualCurrencyRechargeTimes = null;
             DailyRewards = null;
             Social = null;
-            //Premium = null;
+            Premium = null;
             LeaderboardData = null;
             PvPBattleStrategy = null;
             IsLoggedIn = false;
+            DealOffers = null;
+            ActiveDealSlots = null;
+            LeaderboardProgress = null;
+            Referral = null;
+            Store = null;
         }
 
         internal void PatchVirtualCurrency(string currencyId, long newBalance)
@@ -455,7 +498,7 @@ namespace IDosGames
             return null;
         }
 
-        internal void PatchDailyReward(string calendarId, DailyRewardState data)
+        internal void PatchDailyReward(string calendarId, UserDailyRewardState data)
         {
             DailyRewards ??= new();
             DailyRewards[calendarId] = data;
@@ -655,6 +698,180 @@ namespace IDosGames
             if (!progress.ClaimedStreakDays.Contains(streakDay))
                 progress.ClaimedStreakDays.Add(streakDay);
             OnLimitedTimeEventsUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        // --- Patch: dismiss active offer in slot ---
+        internal void PatchDealOfferSlotDismissed(string slotID)
+        {
+            if (DealOffers?.Slots == null || !DealOffers.Slots.TryGetValue(slotID, out var slot) || slot?.ActiveOffer == null) return;
+
+            slot.ActiveOffer.Status = DealOfferActivationStatus.Dismissed;
+            slot.ActiveOffer.DismissedAtUtc = DateTime.UtcNow;
+            slot.LastDismissedAtUtc = DateTime.UtcNow;
+            OnDealOffersUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        // --- Patch: apply ExecuteNode response to local state ---
+        internal void PatchDealOfferNodeExecuted(string slotID, string nodeID, ExecuteNodeResponse response)
+        {
+            if (DealOffers?.Slots == null || !DealOffers.Slots.TryGetValue(slotID, out var slot) || slot?.ActiveOffer == null) return;
+
+            var activation = slot.ActiveOffer;
+            activation.Nodes ??= new();
+
+            if (!activation.Nodes.TryGetValue(nodeID, out var nodeState))
+            {
+                nodeState = new UserDealNodeState { NodeID = nodeID };
+                activation.Nodes[nodeID] = nodeState;
+            }
+
+            nodeState.ExecutionCount++;
+            nodeState.LastExecutedAtUtc = DateTime.UtcNow;
+
+            if (response.NodeCompleted)
+            {
+                nodeState.Status = DealNodeRuntimeStatus.Completed;
+                nodeState.CompletedAtUtc = DateTime.UtcNow;
+            }
+
+            if (response.OfferExhausted)
+            {
+                activation.Status = DealOfferActivationStatus.Exhausted;
+                activation.ExhaustedAtUtc = DateTime.UtcNow;
+            }
+
+            OnDealOffersUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        // --- Patch: record show impression ---
+        internal void PatchDealOfferShowRecorded(string slotID)
+        {
+            if (DealOffers?.Slots == null || !DealOffers.Slots.TryGetValue(slotID, out var slot) || slot?.ActiveOffer == null) return;
+
+            slot.ActiveOffer.ShowCount++;
+            slot.ActiveOffer.LastShownAtUtc = DateTime.UtcNow;
+            OnDealOffersUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        /// <summary>
+        /// Patches local progress (score, rank, unclaimed reward flag) after GetMyProgress.
+        /// </summary>
+        internal void PatchLeaderboardProgress(GetMyProgressResponse data)
+        {
+            LeaderboardProgress ??= new();
+            if (!LeaderboardProgress.TryGetValue(data.LeaderboardID, out var progress))
+            {
+                progress = new UserLeaderboardProgress();
+                LeaderboardProgress[data.LeaderboardID] = progress;
+            }
+            progress.CurrentScore = data.CurrentScore;
+            progress.LastKnownRank = data.LastKnownRank;
+            progress.UnclaimedRewardCycleVersion = data.HasUnclaimedReward ? progress.UnclaimedRewardCycleVersion : 0;
+            OnLeaderboardProgressUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        /// <summary>
+        /// Patches local score after a successful SubmitScore.
+        /// </summary>
+        internal void PatchLeaderboardScore(SubmitScoreResponse data)
+        {
+            LeaderboardProgress ??= new();
+            if (!LeaderboardProgress.TryGetValue(data.LeaderboardID, out var progress))
+            {
+                progress = new UserLeaderboardProgress();
+                LeaderboardProgress[data.LeaderboardID] = progress;
+            }
+            progress.CurrentScore = data.NewScore;
+            progress.ScoreCycleVersion = data.CycleVersion;
+            OnLeaderboardProgressUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        /// <summary>
+        /// Clears the unclaimed reward flag after a successful ClaimCycleReward.
+        /// </summary>
+        internal void PatchLeaderboardRewardClaimed(ClaimCycleRewardResponse data)
+        {
+            if (LeaderboardProgress == null || !LeaderboardProgress.TryGetValue(data.LeaderboardID, out var progress)) return;
+            progress.UnclaimedRewardCycleVersion = 0;
+            OnLeaderboardProgressUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchReferralSubscription(string subscribedToUserID)
+        {
+            Referral ??= new UserReferralState();
+            Referral.SubscribedToUserID = subscribedToUserID;
+            Referral.ActivationRewardGranted = true;
+            OnReferralUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchReferralInviteRewardClaimed(string rewardId)
+        {
+            Referral ??= new UserReferralState();
+            Referral.InviteRewardStates ??= new();
+
+            var existing = Referral.InviteRewardStates.Find(s => s.RewardID == rewardId);
+            if (existing != null)
+            {
+                existing.IsClaimed = true;
+                existing.ClaimedAt = DateTime.UtcNow;
+            }
+            else
+            {
+                Referral.InviteRewardStates.Add(new ReferralInviteRewardState
+                {
+                    RewardID = rewardId,
+                    IsClaimed = true,
+                    ClaimedAt = DateTime.UtcNow,
+                });
+            }
+
+            OnReferralUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        /// <summary>
+        /// Patches purchase counters for a single offer after a successful purchase.
+        /// The server is the source of truth for exact counters; this is a local optimistic update.
+        /// </summary>
+        internal void PatchStorePurchase(string offerID, int count)
+        {
+            Store ??= new UserStoreState();
+            Store.Purchases ??= new Dictionary<string, StorePurchaseState>();
+
+            var now = DateTime.UtcNow;
+
+            if (!Store.Purchases.TryGetValue(offerID, out var state))
+            {
+                state = new StorePurchaseState
+                {
+                    OfferID = offerID,
+                    DailyResetUtc = now.Date.AddDays(1),
+                };
+                Store.Purchases[offerID] = state;
+            }
+
+            state.TotalPurchases += count;
+            state.LastPurchasedAt = now;
+
+            if (now >= state.DailyResetUtc)
+            {
+                state.DailyPurchases = count;
+                state.DailyResetUtc = now.Date.AddDays(1);
+            }
+            else
+            {
+                state.DailyPurchases += count;
+            }
+
+            OnStoreUpdated?.Invoke();
             OnAnyUpdated?.Invoke();
         }
     }

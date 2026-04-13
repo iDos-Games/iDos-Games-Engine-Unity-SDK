@@ -8,16 +8,16 @@ namespace IDosGames
 {
     public static class SocialService
     {
-        public static event Action<List<FriendPublicProfile>> OnFriendsListUpdated;
-        public static event Action<List<FriendPublicProfile>> OnIncomingRequestsUpdated;
-        public static event Action<List<FriendPublicProfile>> OnRecommendedFriendsUpdated;
+        public static event Action<FriendsListResponse> OnFriendsListUpdated;
+        public static event Action<FriendsListResponse> OnIncomingRequestsUpdated;
+        public static event Action<FriendsListResponse> OnRecommendedFriendsUpdated;
 
         public static event Action<FriendActionResponse> OnSendFriendRequestSuccess;
         public static event Action<FriendActionResponse> OnAcceptFriendRequestSuccess;
         public static event Action<FriendActionResponse> OnDeclineFriendRequestSuccess;
         public static event Action<FriendActionResponse> OnRemoveFriendSuccess;
 
-        public static event Action<List<SocialTimelineEventDocument>> OnTimelineUpdated;
+        public static event Action<TimelineResponse> OnTimelineUpdated;
 
         private static IGSAuthenticationContext Ctx => AuthenticationService.GetAuthContext();
         private static string UserID => Ctx.UserID;
@@ -41,35 +41,35 @@ namespace IDosGames
         // FRIENDS
         // =================================================================================
 
-        public static async Task<OperationResult<List<FriendPublicProfile>>> GetFriendsList()
+        public static async Task<OperationResult<FriendsListResponse>> GetFriendsList()
         {
             var request = CreateBaseRequest();
             var result = await SocialAPI.GetFriendsList(request);
 
             if (result.Success)
             {
-                IDosGamesData.User.PatchSocialAccepted(result.Data.Select(f => f.UserID).ToList());
+                IDosGamesData.User.PatchSocialAccepted(result.Data.Friends.Select(f => f.UserID).ToList());
                 OnFriendsListUpdated?.Invoke(result.Data);
             }
 
             return result;
         }
 
-        public static async Task<OperationResult<List<FriendPublicProfile>>> GetIncomingRequests()
+        public static async Task<OperationResult<FriendsListResponse>> GetIncomingRequests()
         {
             var request = CreateBaseRequest();
             var result = await SocialAPI.GetIncomingRequests(request);
 
             if (result.Success)
             {
-                IDosGamesData.User.PatchSocialIncomingRequests(result.Data.Select(f => f.UserID).ToList());
+                IDosGamesData.User.PatchSocialIncomingRequests(result.Data.Friends.Select(f => f.UserID).ToList());
                 OnIncomingRequestsUpdated?.Invoke(result.Data);
             }
 
             return result;
         }
 
-        public static async Task<OperationResult<List<FriendPublicProfile>>> GetRecommendedFriends(int limit = 5)
+        public static async Task<OperationResult<FriendsListResponse>> GetRecommendedFriends(int limit = 5)
         {
             var request = CreateBaseRequest();
             request.Limit = limit;
@@ -78,7 +78,7 @@ namespace IDosGames
 
             if (result.Success)
             {
-                IDosGamesData.User.PatchSocialRecommended(result.Data.Select(f => f.UserID).ToList());
+                IDosGamesData.User.PatchSocialRecommended(result.Data.Friends.Select(f => f.UserID).ToList());
                 OnRecommendedFriendsUpdated?.Invoke(result.Data);
             }
 
@@ -153,7 +153,7 @@ namespace IDosGames
         // TIMELINE
         // =================================================================================
 
-        public static async Task<OperationResult<List<SocialTimelineEventDocument>>> GetTimeline()
+        public static async Task<OperationResult<TimelineResponse>> GetTimeline()
         {
             var request = CreateBaseRequest();
             var result = await SocialAPI.GetTimeline(request);

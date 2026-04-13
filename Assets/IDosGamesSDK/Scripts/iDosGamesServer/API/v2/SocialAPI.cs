@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using IDosGames.ClientModels;
 
@@ -26,19 +25,19 @@ namespace IDosGames
         // PUBLIC METHODS
         // =================================================================================
 
-        public static async Task<OperationResult<List<FriendPublicProfile>>> GetFriendsList(SocialRequest request)
+        public static async Task<OperationResult<FriendsListResponse>> GetFriendsList(SocialRequest request)
         {
-            return await SendRequest<List<FriendPublicProfile>>(SocialAction.GetFriendsList, request);
+            return await SendRequest<FriendsListResponse>(SocialAction.GetFriendsList, request);
         }
 
-        public static async Task<OperationResult<List<FriendPublicProfile>>> GetIncomingRequests(SocialRequest request)
+        public static async Task<OperationResult<FriendsListResponse>> GetIncomingRequests(SocialRequest request)
         {
-            return await SendRequest<List<FriendPublicProfile>>(SocialAction.GetIncomingRequests, request);
+            return await SendRequest<FriendsListResponse>(SocialAction.GetIncomingRequests, request);
         }
 
-        public static async Task<OperationResult<List<FriendPublicProfile>>> GetRecommendedFriends(SocialRequest request)
+        public static async Task<OperationResult<FriendsListResponse>> GetRecommendedFriends(SocialRequest request)
         {
-            return await SendRequest<List<FriendPublicProfile>>(SocialAction.GetRecommendedFriends, request);
+            return await SendRequest<FriendsListResponse>(SocialAction.GetRecommendedFriends, request);
         }
 
         public static async Task<OperationResult<FriendActionResponse>> SendFriendRequest(SocialRequest request)
@@ -61,9 +60,9 @@ namespace IDosGames
             return await SendRequest<FriendActionResponse>(SocialAction.RemoveFriend, request);
         }
 
-        public static async Task<OperationResult<List<SocialTimelineEventDocument>>> GetTimeline(SocialRequest request)
+        public static async Task<OperationResult<TimelineResponse>> GetTimeline(SocialRequest request)
         {
-            return await SendRequest<List<SocialTimelineEventDocument>>(SocialAction.GetTimeline, request);
+            return await SendRequest<TimelineResponse>(SocialAction.GetTimeline, request);
         }
     }
 }

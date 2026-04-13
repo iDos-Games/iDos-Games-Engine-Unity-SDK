@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -54,12 +54,16 @@ namespace IDosGames
 
             if (result.Success)
             {
-                var toConsume = inputItemIDs.Select(id => new ItemOrCurrency
-                {
-                    Type = ItemType.Item,
-                    ItemID = id,
-                    Amount = count
-                }).ToList();
+                // Group the template and multiply by Count
+                var toConsume = inputItemIDs
+                    .GroupBy(id => id)
+                    .Select(g => new ItemOrCurrency
+                    {
+                        Type = ItemType.Item,
+                        ItemID = g.Key,
+                        Amount = g.Count() * count  // number of occurrences in pattern × count
+                    })
+                    .ToList();
                 IDosGamesData.User.ConsumeResources(toConsume);
 
                 var outputs = result.Data.Results

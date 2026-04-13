@@ -29,11 +29,7 @@ namespace IDosGames
         /// <summary>
         /// Create a new match
         /// </summary>
-        public static async Task<OperationResult<CreateMatchResponse>> CreateMatch(
-            int entryFee,
-            string currencyId = "CO",
-            string characterId = null,
-            List<BattleStepConfig> strategy = null)
+        public static async Task<OperationResult<CreateMatchResponse>> CreateMatch(long entryFee, string currencyId = "CO", string characterId = null, List<BattleStepConfig> strategy = null)
         {
             var request = CreateBaseRequest();
             request.EntryFeeAmount = entryFee;
@@ -56,10 +52,7 @@ namespace IDosGames
         /// <summary>
         /// Accept the fight (Instant Battle)
         /// </summary>
-        public static async Task<OperationResult<BattleResult>> InstantBattle(
-            string matchId,
-            string characterId = null,
-            List<BattleStepConfig> strategy = null)
+        public static async Task<OperationResult<BattleResult>> InstantBattle(string matchId, string characterId = null, List<BattleStepConfig> strategy = null)
         {
             var request = CreateBaseRequest();
             request.MatchID = matchId;
@@ -69,20 +62,30 @@ namespace IDosGames
 
             var result = await MatchAPI.InstantBattle(request);
 
-            if (result.Success)
+            if (result.Success && result.Data != null)
             {
-                if (result.Data.WinnerUserID == UserID && !result.Data.IsDraw)
+                var currencyId = result.Data.CurrencyID;
+                var entryFeeAmount = result.Data.EntryFeeAmount;
+
+                IDosGamesData.User.PatchVirtualCurrency(currencyId, (IDosGamesData.User.VirtualCurrency?[currencyId] ?? 0) - entryFeeAmount);
+
+                if (result.Data.IsDraw)
+                {
+                    IDosGamesData.User.PatchVirtualCurrency(currencyId, (IDosGamesData.User.VirtualCurrency?[currencyId] ?? 0) + entryFeeAmount);
+                }
+                else if (result.Data.WinnerUserID == UserID)
                 {
                     IDosGamesData.User.GrantResources(new List<ItemOrCurrency>
                     {
                         new ItemOrCurrency
                         {
                             Type = ItemType.VirtualCurrency,
-                            CurrencyID = result.Data.CurrencyID,
+                            CurrencyID = currencyId,
                             Amount = result.Data.PrizeAmount
                         }
                     });
                 }
+
                 OnBattleFinished?.Invoke(result.Data);
             }
 

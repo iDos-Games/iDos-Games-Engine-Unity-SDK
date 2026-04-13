@@ -149,7 +149,8 @@ namespace IDosGames.ClientModels
         public string QuestID { get; set; }
         public string CycleID { get; set; } // null for permanent
         public QuestStatus NewStatus { get; set; }
-        public List<ItemOrCurrency> GrantedRewards { get; set; } = new List<ItemOrCurrency>();
+        public List<ItemOrCurrency> GrantedBaseRewards { get; set; }
+        public List<ItemOrCurrency> GrantedPremiumRewards { get; set; }
     }
 
     [Serializable]
@@ -158,7 +159,8 @@ namespace IDosGames.ClientModels
         public string CycleID { get; set; }
         public string MilestoneID { get; set; }
         public int CompletedQuestsCount { get; set; }
-        public List<ItemOrCurrency> GrantedRewards { get; set; } = new List<ItemOrCurrency>();
+        public List<ItemOrCurrency> GrantedBaseRewards { get; set; }
+        public List<ItemOrCurrency> GrantedPremiumRewards { get; set; }
     }
 
     [Serializable]

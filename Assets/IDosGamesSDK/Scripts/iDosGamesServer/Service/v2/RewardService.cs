@@ -10,6 +10,7 @@ namespace IDosGames
         public static event Action<RewardResponse> OnClaimSuccess;
         public static event Action<ClaimDailyRewardResponse> OnClaimDailyRewardSuccess;
         public static event Action<List<DailyRewardsDefinition>> OnDailyRewardsDefinitionsReceived;
+        public static event Action<Dictionary<string, UserDailyRewardState>> OnUserDailyRewardsStateReceived;
 
         private static IGSAuthenticationContext Ctx => AuthenticationService.GetAuthContext();
         private static string UserID => Ctx.UserID;
@@ -27,7 +28,7 @@ namespace IDosGames
             };
         }
 
-        public static async Task<OperationResult<List<DailyRewardsDefinition>>> GetDailyRewardsDefinitions()
+        public static async Task<OperationResult<DailyRewardsDefinitionsResponse>> GetDailyRewardsDefinitions()
         {
             var request = CreateBaseRequest();
 
@@ -35,8 +36,27 @@ namespace IDosGames
 
             if (result.Success)
             {
-                IDosGamesData.Config.ApplyDailyRewardsDefinitions(result.Data);
-                OnDailyRewardsDefinitionsReceived?.Invoke(result.Data);
+                var definitions = result.Data?.DailyRewardsDefinitions ?? new List<DailyRewardsDefinition>();
+
+                IDosGamesData.Config.ApplyDailyRewardsDefinitions(definitions);
+                OnDailyRewardsDefinitionsReceived?.Invoke(definitions);
+            }
+
+            return result;
+        }
+
+        public static async Task<OperationResult<UserDailyRewardStateResponse>> GetUserDailyRewardsState()
+        {
+            var request = CreateBaseRequest();
+
+            var result = await RewardAPI.GetUserDailyRewardsState(request);
+
+            if (result.Success)
+            {
+                var dailyRewards = result.Data?.DailyRewards ?? new Dictionary<string, UserDailyRewardState>();
+
+                IDosGamesData.User.ApplyDailyRewards(dailyRewards);
+                OnUserDailyRewardsStateReceived?.Invoke(dailyRewards);
             }
 
             return result;

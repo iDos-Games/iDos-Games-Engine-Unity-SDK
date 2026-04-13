@@ -13,27 +13,25 @@ namespace IDosGames.ClientModels
     public enum MatchStatus
     {
         Open,
-        Matched,
         InProgress,
-        Finished,
         Cancelled,
-        Expired
+        Completed
     }
 
     [JsonConverter(typeof(StringEnumConverter))]
     public enum MatchAction
     {
         CreateMatch,
-        InstantBattle,
-        SaveStrategy,
-        GetMyMatches,
-        GetAvailableMatches,
-        
         JoinMatch,
         GetMatch,
         SubmitAction,
         FinalizeMatch,
-        ClaimRewards
+        ClaimRewards,
+
+        InstantBattle,
+        SaveStrategy,
+        GetMyMatches,
+        GetAvailableMatches,
     }
 
     [JsonConverter(typeof(StringEnumConverter))]
@@ -93,7 +91,7 @@ namespace IDosGames.ClientModels
     [Serializable]
     public class MatchesPageResponse
     {
-        public List<PvPMatch> Matches;
+        public List<PvPMatch> Matches = new();
         public int Page;
         public int PageSize;
         public bool HasMore;
@@ -113,15 +111,29 @@ namespace IDosGames.ClientModels
     public class PvPMatch
     {
         public string MatchID;
+        public string RuleID;
+        public DateTime CreatedAt;
+
         public string CreatorID;
-        public string CurrencyID;
-        public long EntryFeeAmount;
-        public MatchStatus Status;
-        public long RewardPoolAmount;
         public string CreatorCharacterID;
         public List<BattleStepConfig> CreatorStrategy;
-        public DateTime CreatedAt;
-        public DateTime? ExpiresAt;
+
+        public string TargetUserID;
+
+        public string CurrencyID;
+        public long EntryFeeAmount;
+        public long RewardPoolAmount;
+
+        public string JoinedByUserID;
+        public string JoinedByCharacterID;
+        public DateTime? JoinedAt;
+
+        public MatchStatus Status;
+        public string WinnerUserID;
+        public DateTime? CompletedAt;
+
+        public bool IsRewardDistributed;
+        public DateTime? RewardDistributedAt;
     }
 
     [Serializable]
@@ -130,6 +142,7 @@ namespace IDosGames.ClientModels
         public string WinnerUserID;
         public string LoserUserID;
         public string CurrencyID;
+        public long EntryFeeAmount;
         public long PrizeAmount;
         public bool IsDraw;
 
@@ -144,7 +157,7 @@ namespace IDosGames.ClientModels
     {
         public string UserID { get; set; }
         public string SelectedCharacterID { get; set; }
-        public Dictionary<string, CharacterModel> Characters { get; set; }
+        public CharacterModel SelectedCharacter { get; set; }
         public List<BattleStepConfig> BattleStrategy { get; set; }
     }
 

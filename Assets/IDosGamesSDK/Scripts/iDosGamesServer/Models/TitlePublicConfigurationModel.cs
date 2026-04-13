@@ -43,6 +43,11 @@ namespace IDosGames.TitlePublicConfiguration
         public List<CurrencyTransferPair> AllowedCurrencyTransferPairs { get; set; }
         public QuestDefinitions QuestDefinitions { get; set; }
         public LimitedTimeEventsDefinition LimitedTimeEvents { get; set; }
+        public List<PremiumDefinition> PremiumDefinitions { get; set; }
+        public DealOffersDefinition DealOfferDefinitions { get; set; }
+        public LeaderboardDefinitions LeaderboardDefinitions { get; set; }
+        public ReferralDefinitions ReferralDefinitions { get; set; }
+        public StoreDefinitions StoreDefinitions { get; set; }
     }
 
     public class AiCustomSetting
@@ -194,7 +199,8 @@ namespace IDosGames.TitlePublicConfiguration
     public enum ItemType
     {
         Item,
-        VirtualCurrency
+        VirtualCurrency,
+        UsdCent,
     }
 
     public class ProductForRealMoney
@@ -403,6 +409,8 @@ namespace IDosGames.TitlePublicConfiguration
     {
         public string LootboxID { get; set; }
         public string LootboxImagePath { get; set; }
+        public int RequiredPremiumTier { get; set; }
+        public string RequiredPremiumID { get; set; }
 
         // List of payment options
         public List<LootboxPriceOption> PriceOptions { get; set; }
@@ -417,11 +425,12 @@ namespace IDosGames.TitlePublicConfiguration
     {
         public int OptionID { get; set; }
         public List<ItemOrCurrency> RequiredResources { get; set; }
+        public int PremiumDiscountPercent { get; set; }
     }
 
     public class LootRewardWeight
     {
-        public ItemOrCurrency Item { get; set; }
+        public ItemOrCurrency Reward { get; set; }
         public int Weight { get; set; }
         public long MinAmount { get; set; }
         public long MaxAmount { get; set; }

@@ -91,7 +91,6 @@ namespace IDosGames.ClientModels
     [Serializable]
     public class EquippedItem
     {
-        public string SlotID { get; set; } // —Ћќ“: "weapon", "helmet", "ring1" и т.д.
         public string ItemID { get; set; } // (опционально) дл€ удобства UI/логов можно продублировать ItemId
         public string ItemInstanceID { get; set; } // —сылка на конкретный экземпл€р предмета в account inventory
         public DateTime EquippedAt { get; set; } = DateTime.UtcNow;

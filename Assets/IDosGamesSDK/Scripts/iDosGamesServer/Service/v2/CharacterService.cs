@@ -130,7 +130,6 @@ namespace IDosGames
                 {
                     IDosGamesData.User.PatchCharacterEquipment(targetId, pair.SlotID, new EquippedItem
                     {
-                        SlotID = pair.SlotID,
                         ItemID = pair.ItemID,
                         ItemInstanceID = pair.ItemInstanceID
                     });

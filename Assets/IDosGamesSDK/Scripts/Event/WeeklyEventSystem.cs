@@ -17,7 +17,7 @@ namespace IDosGames
         public static event Action DataUpdated;
         public static string EventType { get; private set; }
         public static DateTime EndDate { get; private set; }
-        public static int PlayerPoints { get; private set; }
+        public static long PlayerPoints { get; private set; }
         public static IReadOnlyList<JToken> Rewards { get; private set; }
         public static JToken FollowingReward { get; private set; }
         public static JToken PreviousReward { get; private set; }
@@ -57,7 +57,7 @@ namespace IDosGames
             TryPatchWeeklyPointsInCache(PlayerPoints);
         }
 
-        private void ApplyWeeklyPointsLocal(int pointsAdded)
+        private void ApplyWeeklyPointsLocal(long pointsAdded)
         {
             PlayerPoints += pointsAdded;
 
@@ -73,7 +73,7 @@ namespace IDosGames
             DataUpdated?.Invoke();
         }
 
-        private void TryPatchWeeklyPointsInCache(int newPoints)
+        private void TryPatchWeeklyPointsInCache(long newPoints)
         {
             var cud = IDosGamesData.User.CustomUserData;
             if (cud?.Data == null) return;

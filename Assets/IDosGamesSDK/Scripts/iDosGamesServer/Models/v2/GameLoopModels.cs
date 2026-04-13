@@ -68,6 +68,7 @@ namespace IDosGames.ClientModels
     {
         public int StageLevel { get; set; }
         public int Position { get; set; }
+        public List<int> AvailableRollMultipliers { get; set; }
 
         public List<BuildingState> BuildingStates { get; set; }
         public BoardPendingInteraction Pending { get; set; }

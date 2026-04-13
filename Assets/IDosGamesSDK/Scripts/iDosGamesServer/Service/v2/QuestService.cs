@@ -69,7 +69,8 @@ namespace IDosGames
             if (result.Success)
             {
                 IDosGamesData.User.PatchQuestStatus(result.Data.QuestID, result.Data.CycleID, result.Data.NewStatus);
-                IDosGamesData.User.GrantResources(result.Data.GrantedRewards);
+                if (result.Data.GrantedBaseRewards != null && result.Data.GrantedBaseRewards.Count > 0) IDosGamesData.User.GrantResources(result.Data.GrantedBaseRewards);
+                if (result.Data.GrantedPremiumRewards != null && result.Data.GrantedPremiumRewards.Count > 0) IDosGamesData.User.GrantResources(result.Data.GrantedPremiumRewards);
                 OnQuestRewardClaimed?.Invoke(result.Data);
             }
 
@@ -87,7 +88,8 @@ namespace IDosGames
             if (result.Success)
             {
                 IDosGamesData.User.PatchClaimedMilestone(result.Data.CycleID, result.Data.MilestoneID);
-                IDosGamesData.User.GrantResources(result.Data.GrantedRewards);
+                if (result.Data.GrantedBaseRewards != null && result.Data.GrantedBaseRewards.Count > 0) IDosGamesData.User.GrantResources(result.Data.GrantedBaseRewards);
+                if (result.Data.GrantedPremiumRewards != null && result.Data.GrantedPremiumRewards.Count > 0) IDosGamesData.User.GrantResources(result.Data.GrantedPremiumRewards);
                 OnMilestoneRewardClaimed?.Invoke(result.Data);
             }
 

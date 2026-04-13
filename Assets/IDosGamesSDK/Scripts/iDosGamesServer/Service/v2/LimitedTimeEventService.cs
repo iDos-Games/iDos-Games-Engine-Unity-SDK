@@ -229,8 +229,8 @@ namespace IDosGames
 
                 // Grant resources to local inventory/currency
                 var all = new List<ItemOrCurrency>();
-                if (result.Data.StandardRewards != null) all.AddRange(result.Data.StandardRewards);
-                if (result.Data.VipRewards != null) all.AddRange(result.Data.VipRewards);
+                if (result.Data.BaseRewards != null) all.AddRange(result.Data.BaseRewards);
+                if (result.Data.PremiumRewards != null) all.AddRange(result.Data.PremiumRewards);
                 IDosGamesData.User.GrantResources(all);
 
                 if (result.Data.CrossEventTokenGrants != null)
@@ -296,8 +296,8 @@ namespace IDosGames
 
                 // Grant resources to local inventory/currency
                 var all = new List<ItemOrCurrency>();
-                if (result.Data.StandardRewards != null) all.AddRange(result.Data.StandardRewards);
-                if (result.Data.VipRewards != null) all.AddRange(result.Data.VipRewards);
+                if (result.Data.BaseRewards != null) all.AddRange(result.Data.BaseRewards);
+                if (result.Data.PremiumRewards != null) all.AddRange(result.Data.PremiumRewards);
                 IDosGamesData.User.GrantResources(all);
 
                 if (result.Data.CrossEventTokenGrants != null)

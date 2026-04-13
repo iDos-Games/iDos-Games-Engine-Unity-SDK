@@ -70,8 +70,8 @@ namespace IDosGames.UI.LimitedTimeEvent
 
             // Pass rewards = VIP rewards (first item if available)
             List<ItemOrCurrency> vipRewards = null;
-            if (isVip && definition.VipRewards != null && definition.VipRewards.Count > 0)
-                vipRewards = definition.VipRewards[0].Rewards;
+            if (isVip && definition.PremiumRewards != null && definition.PremiumRewards.Count > 0)
+                vipRewards = definition.PremiumRewards[0].Rewards;
 
             if (vipRewards != null && vipRewards.Count > 0)
             {
@@ -104,7 +104,7 @@ namespace IDosGames.UI.LimitedTimeEvent
                 {
                     onSuccess?.Invoke();
                     // Show reward popup if available
-                    var rewards = result.Data?.StandardRewards;
+                    var rewards = result.Data?.BaseRewards;
                     if (rewards != null && rewards.Count > 0)
                     {
                         string imagePath = null; // ASSUMPTION: use first reward image if available

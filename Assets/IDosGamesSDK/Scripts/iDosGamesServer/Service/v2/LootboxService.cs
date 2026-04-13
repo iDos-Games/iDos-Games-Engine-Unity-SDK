@@ -1,7 +1,6 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using IDosGames.TitlePublicConfiguration;
 
 namespace IDosGames
 {
@@ -61,23 +60,20 @@ namespace IDosGames
 
             if (result.Success)
             {
-                var definition = IDosGamesData.Config.TitlePublicConfiguration.LootboxDefinitions ?.Find(l => l.LootboxID == lootboxId);
-                var option = definition?.PriceOptions?.Find(o => o.OptionID == selectedOptionId);
-                if (option?.RequiredResources != null)
+                if (result.Data?.Consumed != null && result.Data.Consumed.Count > 0)
                 {
-                    var toConsume = option.RequiredResources.Select(r => new ItemOrCurrency
-                    {
-                        Type = r.Type,
-                        CurrencyID = r.CurrencyID,
-                        ItemID = r.ItemID,
-                        Catalog = r.Catalog,
-                        Amount = r.Amount * count
-                    }).ToList();
-                    IDosGamesData.User.ConsumeResources(toConsume);
+                    IDosGamesData.User.ConsumeResources(result.Data.Consumed);
                 }
 
-                var allGranted = result.Data.Results?.SelectMany(r => r).ToList();
-                IDosGamesData.User.GrantResources(allGranted);
+                var allGranted = result.Data?.Results?
+                    .Where(r => r != null)
+                    .SelectMany(r => r)
+                    .ToList();
+
+                if (allGranted != null && allGranted.Count > 0)
+                {
+                    IDosGamesData.User.GrantResources(allGranted);
+                }
 
                 OnLootboxOpened?.Invoke(result.Data);
             }

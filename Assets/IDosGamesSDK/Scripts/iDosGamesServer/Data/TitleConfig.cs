@@ -12,6 +12,7 @@ namespace IDosGames
         public Dictionary<string, object> TitlePublicData { get; private set; }
         public Currencies Currencies { get; private set; }
         public Dictionary<string, List<CatalogItem>> Catalogs { get; private set; } = new();
+        public LeaderboardDefinitions LeaderboardDefinitions => TitlePublicConfiguration.LeaderboardDefinitions;
 
         public event Action OnTitlePublicConfigurationUpdated;
         public event Action OnTitlePublicDataUpdated;
@@ -116,6 +117,41 @@ namespace IDosGames
         internal void PatchLimitedTimeEventsDefinition(LimitedTimeEventsDefinition data)
         {
             TitlePublicConfiguration.LimitedTimeEvents = data;
+            OnTitlePublicConfigurationUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchPremiumDefinitions(List<PremiumDefinition> data)
+        {
+            TitlePublicConfiguration.PremiumDefinitions = data;
+            OnTitlePublicConfigurationUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchDealOfferDefinitions(DealOffersDefinition data)
+        {
+            TitlePublicConfiguration.DealOfferDefinitions = data;
+            OnTitlePublicConfigurationUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchLeaderboardDefinitions(LeaderboardDefinitions data)
+        {
+            TitlePublicConfiguration.LeaderboardDefinitions = data;
+            OnTitlePublicConfigurationUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchReferralDefinitions(ReferralDefinitions data)
+        {
+            TitlePublicConfiguration.ReferralDefinitions = data;
+            OnTitlePublicConfigurationUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchStoreDefinitions(StoreDefinitions data)
+        {
+            TitlePublicConfiguration.StoreDefinitions = data;
             OnTitlePublicConfigurationUpdated?.Invoke();
             OnAnyUpdated?.Invoke();
         }

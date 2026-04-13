@@ -44,6 +44,7 @@ namespace IDosGames
         public string LootboxID;
         public int OpenedCount;
         public int SelectedOptionID;
+        public List<ItemOrCurrency> Consumed;
 
         // Opening results. This is a list of lists, since multiple items can drop in a single opening
         // and we can open N loot boxes at once.
