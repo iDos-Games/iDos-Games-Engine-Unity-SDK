@@ -42,7 +42,7 @@ namespace IDosGames
 			{
 				ISAdQualityConfig adQualityConfig = new()
 				{
-					UserId = AuthService.PlayerID
+					UserId = AuthenticationService.AuthContext.UserID
 				};
 
 				IronSourceAdQuality.Initialize(APP_KEY, adQualityConfig);

@@ -76,3 +76,6 @@ crashlytics-build.properties
 
 # WebGL build directory  
 [Aa]ssets/WebGLBuild/
+
+/[Aa]ssets/Layer Lab/
+/[Aa]ssets/Layer Lab.meta

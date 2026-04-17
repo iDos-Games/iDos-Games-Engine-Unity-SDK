@@ -39,7 +39,7 @@ namespace IDosGames
             OnFinishedWatchingRewardedVideo(true);
 
 #elif UNITY_WEBGL
-            if (AuthService.WebGLPlatform == WebGLPlatform.Telegram)
+            if (AuthenticationService.WebGLPlatform == WebGLPlatform.Telegram)
             {
                 _shouldMove = false;
                 WebFunctionHandler.Instance.ShowAd(IDosGamesSDKSettings.Instance.AdsGramBlockID.ToString(), "RewardMultiplicator");
