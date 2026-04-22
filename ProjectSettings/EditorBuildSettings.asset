@@ -11,10 +11,13 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/_Games/BoardGame/Scenes/BoardScene.unity
     guid: 011a9c0ef122a7048bb53aa93f0fd8d3
-  - enabled: 0
+  - enabled: 1
     path: Assets/IDosGamesSDK/Scenes/Login.unity
     guid: 2be892a07374bf84eb51d093e6d34cb0
-  - enabled: 0
+  - enabled: 1
+    path: Assets/IDosGamesSDK/Scenes/MainV2.unity
+    guid: 07e16a0d3ec612848864bc00c8639700
+  - enabled: 1
     path: Assets/IDosGamesSDK/Scenes/Main.unity
     guid: 110f0a0730c7f6144acdf0d3ee5c081a
   m_configObjects: {}
