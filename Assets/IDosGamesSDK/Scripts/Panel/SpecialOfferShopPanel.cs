@@ -2,7 +2,6 @@ using IDosGames.TitlePublicConfiguration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
-using System.Collections;
 using UnityEngine;
 
 namespace IDosGames
@@ -14,28 +13,14 @@ namespace IDosGames
 
 		public static event Action PanelInitialized;
 
-        private void OnEnable()
-        {
-            StartCoroutine(CallInitializePanel());
-        }
-
-        IEnumerator CallInitializePanel()
-        {
-            yield return new WaitForSecondsRealtime(0.3f);
-            InitializePanel();
-			yield return null;
-        }
+        private bool _initialized;
 
         public override async void InitializePanel()
         {
+            if (_initialized) return;
+
             var products = IDosGamesData.Config.TitlePublicConfiguration.ShopSpecialProducts;
             if (products == null) return;
-
-            foreach (Transform child in _content)
-            {
-                child.gameObject.SetActive(false);
-                Destroy(child.gameObject);
-            }
 
             var playerDataSpecialPurchases = DataService.GetCachedCustomUserData(CustomUserDataKey.special_offer_amount_purchases);
             JArray arrayOfSpecialPurchases = JsonConvert.DeserializeObject<JArray>(playerDataSpecialPurchases);
@@ -99,6 +84,7 @@ namespace IDosGames
                 productItem.SetLimitView(quantityLeftText, endDate, specialOfferType);
             }
 
+            _initialized = true;
             PanelInitialized?.Invoke();
         }
 
