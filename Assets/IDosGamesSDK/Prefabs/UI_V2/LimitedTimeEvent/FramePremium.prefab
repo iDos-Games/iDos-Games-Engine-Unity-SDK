@@ -1,5 +1,80 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &855103212008942709
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8902839271576200375}
+  - component: {fileID: 1654384988026305998}
+  - component: {fileID: 1116223517030598107}
+  m_Layer: 0
+  m_Name: Icon_Check
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &8902839271576200375
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 855103212008942709}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5468805215540335688}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 72.9, y: 89.4}
+  m_SizeDelta: {x: 79, y: 76}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &1654384988026305998
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 855103212008942709}
+  m_CullTransparentMesh: 1
+--- !u!114 &1116223517030598107
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 855103212008942709}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: 5841b8d51e12542169bb2a4b8d957af3, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
 --- !u!1 &1899265698571797495
 GameObject:
   m_ObjectHideFlags: 0
@@ -178,7 +253,6 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 4239565430824803010}
   - {fileID: 2739716807572103084}
   m_Father: {fileID: 5468805215540335688}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -371,7 +445,9 @@ RectTransform:
   - {fileID: 6423198238122933919}
   - {fileID: 5330911830357736465}
   - {fileID: 4156320135685750036}
+  - {fileID: 8902839271576200375}
   - {fileID: 7465411281721748380}
+  - {fileID: 4239565430824803010}
   - {fileID: 3747082598823549040}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -394,7 +470,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::IDosGames.UI.LimitedTimeEvent.MilestoneItemView
   _itemIcon: {fileID: 3200014286674429454}
   _numText: {fileID: 1270581031814782996}
-  _iconCheck: {fileID: 0}
+  _iconCheck: {fileID: 855103212008942709}
   _dim: {fileID: 9189745085328391213}
   _iconLock: {fileID: 2717573656931820051}
 --- !u!1 &6977864507369813258
@@ -731,12 +807,12 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 3747082598823549040}
+  m_Father: {fileID: 5468805215540335688}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -78.40881, y: -71.45001}
-  m_SizeDelta: {x: 106.06239, y: 105.100006}
+  m_AnchoredPosition: {x: -2.7976074, y: 0}
+  m_SizeDelta: {x: -3.839981, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3001195942616526914
 CanvasRenderer:

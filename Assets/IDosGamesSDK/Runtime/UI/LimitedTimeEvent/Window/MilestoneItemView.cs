@@ -47,7 +47,7 @@ namespace IDosGames.UI.LimitedTimeEvent
             }
 
             // Overlays
-            if (_iconCheck != null) _iconCheck.SetActive(state == MilestoneItemState.Claimed);
+            if (_iconCheck != null) _iconCheck.SetActive(state == MilestoneItemState.Claimed && !premiumLocked);
             if (_dim       != null) _dim.SetActive(state == MilestoneItemState.Locked || premiumLocked);
             if (_iconLock  != null) _iconLock.SetActive(premiumLocked);
         }

@@ -13,12 +13,12 @@ GameObject:
   - component: {fileID: 828129253862903982}
   - component: {fileID: 7617796800554478931}
   m_Layer: 0
-  m_Name: StageIcon_Blue
+  m_Name: StageIcon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &5986992496700490695
 RectTransform:
   m_ObjectHideFlags: 0
