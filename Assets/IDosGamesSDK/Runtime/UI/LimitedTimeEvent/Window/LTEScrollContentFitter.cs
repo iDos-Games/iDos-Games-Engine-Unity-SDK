@@ -31,25 +31,24 @@ namespace IDosGames.UI.LimitedTimeEvent
         {
             if (_rt == null) _rt = (RectTransform)transform;
 
-            float maxBottom = 0f; // furthest Y (in Content-space, measuring downward)
+            // Форсируем пересчёт layout до того как читаем размеры,
+            // иначе rect.height возвращает устаревшее значение после Instantiate.
+            if (_leftColumn  != null) LayoutRebuilder.ForceRebuildLayoutImmediate(_leftColumn);
+            if (_rightColumn != null) LayoutRebuilder.ForceRebuildLayoutImmediate(_rightColumn);
 
+            float maxBottom = 0f;
             MeasureColumn(_leftColumn,  ref maxBottom);
             MeasureColumn(_rightColumn, ref maxBottom);
 
             if (maxBottom > 0f)
-                _rt.SetSizeWithCurrentAnchors(
-                    RectTransform.Axis.Vertical,
-                    maxBottom + _bottomPadding);
+                _rt.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, maxBottom + _bottomPadding);
         }
 
-        // columnTop + preferredHeight gives the furthest Y used by this column.
         private static void MeasureColumn(RectTransform col, ref float maxBottom)
         {
             if (col == null) return;
-            LayoutRebuilder.ForceRebuildLayoutImmediate(col);
-            float topOffset = -col.anchoredPosition.y;          // anchoredPos.y is negative
-            float preferred = LayoutUtility.GetPreferredHeight(col);
-            float bottom    = topOffset + preferred;
+            float topOffset = -col.anchoredPosition.y;
+            float bottom    = topOffset + col.rect.height;
             if (bottom > maxBottom) maxBottom = bottom;
         }
     }

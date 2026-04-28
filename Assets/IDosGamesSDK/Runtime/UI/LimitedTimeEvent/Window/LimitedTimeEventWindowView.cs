@@ -21,6 +21,7 @@ namespace IDosGames.UI.LimitedTimeEvent
         // ── Progress Slider ───────────────────────────────────────────────────
         [Header("Progress Slider")]
         [SerializeField] private Slider           _progressFill;
+        [SerializeField] private Slider           _totalProgressFill;
         [SerializeField] private TextMeshProUGUI _progressText;
         [FormerlySerializedAs("_balanceText")] [SerializeField] private TextMeshProUGUI _milestoneCountText;
         [SerializeField] private Image           _tokenIcon;
@@ -118,9 +119,10 @@ namespace IDosGames.UI.LimitedTimeEvent
 
         private void RenderProgressSlider(LimitedTimeEventWindowModel model)
         {
-            if (_progressFill != null) _progressFill.value = model.SegmentProgress;
-            if (_progressText != null) _progressText.text       = model.ProgressText;
-            if (_milestoneCountText  != null) _milestoneCountText.text = model.CompletedMilestones + "";
+            if (_progressFill      != null) _progressFill.value      = model.SegmentProgress;
+            if (_totalProgressFill != null) _totalProgressFill.value = model.TokenProgress;
+            if (_progressText      != null) _progressText.text       = model.ProgressText;
+            if (_milestoneCountText != null) _milestoneCountText.text = model.CompletedMilestones + "";
         }
 
         private void RenderActivateButton(bool hasPremium)
