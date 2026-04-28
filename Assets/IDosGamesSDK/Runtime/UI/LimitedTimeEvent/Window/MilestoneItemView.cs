@@ -1,4 +1,6 @@
+using System;
 using System.Linq;
+using System.Threading.Tasks;
 using IDosGames.ClientModels;
 using TMPro;
 using UnityEngine;
@@ -10,34 +12,36 @@ namespace IDosGames.UI.LimitedTimeEvent
 
     public class MilestoneItemView : MonoBehaviour
     {
-        // BubbleFrame05 children
-        [SerializeField] private Image           _itemIcon;   // ItemIcon
-        [SerializeField] private TextMeshProUGUI _numText;    // Text_Num
-        [SerializeField] private GameObject      _iconCheck;  // Icon_Check  \u2014 claimed state
-        [SerializeField] private GameObject      _dim;        // Dim         \u2014 locked state
-        [SerializeField] private GameObject      _iconLock;   // Icon_Lock   \u2014 premium locked (Right column only)
+        [SerializeField] private Image           _itemIcon;
+        [SerializeField] private TextMeshProUGUI _numText;
+        [SerializeField] private GameObject      _iconCheck;
+        [SerializeField] private GameObject      _dim;
+        [SerializeField] private GameObject      _iconLock;
+        [SerializeField] private Button          _claimButton;
+
+        private Func<Task> _onClaim;
+        private bool       _claiming;
 
         public void Setup(
             EventMilestoneDefinition def,
             MilestoneItemState       state,
             bool                     isPremiumColumn,
-            bool                     hasPremiumPass)
+            bool                     hasPremiumPass,
+            Func<Task>               onClaim)
         {
-            if (def == null)
-            {
-                gameObject.SetActive(false);
-                return;
-            }
+            if (def == null) { gameObject.SetActive(false); return; }
 
             gameObject.SetActive(true);
 
-            bool premiumLocked = isPremiumColumn && !hasPremiumPass;
+            _claiming = false;
+            _onClaim  = onClaim;
 
-            // Reward icon (\u0441\u043e\u0431\u044b\u0442\u0438\u0439\u043d\u044b\u0435 asset paths)
+            bool premiumLocked = isPremiumColumn && !hasPremiumPass;
+            bool canClaim      = state == MilestoneItemState.Reached && !premiumLocked;
+
             if (_itemIcon != null && def.AssetPaths?.Count > 0)
                 LoadIconAsync(def.AssetPaths[0]);
 
-            // Reward amount
             if (_numText != null)
             {
                 var reward = def.Rewards?.FirstOrDefault();
@@ -46,10 +50,37 @@ namespace IDosGames.UI.LimitedTimeEvent
                     : string.Empty;
             }
 
-            // Overlays
             if (_iconCheck != null) _iconCheck.SetActive(state == MilestoneItemState.Claimed && !premiumLocked);
             if (_dim       != null) _dim.SetActive(state == MilestoneItemState.Locked || premiumLocked);
             if (_iconLock  != null) _iconLock.SetActive(premiumLocked);
+
+            if (_claimButton != null)
+            {
+                _claimButton.gameObject.SetActive(canClaim);
+                _claimButton.interactable = canClaim;
+                _claimButton.onClick.RemoveAllListeners();
+                if (canClaim) _claimButton.onClick.AddListener(OnClaimClicked);
+            }
+        }
+
+        private async void OnClaimClicked()
+        {
+            if (_claiming || _onClaim == null) return;
+            _claiming = true;
+            if (_claimButton != null) _claimButton.interactable = false;
+
+            Loading.ShowTransparentPanel();
+            try
+            {
+                await _onClaim();
+            }
+            finally
+            {
+                Loading.HideAllPanels();
+                if (this != null && _claimButton != null)
+                    _claimButton.interactable = true;
+                _claiming = false;
+            }
         }
 
         private async void LoadIconAsync(string path)

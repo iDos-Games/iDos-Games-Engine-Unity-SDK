@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using IDosGames.ClientModels;
 using IDosGames.TitlePublicConfiguration;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace IDosGames.UI.LimitedTimeEvent
 {
@@ -23,8 +25,12 @@ namespace IDosGames.UI.LimitedTimeEvent
         [Tooltip("URL or project path used to load the reward icon (leave empty = no icon)")]
         public string rewardImagePath = "";
 
-        [Tooltip("Force this milestone to show as Claimed regardless of token progress")]
-        public bool forceClaimed = false;
+        [Tooltip("Force the FREE reward of this milestone to show as Claimed")]
+        [FormerlySerializedAs("forceClaimed")]
+        public bool freeClaimed = false;
+
+        [Tooltip("Force the PREMIUM reward of this milestone to show as Claimed")]
+        public bool premiumClaimed = false;
     }
 
     [Serializable]
@@ -135,6 +141,21 @@ namespace IDosGames.UI.LimitedTimeEvent
                 _view = GetComponent<LimitedTimeEventWindowView>();
         }
 
+        private Task SimulateClaim(string milestoneId, bool isPremium)
+        {
+            for (int i = 0; i < _milestones.Count; i++)
+            {
+                if ($"ms_{i + 1:00}" == milestoneId)
+                {
+                    if (isPremium) _milestones[i].premiumClaimed = true;
+                    else           _milestones[i].freeClaimed    = true;
+                    break;
+                }
+            }
+            Render();
+            return Task.CompletedTask;
+        }
+
         private void Start()  => Render();
 
         private void Update()
@@ -177,7 +198,14 @@ namespace IDosGames.UI.LimitedTimeEvent
         {
             if (_model == null) _model = new LimitedTimeEventWindowModel();
             _model.Apply(BuildMockEvent(), _player.hasPremium, _player.coins, _player.gems);
-            _view?.Render(_model);
+
+            var premiumIds = new List<string>();
+            for (int i = 0; i < _milestones.Count; i++)
+                if (_milestones[i].premiumClaimed)
+                    premiumIds.Add($"ms_{i + 1:00}");
+            _model.SetPremiumClaimed(premiumIds);
+
+            _view?.Render(_model, (id, isPremium) => () => SimulateClaim(id, isPremium));
         }
 
         [ContextMenu("Randomize Everything")]
@@ -227,7 +255,7 @@ namespace IDosGames.UI.LimitedTimeEvent
         [ContextMenu("Claim All Milestones")]
         public void ClaimAllMilestones()
         {
-            foreach (var ms in _milestones) ms.forceClaimed = true;
+            foreach (var ms in _milestones) { ms.freeClaimed = true; ms.premiumClaimed = true; }
             _token.tokensEarnedTotal = _token.maxBalance;
             _token.tokenBalance      = _token.maxBalance;
             Render();
@@ -236,7 +264,7 @@ namespace IDosGames.UI.LimitedTimeEvent
         [ContextMenu("Reset All Milestones")]
         public void ResetAllMilestones()
         {
-            foreach (var ms in _milestones) ms.forceClaimed = false;
+            foreach (var ms in _milestones) { ms.freeClaimed = false; ms.premiumClaimed = false; }
             _token.tokensEarnedTotal = 0;
             _token.tokenBalance      = 0;
             Render();
@@ -322,11 +350,10 @@ namespace IDosGames.UI.LimitedTimeEvent
             var claimed = new List<string>();
             for (int i = 0; i < milestones.Count; i++)
             {
-                var ms     = milestones[i];
-                var mockMs = _milestones[i];
-                bool reachedByTokens = _token.tokensEarnedTotal >= ms.RequiredTokensEarned;
-                if (reachedByTokens || mockMs.forceClaimed)
-                    claimed.Add(ms.MilestoneID);
+                // Только явный forceClaimed добавляет в список — достигнутые по токенам
+                // остаются в состоянии Reached, кнопка Claim активна и кликабельна.
+                if (_milestones[i].freeClaimed)
+                    claimed.Add(milestones[i].MilestoneID);
             }
 
             return new UserEventProgress
@@ -379,7 +406,8 @@ namespace IDosGames.UI.LimitedTimeEvent
                     requiredTokens = threshold,
                     rewardAmount   = (i + 1) * rng.Next(100, 1001),
                     rewardImagePath = "",
-                    forceClaimed   = false,
+                    freeClaimed    = false,
+                    premiumClaimed = false,
                 });
             }
 

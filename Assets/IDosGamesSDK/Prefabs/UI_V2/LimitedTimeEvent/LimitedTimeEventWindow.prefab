@@ -2441,37 +2441,44 @@ MonoBehaviour:
     requiredTokens: 100
     rewardAmount: 300
     rewardImagePath: 
-    forceClaimed: 0
+    freeClaimed: 0
+    premiumClaimed: 0
   - label: Milestone 2
     requiredTokens: 250
     rewardAmount: 600
     rewardImagePath: 
-    forceClaimed: 0
+    freeClaimed: 0
+    premiumClaimed: 0
   - label: Milestone 3
     requiredTokens: 500
     rewardAmount: 1200
     rewardImagePath: 
-    forceClaimed: 0
+    freeClaimed: 0
+    premiumClaimed: 0
   - label: Milestone 4
     requiredTokens: 800
     rewardAmount: 2500
     rewardImagePath: 
-    forceClaimed: 0
+    freeClaimed: 0
+    premiumClaimed: 0
   - label: Milestone 5
     requiredTokens: 1200
     rewardAmount: 5000
     rewardImagePath: 
-    forceClaimed: 0
+    freeClaimed: 0
+    premiumClaimed: 0
   - label: Milestone 6
     requiredTokens: 1900
     rewardAmount: 5001
     rewardImagePath: 
-    forceClaimed: 0
+    freeClaimed: 0
+    premiumClaimed: 0
   - label: Milestone 7
     requiredTokens: 3000
     rewardAmount: 5002
     rewardImagePath: 
-    forceClaimed: 0
+    freeClaimed: 0
+    premiumClaimed: 0
   _bonusWindow:
     isActive: 0
     multiplier: 2

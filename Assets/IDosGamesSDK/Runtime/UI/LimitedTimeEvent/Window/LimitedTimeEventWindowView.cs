@@ -1,8 +1,11 @@
+using System;
+using System.Threading.Tasks;
 using IDosGames.ClientModels;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
+
 
 namespace IDosGames.UI.LimitedTimeEvent
 {
@@ -64,17 +67,17 @@ namespace IDosGames.UI.LimitedTimeEvent
         public Button ActivateButton => _activateButton;
         public Button BackButton     => _backButton;
 
-
         // ─────────────────────────────────────────────────────────────────────
 
         public void ShowLoading() => SetState(loading: true,  content: false, empty: false);
         public void ShowEmpty()   => SetState(loading: false, content: false, empty: true);
 
         // Полный рендер — спаунит/удаляет префабы milestone. Вызывать только явно.
-        public void Render(LimitedTimeEventWindowModel model)
+        // claimFactory: (milestoneId, isPremium) → Func<Task>, строится контроллером.
+        public void Render(LimitedTimeEventWindowModel model, Func<string, bool, Func<Task>> claimFactory)
         {
             RenderUI(model);
-            if (model.IsLoaded) RenderMilestones(model);
+            if (model.IsLoaded) RenderMilestones(model, claimFactory);
         }
 
         // Лёгкий рендер — только тексты и слайдер, без трогания префабов.
@@ -131,7 +134,7 @@ namespace IDosGames.UI.LimitedTimeEvent
             if (_activateLockIcon != null) _activateLockIcon.SetActive(!hasPremium);
         }
 
-        private void RenderMilestones(LimitedTimeEventWindowModel model)
+        private void RenderMilestones(LimitedTimeEventWindowModel model, Func<string, bool, Func<Task>> claimFactory)
         {
             var milestones = model.Event.Content?.Milestones;
             if (milestones == null) return;
@@ -145,9 +148,10 @@ namespace IDosGames.UI.LimitedTimeEvent
 
                 for (int i = 0; i < milestones.Count; i++)
                 {
+                    var def   = milestones[i];
                     var item  = Instantiate(_freeMilestoneTemplate, _freeMilestoneContainer);
-                    var state = GetMilestoneState(milestones[i], model);
-                    item.Setup(milestones[i], state, isPremiumColumn: false, model.HasPremium);
+                    var state = GetMilestoneState(def, model, isPremiumColumn: false);
+                    item.Setup(def, state, isPremiumColumn: false, model.HasPremium, claimFactory?.Invoke(def.MilestoneID, false));
                     item.gameObject.SetActive(true);
                 }
             }
@@ -159,21 +163,22 @@ namespace IDosGames.UI.LimitedTimeEvent
 
                 for (int i = 0; i < milestones.Count; i++)
                 {
+                    var def   = milestones[i];
                     var item  = Instantiate(_premiumMilestone, _premiumMilestoneContainer);
-                    var state = GetMilestoneState(milestones[i], model);
-                    item.Setup(milestones[i], state, isPremiumColumn: true, model.HasPremium);
+                    var state = GetMilestoneState(def, model, isPremiumColumn: true);
+                    item.Setup(def, state, isPremiumColumn: true, model.HasPremium, claimFactory?.Invoke(def.MilestoneID, true));
                     item.gameObject.SetActive(true);
                 }
             }
 
             // ── Stage progress ──────────────────────────────────────────────
-            int completed = 0;
+            int reached = 0;
             for (int i = 0; i < milestones.Count; i++)
             {
-                if (model.IsMilestoneClaimed(milestones[i].MilestoneID))
-                    completed = i + 1;
+                if (model.IsMilestoneReached(milestones[i].RequiredTokensEarned))
+                    reached = i + 1;
             }
-            _stageProgress?.Render(completed, milestones.Count);
+            _stageProgress?.Render(reached, milestones.Count);
 
             // ── Resize scroll content ───────────────────────────────────────
             _scrollFitter?.Refresh();
@@ -193,11 +198,14 @@ namespace IDosGames.UI.LimitedTimeEvent
         }
 
         private static MilestoneItemState GetMilestoneState(
-            EventMilestoneDefinition def, LimitedTimeEventWindowModel model)
+            EventMilestoneDefinition def, LimitedTimeEventWindowModel model, bool isPremiumColumn)
         {
             if (def == null) return MilestoneItemState.Locked;
-            if (model.IsMilestoneClaimed(def.MilestoneID))             return MilestoneItemState.Claimed;
-            if (model.IsMilestoneReached(def.RequiredTokensEarned))    return MilestoneItemState.Reached;
+            bool claimed = isPremiumColumn
+                ? model.IsMilestonePremiumClaimed(def.MilestoneID)
+                : model.IsMilestoneFreeClaimed(def.MilestoneID);
+            if (claimed)                                             return MilestoneItemState.Claimed;
+            if (model.IsMilestoneReached(def.RequiredTokensEarned)) return MilestoneItemState.Reached;
             return MilestoneItemState.Locked;
         }
 

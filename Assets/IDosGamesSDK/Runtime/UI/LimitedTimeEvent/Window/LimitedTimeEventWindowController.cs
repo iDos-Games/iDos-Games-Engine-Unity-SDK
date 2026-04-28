@@ -11,14 +11,14 @@ namespace IDosGames.UI.LimitedTimeEvent
         [Header("References")]
         [SerializeField] private LimitedTimeEventWindowView _view;
 
-        // \u041a\u043b\u044e\u0447\u0438 \u0432\u0430\u043b\u044e\u0442 \u2014 \u043d\u0430\u0441\u0442\u0440\u0430\u0438\u0432\u0430\u0439\u0442\u0435 \u043f\u043e\u0434 \u0432\u0430\u0448 \u043f\u0440\u043e\u0435\u043a\u0442
         [Header("Currency Keys")]
         [SerializeField] private string _coinCurrencyKey = "CO";
         [SerializeField] private string _gemCurrencyKey  = "GE";
 
-        private LimitedTimeEventWindowModel _model;
-        private bool  _isActive;
-        private float _timerTick;
+        private LimitedTimeEventWindowModel    _model;
+        private Func<string, bool, Func<Task>> _claimFactory;
+        private bool                           _isActive;
+        private float                          _timerTick;
 
         private void Awake()
         {
@@ -71,7 +71,7 @@ namespace IDosGames.UI.LimitedTimeEvent
                 : "Ended");
         }
 
-        // \u2500\u2500\u2500 Data loading \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+        // ─── Data loading ──────────────────────────────────────────────────────
 
         private async Task LoadDataAsync()
         {
@@ -83,10 +83,10 @@ namespace IDosGames.UI.LimitedTimeEvent
                 Message.Show(result.Error ?? MessageCode.SOMETHING_WENT_WRONG.ToString());
                 _view.ShowEmpty();
             }
-            // \u0412\u044c\u044e \u043e\u0431\u043d\u043e\u0432\u0438\u0442\u0441\u044f \u0447\u0435\u0440\u0435\u0437 HandleActiveEventsUpdated
+            // View обновится через HandleActiveEventsUpdated
         }
 
-        // \u2500\u2500\u2500 Service callbacks \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+        // ─── Service callbacks ─────────────────────────────────────────────────
 
         private void HandleActiveEventsUpdated(GetActiveEventsResponse response)
         {
@@ -97,17 +97,17 @@ namespace IDosGames.UI.LimitedTimeEvent
 
         private void HandleMilestoneClaimed(EventMilestoneClaimResponse _)
         {
-            if (_isActive) _view.Render(_model);
+            if (_isActive) _view.Render(_model, _claimFactory);
         }
 
         private void HandleStreakClaimed(EventStreakClaimResponse _)
         {
-            if (_isActive) _view.Render(_model);
+            if (_isActive) _view.Render(_model, _claimFactory);
         }
 
         private void HandleTokensGranted(EventTokenGrantInfo _)
         {
-            if (_isActive) _view.Render(_model);
+            if (_isActive) _view.Render(_model, _claimFactory);
         }
 
         private void HandleCurrencyUpdated()
@@ -115,17 +115,31 @@ namespace IDosGames.UI.LimitedTimeEvent
             if (!_isActive) return;
             var (coins, gems) = ReadCurrencies();
             _model.UpdateCurrencies(coins, gems);
-            _view.Render(_model);
+            _view.Render(_model, _claimFactory);
         }
 
-        // \u2500\u2500\u2500 Helpers \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+        // ─── Helpers ──────────────────────────────────────────────────────────
 
         private void RefreshModel(ActiveEventInfo evt)
         {
-            bool hasPremium = IDosGamesData.User.Premium != null;
+            bool hasPremium = (IDosGamesData.User.Premium?.MaxActiveTier ?? 0) > 0;
             var (coins, gems) = ReadCurrencies();
             _model.Apply(evt, hasPremium, coins, gems);
-            _view.Render(_model);
+            _claimFactory = BuildClaimFactory(evt);
+            _view.Render(_model, _claimFactory);
+        }
+
+        private static Func<string, bool, Func<Task>> BuildClaimFactory(ActiveEventInfo evt)
+        {
+            if (evt == null) return null;
+            string eventId = evt.EventType == ActiveEventType.Chained ? null    : evt.ID;
+            string chainId = evt.EventType == ActiveEventType.Chained ? evt.ID  : null;
+            return (milestoneId, isPremium) => async () =>
+            {
+                var result = await LimitedTimeEventService.ClaimMilestone(milestoneId, eventId, chainId);
+                if (!result.Success)
+                    Message.Show(result.Error ?? MessageCode.SOMETHING_WENT_WRONG.ToString());
+            };
         }
 
         private (long coins, long gems) ReadCurrencies()
@@ -136,11 +150,11 @@ namespace IDosGames.UI.LimitedTimeEvent
             return (coins, gems);
         }
 
-        // \u2500\u2500\u2500 Button handlers \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+        // ─── Button handlers ──────────────────────────────────────────────────
 
         private void OnActivateClicked()
         {
-            // TODO: \u043e\u0442\u043a\u0440\u044b\u0442\u044c \u044d\u043a\u0440\u0430\u043d \u043f\u043e\u043a\u0443\u043f\u043a\u0438 Premium Pass
+            // TODO: открыть экран покупки Premium Pass
             Message.Show("Premium pass activation coming soon!");
         }
 

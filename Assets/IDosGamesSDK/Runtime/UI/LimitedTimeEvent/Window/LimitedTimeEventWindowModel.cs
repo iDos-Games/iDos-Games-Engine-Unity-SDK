@@ -61,6 +61,8 @@ namespace IDosGames.UI.LimitedTimeEvent
 
             segmentProgress = Mathf.Clamp01((float)(earned - lastThreshold) / segmentSize);
             float result = (completedCount + segmentProgress) / total;
+            
+#if UNITY_EDITOR
             Debug.Log($"[TokenProgress]={result} \n" +
                       $"TokensEarnedTotal={earned} | \n" +
                       $"TokenBalance={Event.Progress.TokenBalance} | \n" +
@@ -70,6 +72,8 @@ namespace IDosGames.UI.LimitedTimeEvent
                       $"segmentProgress={segmentProgress:F3} (прогресс внутри текущего сегмента 0..1) | \n" +
                       $"completed={completedCount}/{total} (пройдено/всего milestone) | \n" +
                       $"fillAmount={result:F3}\n");
+#endif
+            
             return result;
         }
 
@@ -88,13 +92,21 @@ namespace IDosGames.UI.LimitedTimeEvent
         public string BalanceText =>
             Event?.Progress?.TokenBalance.ToString("N0") ?? "0";
 
+        private HashSet<string> _premiumClaimed = new HashSet<string>();
+
         public void Apply(ActiveEventInfo evt, bool hasPremium, long coins, long gems)
         {
             Event       = evt;
             HasPremium  = hasPremium;
             CoinBalance = coins;
             GemBalance  = gems;
+            _premiumClaimed.Clear();
             OnChanged?.Invoke();
+        }
+
+        public void SetPremiumClaimed(IEnumerable<string> ids)
+        {
+            _premiumClaimed = ids != null ? new HashSet<string>(ids) : new HashSet<string>();
         }
 
         public void UpdateCurrencies(long coins, long gems)
@@ -104,15 +116,21 @@ namespace IDosGames.UI.LimitedTimeEvent
             OnChanged?.Invoke();
         }
 
-        public bool IsMilestoneClaimed(string milestoneId) =>
+        public bool IsMilestoneFreeClaimed(string milestoneId) =>
             Event?.Progress?.ClaimedMilestoneIDs?.Contains(milestoneId) ?? false;
+
+        public bool IsMilestonePremiumClaimed(string milestoneId) =>
+            _premiumClaimed.Contains(milestoneId);
+
+        public bool IsMilestoneClaimed(string milestoneId) =>
+            IsMilestoneFreeClaimed(milestoneId);
 
         public bool IsMilestoneReached(long required) =>
             (Event?.Progress?.TokensEarnedTotal ?? 0) >= required;
 
         public bool CanClaimMilestone(string milestoneId, long required) =>
             IsMilestoneReached(required)
-            && !IsMilestoneClaimed(milestoneId)
+            && !IsMilestoneFreeClaimed(milestoneId)
             && (Event?.CanClaim ?? false);
     }
 }
