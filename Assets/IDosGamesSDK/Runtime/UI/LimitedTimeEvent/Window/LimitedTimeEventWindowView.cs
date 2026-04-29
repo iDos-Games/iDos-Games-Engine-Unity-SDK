@@ -190,10 +190,7 @@ namespace IDosGames.UI.LimitedTimeEvent
             {
                 var child = container.GetChild(i).gameObject;
                 if (child == template) continue;
-#if UNITY_EDITOR
-                if (!Application.isPlaying) { DestroyImmediate(child); continue; }
-#endif
-                Destroy(child);
+                DestroyImmediate(child); // работает и в Editor, и в Play Mode
             }
         }
 
