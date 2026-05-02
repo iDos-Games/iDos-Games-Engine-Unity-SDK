@@ -59,7 +59,6 @@ namespace IDosGames.UI.Quest
         [SerializeField] private MockPlayerQuestSettings _player = new();
 
         private QuestWindowModel _model;
-        private float _timerTick;
 
         private void Awake()
         {
@@ -68,15 +67,6 @@ namespace IDosGames.UI.Quest
         }
 
         private void Start() => Render();
-
-        private void Update()
-        {
-            if (_model?.ActiveCycle == null) return;
-            _timerTick += Time.deltaTime;
-            if (_timerTick < 1f) return;
-            _timerTick = 0f;
-            _view.UpdateTimer(FormatCountdown(_model.CycleEndUtc));
-        }
 
         private void OnEnable() => _view.BackButton?.onClick.AddListener(OnBackClicked);
         private void OnDisable() { if (_view.BackButton != null) _view.BackButton.onClick.RemoveListener(OnBackClicked); }

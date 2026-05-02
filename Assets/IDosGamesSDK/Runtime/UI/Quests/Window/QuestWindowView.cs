@@ -8,13 +8,20 @@ using UnityEngine.Events;
 
 namespace IDosGames.UI.Quest
 {
+    public enum QuestTab { Cycle, Permanent }
+
     public class QuestWindowView : MonoBehaviour
     {
         [Header("Header")]
         [SerializeField] private TextMeshProUGUI _titleText;
-        [SerializeField] private TextMeshProUGUI _timerText;
         [SerializeField] private TextMeshProUGUI _coinText;
         [SerializeField] private TextMeshProUGUI _gemText;
+
+        [Header("Tabs")]
+        [SerializeField] private Button _cycleTabButton;
+        [SerializeField] private Button _permanentTabButton;
+        [SerializeField] private Image _cycleTabImage;
+        [SerializeField] private Image _permanentTabImage;
 
         [Header("Cycle Progress")]
         [SerializeField] private Slider _progressSlider;
@@ -44,6 +51,11 @@ namespace IDosGames.UI.Quest
 
         public Button BackButton => _backButton;
         public Button ActivatePremiumButton => _activatePremiumButton;
+        public QuestTab ActiveTab { get; private set; } = QuestTab.Cycle;
+
+        private QuestWindowModel _cachedModel;
+        private Func<string, string, UnityAction> _cachedClaimQuestFactory;
+        private Func<string, Func<Task>> _cachedClaimMilestoneFactory;
 
         public void ShowLoading() => SetState(true, false, false);
         public void ShowEmpty()   => SetState(false, false, true);
@@ -54,6 +66,11 @@ namespace IDosGames.UI.Quest
             Func<string, string, UnityAction> claimQuestFactory,
             Func<string, Func<Task>> claimMilestoneFactory)
         {
+            _cachedModel = model;
+            _cachedClaimQuestFactory = claimQuestFactory;
+            _cachedClaimMilestoneFactory = claimMilestoneFactory;
+
+            SetupTabButtons();
             RenderUI(model);
             if (model.IsLoaded)
             {
@@ -73,7 +90,7 @@ namespace IDosGames.UI.Quest
 
             if (_progressSlider != null) _progressSlider.value = model.SegmentProgress;
             if (_progressText != null) _progressText.text = model.ProgressText;
-            
+
             if (_milestoneRewardText != null)
             {
                 var ms = model.CycleMilestones.FirstOrDefault();
@@ -83,11 +100,43 @@ namespace IDosGames.UI.Quest
 
             if (_activatePremiumButton != null) _activatePremiumButton.gameObject.SetActive(true);
             if (_premiumLockIcon != null) _premiumLockIcon.SetActive(false);
+
+            RefreshTabVisuals();
         }
 
-        public void UpdateTimer(string timerText)
+        public void SwitchTab(QuestTab tab)
         {
-            if (_timerText != null) _timerText.text = timerText;
+            if (_cachedModel == null) return;
+            ActiveTab = tab;
+            RefreshTabVisuals();
+            RenderQuestList(_cachedModel, _cachedClaimQuestFactory);
+            RenderMilestones(_cachedModel, _cachedClaimMilestoneFactory);
+        }
+
+        private void SetupTabButtons()
+        {
+            if (_cycleTabButton != null)
+            {
+                _cycleTabButton.onClick.RemoveAllListeners();
+                _cycleTabButton.onClick.AddListener(() => SwitchTab(QuestTab.Cycle));
+            }
+
+            if (_permanentTabButton != null)
+            {
+                _permanentTabButton.onClick.RemoveAllListeners();
+                _permanentTabButton.onClick.AddListener(() => SwitchTab(QuestTab.Permanent));
+            }
+        }
+
+        private static readonly Color TabActiveColor   = new Color(0x31 / 255f, 0x81 / 255f, 1f);
+        private static readonly Color TabInactiveColor = new Color(0x36 / 255f, 0x36 / 255f, 0x4E / 255f);
+
+        private void RefreshTabVisuals()
+        {
+            bool isCycle = ActiveTab == QuestTab.Cycle;
+
+            if (_cycleTabImage != null) _cycleTabImage.color = isCycle ? TabActiveColor : TabInactiveColor;
+            if (_permanentTabImage != null) _permanentTabImage.color = isCycle ? TabInactiveColor : TabActiveColor;
         }
 
         private void RenderQuestList(QuestWindowModel model, Func<string, string, UnityAction> claimFactory)
@@ -95,12 +144,15 @@ namespace IDosGames.UI.Quest
             if (_questItemTemplate == null || _questListContainer == null) return;
             ClearContainer(_questListContainer, _questItemTemplate.gameObject);
 
-            var quests = model.ActiveCycle?.Quests ?? model.PermanentQuests;
+            var quests = ActiveTab == QuestTab.Permanent
+                ? model.PermanentQuests
+                : model.ActiveCycle?.Quests ?? model.PermanentQuests;
+
             foreach (var quest in quests)
             {
                 var item = Instantiate(_questItemTemplate, _questListContainer);
                 long rewardAmount = quest.Rewards?.FirstOrDefault()?.Amount ?? 0;
-                
+
                 item.Setup(
                     title: quest.Title,
                     description: "",
