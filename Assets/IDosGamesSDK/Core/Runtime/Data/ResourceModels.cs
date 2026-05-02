@@ -1,0 +1,107 @@
+using System.Collections.Generic;
+using Newtonsoft.Json.Converters;
+using Newtonsoft.Json;
+
+namespace IDosGames
+{
+    public class ResourceBundle
+    {
+        public List<ItemOrCurrency> Items { get; set; }
+        public List<EventTokenOperation> EventTokens { get; set; }
+    }
+
+    public abstract class PremiumTierModifier
+    {
+        public int MinPremiumTier { get; set; }
+        public string RequiredPremiumID { get; set; }
+    }
+
+    public class PremiumTierBundle : PremiumTierModifier
+    {
+        public ResourceBundle Resources { get; set; }
+    }
+
+    public class PremiumTierDiscount : PremiumTierModifier
+    {
+        public double DiscountPercent { get; set; }
+    }
+
+    public class PremiumTierBonus : PremiumTierModifier
+    {
+        public double BonusPercent { get; set; }
+    }
+
+    public class PremiumTierMultiplier : PremiumTierModifier
+    {
+        public double Multiplier { get; set; }
+    }
+
+    public class ResourceGrant
+    {
+        public ResourceBundle Standard { get; set; }
+        public List<PremiumTierBonus> PremiumBonuses { get; set; }
+        public List<PremiumTierBundle> PremiumTiers { get; set; }
+    }
+
+    public class ResourceConsume
+    {
+        public ResourceBundle Standard { get; set; }
+        public List<PremiumTierDiscount> PremiumDiscounts { get; set; }
+        public List<PremiumTierBundle> PremiumTiers { get; set; }
+    }
+
+    public class ResourceOperation
+    {
+        public ResourceGrant Grant { get; set; }
+        public ResourceConsume Consume { get; set; }
+    }
+
+    public class ItemOrCurrency
+    {
+        public ItemType? Type { get; set; }
+        public string Catalog { get; set; }
+        public long? Amount { get; set; }
+        public string ImagePath { get; set; }
+        public string Name { get; set; }
+        public string CurrencyID { get; set; }
+        public string ItemID { get; set; }
+    }
+
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum ItemType
+    {
+        Item,
+        VirtualCurrency,
+        CryptoCurrency,
+        UsdCent,
+    }
+
+    public class EventTokenOperation
+    {
+        public EventTokenInfo Token { get; set; }
+        public string Source { get; set; }
+    }
+
+    public class EventTokenInfo
+    {
+        public EventTokenAddress Target { get; set; }
+        public long Amount { get; set; }
+    }
+
+    public class EventTokenAddress
+    {
+        public EventTokenSystemType EventTokenSystem { get; set; }
+        public string EventTokenEntityID { get; set; }
+        public string EventTokenSubContext { get; set; }
+    }
+
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum EventTokenSystemType
+    {
+        LimitedTimeEvent,
+        Leaderboard,
+        CoopEvent,
+        Season,
+        CustomEvent,
+    }
+}

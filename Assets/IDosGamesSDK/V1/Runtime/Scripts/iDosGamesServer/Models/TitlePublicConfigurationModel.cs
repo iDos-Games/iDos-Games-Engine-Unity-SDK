@@ -35,19 +35,19 @@ namespace IDosGames.TitlePublicConfiguration
         public Dictionary<string, string> AssetBundle { get; set; }
 
         // v2
-        public GameLoopsDefinition GameLoops { get; set; }
-        public CharacterDefinitions CharacterDefinitions { get; set; }
-        public List<LootboxDefinition> LootboxDefinitions { get; set; }
-        public List<CraftDefinition> CraftDefinitions { get; set; }
+        public GameLoopsDefinition GameLoop { get; set; }
+        public CharacterDefinitions Character { get; set; }
+        public List<LootboxDefinition> Lootbox { get; set; }
+        public List<CraftDefinition> Craft { get; set; }
         public List<DailyRewardsDefinition> DailyRewardsDefinitions { get; set; }
         public List<CurrencyTransferPair> AllowedCurrencyTransferPairs { get; set; }
-        public QuestDefinitions QuestDefinitions { get; set; }
-        public LimitedTimeEventsDefinition LimitedTimeEvents { get; set; }
-        public List<PremiumDefinition> PremiumDefinitions { get; set; }
-        public DealOffersDefinition DealOfferDefinitions { get; set; }
-        public LeaderboardDefinitions LeaderboardDefinitions { get; set; }
-        public ReferralDefinitions ReferralDefinitions { get; set; }
-        public StoreDefinitions StoreDefinitions { get; set; }
+        public QuestDefinitions Quest { get; set; }
+        public LimitedTimeEventsDefinition LimitedTimeEvent { get; set; }
+        public List<PremiumDefinition> Premium { get; set; }
+        public DealOffersDefinition DealOffer { get; set; }
+        public LeaderboardDefinitions Leaderboard { get; set; }
+        public ReferralDefinitions Referral { get; set; }
+        public StoreDefinitions Store { get; set; }
     }
 
     public class AiCustomSetting
@@ -182,25 +182,6 @@ namespace IDosGames.TitlePublicConfiguration
     {
         public string Rank { get; set; }
         public List<ItemOrCurrency> ItemsToGrant { get; set; }
-    }
-
-    public class ItemOrCurrency
-    {
-        public ItemType? Type { get; set; }
-        public string Catalog { get; set; }
-        public long? Amount { get; set; }
-        public string ImagePath { get; set; }
-        public string Name { get; set; }
-        public string CurrencyID { get; set; }
-        public string ItemID { get; set; }
-    }
-
-    [JsonConverter(typeof(StringEnumConverter))]
-    public enum ItemType
-    {
-        Item,
-        VirtualCurrency,
-        UsdCent,
     }
 
     public class ProductForRealMoney

@@ -12,7 +12,7 @@ namespace IDosGames
         public Dictionary<string, object> TitlePublicData { get; private set; }
         public Currencies Currencies { get; private set; }
         public Dictionary<string, List<CatalogItem>> Catalogs { get; private set; } = new();
-        public LeaderboardDefinitions LeaderboardDefinitions => TitlePublicConfiguration.LeaderboardDefinitions;
+        public LeaderboardDefinitions LeaderboardDefinitions => TitlePublicConfiguration.Leaderboard;
 
         public event Action OnTitlePublicConfigurationUpdated;
         public event Action OnTitlePublicDataUpdated;
@@ -66,14 +66,14 @@ namespace IDosGames
 
         internal void ApplyCraftDefinitions(List<CraftDefinition> data)
         {
-            TitlePublicConfiguration.CraftDefinitions = data;
+            TitlePublicConfiguration.Craft = data;
             OnTitlePublicConfigurationUpdated?.Invoke();
             OnAnyUpdated?.Invoke();
         }
 
         internal void ApplyGameLoops(GameLoopsDefinition data)
         {
-            TitlePublicConfiguration.GameLoops = data;
+            TitlePublicConfiguration.GameLoop = data;
             OnTitlePublicConfigurationUpdated?.Invoke();
             OnAnyUpdated?.Invoke();
         }
@@ -87,71 +87,71 @@ namespace IDosGames
 
         internal void ApplyLootboxDefinitions(List<LootboxDefinition> data)
         {
-            TitlePublicConfiguration.LootboxDefinitions = data;
+            TitlePublicConfiguration.Lootbox = data;
             OnTitlePublicConfigurationUpdated?.Invoke();
             OnAnyUpdated?.Invoke();
         }
 
         internal void PatchBoardDefinition(BoardLoopDefinition data)
         {
-            TitlePublicConfiguration.GameLoops ??= new GameLoopsDefinition();
-            TitlePublicConfiguration.GameLoops.Board = data;
+            TitlePublicConfiguration.GameLoop ??= new GameLoopsDefinition();
+            TitlePublicConfiguration.GameLoop.Board = data;
             OnTitlePublicConfigurationUpdated?.Invoke();
             OnAnyUpdated?.Invoke();
         }
 
         internal void PatchCharacterDefinitions(CharacterDefinitions data)
         {
-            TitlePublicConfiguration.CharacterDefinitions = data;
+            TitlePublicConfiguration.Character = data;
             OnTitlePublicConfigurationUpdated?.Invoke();
             OnAnyUpdated?.Invoke();
         }
 
         internal void PatchQuestDefinitions(QuestDefinitions data)
         {
-            TitlePublicConfiguration.QuestDefinitions = data;
+            TitlePublicConfiguration.Quest = data;
             OnTitlePublicConfigurationUpdated?.Invoke();
             OnAnyUpdated?.Invoke();
         }
 
         internal void PatchLimitedTimeEventsDefinition(LimitedTimeEventsDefinition data)
         {
-            TitlePublicConfiguration.LimitedTimeEvents = data;
+            TitlePublicConfiguration.LimitedTimeEvent = data;
             OnTitlePublicConfigurationUpdated?.Invoke();
             OnAnyUpdated?.Invoke();
         }
 
         internal void PatchPremiumDefinitions(List<PremiumDefinition> data)
         {
-            TitlePublicConfiguration.PremiumDefinitions = data;
+            TitlePublicConfiguration.Premium = data;
             OnTitlePublicConfigurationUpdated?.Invoke();
             OnAnyUpdated?.Invoke();
         }
 
         internal void PatchDealOfferDefinitions(DealOffersDefinition data)
         {
-            TitlePublicConfiguration.DealOfferDefinitions = data;
+            TitlePublicConfiguration.DealOffer = data;
             OnTitlePublicConfigurationUpdated?.Invoke();
             OnAnyUpdated?.Invoke();
         }
 
         internal void PatchLeaderboardDefinitions(LeaderboardDefinitions data)
         {
-            TitlePublicConfiguration.LeaderboardDefinitions = data;
+            TitlePublicConfiguration.Leaderboard = data;
             OnTitlePublicConfigurationUpdated?.Invoke();
             OnAnyUpdated?.Invoke();
         }
 
         internal void PatchReferralDefinitions(ReferralDefinitions data)
         {
-            TitlePublicConfiguration.ReferralDefinitions = data;
+            TitlePublicConfiguration.Referral = data;
             OnTitlePublicConfigurationUpdated?.Invoke();
             OnAnyUpdated?.Invoke();
         }
 
         internal void PatchStoreDefinitions(StoreDefinitions data)
         {
-            TitlePublicConfiguration.StoreDefinitions = data;
+            TitlePublicConfiguration.Store = data;
             OnTitlePublicConfigurationUpdated?.Invoke();
             OnAnyUpdated?.Invoke();
         }

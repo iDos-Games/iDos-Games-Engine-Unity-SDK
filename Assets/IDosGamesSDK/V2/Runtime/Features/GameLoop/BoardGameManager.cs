@@ -35,7 +35,7 @@ namespace IDosGames
         private Coroutine _moveRoutine;
 
         public BoardLoopState BoardState => IDosGamesData.User.Board;
-        public BoardLoopDefinition BoardDefinition => IDosGamesData.Config.TitlePublicConfiguration?.GameLoops?.Board;
+        public BoardLoopDefinition BoardDefinition => IDosGamesData.Config.TitlePublicConfiguration?.GameLoop?.Board;
 
         public int CurrentStageLevel => BoardState?.StageLevel ?? 0;
         public BoardStageDefinition CurrentStage { get; private set; }
