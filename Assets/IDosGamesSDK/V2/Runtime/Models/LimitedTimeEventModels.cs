@@ -382,7 +382,7 @@ namespace IDosGames.ClientModels
         public string DisplayName { get; set; }
         public List<string> AssetPaths { get; set; }
         public List<ItemOrCurrency> Rewards { get; set; }
-        public List<PremiumTierReward> PremiumRewards { get; set; }
+        //public List<PremiumTierReward> PremiumRewards { get; set; }
         public PremiumRewardsMode PremiumRewardsMode { get; set; }
         public bool PremiumStackLowerTiers { get; set; }
         public List<EventTokenReward> TokenRewards { get; set; }
@@ -432,7 +432,7 @@ namespace IDosGames.ClientModels
         public List<string> AssetPaths { get; set; }
         public long RequiredTokensEarned { get; set; }
         public List<ItemOrCurrency> Rewards { get; set; }
-        public List<PremiumTierReward> PremiumRewards { get; set; }
+        //public List<PremiumTierReward> PremiumRewards { get; set; }
         public PremiumRewardsMode PremiumRewardsMode { get; set; }
         public bool PremiumStackLowerTiers { get; set; }
         public List<EventTokenReward> TokenRewards { get; set; }
@@ -453,7 +453,7 @@ namespace IDosGames.ClientModels
     {
         public string RankRange { get; set; }
         public List<ItemOrCurrency> Rewards { get; set; }
-        public List<PremiumTierReward> PremiumRewards { get; set; }
+        //public List<PremiumTierReward> PremiumRewards { get; set; }
     }
 
     [Serializable]

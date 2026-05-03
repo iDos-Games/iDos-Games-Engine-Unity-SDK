@@ -6,18 +6,14 @@ namespace IDosGames
     {
         private static string GetEndpoint(AuthenticationAction action)
         {
-            string templateID = IDosGamesSDKSettings.Instance.TitleTemplateID;
             string titleID = GetTitleID();
-            return $"api/v2/{templateID}/{titleID}/Client/Authentication/{action}";
+            return $"api/v2/{titleID}/Client/Authentication/{action}";
         }
 
         public static string GetTitleID()
         {
             var settings = IDosGamesSDKSettings.Instance;
-            if (settings == null)
-            {
-                return "0";
-            }
+            if (settings == null) return "0";
 
             string titleID = settings.TitleID;
 
@@ -32,7 +28,6 @@ namespace IDosGames
                     {
                         string queryString = fullUrl.Substring(queryStartIndex + 1);
                         string[] queryParams = queryString.Split('&');
-
                         foreach (string param in queryParams)
                         {
                             string[] keyValue = param.Split('=');
@@ -50,64 +45,28 @@ namespace IDosGames
             return titleID;
         }
 
-        public static Task<OperationResult<PlatformLoginResponse>> LoginTokensWithPlatformToken(AuthenticationRequest request)
-        {
-            return HttpService.Post<PlatformLoginResponse>(GetEndpoint(AuthenticationAction.LoginTokensWithPlatformToken), request);
-        }
+        public static Task<OperationResult<PlatformLoginResponse>> LoginWithPlatformToken(AuthenticationRequest request)
+            => HttpService.Post<PlatformLoginResponse>(GetEndpoint(AuthenticationAction.LoginWithPlatformToken), request);
 
-        public static Task<OperationResult<PlatformLoginResponse>> LoginTokensWithDeviceID(AuthenticationRequest request)
-        {
-            return HttpService.Post<PlatformLoginResponse>(GetEndpoint(AuthenticationAction.LoginTokensWithDeviceID), request);
-        }
+        public static Task<OperationResult<PlatformLoginResponse>> LoginWithDeviceID(AuthenticationRequest request)
+            => HttpService.Post<PlatformLoginResponse>(GetEndpoint(AuthenticationAction.LoginWithDeviceID), request);
 
-        public static Task<OperationResult<PlatformLoginResponse>> LoginTokensWithTelegram(AuthenticationRequest request)
-        {
-            return HttpService.Post<PlatformLoginResponse>(GetEndpoint(AuthenticationAction.LoginTokensWithTelegram), request);
-        }
+        public static Task<OperationResult<PlatformLoginResponse>> LoginWithTelegram(AuthenticationRequest request)
+            => HttpService.Post<PlatformLoginResponse>(GetEndpoint(AuthenticationAction.LoginWithTelegram), request);
 
-        public static Task<OperationResult<PlatformLoginResponse>> LoginTokensWithEmail(AuthenticationRequest request)
-        {
-            return HttpService.Post<PlatformLoginResponse>(GetEndpoint(AuthenticationAction.LoginTokensWithEmail), request);
-        }
+        public static Task<OperationResult<PlatformLoginResponse>> LoginWithEmail(AuthenticationRequest request)
+            => HttpService.Post<PlatformLoginResponse>(GetEndpoint(AuthenticationAction.LoginWithEmail), request);
 
-        public static Task<OperationResult<PlatformLoginResponse>> LoginTokensWithGoogle(AuthenticationRequest request)
-        {
-            return HttpService.Post<PlatformLoginResponse>(GetEndpoint(AuthenticationAction.LoginTokensWithGoogle), request);
-        }
+        public static Task<OperationResult<PlatformLoginResponse>> LoginWithGoogle(AuthenticationRequest request)
+            => HttpService.Post<PlatformLoginResponse>(GetEndpoint(AuthenticationAction.LoginWithGoogle), request);
 
-        public static Task<OperationResult<PlatformLoginResponse>> RegisterTokensWithEmail(AuthenticationRequest request)
-        {
-            return HttpService.Post<PlatformLoginResponse>(GetEndpoint(AuthenticationAction.RegisterTokensWithEmail), request);
-        }
-
-        public static Task<OperationResult<ClientStateResponse>> LoginWithDeviceID(AuthenticationRequest request)
-        {
-            return HttpService.Post<ClientStateResponse>(GetEndpoint(AuthenticationAction.LoginWithDeviceID), request);
-        }
-
-        public static Task<OperationResult<ClientStateResponse>> LoginWithTelegram(AuthenticationRequest request)
-        {
-            return HttpService.Post<ClientStateResponse>(GetEndpoint(AuthenticationAction.LoginWithTelegram), request);
-        }
-
-        public static Task<OperationResult<ClientStateResponse>> LoginWithEmail(AuthenticationRequest request)
-        {
-            return HttpService.Post<ClientStateResponse>(GetEndpoint(AuthenticationAction.LoginWithEmail), request);
-        }
-
-        public static Task<OperationResult<ClientStateResponse>> RegisterWithEmail(AuthenticationRequest request)
-        {
-            return HttpService.Post<ClientStateResponse>(GetEndpoint(AuthenticationAction.RegisterWithEmail), request);
-        }
+        public static Task<OperationResult<PlatformLoginResponse>> RegisterWithEmail(AuthenticationRequest request)
+            => HttpService.Post<PlatformLoginResponse>(GetEndpoint(AuthenticationAction.RegisterWithEmail), request);
 
         public static Task<OperationResult<SuccessResponse>> ForgotPassword(AuthenticationRequest request)
-        {
-            return HttpService.Post<SuccessResponse>(GetEndpoint(AuthenticationAction.ForgotPassword), request);
-        }
+            => HttpService.Post<SuccessResponse>(GetEndpoint(AuthenticationAction.ForgotPassword), request);
 
         public static Task<OperationResult<SuccessResponse>> ResetPassword(AuthenticationRequest request)
-        {
-            return HttpService.Post<SuccessResponse>(GetEndpoint(AuthenticationAction.ResetPassword), request);
-        }
+            => HttpService.Post<SuccessResponse>(GetEndpoint(AuthenticationAction.ResetPassword), request);
     }
 }

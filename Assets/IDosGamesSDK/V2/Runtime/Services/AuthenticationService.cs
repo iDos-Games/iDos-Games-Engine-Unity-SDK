@@ -71,7 +71,7 @@ namespace IDosGames
             request.Device = SystemInfo.deviceModel;
             request.Platform = Application.platform.ToString();
 
-            var tokenResult = await AuthenticationAPI.LoginTokensWithPlatformToken(request);
+            var tokenResult = await AuthenticationAPI.LoginWithPlatformToken(request);
             if (!tokenResult.Success)
             {
                 Message.Show(tokenResult.Error);
@@ -93,7 +93,7 @@ namespace IDosGames
             {
                 var request = CreateBaseRequest();
                 request.TelegramInitData = TelegramInitData;
-                tokenResult = await AuthenticationAPI.LoginTokensWithTelegram(request);
+                tokenResult = await AuthenticationAPI.LoginWithTelegram(request);
             }
             else
             {
@@ -101,7 +101,7 @@ namespace IDosGames
                 request.DeviceID = SystemInfo.deviceUniqueIdentifier;
                 request.Device = SystemInfo.deviceModel;
                 request.Platform = Application.platform.ToString();
-                tokenResult = await AuthenticationAPI.LoginTokensWithDeviceID(request);
+                tokenResult = await AuthenticationAPI.LoginWithDeviceID(request);
             }
 
             if (!tokenResult.Success)
@@ -123,7 +123,7 @@ namespace IDosGames
             request.Email = email;
             request.Password = password;
 
-            var tokenResult = await AuthenticationAPI.LoginTokensWithEmail(request);
+            var tokenResult = await AuthenticationAPI.LoginWithEmail(request);
             if (!tokenResult.Success)
             {
                 Message.Show(tokenResult.Error);
@@ -151,7 +151,7 @@ namespace IDosGames
             request.Device = SystemInfo.deviceModel;
             request.Platform = Application.platform.ToString();
 
-            var tokenResult = await AuthenticationAPI.RegisterTokensWithEmail(request);
+            var tokenResult = await AuthenticationAPI.RegisterWithEmail(request);
             if (!tokenResult.Success)
             {
                 Message.Show(tokenResult.Error);
@@ -167,15 +167,16 @@ namespace IDosGames
             return result;
         }
 
-        public static async Task<OperationResult<ClientStateResponse>> LoginWithGoogle(string googleAuthToken)
+        public static async Task<OperationResult<ClientStateResponse>> LoginWithGoogle(string googleIDToken)
         {
             OnRequestSent?.Invoke();
             Loading.ShowTransparentPanel();
 
             var request = CreateBaseRequest();
-            request.PlatformAuthToken = googleAuthToken;
+            // Бэкенд ожидает поле GoogleIdToken (IGSRequest), не PlatformAuthToken
+            request.GoogleIDToken = googleIDToken;
 
-            var tokenResult = await AuthenticationAPI.LoginTokensWithGoogle(request);
+            var tokenResult = await AuthenticationAPI.LoginWithGoogle(request);
             if (!tokenResult.Success)
             {
                 Message.Show(tokenResult.Error);

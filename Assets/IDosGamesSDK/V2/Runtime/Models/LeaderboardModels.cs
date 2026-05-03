@@ -77,7 +77,7 @@ namespace IDosGames.ClientModels
         public string Rank { get; set; }
         public List<ItemOrCurrency> Rewards { get; set; }
         public PremiumRewardsMode? PremiumRewardsMode { get; set; }
-        public List<PremiumTierReward> PremiumRewards { get; set; }
+        //public List<PremiumTierReward> PremiumRewards { get; set; }
     }
 
     // =================================================================================

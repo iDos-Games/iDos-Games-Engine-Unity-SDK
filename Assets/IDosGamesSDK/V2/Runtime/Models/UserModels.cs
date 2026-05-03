@@ -1,4 +1,3 @@
-using IDosGames.ClientModels;
 using System;
 using System.Collections.Generic;
 
@@ -7,23 +6,18 @@ namespace IDosGames
     [Serializable]
     public class UserRequest : IGSRequest
     {
-        public string Key { get; set; }
-        public object Value { get; set; }
-        public string CurrencyID { get; set; }
-        public long SubtractAmount { get; set; }
-
-        public string FromCurrencyID { get; set; }
-        public string ToCurrencyID { get; set; }
-        public long TransferAmount { get; set; } = 1;
-
-        public string ItemInstanceID { get; set; }
+        public bool IsNewSession { get; set; }
+        public List<string> Fields { get; set; }
+        public List<string> TitleFields { get; set; }
     }
 
     [Serializable]
-    public class CurrencyUpdateResponse
+    public class UserUsageState
     {
-        public string CurrencyID { get; set; }
-        public long NewBalance { get; set; }
+        public long TotalSeconds { get; set; }
+        public long TotalSessions { get; set; }
+        public DateTime LastActiveAt { get; set; }
+        public Dictionary<string, DailyUsageRecord> Daily { get; set; }
     }
 
     [Serializable]
@@ -34,48 +28,115 @@ namespace IDosGames
         public int CurrentWeek { get; set; }
         public int CurrentMonth { get; set; }
         public long Total { get; set; }
-        public Dictionary<DateTime, int> History { get; set; }
+        public long TotalSessions { get; set; }
+        public DateTime LastActiveAt { get; set; }
+        public Dictionary<string, DailyUsageRecord> History { get; set; }
     }
 
     [Serializable]
-    public class CurrencyTransferResponse
+    public class DailyUsageRecord
     {
-        public string FromCurrencyID { get; set; }
-        public string ToCurrencyID { get; set; }
-        public long TransferAmount { get; set; }
-        public Dictionary<string, long> UpdatedVirtualCurrencies { get; set; }
+        public int Seconds { get; set; }
+        public int Sessions { get; set; }
+        public DateTime LastActiveAt { get; set; }
     }
 
     [Serializable]
-    public class ConsumeItemResponse
+    public class UserInventoryState
     {
-        public string ItemID { get; set; }
+        public long Version { get; set; }
+        public Dictionary<string, UserVirtualCurrencyState> VirtualCurrencies { get; set; }
+        public Dictionary<string, UserCryptoCurrencyState> CryptoCurrencies { get; set; }
+        public Dictionary<string, ItemTotals> Items { get; set; }
+        public Dictionary<string, UnstackableItemInstanceState> UnstackableItems { get; set; }
+    }
+
+    [Serializable]
+    public class UserVirtualCurrencyState
+    {
+        public long Amount { get; set; }
+        public UserRechargeState Recharge { get; set; }
+        public UserDailyCounters Daily { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+    }
+
+    [Serializable]
+    public class UserRechargeState
+    {
+        public DateTime LastRechargeAt { get; set; }
+        public long PendingSeconds { get; set; }
+    }
+
+    [Serializable]
+    public class UserDailyCounters
+    {
+        public DateTime PeriodStartUtc { get; set; }
+        public long Earned { get; set; }
+        public long Spent { get; set; }
+    }
+
+    [Serializable]
+    public class UserCryptoCurrencyState
+    {
+        public decimal Amount { get; set; }
+        public decimal Frozen { get; set; }
+        public Dictionary<string, UserDepositAddress> DepositAddresses { get; set; }
+        public UserCryptoComplianceCounters Compliance { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+    }
+
+    [Serializable]
+    public class UserDepositAddress
+    {
+        public string Address { get; set; }
+        public string Memo { get; set; }
+        public DateTime AssignedAt { get; set; }
+    }
+
+    [Serializable]
+    public class UserCryptoComplianceCounters
+    {
+        public DateTime DailyPeriodStartUtc { get; set; }
+        public decimal DailyWithdrawnUsd { get; set; }
+        public DateTime MonthlyPeriodStartUtc { get; set; }
+        public decimal MonthlyWithdrawnUsd { get; set; }
+    }
+
+    [Serializable]
+    public class ItemTotals
+    {
+        public long StackableAmount { get; set; }
+        public long UnstackableAmount { get; set; }
+        public long TotalAmount { get; set; }
+    }
+
+    [Serializable]
+    public class UnstackableItemInstanceState
+    {
         public string ItemInstanceID { get; set; }
-        public string CatalogVersion { get; set; }
-        public long ConsumedAmount { get; set; }
+        public string ItemID { get; set; }
+        public long RemainingUses { get; set; }
+        public DateTime AcquiredAt { get; set; }
+        public DateTime? ExpiresAt { get; set; }
+        public EquipmentSlot EquippedSlot { get; set; }
+        public string CustomData { get; set; }
     }
 
-
     [Serializable]
-    public class VirtualCurrencyResponse
+    public class EquipmentSlot
     {
-        public string UserID { get; set; }
-        public Dictionary<string, long> VirtualCurrency { get; set; }
-        public Dictionary<string, VirtualCurrencyRechargeTime> VirtualCurrencyRechargeTimes { get; set; }
+        public string CharacterID { get; set; }
+        public string SlotID { get; set; }
     }
 
     public enum UserAction
     {
         GetClientState,
-        GetUserInventory,
-        GetCustomUserData,
-        UpdateCustomUserData,
-        SubtractVirtualCurrency,
+        GetInventory,
         DeleteUserAccount,
         GetUsageTime,
         AddUsageTime,
-        TransferVirtualCurrency,
-        ConsumeItem,
-        GetVirtualCurrency,
     }
 }

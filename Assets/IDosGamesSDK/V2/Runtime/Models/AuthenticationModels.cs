@@ -3,10 +3,11 @@ using System;
 namespace IDosGames
 {
     [Serializable]
-    public class AuthenticationRequest : IGSRequest 
+    public class AuthenticationRequest : IGSRequest
     {
         public string PlatformAuthToken { get; set; }
         public string PlatformRefreshToken { get; set; }
+        public string GoogleIDToken { get; internal set; }
     }
 
     [Serializable]
@@ -17,14 +18,9 @@ namespace IDosGames
         public T Data { get; set; }
         public bool IsThrottled { get; set; }
 
-        public static OperationResult<T> Ok(T data)
-            => new OperationResult<T> { Success = true, Data = data, Error = null };
-
-        public static OperationResult<T> Fail(string error)
-            => new OperationResult<T> { Success = false, Data = default, Error = error };
-
-        public static OperationResult<T> Throttled()
-            => new() { Success = false, Error = "Throttled", IsThrottled = true };
+        public static OperationResult<T> Ok(T data) => new OperationResult<T> { Success = true, Data = data, Error = null };
+        public static OperationResult<T> Fail(string error) => new OperationResult<T> { Success = false, Data = default, Error = error };
+        public static OperationResult<T> Throttled() => new() { Success = false, Error = "Throttled", IsThrottled = true };
     }
 
     [Serializable]
@@ -40,7 +36,6 @@ namespace IDosGames
         public string PlatformUserID { get; set; }
         public string PlatformAuthToken { get; set; }
         public DateTime? PlatformAuthTokenExpiration { get; set; }
-
         public string TitleUserID { get; set; }
         public string TitleClientSessionTicket { get; set; }
         public DateTime TitleClientSessionTicketExpiration { get; set; }
@@ -70,24 +65,14 @@ namespace IDosGames
 
     public enum AuthenticationAction
     {
-        // FULL (tokens + all data)
         LoginWithDeviceID,
         LoginWithTelegram,
         LoginWithEmail,
         LoginWithGoogle,
         LoginWithPlatformToken,
         RegisterWithEmail,
-
-        // TOKENS ONLY
-        LoginTokensWithDeviceID,
-        LoginTokensWithTelegram,
-        LoginTokensWithEmail,
-        LoginTokensWithGoogle,
-        LoginTokensWithPlatformToken,
-        RegisterTokensWithEmail,
-
+        RefreshPlatformToken,
         ForgotPassword,
         ResetPassword,
-        RefreshPlatformToken,
     }
 }

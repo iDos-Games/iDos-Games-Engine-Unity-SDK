@@ -35,6 +35,7 @@ namespace IDosGames.TitlePublicConfiguration
         public Dictionary<string, string> AssetBundle { get; set; }
 
         // v2
+        public PremiumDefinitions Premium { get; set; }
         public GameLoopsDefinition GameLoop { get; set; }
         public CharacterDefinitions Character { get; set; }
         public List<LootboxDefinition> Lootbox { get; set; }
@@ -43,7 +44,6 @@ namespace IDosGames.TitlePublicConfiguration
         public List<CurrencyTransferPair> AllowedCurrencyTransferPairs { get; set; }
         public QuestDefinitions Quest { get; set; }
         public LimitedTimeEventsDefinition LimitedTimeEvent { get; set; }
-        public List<PremiumDefinition> Premium { get; set; }
         public DealOffersDefinition DealOffer { get; set; }
         public LeaderboardDefinitions Leaderboard { get; set; }
         public ReferralDefinitions Referral { get; set; }

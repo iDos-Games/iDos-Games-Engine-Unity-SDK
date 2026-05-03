@@ -1,21 +1,14 @@
 ﻿using System;
 using System.Threading.Tasks;
-using IDosGames.ClientModels;
 
 namespace IDosGames
 {
     public static class UserService
     {
-        public static event Action<ClientStateResponse> OnClientStateReceived;
-        public static event Action<GetUserInventoryResult> OnUserInventoryReceived;
-        public static event Action<GetCustomUserDataResult> OnCustomUserDataReceived;
-        public static event Action<SuccessResponse> OnCustomUserDataUpdated;
-        public static event Action<CurrencyUpdateResponse> OnVirtualCurrencySubtracted;
-        public static event Action<CurrencyTransferResponse> OnVirtualCurrencyTransfered;
-        public static event Action<ConsumeItemResponse> OnItemConsumed;
+        public static event Action<ClientState> OnClientStateReceived;
+        public static event Action<UserInventoryState> OnUserInventoryReceived;
         public static event Action<SuccessResponse> OnUserAccountDeleted;
         public static event Action<UsageTimeStats> OnUsageTimeReceived;
-        public static event Action<VirtualCurrencyResponse> OnVirtualCurrencyReceived;
 
         private static IGSAuthenticationContext Ctx => AuthenticationService.GetAuthContext();
         private static string UserID => Ctx.UserID;
@@ -32,7 +25,7 @@ namespace IDosGames
             };
         }
 
-        public static async Task<OperationResult<ClientStateResponse>> GetClientState()
+        public static async Task<OperationResult<ClientState>> GetClientState()
         {
             var request = CreateBaseRequest();
             request.UsageTime = IDosGamesSDKSettings.Instance.PlayTime;
@@ -42,143 +35,22 @@ namespace IDosGames
             if (result.Success)
             {
                 IDosGamesSDKSettings.Instance.PlayTime = 0;
-                DataService.ProcessingAllData(result.Data);
+                //DataService.ProcessingAllData(result.Data);
                 OnClientStateReceived?.Invoke(result.Data);
             }
 
             return result;
         }
 
-        public static async Task<OperationResult<GetUserInventoryResult>> GetUserInventory()
+        public static async Task<OperationResult<UserInventoryState>> GetUserInventory()
         {
             var request = CreateBaseRequest();
-            var result = await UserAPI.GetUserInventory(request);
+            var result = await UserAPI.GetInventory(request);
 
             if (result.Success)
             {
-                IDosGamesData.User.ApplyInventory(result.Data.Inventory);
-                IDosGamesData.User.ApplyVirtualCurrency(result.Data.VirtualCurrency);
-                IDosGamesData.User.ApplyVirtualCurrencyRechargeTimes(result.Data.VirtualCurrencyRechargeTimes);
+                //IDosGamesData.User.ApplyInventory(result.Data.InventoryV2);
                 OnUserInventoryReceived?.Invoke(result.Data);
-            }
-
-            return result;
-        }
-
-        public static async Task<OperationResult<VirtualCurrencyResponse>> GetVirtualCurrency()
-        {
-            var request = CreateBaseRequest();
-            var result = await UserAPI.GetVirtualCurrency(request);
-
-            if (result.Success)
-            {
-                IDosGamesData.User.ApplyVirtualCurrency(result.Data.VirtualCurrency);
-                IDosGamesData.User.ApplyVirtualCurrencyRechargeTimes(result.Data.VirtualCurrencyRechargeTimes);
-                OnVirtualCurrencyReceived?.Invoke(result.Data);
-            }
-
-            return result;
-        }
-
-        public static async Task<OperationResult<GetCustomUserDataResult>> GetCustomUserData()
-        {
-            var request = CreateBaseRequest();
-            var result = await UserAPI.GetCustomUserData(request);
-
-            if (result.Success)
-            {
-                IDosGamesData.User.ApplyCustomUserData(result.Data);
-                OnCustomUserDataReceived?.Invoke(result.Data);
-            }
-
-            return result;
-        }
-
-        public static async Task<OperationResult<SuccessResponse>> UpdateCustomUserData(string key, object value)
-        {
-            var request = CreateBaseRequest();
-
-            request.Key = key;
-            request.Value = value;
-
-            var result = await UserAPI.UpdateCustomUserData(request);
-
-            if (result.Success)
-            {
-                IDosGamesData.User.PatchCustomUserData(key, value?.ToString());
-                OnCustomUserDataUpdated?.Invoke(result.Data);
-            }
-
-            return result;
-        }
-
-        public static async Task<OperationResult<CurrencyUpdateResponse>> SubtractVirtualCurrency(string currencyId, long amount)
-        {
-            var request = CreateBaseRequest();
-
-            request.CurrencyID = currencyId;
-            request.SubtractAmount = amount;
-
-            var result = await UserAPI.SubtractVirtualCurrency(request);
-
-            if (result.Success)
-            {
-                IDosGamesData.User.PatchVirtualCurrency(result.Data.CurrencyID, result.Data.NewBalance);
-                OnVirtualCurrencySubtracted?.Invoke(result.Data);
-            }
-
-            return result;
-        }
-
-        public static async Task<OperationResult<CurrencyTransferResponse>> TransferVirtualCurrency(string fromCurrencyID, string toCurrencyID, long transferAmount)
-        {
-            var request = CreateBaseRequest();
-
-            request.FromCurrencyID = fromCurrencyID;
-            request.ToCurrencyID = toCurrencyID;
-            request.TransferAmount = transferAmount;
-
-            var result = await UserAPI.TransferVirtualCurrency(request);
-
-            if (result.Success)
-            {
-                IDosGamesData.User.PatchVirtualCurrency(result.Data.UpdatedVirtualCurrencies);
-                OnVirtualCurrencyTransfered?.Invoke(result.Data);
-            }
-
-            return result;
-        }
-
-        public static async Task<OperationResult<ConsumeItemResponse>> ConsumeItem(string itemInstanceID, long consumeAmount, string catalogVersion = null, string itemId = null )
-        {
-            var request = CreateBaseRequest();
-
-            request.ItemInstanceID = itemInstanceID;
-            request.SubtractAmount = consumeAmount;
-
-            // If ItemInstanceID = null, then these values ​​can be used
-            request.CatalogVersion = catalogVersion;
-            request.ItemID = itemId;
-
-            var result = await UserAPI.ConsumeItem(request);
-
-            if (result.Success)
-            {
-                IDosGamesData.User.PatchConsumedItemInstance(result.Data.ItemInstanceID, result.Data.ConsumedAmount);
-                OnItemConsumed?.Invoke(result.Data);
-            }
-
-            return result;
-        }
-
-        public static async Task<OperationResult<SuccessResponse>> DeleteUserAccount()
-        {
-            var request = CreateBaseRequest();
-            var result = await UserAPI.DeleteUserAccount(request);
-
-            if (result.Success)
-            {
-                OnUserAccountDeleted?.Invoke(result.Data);
             }
 
             return result;
@@ -209,6 +81,19 @@ namespace IDosGames
             {
                 IDosGamesSDKSettings.Instance.PlayTime = 0;
                 OnUsageTimeReceived?.Invoke(result.Data);
+            }
+
+            return result;
+        }
+
+        public static async Task<OperationResult<SuccessResponse>> DeleteUserAccount()
+        {
+            var request = CreateBaseRequest();
+            var result = await UserAPI.DeleteUserAccount(request);
+
+            if (result.Success)
+            {
+                OnUserAccountDeleted?.Invoke(result.Data);
             }
 
             return result;
