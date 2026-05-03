@@ -6,6 +6,7 @@ namespace IDosGames
     [Serializable]
     public class ClientState
     {
+        public AuthContext AuthContext { get; set; }
         public TitlePublicConfigurationModel Title { get; set; }
         public UserState User { get; set; }
     }

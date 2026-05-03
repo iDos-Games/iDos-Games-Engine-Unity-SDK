@@ -26,12 +26,12 @@ namespace IDosGames
         public static event Action OnLoggedOut;
         public static event Action OnRequestSent;
 
-        public static IGSAuthenticationContext AuthContext => _authContext;
-        private static IGSAuthenticationContext _authContext;
+        public static AuthContext AuthContext => _authContext;
+        private static AuthContext _authContext;
 
         // ─── Auth context ─────────────────────────────────────────────────────────
 
-        public static IGSAuthenticationContext GetAuthContext()
+        public static AuthContext GetAuthContext()
         {
             if (_authContext == null)
                 throw new Exception("Not logged in. AuthContext is null.");
@@ -259,7 +259,7 @@ namespace IDosGames
 
         private static void ApplyTokenContext(PlatformLoginResponse tokenData)
         {
-            _authContext = new IGSAuthenticationContext
+            _authContext = new AuthContext
             {
                 UserID = tokenData.TitleUserID,
                 ClientSessionTicket = tokenData.TitleClientSessionTicket,
@@ -289,15 +289,9 @@ namespace IDosGames
         private static void ApplyFullSession(ClientState data, AuthType authType)
         {
             var ctx = data.AuthContext;
-            _authContext = new IGSAuthenticationContext(
-                ctx.ClientSessionTicket,
-                ctx.EntityToken,
-                ctx.UserID,
-                ctx.EntityId,
-                ctx.EntityType,
-                ctx.TelemetryKey);
+            _authContext = new AuthContext(ctx.UserID, ctx.ClientSessionTicket);
 
-            ApplyPlatformSDKSettings(data.PlatformSettings);
+            //ApplyPlatformSDKSettings(data.PlatformSettings);
 
             //DataService.ProcessingAllData(data);
             IDosGamesData.OnUserLoggedIn();

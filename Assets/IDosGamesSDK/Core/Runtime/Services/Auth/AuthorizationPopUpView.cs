@@ -34,16 +34,6 @@ namespace IDosGames
 		{
 			ResetSwitchButtons();
 			SetActivateCurrentView();
-
-			if (PlayerPrefs.GetInt(AlarmType.OpenedAuthorizationPopUp.ToString(), 0) == 0)
-			{
-				if (AlarmSystem.Instance != null)
-				{
-					PlayerPrefs.SetInt(AlarmType.OpenedAuthorizationPopUp.ToString(), 1);
-					PlayerPrefs.Save();
-					AlarmSystem.Instance.SetAlarmState(AlarmType.OpenedAuthorizationPopUp, false);
-				}
-			}
 		}
 
 		private void ResetSwitchButtons()

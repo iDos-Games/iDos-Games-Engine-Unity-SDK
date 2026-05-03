@@ -10,7 +10,7 @@ namespace IDosGames
         public static event Action<SuccessResponse> OnUserAccountDeleted;
         public static event Action<UsageTimeStats> OnUsageTimeReceived;
 
-        private static IGSAuthenticationContext Ctx => AuthenticationService.GetAuthContext();
+        private static AuthContext Ctx => AuthenticationService.GetAuthContext();
         private static string UserID => Ctx.UserID;
         private static string ClientSessionTicket => Ctx.ClientSessionTicket;
 

@@ -28,7 +28,7 @@ namespace IDosGames
 #endif
         }
 
-        public void Login()
+        public void Authorization()
         {
             switch (_lastAuthType)
             {
@@ -78,12 +78,12 @@ namespace IDosGames
 
         private void OnRetryAutoLogin()
         {
-            Invoke(nameof(Login), delayAutoLogin);
+            Invoke(nameof(Authorization), delayAutoLogin);
         }
 
         private void OnErrorAutoLogin(string errorResponse)
         {
-            Message.ShowConnectionError(Login);
+            Message.ShowConnectionError(Authorization);
         }
 
 #if UNITY_WEBGL //&& !UNITY_EDITOR
@@ -120,7 +120,7 @@ namespace IDosGames
         {
             if (!_waitingPlatformAuth) return;
             _waitingPlatformAuth = false;
-            Login();
+            Authorization();
         }
 #endif
 

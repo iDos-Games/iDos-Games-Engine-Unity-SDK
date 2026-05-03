@@ -29,27 +29,28 @@ namespace IDosGames
         //public UserCharactersState Character { get; set; }
         //public UserMatchState Match { get; set; }
 
+        public event Action OnAnyUpdated;
+
         public event Action OnInventoryUpdated;
         public event Action OnVirtualCurrencyUpdated;
-        
-        public event Action OnLimitedTimeEventsUpdated;
-        public event Action OnCustomUserDataUpdated;
 
         public event Action OnSocialUpdated;
-        public event Action OnUserPublicDataUpdated;
-        public event Action OnBoardUpdated;
-        public event Action OnQuestsUpdated;
-        public event Action OnCharactersUpdated;
-        public event Action OnDailyRewardsUpdated;
-        public event Action OnPremiumUpdated;
-        public event Action OnLeaderboardDataUpdated;
-        public event Action OnAnyUpdated;
-        public event Action OnPvPBattleStrategyUpdated;
-        public event Action OnDealOffersUpdated;
-        public event Action OnActiveDealSlotsUpdated;
-        public event Action OnLeaderboardProgressUpdated;
-        public event Action OnReferralUpdated;
-        public event Action OnStoreUpdated;
+
+        //public event Action OnLimitedTimeEventsUpdated;
+        //public event Action OnCustomUserDataUpdated;
+        //public event Action OnUserPublicDataUpdated;
+        //public event Action OnBoardUpdated;
+        //public event Action OnQuestsUpdated;
+        //public event Action OnCharactersUpdated;
+        //public event Action OnDailyRewardsUpdated;
+        //public event Action OnPremiumUpdated;
+        //public event Action OnLeaderboardDataUpdated;
+        //public event Action OnPvPBattleStrategyUpdated;
+        //public event Action OnDealOffersUpdated;
+        //public event Action OnActiveDealSlotsUpdated;
+        //public event Action OnLeaderboardProgressUpdated;
+        //public event Action OnReferralUpdated;
+        //public event Action OnStoreUpdated;
 
         public bool IsLoggedIn { get; internal set; }
 

@@ -24,14 +24,7 @@ namespace IDosGames
 			if (IDosGamesSDKSettings.Instance.ShowLoadingOnExecuteServerFunction)
 			{
                 HttpService.OnBusyStateChanged += OnHttpBusyStateChanged;
-                IGSClientAPI.ServerFunctionCalled += ShowTransparentPanel;
-                IGSClientAPI.ServerFunctionResponsed += HideTransparentPanel;
 			}
-            else
-            {
-                IGSClientAPI.ServerFunctionCalled += BlockTouch;
-                IGSClientAPI.ServerFunctionResponsed += UnblockTouch;
-            }
 
 			SceneSwitcher.SwitchSceneStarted += ShowOpaquePanel;
 			SceneSwitcher.SwitchSceneFinished += HideOpaquePanel;
@@ -49,14 +42,7 @@ namespace IDosGames
 			if (IDosGamesSDKSettings.Instance.ShowLoadingOnExecuteServerFunction)
 			{
                 HttpService.OnBusyStateChanged -= OnHttpBusyStateChanged;
-                IGSClientAPI.ServerFunctionCalled -= ShowTransparentPanel;
-                IGSClientAPI.ServerFunctionResponsed -= HideTransparentPanel;
 			}
-            else
-            {
-                IGSClientAPI.ServerFunctionCalled -= BlockTouch;
-                IGSClientAPI.ServerFunctionResponsed -= UnblockTouch;
-            }
 
 			SceneSwitcher.SwitchSceneStarted -= ShowOpaquePanel;
 			SceneSwitcher.SwitchSceneFinished -= HideOpaquePanel;

@@ -10,7 +10,7 @@ namespace IDosGames
         public static event Action<TitlePublicConfigurationModel> OnConfigReceived;
         public static event Action<SuccessResponse> OnServerTimeReceived;
 
-        private static IGSAuthenticationContext Ctx => AuthenticationService.GetAuthContext();
+        private static AuthContext Ctx => AuthenticationService.GetAuthContext();
         private static string UserID => Ctx.UserID;
         private static string ClientSessionTicket => Ctx.ClientSessionTicket;
 
@@ -32,7 +32,7 @@ namespace IDosGames
 
             if (result.Success)
             {
-                IDosGamesData.Config?.ApplyTitlePublicData(result.Data);
+                //IDosGamesData.Config?.ApplyTitlePublicData(result.Data);
                 OnTitleDataReceived?.Invoke(result.Data);
             }
 
