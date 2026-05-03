@@ -3,7 +3,7 @@ using System;
 namespace IDosGames
 {
     [Serializable]
-    public class TitleRequest : IGSRequest
+    public class TitleRequest : BaseRequest
     {
 
     }

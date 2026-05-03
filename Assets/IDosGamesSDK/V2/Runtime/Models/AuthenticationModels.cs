@@ -3,7 +3,7 @@ using System;
 namespace IDosGames
 {
     [Serializable]
-    public class AuthenticationRequest : IGSRequest
+    public class AuthenticationRequest : BaseRequest
     {
         public string PlatformAuthToken { get; set; }
         public string PlatformRefreshToken { get; set; }

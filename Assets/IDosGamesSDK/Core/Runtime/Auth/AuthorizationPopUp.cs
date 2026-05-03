@@ -124,16 +124,16 @@ namespace IDosGames
 			return AuthenticationService.IsValidEmail(input);
         }
 
-		private void OnLogInSuccess(ClientStateResponse result)
+		private void OnLogInSuccess(ClientState result)
 		{
 			//Message.Show(MessageCode.SUCCESS_LOGGED_IN);
-			DataService.ProcessingAllData(result);
+			//DataService.ProcessingAllData(result);
             Loading.SwitchToNextScene();
         }
 
-		private void OnSignUpSuccess(ClientStateResponse result)
+		private void OnSignUpSuccess(ClientState result)
 		{
-            DataService.ProcessingAllData(result);
+            //DataService.ProcessingAllData(result);
             Loading.SwitchToNextScene();
         }
 

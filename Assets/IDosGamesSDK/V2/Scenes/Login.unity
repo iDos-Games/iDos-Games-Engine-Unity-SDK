@@ -2286,7 +2286,7 @@ PrefabInstance:
     - target: {fileID: 6806032444355226921, guid: e4a34e3d2bb201547ae44c66a073edc7,
         type: 3}
       propertyPath: m_Name
-      value: AutoLogin
+      value: Login
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

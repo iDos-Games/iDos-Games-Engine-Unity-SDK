@@ -2,7 +2,7 @@
 
 namespace IDosGames
 {
-    public class AutoLogin : MonoBehaviour
+    public class Login : MonoBehaviour
     {
         public float delayAutoLogin = 2f;
         private AuthType _lastAuthType => AuthenticationService.LastAuthType;
@@ -71,7 +71,7 @@ namespace IDosGames
                 OnErrorAutoLogin(result.Error);
         }
 
-        private void OnSuccessAutoLogin(ClientStateResponse authContext)
+        private void OnSuccessAutoLogin(ClientState authContext)
         {
             Loading.SwitchToNextScene();
         }

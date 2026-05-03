@@ -52,14 +52,14 @@ namespace IDosGames
 
         // ─── Login methods ────────────────────────────────────────────────────────
 
-        public static async Task<OperationResult<ClientStateResponse>> LoginWithPlatformToken(string authToken)
+        public static async Task<OperationResult<ClientState>> LoginWithPlatformToken(string authToken)
         {
             if (string.IsNullOrEmpty(authToken))
             {
                 const string err = "AuthToken is null or empty.";
                 Debug.LogWarning(err);
                 Message.Show(err);
-                return OperationResult<ClientStateResponse>.Fail(err);
+                return OperationResult<ClientState>.Fail(err);
             }
 
             OnRequestSent?.Invoke();
@@ -75,14 +75,14 @@ namespace IDosGames
             if (!tokenResult.Success)
             {
                 Message.Show(tokenResult.Error);
-                return OperationResult<ClientStateResponse>.Fail(tokenResult.Error);
+                return OperationResult<ClientState>.Fail(tokenResult.Error);
             }
 
             ApplyTokenContext(tokenResult.Data);
             return await FetchAndApplyClientState(AuthType.iDosGames);
         }
 
-        public static async Task<OperationResult<ClientStateResponse>> LoginWithDeviceID()
+        public static async Task<OperationResult<ClientState>> LoginWithDeviceID()
         {
             OnRequestSent?.Invoke();
             Loading.ShowTransparentPanel();
@@ -107,14 +107,14 @@ namespace IDosGames
             if (!tokenResult.Success)
             {
                 Message.Show(tokenResult.Error);
-                return OperationResult<ClientStateResponse>.Fail(tokenResult.Error);
+                return OperationResult<ClientState>.Fail(tokenResult.Error);
             }
 
             ApplyTokenContext(tokenResult.Data);
             return await FetchAndApplyClientState(AuthType.Device);
         }
 
-        public static async Task<OperationResult<ClientStateResponse>> LoginWithEmail(string email, string password)
+        public static async Task<OperationResult<ClientState>> LoginWithEmail(string email, string password)
         {
             OnRequestSent?.Invoke();
             Loading.ShowTransparentPanel();
@@ -127,7 +127,7 @@ namespace IDosGames
             if (!tokenResult.Success)
             {
                 Message.Show(tokenResult.Error);
-                return OperationResult<ClientStateResponse>.Fail(tokenResult.Error);
+                return OperationResult<ClientState>.Fail(tokenResult.Error);
             }
 
             ApplyTokenContext(tokenResult.Data);
@@ -139,7 +139,7 @@ namespace IDosGames
             return result;
         }
 
-        public static async Task<OperationResult<ClientStateResponse>> RegisterWithEmail(string email, string password)
+        public static async Task<OperationResult<ClientState>> RegisterWithEmail(string email, string password)
         {
             OnRequestSent?.Invoke();
             Loading.ShowTransparentPanel();
@@ -155,7 +155,7 @@ namespace IDosGames
             if (!tokenResult.Success)
             {
                 Message.Show(tokenResult.Error);
-                return OperationResult<ClientStateResponse>.Fail(tokenResult.Error);
+                return OperationResult<ClientState>.Fail(tokenResult.Error);
             }
 
             ApplyTokenContext(tokenResult.Data);
@@ -167,7 +167,7 @@ namespace IDosGames
             return result;
         }
 
-        public static async Task<OperationResult<ClientStateResponse>> LoginWithGoogle(string googleIDToken)
+        public static async Task<OperationResult<ClientState>> LoginWithGoogle(string googleIDToken)
         {
             OnRequestSent?.Invoke();
             Loading.ShowTransparentPanel();
@@ -180,7 +180,7 @@ namespace IDosGames
             if (!tokenResult.Success)
             {
                 Message.Show(tokenResult.Error);
-                return OperationResult<ClientStateResponse>.Fail(tokenResult.Error);
+                return OperationResult<ClientState>.Fail(tokenResult.Error);
             }
 
             ApplyTokenContext(tokenResult.Data);
@@ -225,7 +225,7 @@ namespace IDosGames
 
         // ─── Auto-login ───────────────────────────────────────────────────────────
 
-        public static Task<OperationResult<ClientStateResponse>> AutoLogin() => LastAuthType switch
+        public static Task<OperationResult<ClientState>> AutoLogin() => LastAuthType switch
         {
             AuthType.Email => LoginWithEmail(SavedEmail, SavedPassword),
             _ => LoginWithDeviceID(),
@@ -267,7 +267,7 @@ namespace IDosGames
             };
         }
 
-        private static async Task<OperationResult<ClientStateResponse>> FetchAndApplyClientState(AuthType authType)
+        private static async Task<OperationResult<ClientState>> FetchAndApplyClientState(AuthType authType)
         {
             var result = await UserService.GetClientState();
 
@@ -277,7 +277,7 @@ namespace IDosGames
             {
                 var err = !string.IsNullOrEmpty(result.Error) ? result.Error : "Invalid ClientState response.";
                 Message.Show(err);
-                return OperationResult<ClientStateResponse>.Fail(err);
+                return OperationResult<ClientState>.Fail(err);
             }
 
             ApplyFullSession(result.Data, authType);
@@ -286,7 +286,7 @@ namespace IDosGames
             return result;
         }
 
-        private static void ApplyFullSession(ClientStateResponse data, AuthType authType)
+        private static void ApplyFullSession(ClientState data, AuthType authType)
         {
             var ctx = data.AuthContext;
             _authContext = new IGSAuthenticationContext(
@@ -299,7 +299,7 @@ namespace IDosGames
 
             ApplyPlatformSDKSettings(data.PlatformSettings);
 
-            DataService.ProcessingAllData(data);
+            //DataService.ProcessingAllData(data);
             IDosGamesData.OnUserLoggedIn();
             SaveAuthType(authType);
         }

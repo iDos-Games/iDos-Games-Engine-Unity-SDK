@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace IDosGames
 {
     [Serializable]
-    public class UserRequest : IGSRequest
+    public class UserRequest : BaseRequest
     {
         public bool IsNewSession { get; set; }
         public List<string> Fields { get; set; }

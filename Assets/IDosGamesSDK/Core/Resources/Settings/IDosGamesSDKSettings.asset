@@ -9,27 +9,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4addc2a22a48e0949b9d5bc2e541ffea, type: 3}
+  m_Script: {fileID: 11500000, guid: d685f04c78d4c594689dce8709341bd3, type: 3}
   m_Name: IDosGamesSDKSettings
   m_EditorClassIdentifier: 
-  _titleID: URLV9SUP
-  _titleTemplateID: default
-  _buildKey: 
-  _buildForPlatform: 2
-  _debugLogging: 1
-  _showLoadingOnExecuteServerFunction: 0
-  _serverLink: https://api.idosgames.com
-  _mobileIAPEnabled: 0
-  _adMediationPlatform: 0
-  _ironSourceAdQualityEnabled: 0
-  _firebaseAnalyticsEnabled: 0
-  _appMetricaEnabled: 0
-  _iOSAccountDeletionEnabled: 1
-  _AndroidAccountDeletionEnabled: 0
-  _pushNotificationsAndroidEnabled: 1
-  _pushNotificationsIosEnabled: 1
-  _marketplaceEnabled: 1
-  _cryptoWalletEnabled: 1
-  _developerSecretKey: 8EJK0K559IGTPQI9SGN1E5PK7IMV1BSXFS4KE46EPJ4WO6UDZJ
-  WebGLBuildPath: C:\Users\iDos Games Andrew\Desktop\APK\Test\Build
-  ClearDirectory: 1

@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 1334143121697826121}
   - component: {fileID: 3111426289553991375}
   m_Layer: 0
-  m_Name: AutoLogin
+  m_Name: Login
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
