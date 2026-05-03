@@ -5,17 +5,11 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 0
+  - enabled: 1
     path: Assets/_Games/BoardGame/Scenes/Login.unity
-    guid: 2c6b3f5edc72f8047892d63dd1cdc45e
-  - enabled: 0
+    guid: 1588bee663cbdaa4fa1248d9b29d9e84
+  - enabled: 1
     path: Assets/_Games/BoardGame/Scenes/BoardScene.unity
     guid: 011a9c0ef122a7048bb53aa93f0fd8d3
-  - enabled: 1
-    path: Assets/IDosGamesSDK/V1/Scenes/Login.unity
-    guid: 2be892a07374bf84eb51d093e6d34cb0
-  - enabled: 1
-    path: Assets/IDosGamesSDK/V1/Scenes/Main.unity
-    guid: 110f0a0730c7f6144acdf0d3ee5c081a
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0
