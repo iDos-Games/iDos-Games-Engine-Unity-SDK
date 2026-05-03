@@ -7,12 +7,6 @@ namespace IDosGames
 {
     public class UserData
     {
-        // v1
-        public Dictionary<string, long> VirtualCurrency { get; private set; }
-        public Dictionary<string, VirtualCurrencyRechargeTime> VirtualCurrencyRechargeTimes { get; private set; }
-        public List<ItemInstance> Inventory { get; private set; }
-        public GetCustomUserDataResult CustomUserData { get; private set; }
-
         public UserLimitedTimeEventsState LimitedTimeEvents { get; private set; }
 
         // v2
