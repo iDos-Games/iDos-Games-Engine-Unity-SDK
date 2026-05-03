@@ -291,21 +291,6 @@ namespace IDosGames
             Selection.activeObject = Instance;
         }
 
-        [MenuItem("iDos Games/4. Object Inspection Data")]
-        private static void SelectObjectInspection()
-        {
-            string configPath = "Assets/IDosGamesSDK/V1/Resources/Data/ObjectInspection.asset";
-            var config = AssetDatabase.LoadAssetAtPath<ObjectInspection>(configPath);
-
-            if (config == null)
-            {
-                Debug.LogError("ObjectInspection.asset not found.");
-                return;
-            }
-
-            Selection.activeObject = config;
-        }
-
 #endif
     }
 }
