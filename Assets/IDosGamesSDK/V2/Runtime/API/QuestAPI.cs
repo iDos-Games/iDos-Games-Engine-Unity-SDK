@@ -1,6 +1,5 @@
 using System.Threading.Tasks;
 using IDosGames.ClientModels;
-using IDosGames.TitlePublicConfiguration;
 
 namespace IDosGames
 {
