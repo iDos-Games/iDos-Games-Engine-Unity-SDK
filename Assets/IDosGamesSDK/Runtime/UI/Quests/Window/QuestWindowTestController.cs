@@ -51,11 +51,63 @@ namespace IDosGames.UI.Quest
     {
         [SerializeField] private QuestWindowView _view;
         [SerializeField] private MockCycleSettings _cycle = new();
+
         [SerializeField] private List<MockQuestData> _quests = new()
         {
-            new() { questId = "q1", title = "Убей 10", baseReward = 100, objectives = new() { new() { currentValue = 7, targetValue = 10 } } },
-            new() { questId = "q2", title = "Собери 5", baseReward = 80, status = QuestStatus.Completed, objectives = new() { new() { currentValue = 5, targetValue = 5, completed = true } } },
+            // --- Активные (в процессе) ---
+            new() { questId = "daily_kill_10",   title = "Уничтожь 10 врагов",      baseReward = 100,
+                    objectives = new() { new() { label = "Убийства",    currentValue = 3,  targetValue = 10 } } },
+            new() { questId = "daily_collect_5", title = "Собери 5 ресурсов",        baseReward = 80,
+                    objectives = new() { new() { label = "Ресурсы",     currentValue = 2,  targetValue = 5  } } },
+            new() { questId = "daily_win_3",     title = "Победи в 3 матчах",        baseReward = 150,
+                    objectives = new() { new() { label = "Победы",      currentValue = 1,  targetValue = 3  } } },
+            new() { questId = "daily_dmg_500",   title = "Нанеси 500 урона",         baseReward = 120,
+                    objectives = new() { new() { label = "Урон",        currentValue = 210, targetValue = 500 } } },
+            new() { questId = "daily_use_skill", title = "Используй умение 8 раз",   baseReward = 90,
+                    objectives = new() { new() { label = "Умения",      currentValue = 0,  targetValue = 8  } } },
+
+            // --- Выполнены (можно забрать награду) ---
+            new() { questId = "daily_open_chest",  title = "Открой 2 сундука",       baseReward = 200,
+                    status = QuestStatus.Completed,
+                    objectives = new() { new() { label = "Сундуки",     currentValue = 2,  targetValue = 2, completed = true } } },
+            new() { questId = "daily_play_5",      title = "Сыграй 5 игр",           baseReward = 130,
+                    status = QuestStatus.Completed,
+                    objectives = new() { new() { label = "Игры",        currentValue = 5,  targetValue = 5, completed = true } } },
+
+            // --- Заклеймлено ---
+            new() { questId = "daily_login",       title = "Войди в игру сегодня",   baseReward = 50,
+                    status = QuestStatus.Claimed, forceClaimed = true,
+                    objectives = new() { new() { label = "Вход",        currentValue = 1,  targetValue = 1, completed = true } } },
+
+            // --- Истёк срок ---
+            new() { questId = "daily_expired",     title = "Улучши снаряжение",      baseReward = 175,
+                    status = QuestStatus.Expired,
+                    objectives = new() { new() { label = "Улучшения",   currentValue = 1,  targetValue = 3  } } },
         };
+
+        [SerializeField] private List<MockQuestData> _permanentQuests = new()
+        {
+            // --- Долгосрочные достижения ---
+            new() { questId = "perm_login_7",      title = "Войди 7 дней подряд",    baseReward = 500,
+                    objectives = new() { new() { label = "Дни входа",   currentValue = 4,  targetValue = 7  } } },
+            new() { questId = "perm_kill_100",     title = "Уничтожь 100 врагов",    baseReward = 1000,
+                    objectives = new() { new() { label = "Убийства",    currentValue = 63, targetValue = 100 } } },
+            new() { questId = "perm_reach_lvl10",  title = "Достигни 10 уровня",     baseReward = 800,
+                    status = QuestStatus.Completed,
+                    objectives = new() { new() { label = "Уровень",     currentValue = 10, targetValue = 10, completed = true } } },
+            new() { questId = "perm_earn_1000",    title = "Заработай 1000 монет",   baseReward = 300,
+                    objectives = new() { new() { label = "Монеты",      currentValue = 740, targetValue = 1000 } } },
+            new() { questId = "perm_first_win",    title = "Одержи первую победу",   baseReward = 250,
+                    status = QuestStatus.Claimed, forceClaimed = true,
+                    objectives = new() { new() { label = "Победы",      currentValue = 1,  targetValue = 1, completed = true } } },
+            new() { questId = "perm_craft_10",     title = "Скрафти 10 предметов",   baseReward = 600,
+                    objectives = new() { new() { label = "Крафт",       currentValue = 3,  targetValue = 10 } } },
+            new() { questId = "perm_join_guild",   title = "Вступи в гильдию",       baseReward = 400,
+                    objectives = new() { new() { label = "Гильдия",     currentValue = 0,  targetValue = 1  } } },
+            new() { questId = "perm_pvp_10",       title = "Проведи 10 PvP боёв",    baseReward = 750,
+                    objectives = new() { new() { label = "PvP бои",     currentValue = 7,  targetValue = 10 } } },
+        };
+
         [SerializeField] private MockPlayerQuestSettings _player = new();
 
         private QuestWindowModel _model;
@@ -74,11 +126,13 @@ namespace IDosGames.UI.Quest
 
         private Task SimulateClaimQuest(string questId, string cycleId)
         {
-            var q = _quests.FirstOrDefault(x => x.questId == questId);
+            var q = AllQuests().FirstOrDefault(x => x.questId == questId);
             if (q != null) { q.status = QuestStatus.Claimed; q.forceClaimed = true; _player.coins += q.baseReward; }
             RefreshModelAndUI();
             return Task.CompletedTask;
         }
+
+        private IEnumerable<MockQuestData> AllQuests() => _quests.Concat(_permanentQuests);
 
         private Task SimulateClaimMilestone(string milestoneId)
         {
@@ -104,8 +158,9 @@ namespace IDosGames.UI.Quest
         public void RandomizeProgress()
         {
             var rng = new System.Random();
-            foreach (var q in _quests)
+            foreach (var q in AllQuests())
             {
+                if (q.status == QuestStatus.Claimed) continue;
                 foreach (var obj in q.objectives)
                 {
                     obj.currentValue = rng.Next(0, obj.targetValue + 1);
@@ -120,7 +175,7 @@ namespace IDosGames.UI.Quest
         [ContextMenu("Claim All")]
         public void ClaimAll()
         {
-            foreach (var q in _quests) { q.status = QuestStatus.Claimed; q.forceClaimed = true; _player.coins += q.baseReward; }
+            foreach (var q in AllQuests()) { q.status = QuestStatus.Claimed; q.forceClaimed = true; _player.coins += q.baseReward; }
             _player.coins += _cycle.milestoneReward;
             Render();
         }
@@ -142,7 +197,7 @@ namespace IDosGames.UI.Quest
         private QuestDefinitions BuildMockDefinitions()
         {
             var defs = new QuestDefinitions();
-            foreach (var q in _quests)
+            foreach (var q in AllQuests())
             {
                 defs.Quests.Add(new QuestDefinition
                 {
@@ -163,7 +218,7 @@ namespace IDosGames.UI.Quest
         {
             var cycle = new UserQuestCycleState
             {
-                CycleID = "daily_001",
+                CycleID = _cycle.cycleName,
                 CycleStartUtc = DateTime.UtcNow.AddHours(-_cycle.hoursSinceStart),
                 CycleEndUtc = DateTime.UtcNow.AddHours(_cycle.hoursUntilReset),
                 Quests = new Dictionary<string, UserQuestProgress>(),
@@ -173,33 +228,42 @@ namespace IDosGames.UI.Quest
             int completed = 0;
             foreach (var q in _quests)
             {
-                var progress = new UserQuestProgress
-                {
-                    QuestID = q.questId,
-                    Status = q.status,
-                    Objectives = new Dictionary<string, UserQuestObjectiveProgress>(),
-                };
-                foreach (var obj in q.objectives)
-                {
-                    progress.Objectives[obj.label] = new UserQuestObjectiveProgress
-                    {
-                        ObjectiveID = obj.label,
-                        CurrentValue = obj.currentValue,
-                        Completed = obj.completed,
-                    };
-                }
-                cycle.Quests[q.questId] = progress;
+                cycle.Quests[q.questId] = BuildProgress(q);
                 if (q.status is QuestStatus.Completed or QuestStatus.Claimed) completed++;
             }
             cycle.CompletedQuestsCount = completed;
             if (completed >= _cycle.milestoneThreshold) cycle.ClaimedMilestoneIDs.Add("ms_001");
 
+            var permanentDict = new Dictionary<string, UserQuestProgress>();
+            foreach (var q in _permanentQuests)
+                permanentDict[q.questId] = BuildProgress(q);
+
             return new UserQuestState
             {
-                Cycles = new Dictionary<string, UserQuestCycleState> { ["daily_001"] = cycle },
-                PermanentQuests = new Dictionary<string, UserQuestProgress>(),
+                Cycles = new Dictionary<string, UserQuestCycleState> { [_cycle.cycleName] = cycle },
+                PermanentQuests = permanentDict,
                 LastUpdatedUtc = DateTime.UtcNow,
             };
+        }
+
+        private static UserQuestProgress BuildProgress(MockQuestData q)
+        {
+            var progress = new UserQuestProgress
+            {
+                QuestID = q.questId,
+                Status = q.status,
+                Objectives = new Dictionary<string, UserQuestObjectiveProgress>(),
+            };
+            foreach (var obj in q.objectives)
+            {
+                progress.Objectives[obj.label] = new UserQuestObjectiveProgress
+                {
+                    ObjectiveID = obj.label,
+                    CurrentValue = obj.currentValue,
+                    Completed = obj.completed,
+                };
+            }
+            return progress;
         }
 
         private static string FormatCountdown(DateTime endUtc)

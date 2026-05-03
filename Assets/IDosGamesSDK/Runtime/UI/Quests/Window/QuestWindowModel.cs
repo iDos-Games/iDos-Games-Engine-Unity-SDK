@@ -17,33 +17,39 @@ namespace IDosGames.UI.Quest
         public long CoinBalance { get; set; }
         public long GemBalance { get; set; }
 
-        public ActiveQuestCycle ActiveCycle { get; private set; }
+        public List<ActiveQuestCycle> AllCycles { get; } = new();
         public List<QuestUIItem> PermanentQuests { get; } = new();
         public List<MilestoneUIItem> CycleMilestones { get; } = new();
 
-        public float SegmentProgress => ActiveCycle?.SegmentProgress ?? 0f;
-        public string ProgressText => ActiveCycle?.ProgressText ?? "0/0";
-        public DateTime CycleEndUtc => ActiveCycle?.EndUtc ?? DateTime.UtcNow;
+        public float SegmentProgress => AllCycles.FirstOrDefault()?.SegmentProgress ?? 0f;
+        public string ProgressText => AllCycles.FirstOrDefault()?.ProgressText ?? "0/0";
+        public DateTime CycleEndUtc => AllCycles.FirstOrDefault()?.EndUtc ?? DateTime.UtcNow;
 
         public void Apply(UserQuestState state, QuestDefinitions config)
         {
             IsLoaded = true;
 
-            var firstCycle = state.Cycles?.Values.FirstOrDefault();
-            if (firstCycle != null)
+            AllCycles.Clear();
+            if (state.Cycles != null)
             {
-                ActiveCycle = new ActiveQuestCycle
+                foreach (var cycleState in state.Cycles.Values)
                 {
-                    CycleID = firstCycle.CycleID,
-                    StartUtc = firstCycle.CycleStartUtc,
-                    EndUtc = firstCycle.CycleEndUtc,
-                    CompletedCount = firstCycle.CompletedQuestsCount,
-                    Quests = firstCycle.Quests?.Values
-                        .Select(q => BuildQuestItem(q, config))
-                        .ToList() ?? new List<QuestUIItem>(),
-                };
+                    var cycle = new ActiveQuestCycle
+                    {
+                        CycleID = cycleState.CycleID,
+                        StartUtc = cycleState.CycleStartUtc,
+                        EndUtc = cycleState.CycleEndUtc,
+                        CompletedCount = cycleState.CompletedQuestsCount,
+                        Quests = cycleState.Quests?.Values
+                            .Select(q => BuildQuestItem(q, config))
+                            .ToList() ?? new List<QuestUIItem>(),
+                    };
+                    AllCycles.Add(cycle);
+                }
 
-                BuildMilestones(firstCycle, config);
+                var firstCycleState = state.Cycles.Values.FirstOrDefault();
+                if (firstCycleState != null)
+                    BuildMilestones(firstCycleState, config);
             }
 
             BuildPermanentQuests(state, config);
@@ -134,7 +140,7 @@ namespace IDosGames.UI.Quest
             => CycleMilestones.FirstOrDefault(m => m.MilestoneID == milestoneId)?.IsFreeClaimed == true;
 
         public bool IsMilestoneReached(long requiredCount)
-            => ActiveCycle?.CompletedCount >= requiredCount == true;
+            => AllCycles.FirstOrDefault()?.CompletedCount >= requiredCount == true;
     }
 
     public class ActiveQuestCycle

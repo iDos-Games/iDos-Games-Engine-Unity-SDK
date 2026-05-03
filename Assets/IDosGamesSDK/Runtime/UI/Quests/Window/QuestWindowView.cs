@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using IDosGames.ClientModels;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -13,7 +14,6 @@ namespace IDosGames.UI.Quest
     public class QuestWindowView : MonoBehaviour
     {
         [Header("Header")]
-        [SerializeField] private TextMeshProUGUI _titleText;
         [SerializeField] private TextMeshProUGUI _coinText;
         [SerializeField] private TextMeshProUGUI _gemText;
 
@@ -44,11 +44,6 @@ namespace IDosGames.UI.Quest
         [Header("Navigation")]
         [SerializeField] private Button _backButton;
 
-        [Header("States")]
-        [SerializeField] private GameObject _loadingView;
-        [SerializeField] private GameObject _contentView;
-        [SerializeField] private GameObject _emptyView;
-
         public Button BackButton => _backButton;
         public Button ActivatePremiumButton => _activatePremiumButton;
         public QuestTab ActiveTab { get; private set; } = QuestTab.Cycle;
@@ -56,10 +51,6 @@ namespace IDosGames.UI.Quest
         private QuestWindowModel _cachedModel;
         private Func<string, string, UnityAction> _cachedClaimQuestFactory;
         private Func<string, Func<Task>> _cachedClaimMilestoneFactory;
-
-        public void ShowLoading() => SetState(true, false, false);
-        public void ShowEmpty()   => SetState(false, false, true);
-        public void ShowContent() => SetState(false, true, false);
 
         public void Render(
             QuestWindowModel model,
@@ -81,15 +72,8 @@ namespace IDosGames.UI.Quest
 
         public void RenderUI(QuestWindowModel model)
         {
-            if (!model.IsLoaded) { ShowEmpty(); return; }
-            ShowContent();
-
-            if (_titleText != null) _titleText.text = model.ActiveCycle?.CycleID ?? "Квесты";
             if (_coinText != null) _coinText.text = model.CoinBalance.ToString("N0");
             if (_gemText != null) _gemText.text = model.GemBalance.ToString("N0");
-
-            if (_progressSlider != null) _progressSlider.value = model.SegmentProgress;
-            if (_progressText != null) _progressText.text = model.ProgressText;
 
             if (_milestoneRewardText != null)
             {
@@ -137,6 +121,27 @@ namespace IDosGames.UI.Quest
 
             if (_cycleTabImage != null) _cycleTabImage.color = isCycle ? TabActiveColor : TabInactiveColor;
             if (_permanentTabImage != null) _permanentTabImage.color = isCycle ? TabInactiveColor : TabActiveColor;
+
+            if (_cachedModel == null) return;
+
+            float sliderValue;
+            string progressLabel;
+
+            if (isCycle)
+            {
+                sliderValue   = _cachedModel.SegmentProgress;
+                progressLabel = _cachedModel.ProgressText;
+            }
+            else
+            {
+                int total = _cachedModel.PermanentQuests.Count;
+                int done  = _cachedModel.PermanentQuests.Count(q => q.Status != QuestStatus.Active);
+                sliderValue   = total > 0 ? (float)done / total : 0f;
+                progressLabel = $"{done}/{total}";
+            }
+
+            if (_progressSlider != null) _progressSlider.value = sliderValue;
+            if (_progressText != null)   _progressText.text    = progressLabel;
         }
 
         private void RenderQuestList(QuestWindowModel model, Func<string, string, UnityAction> claimFactory)
@@ -144,9 +149,15 @@ namespace IDosGames.UI.Quest
             if (_questItemTemplate == null || _questListContainer == null) return;
             ClearContainer(_questListContainer, _questItemTemplate.gameObject);
 
-            var quests = ActiveTab == QuestTab.Permanent
+            var source = ActiveTab == QuestTab.Permanent
                 ? model.PermanentQuests
-                : model.ActiveCycle?.Quests ?? model.PermanentQuests;
+                : model.AllCycles.Count > 0
+                    ? model.AllCycles.SelectMany(c => c.Quests).ToList()
+                    : model.PermanentQuests;
+
+            var quests = source
+                .OrderBy(q => SortOrder(q.Status))
+                .ThenByDescending(q => q.ProgressPercent);
 
             foreach (var quest in quests)
             {
@@ -184,7 +195,7 @@ namespace IDosGames.UI.Quest
                 item.Setup(
                     displayName: ms.DisplayName,
                     requiredCount: ms.RequiredCount,
-                    currentCount: model.ActiveCycle?.CompletedCount ?? 0,
+                    currentCount: model.AllCycles.FirstOrDefault()?.CompletedCount ?? 0,
                     rewardAmount: rewardAmount,
                     state: state,
                     iconPath: ms.IconPath,
@@ -207,6 +218,15 @@ namespace IDosGames.UI.Quest
             }
         }
 
+        private static int SortOrder(QuestStatus status) => status switch
+        {
+            QuestStatus.Completed => 0,
+            QuestStatus.Active    => 1,
+            QuestStatus.Expired   => 2,
+            QuestStatus.Claimed   => 3,
+            _                     => 4,
+        };
+
         private static async Task WrapAsync(Func<Task> asyncAction)
         {
             try { await asyncAction(); }
@@ -221,13 +241,6 @@ namespace IDosGames.UI.Quest
                 if (child == template) continue;
                 DestroyImmediate(child);
             }
-        }
-
-        private void SetState(bool loading, bool content, bool empty)
-        {
-            if (_loadingView != null) _loadingView.SetActive(loading);
-            if (_contentView != null) _contentView.SetActive(content);
-            if (_emptyView != null) _emptyView.SetActive(empty);
         }
     }
 }
