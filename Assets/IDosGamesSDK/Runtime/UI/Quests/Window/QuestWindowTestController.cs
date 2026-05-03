@@ -123,6 +123,7 @@ namespace IDosGames.UI.Quest
         [SerializeField] private MockPlayerQuestSettings _player = new();
 
         private QuestWindowModel _model;
+        private readonly HashSet<string> _claimedMilestoneIds = new();
 
         private void Awake()
         {
@@ -148,8 +149,13 @@ namespace IDosGames.UI.Quest
 
         private Task SimulateClaimMilestone(string milestoneId)
         {
+            if (_claimedMilestoneIds.Contains(milestoneId)) return Task.CompletedTask;
             var ms = _cycle.milestones.FirstOrDefault(m => m.milestoneId == milestoneId);
-            if (ms != null) _player.coins += ms.reward;
+            if (ms != null)
+            {
+                _claimedMilestoneIds.Add(milestoneId);
+                _player.coins += ms.reward;
+            }
             RefreshModelAndUI();
             return Task.CompletedTask;
         }
@@ -169,6 +175,7 @@ namespace IDosGames.UI.Quest
         [ContextMenu("Randomize")]
         public void RandomizeProgress()
         {
+            _claimedMilestoneIds.Clear();
             var rng = new System.Random();
             foreach (var q in AllQuests())
             {
@@ -188,15 +195,11 @@ namespace IDosGames.UI.Quest
         public void ClaimAll()
         {
             foreach (var q in AllQuests()) { q.status = QuestStatus.Claimed; q.forceClaimed = true; _player.coins += q.baseReward; }
-            foreach (var ms in _cycle.milestones) _player.coins += ms.reward;
+            foreach (var ms in _cycle.milestones) { _claimedMilestoneIds.Add(ms.milestoneId); _player.coins += ms.reward; }
             Render();
         }
 
-        private void RefreshModelAndUI()
-        {
-            UpdateModel();
-            if (_view != null) _view.RenderUI(_model);
-        }
+        private void RefreshModelAndUI() => Render();
 
         private void UpdateModel()
         {
@@ -247,7 +250,7 @@ namespace IDosGames.UI.Quest
                 CycleStartUtc = DateTime.UtcNow.AddHours(-_cycle.hoursSinceStart),
                 CycleEndUtc = DateTime.UtcNow.AddHours(_cycle.hoursUntilReset),
                 Quests = new Dictionary<string, UserQuestProgress>(),
-                ClaimedMilestoneIDs = new List<string>(),
+                ClaimedMilestoneIDs = _claimedMilestoneIds.ToList(),
             };
 
             int completed = 0;
