@@ -29,13 +29,25 @@ namespace IDosGames.UI.Quest
     }
 
     [Serializable]
+    public class MockMilestoneData
+    {
+        public string milestoneId  = "ms_3";
+        [Min(1)] public int requiredQuests = 3;
+        public long reward = 500;
+    }
+
+    [Serializable]
     public class MockCycleSettings
     {
         public string cycleName = "Ежедневные";
         [Min(1)] public float hoursUntilReset = 18f;
         [Min(0)] public float hoursSinceStart = 6f;
-        [Min(1)] public int milestoneThreshold = 3;
-        public long milestoneReward = 500;
+        public List<MockMilestoneData> milestones = new()
+        {
+            new() { milestoneId = "ms_3", requiredQuests = 3, reward = 300  },
+            new() { milestoneId = "ms_5", requiredQuests = 5, reward = 600  },
+            new() { milestoneId = "ms_7", requiredQuests = 7, reward = 1000 },
+        };
     }
 
     [Serializable]
@@ -136,8 +148,8 @@ namespace IDosGames.UI.Quest
 
         private Task SimulateClaimMilestone(string milestoneId)
         {
-            _player.coins += _cycle.milestoneReward;
-            foreach (var q in _quests) if (q.status == QuestStatus.Completed) q.status = QuestStatus.Claimed;
+            var ms = _cycle.milestones.FirstOrDefault(m => m.milestoneId == milestoneId);
+            if (ms != null) _player.coins += ms.reward;
             RefreshModelAndUI();
             return Task.CompletedTask;
         }
@@ -176,7 +188,7 @@ namespace IDosGames.UI.Quest
         public void ClaimAll()
         {
             foreach (var q in AllQuests()) { q.status = QuestStatus.Claimed; q.forceClaimed = true; _player.coins += q.baseReward; }
-            _player.coins += _cycle.milestoneReward;
+            foreach (var ms in _cycle.milestones) _player.coins += ms.reward;
             Render();
         }
 
@@ -197,14 +209,27 @@ namespace IDosGames.UI.Quest
         private QuestDefinitions BuildMockDefinitions()
         {
             var defs = new QuestDefinitions();
+
+            defs.Cycles.Add(new QuestCycleDefinition
+            {
+                CycleID     = _cycle.cycleName,
+                DisplayName = _cycle.cycleName,
+                Milestones  = _cycle.milestones.Select(m => new QuestCycleMilestoneDefinition
+                {
+                    MilestoneID             = m.milestoneId,
+                    RequiredCompletedQuests = m.requiredQuests,
+                    Rewards                 = new List<ItemOrCurrency> { new() { Amount = m.reward } },
+                }).ToList(),
+            });
+
             foreach (var q in AllQuests())
             {
                 defs.Quests.Add(new QuestDefinition
                 {
-                    QuestID = q.questId,
+                    QuestID     = q.questId,
                     DisplayName = q.title,
-                    Rewards = new List<ItemOrCurrency> { new ItemOrCurrency { Amount = q.baseReward } },
-                    Objectives = q.objectives.Select(o => new QuestObjectiveDefinition
+                    Rewards     = new List<ItemOrCurrency> { new() { Amount = q.baseReward } },
+                    Objectives  = q.objectives.Select(o => new QuestObjectiveDefinition
                     {
                         ObjectiveID = o.label,
                         TargetValue = o.targetValue,
@@ -232,7 +257,6 @@ namespace IDosGames.UI.Quest
                 if (q.status is QuestStatus.Completed or QuestStatus.Claimed) completed++;
             }
             cycle.CompletedQuestsCount = completed;
-            if (completed >= _cycle.milestoneThreshold) cycle.ClaimedMilestoneIDs.Add("ms_001");
 
             var permanentDict = new Dictionary<string, UserQuestProgress>();
             foreach (var q in _permanentQuests)

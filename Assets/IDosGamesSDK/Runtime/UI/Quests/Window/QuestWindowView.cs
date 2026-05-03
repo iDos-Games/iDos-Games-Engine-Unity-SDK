@@ -34,7 +34,6 @@ namespace IDosGames.UI.Quest
 
         [Header("Milestone")]
         [SerializeField] private QuestMilestoneItemView _milestoneTemplate;
-        [SerializeField] private RectTransform _milestoneContainer;
         [SerializeField] private Button _claimMilestoneButton;
 
         [Header("Premium")]
@@ -77,7 +76,7 @@ namespace IDosGames.UI.Quest
 
             if (_milestoneRewardText != null)
             {
-                var ms = model.CycleMilestones.FirstOrDefault();
+                var ms = NextMilestone(model);
                 long amount = ms?.Rewards?.FirstOrDefault()?.Amount ?? 0;
                 _milestoneRewardText.text = amount > 0 ? $"+{amount}" : "";
             }
@@ -147,8 +146,32 @@ namespace IDosGames.UI.Quest
         private void RenderQuestList(QuestWindowModel model, Func<string, string, UnityAction> claimFactory)
         {
             if (_questItemTemplate == null || _questListContainer == null) return;
-            ClearContainer(_questListContainer, _questItemTemplate.gameObject);
 
+            ClearContainer(_questListContainer);
+
+            // Milestone — всегда первым, только на вкладке цикличных
+            if (ActiveTab == QuestTab.Cycle && _milestoneTemplate != null)
+            {
+                var ms = NextMilestone(model);
+                if (ms != null)
+                {
+                    var msItem = Instantiate(_milestoneTemplate, _questListContainer);
+                    long rewardAmount = ms.Rewards?.FirstOrDefault()?.Amount ?? 0;
+                    var state = ms.IsReached ? QuestMilestoneState.Reached : QuestMilestoneState.Locked;
+                    msItem.Setup(
+                        displayName: ms.DisplayName,
+                        requiredCount: ms.RequiredCount,
+                        currentCount: model.AllCycles.FirstOrDefault()?.CompletedCount ?? 0,
+                        rewardAmount: rewardAmount,
+                        state: state,
+                        iconPath: ms.IconPath,
+                        onClaim: _cachedClaimMilestoneFactory?.Invoke(ms.MilestoneID)
+                    );
+                    msItem.gameObject.SetActive(true);
+                }
+            }
+
+            // Квесты — после milestone
             var source = ActiveTab == QuestTab.Permanent
                 ? model.PermanentQuests
                 : model.AllCycles.Count > 0
@@ -163,7 +186,6 @@ namespace IDosGames.UI.Quest
             {
                 var item = Instantiate(_questItemTemplate, _questListContainer);
                 long rewardAmount = quest.Rewards?.FirstOrDefault()?.Amount ?? 0;
-
                 item.Setup(
                     title: quest.Title,
                     description: "",
@@ -181,41 +203,23 @@ namespace IDosGames.UI.Quest
 
         private void RenderMilestones(QuestWindowModel model, Func<string, Func<Task>> claimFactory)
         {
-            if (_milestoneTemplate == null || _milestoneContainer == null) return;
-            ClearContainer(_milestoneContainer, _milestoneTemplate.gameObject);
-
-            foreach (var ms in model.CycleMilestones)
+            if (_claimMilestoneButton == null) return;
+            var ms = NextMilestone(model);
+            bool canClaim = ms?.IsReached == true;
+            _claimMilestoneButton.interactable = canClaim;
+            _claimMilestoneButton.onClick.RemoveAllListeners();
+            if (canClaim && claimFactory != null)
             {
-                var item = Instantiate(_milestoneTemplate, _milestoneContainer);
-                long rewardAmount = ms.Rewards?.FirstOrDefault()?.Amount ?? 0;
-                var state = ms.IsFreeClaimed ? QuestMilestoneState.Claimed 
-                          : ms.IsReached ? QuestMilestoneState.Reached 
-                          : QuestMilestoneState.Locked;
-
-                item.Setup(
-                    displayName: ms.DisplayName,
-                    requiredCount: ms.RequiredCount,
-                    currentCount: model.AllCycles.FirstOrDefault()?.CompletedCount ?? 0,
-                    rewardAmount: rewardAmount,
-                    state: state,
-                    iconPath: ms.IconPath,
-                    onClaim: claimFactory?.Invoke(ms.MilestoneID)
-                );
-                item.gameObject.SetActive(true);
+                var claimFunc = claimFactory.Invoke(ms.MilestoneID);
+                _claimMilestoneButton.onClick.AddListener(() => _ = WrapAsync(claimFunc));
             }
+        }
 
-            if (_claimMilestoneButton != null)
-            {
-                var mainMs = model.CycleMilestones.FirstOrDefault();
-                bool canClaim = mainMs?.IsReached == true && mainMs.IsFreeClaimed == false;
-                _claimMilestoneButton.interactable = canClaim;
-                _claimMilestoneButton.onClick.RemoveAllListeners();
-                if (canClaim && claimFactory != null)
-                {
-                    var claimFunc = claimFactory.Invoke(mainMs.MilestoneID);
-                    _claimMilestoneButton.onClick.AddListener(() => _ = WrapAsync(claimFunc));
-                }
-            }
+        // Следующий незаклеймленный milestone: сначала тот что можно забрать, иначе ближайший locked
+        private static MilestoneUIItem NextMilestone(QuestWindowModel model)
+        {
+            var unclaimed = model.CycleMilestones.Where(m => !m.IsFreeClaimed).ToList();
+            return unclaimed.FirstOrDefault(m => m.IsReached) ?? unclaimed.FirstOrDefault();
         }
 
         private static int SortOrder(QuestStatus status) => status switch
@@ -233,14 +237,10 @@ namespace IDosGames.UI.Quest
             catch (Exception ex) { Debug.LogError($"[QuestWindow] Error: {ex.Message}"); }
         }
 
-        private static void ClearContainer(RectTransform container, GameObject template)
+        private static void ClearContainer(RectTransform container)
         {
             for (int i = container.childCount - 1; i >= 0; i--)
-            {
-                var child = container.GetChild(i).gameObject;
-                if (child == template) continue;
-                DestroyImmediate(child);
-            }
+                DestroyImmediate(container.GetChild(i).gameObject);
         }
     }
 }

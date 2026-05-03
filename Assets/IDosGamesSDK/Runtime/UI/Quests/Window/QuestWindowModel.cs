@@ -58,26 +58,25 @@ namespace IDosGames.UI.Quest
         private void BuildMilestones(UserQuestCycleState cycleState, QuestDefinitions config)
         {
             CycleMilestones.Clear();
-            // Если в конфиге появятся Milestones, раскомментируй и адаптируй под свою структуру:
-            /*
-            var cycleDef = config?.Cycles?.FirstOrDefault(x => x.Key == cycleState.CycleID).Value;
-            if (cycleDef?.Milestones != null)
+
+            // Cycles — List<QuestCycleDefinition>, ищем по CycleID
+            var cycleDef = config?.Cycles?.FirstOrDefault(x => x.CycleID == cycleState.CycleID);
+            if (cycleDef?.Milestones == null) return;
+
+            foreach (var ms in cycleDef.Milestones.OrderBy(m => m.RequiredCompletedQuests))
             {
-                foreach (var ms in cycleDef.Milestones.OrderBy(m => m.RequiredCompletedQuests))
+                CycleMilestones.Add(new MilestoneUIItem
                 {
-                    CycleMilestones.Add(new MilestoneUIItem
-                    {
-                        MilestoneID = ms.MilestoneID,
-                        DisplayName = ms.DisplayName ?? $"Milestone {ms.MilestoneID}",
-                        RequiredCount = ms.RequiredCompletedQuests,
-                        Rewards = ms.Rewards,
-                        IconPath = ms.AssetPaths?.FirstOrDefault() ?? "",
-                        IsFreeClaimed = cycleState.ClaimedMilestoneIDs?.Contains(ms.MilestoneID) == true,
-                        IsReached = cycleState.CompletedQuestsCount >= ms.RequiredCompletedQuests,
-                    });
-                }
+                    MilestoneID   = ms.MilestoneID,
+                    // DisplayName и AssetPaths в QuestCycleMilestoneDefinition отсутствуют
+                    DisplayName   = $"Выполни {ms.RequiredCompletedQuests} квестов",
+                    RequiredCount = ms.RequiredCompletedQuests,
+                    Rewards       = ms.Rewards,
+                    IconPath      = "",
+                    IsFreeClaimed = cycleState.ClaimedMilestoneIDs?.Contains(ms.MilestoneID) == true,
+                    IsReached     = cycleState.CompletedQuestsCount >= ms.RequiredCompletedQuests,
+                });
             }
-            */
         }
 
         private void BuildPermanentQuests(UserQuestState state, QuestDefinitions config)

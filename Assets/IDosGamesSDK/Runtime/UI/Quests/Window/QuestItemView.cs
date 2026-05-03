@@ -59,8 +59,7 @@ namespace IDosGames.UI.Quest
             if (_claimButton != null)
             {
                 _claimButton.interactable = canClaim;
-                _claimButton.gameObject.SetActive(status == QuestStatus.Completed || status == QuestStatus.Claimed);
-                _claimButtonText.text = status == QuestStatus.Claimed ? "Получено" : "Забрать";
+                _claimButton.gameObject.SetActive(status == QuestStatus.Completed);
                 
                 _claimButton.onClick.RemoveAllListeners();
                 if (canClaim && onClaimClicked != null)
