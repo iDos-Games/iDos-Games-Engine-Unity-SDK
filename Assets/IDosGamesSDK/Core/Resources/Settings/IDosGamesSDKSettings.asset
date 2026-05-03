@@ -12,3 +12,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d685f04c78d4c594689dce8709341bd3, type: 3}
   m_Name: IDosGamesSDKSettings
   m_EditorClassIdentifier: 
+  _titleID: 
+  _titleTemplateID: default
+  _buildKey: 
+  _buildForPlatform: 0
+  _debugLogging: 0
+  _showLoadingOnExecuteServerFunction: 0
+  _serverLink: 
+  _mobileIAPEnabled: 0
+  _adMediationPlatform: 0
+  _ironSourceAdQualityEnabled: 0
+  _firebaseAnalyticsEnabled: 0
+  _appMetricaEnabled: 0
+  _iOSAccountDeletionEnabled: 0
+  _AndroidAccountDeletionEnabled: 0
+  _pushNotificationsAndroidEnabled: 0
+  _pushNotificationsIosEnabled: 0
+  _marketplaceEnabled: 0
+  _cryptoWalletEnabled: 0
+  _developerSecretKey: 
+  WebGLBuildPath: Assets/WebGLBuild/
+  ClearDirectory: 1

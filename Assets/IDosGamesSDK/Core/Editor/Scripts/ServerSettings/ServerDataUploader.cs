@@ -85,7 +85,7 @@ namespace IDosGames
                 Debug.Log("StreamingAssets directory not found (optional): " + streamingAssetsPath);
             }
 
-            var result = await IGSAdminApi.GetWebGLUploadUrls(allFiles);
+            var result = await AdminApiV1.GetWebGLUploadUrls(allFiles);
 
             var localNameToFullPath = allFiles
                 .Select(f => new
@@ -108,7 +108,7 @@ namespace IDosGames
 
             if (streamingFiles.Count > 0)
             {
-                var streamingJson = await IGSAdminApi.GetUploadUrls(streamingFiles);
+                var streamingJson = await AdminApiV1.GetUploadUrls(streamingFiles);
 
                 var localNameToFullPathSA = streamingFiles.ToDictionary(
                     f => f.FilePath,
