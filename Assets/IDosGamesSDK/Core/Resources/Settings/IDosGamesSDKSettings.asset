@@ -15,21 +15,15 @@ MonoBehaviour:
   _titleID: 
   _titleTemplateID: default
   _buildKey: 
-  _buildForPlatform: 0
+  _buildForPlatform: 2
   _debugLogging: 0
   _showLoadingOnExecuteServerFunction: 0
-  _serverLink: 
-  _mobileIAPEnabled: 0
+  _serverLink: https://api.idosgames.com
   _adMediationPlatform: 0
   _ironSourceAdQualityEnabled: 0
   _firebaseAnalyticsEnabled: 0
-  _appMetricaEnabled: 0
   _iOSAccountDeletionEnabled: 0
   _AndroidAccountDeletionEnabled: 0
-  _pushNotificationsAndroidEnabled: 0
-  _pushNotificationsIosEnabled: 0
-  _marketplaceEnabled: 0
-  _cryptoWalletEnabled: 0
   _developerSecretKey: 
-  WebGLBuildPath: Assets/WebGLBuild/
+  WebGLBuildPath: 
   ClearDirectory: 1

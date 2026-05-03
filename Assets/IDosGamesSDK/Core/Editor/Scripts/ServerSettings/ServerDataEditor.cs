@@ -44,17 +44,10 @@ namespace IDosGames
             EditorGUI.EndDisabledGroup();
 
             GUILayout.Space(5);
-            settings.DeveloperSecretKey = EditorGUILayout.TextField("Developer Secret Key", settings.DeveloperSecretKey);
+            
             settings.TitleID = EditorGUILayout.TextField("Title ID", settings.TitleID);
-            settings.TitleTemplateID = EditorGUILayout.TextField("Title Template ID", settings.TitleTemplateID);
+            settings.DeveloperSecretKey = EditorGUILayout.TextField("Developer Secret Key", settings.DeveloperSecretKey);
             settings.BuildKey = EditorGUILayout.TextField("Build Key", settings.BuildKey);
-
-            GUILayout.Space(10);
-
-            EditorGUI.BeginDisabledGroup(true);
-            EditorGUILayout.TextField("Admin API Link", settings.IgsAdminApiLink);
-            EditorGUILayout.TextField("User Data Link", settings.UserDataSystemLink);
-            EditorGUI.EndDisabledGroup();
 
             GUILayout.Space(10);
 

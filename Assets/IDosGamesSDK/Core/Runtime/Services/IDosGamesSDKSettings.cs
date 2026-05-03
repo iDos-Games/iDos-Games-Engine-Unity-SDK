@@ -105,7 +105,6 @@ namespace IDosGames
         public string ReferralTrackerLink { get; set; }
         public string WebGLUrl { get; set; }
 
-        public bool IsPlaying { get; set; }
         public int PlayTime { get; set; }
 
         [Space(5)]
@@ -120,36 +119,8 @@ namespace IDosGames
         public string ServerLink
         {
             get => _serverLink;
-            set => _serverLink = value;
+            set => _serverLink = "https://api.idosgames.com";
         }
-
-        // [HideInInspector]
-        public string CryptoWalletLink => $"{_serverLink}/api/{_titleTemplateID}/{_titleID}/Client/CryptoWallet/Transaction".Trim();
-        public string MarketplaceLink => $"{_serverLink}/api/{_titleTemplateID}/{_titleID}/Client/Marketplace/".Trim();
-        public string MarketplaceDataLink => $"{_serverLink}/api/{_titleTemplateID}/{_titleID}/Client/MarketplaceData/".Trim();
-        public string ValidateIAPSubscriptionLink => $"{_serverLink}/api/{_titleTemplateID}/{_titleID}/Client/ValidateIAPSubscription".Trim();
-        public string FriendSystemLink => $"{_serverLink}/api/{_titleTemplateID}/{_titleID}/Client/Friend/".Trim();
-        public string AuthenticationLink => $"{_serverLink}/api/{_titleTemplateID}/{_titleID}/Client/Authentication/".Trim();
-        public string UserDataSystemLink => $"{_serverLink}/api/{_titleTemplateID}/{_titleID}/Client/UserData/".Trim();
-        public string SpinSystemLink => $"{_serverLink}/api/{_titleTemplateID}/{_titleID}/Client/Spin/".Trim();
-        public string ChestSystemLink => $"{_serverLink}/api/{_titleTemplateID}/{_titleID}/Client/Chest/".Trim();
-        public string RewardAndProfitSystemLink => $"{_serverLink}/api/{_titleTemplateID}/{_titleID}/Client/Reward/".Trim();
-        public string ReferralSystemLink => $"{_serverLink}/api/{_titleTemplateID}/{_titleID}/Client/Referral/".Trim();
-        public string EventSystemLink => $"{_serverLink}/api/{_titleTemplateID}/{_titleID}/Client/TimeLimitedEvent/".Trim();
-        public string ShopSystemLink => $"{_serverLink}/api/{_titleTemplateID}/{_titleID}/Client/Shop/".Trim();
-        public string DealOfferSystemLink => $"{_serverLink}/api/{_titleTemplateID}/{_titleID}/Client/DealOffer/".Trim();
-        public string ValidateIAPLink => $"{_serverLink}/api/{_titleTemplateID}/{_titleID}/Client/ValidateIAP".Trim();
-        public string PurchaseLink => $"{_serverLink}/api/{_titleTemplateID}/{_titleID}/Client/Purchase/".Trim();
-        public string AILink => $"{_serverLink}/api/{_titleTemplateID}/{_titleID}/Client/AI/".Trim();
-        public string TournamentLink => $"{_serverLink}/api/{_titleTemplateID}/{_titleID}/Client/Tournament/".Trim();
-        public string SwapApiLink => $"{_serverLink}/api/{_titleTemplateID}/{_titleID}/Swap/".Trim();
-
-        [Space(5)]
-        [Header("In App Purchasing")]
-
-        [Space(5)]
-        [SerializeField] private bool _mobileIAPEnabled;
-        private const string MOBILE_IAP_DEFINE = "IDOSGAMES_MOBILE_IAP";
 
         [Space(5)]
         [Header("Ad Mediation")]
@@ -170,45 +141,6 @@ namespace IDosGames
         [SerializeField] private bool _firebaseAnalyticsEnabled;
         private const string FIREBASE_ANALYTICS_DEFINE = "IDOSGAMES_FIREBASE_ANALYTICS";
 
-        [Space(5)]
-        [SerializeField] private bool _appMetricaEnabled;
-        private const string APP_METRICA_DEFINE = "IDOSGAMES_APP_METRICA";
-
-#if IDOSGAMES_APP_METRICA
-        [Space(5)]
-        [SerializeField] private string _appMetricaApiKey;
-        public string AppMetricaApiKey => _appMetricaApiKey;
-#endif
-
-        [Header("Account")]
-        [Space(5)]
-        [SerializeField] private bool _iOSAccountDeletionEnabled;
-        public bool IOSAccountDeletionEnabled => _iOSAccountDeletionEnabled;
-
-        [SerializeField] private bool _AndroidAccountDeletionEnabled;
-        public bool AndroidAccountDeletionEnabled => _AndroidAccountDeletionEnabled;
-
-        [Space(5)]
-        [Header("Push Notifications")]
-        [Space(5)]
-        [SerializeField] private bool _pushNotificationsAndroidEnabled;
-        [SerializeField] private bool _pushNotificationsIosEnabled;
-        private const string PUSH_NOTIFICATIONS_ANDROID_DEFINE = "IDOSGAMES_NOTIFICATIONS_ANDROID";
-        private const string PUSH_NOTIFICATIONS_IOS_DEFINE = "IDOSGAMES_NOTIFICATIONS_IOS";
-
-        [Space(5)]
-        [Header("MODULES:")]
-
-        [Header("Marketplace")]
-        [Space(5)]
-        [SerializeField] private bool _marketplaceEnabled;
-        private const string MARKETPLACE_DEFINE = "IDOSGAMES_MARKETPLACE";
-
-        [Header("Crypto Wallet")]
-        [Space(5)]
-        [SerializeField] private bool _cryptoWalletEnabled;
-        private const string CRYPTO_WALLET_DEFINE = "IDOSGAMES_CRYPTO_WALLET";
-
 
 #if UNITY_EDITOR
 
@@ -227,15 +159,9 @@ namespace IDosGames
 
         public void SaveSettings()
         {
-            SaveState(_mobileIAPEnabled, MOBILE_IAP_DEFINE);
             SaveState(_adMediationPlatform, AD_MEDIATION_DEFINE_PREFIX, Enum.GetValues(typeof(AdMediationPlatform)).Cast<AdMediationPlatform>());
             SaveState(_ironSourceAdQualityEnabled, $"{AD_MEDIATION_DEFINE_PREFIX}{IRON_SOURCE_AD_QUALITY_DEFINE_POSTFIX}");
-            SaveState(_pushNotificationsAndroidEnabled, PUSH_NOTIFICATIONS_ANDROID_DEFINE);
-            SaveState(_pushNotificationsIosEnabled, PUSH_NOTIFICATIONS_IOS_DEFINE);
-            SaveState(_marketplaceEnabled, MARKETPLACE_DEFINE);
             SaveState(_firebaseAnalyticsEnabled, FIREBASE_ANALYTICS_DEFINE);
-            SaveState(_appMetricaEnabled, APP_METRICA_DEFINE);
-            SaveState(_cryptoWalletEnabled, CRYPTO_WALLET_DEFINE);
         }
 
         private readonly NamedBuildTarget[] platforms = {
