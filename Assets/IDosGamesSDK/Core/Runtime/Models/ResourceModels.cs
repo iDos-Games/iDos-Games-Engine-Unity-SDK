@@ -8,7 +8,7 @@ namespace IDosGames
     [Serializable]
     public class ResourceBundle
     {
-        public List<ItemOrCurrency> Items { get; set; }
+        public List<ResourceEntry> Entries { get; set; }
         public List<EventTokenOperation> EventTokens { get; set; }
     }
 
@@ -67,55 +67,21 @@ namespace IDosGames
     }
 
     [Serializable]
-    public class ItemOrCurrency
+    public class ResourceEntry
     {
-        public ItemType? Type { get; set; }
-        public string Catalog { get; set; }
-        public long? Amount { get; set; }
-        public string ImagePath { get; set; }
-        public string Name { get; set; }
+        public ResourceEntryType? Type { get; set; }
         public string CurrencyID { get; set; }
+        public long? Amount { get; set; }
+        public string CatalogID { get; set; }
         public string ItemID { get; set; }
     }
 
     [JsonConverter(typeof(StringEnumConverter))]
-    public enum ItemType
+    public enum ResourceEntryType
     {
         Item,
         VirtualCurrency,
         CryptoCurrency,
         UsdCent,
-    }
-
-    [Serializable]
-    public class EventTokenOperation
-    {
-        public EventTokenInfo Token { get; set; }
-        public string Source { get; set; }
-    }
-
-    [Serializable]
-    public class EventTokenInfo
-    {
-        public EventTokenAddress Target { get; set; }
-        public long Amount { get; set; }
-    }
-
-    [Serializable]
-    public class EventTokenAddress
-    {
-        public EventTokenSystemType EventTokenSystem { get; set; }
-        public string EventTokenEntityID { get; set; }
-        public string EventTokenSubContext { get; set; }
-    }
-
-    [JsonConverter(typeof(StringEnumConverter))]
-    public enum EventTokenSystemType
-    {
-        LimitedTimeEvent,
-        Leaderboard,
-        CoopEvent,
-        Season,
-        CustomEvent,
     }
 }

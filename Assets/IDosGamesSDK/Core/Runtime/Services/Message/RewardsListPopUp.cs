@@ -37,7 +37,7 @@ namespace IDosGames
             }
         }
 
-        public void Set(IReadOnlyList<ItemOrCurrency> rewards)
+        public void Set(IReadOnlyList<ResourceEntry> rewards)
         {
             StopShowRoutine();
             Clear();
@@ -55,7 +55,7 @@ namespace IDosGames
             _showRoutine = StartCoroutine(ShowRewardsSequentially(rewards));
         }
 
-        private IEnumerator ShowRewardsSequentially(IReadOnlyList<ItemOrCurrency> rewards)
+        private IEnumerator ShowRewardsSequentially(IReadOnlyList<ResourceEntry> rewards)
         {
             _isShowingRewards = true;
 

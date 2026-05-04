@@ -75,7 +75,7 @@ namespace IDosGames
 			_instance.ShowPopUp(_instance._rewardPopUp);
 		}
 
-        public static void ShowRewards(IReadOnlyList<ItemOrCurrency> rewards)
+        public static void ShowRewards(IReadOnlyList<ResourceEntry> rewards)
         {
             if (_instance == null) return;
             if (rewards == null || rewards.Count == 0) return;

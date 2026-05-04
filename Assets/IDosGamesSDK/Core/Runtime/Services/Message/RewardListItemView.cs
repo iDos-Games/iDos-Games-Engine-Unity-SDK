@@ -14,7 +14,7 @@ namespace IDosGames
 
         private int _iconLoadVersion;
 
-        public void Set(ItemOrCurrency reward)
+        public void Set(ResourceEntry reward)
         {
             _iconLoadVersion++;
 
@@ -30,7 +30,7 @@ namespace IDosGames
             _amountText.text = GetRewardAmount(reward);
             _icon.sprite = _defaultIcon;
 
-            _ = SetIconAsync(reward.ImagePath, _iconLoadVersion);
+            //_ = SetIconAsync(reward.ImagePath, _iconLoadVersion);
         }
 
         private async Task SetIconAsync(string imagePath, int loadVersion)
@@ -67,21 +67,18 @@ namespace IDosGames
             }
         }
 
-        private string GetRewardName(ItemOrCurrency reward)
+        private string GetRewardName(ResourceEntry reward)
         {
-            if (!string.IsNullOrWhiteSpace(reward.Name))
-                return reward.Name;
+            //if (!string.IsNullOrWhiteSpace(reward.Name)) return reward.Name;
 
-            if (!string.IsNullOrWhiteSpace(reward.ItemID))
-                return reward.ItemID;
+            if (!string.IsNullOrWhiteSpace(reward.ItemID)) return reward.ItemID;
 
-            if (!string.IsNullOrWhiteSpace(reward.CurrencyID))
-                return reward.CurrencyID;
+            if (!string.IsNullOrWhiteSpace(reward.CurrencyID)) return reward.CurrencyID;
 
             return "Unknown";
         }
 
-        private string GetRewardAmount(ItemOrCurrency reward)
+        private string GetRewardAmount(ResourceEntry reward)
         {
             if (!reward.Amount.HasValue)
                 return string.Empty;
