@@ -135,8 +135,9 @@ namespace IDosGames
     {
         GetClientState,
         GetInventory,
-        DeleteUserAccount,
+        GetEventTokens,
         GetUsageTime,
         AddUsageTime,
+        DeleteUserAccount,
     }
 }

@@ -4,11 +4,9 @@ namespace IDosGames
 {
     public class TitlePublicConfigurationModel
     {
-        // Universal
         public Dictionary<string, string> ImageData { get; set; }
         public Dictionary<string, string> AssetBundle { get; set; }
 
-        // v2
         //public CustomTitleData TitleData { get; set; }
         //public CurrencyDefinitions Currency { get; set; }
         //public ItemDefinitions Item { get; set; }

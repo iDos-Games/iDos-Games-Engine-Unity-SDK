@@ -7,8 +7,9 @@ namespace IDosGames
     {
         public static event Action<ClientState> OnClientStateReceived;
         public static event Action<UserInventoryState> OnUserInventoryReceived;
-        public static event Action<SuccessResponse> OnUserAccountDeleted;
+        public static event Action<UserEventTokensState> OnEventTokensReceived;
         public static event Action<UsageTimeStats> OnUsageTimeReceived;
+        public static event Action<SuccessResponse> OnUserAccountDeleted;
 
         private static AuthContext Ctx => AuthenticationService.GetAuthContext();
         private static string UserID => Ctx.UserID;
@@ -51,6 +52,20 @@ namespace IDosGames
             {
                 //IDosGamesData.User.ApplyInventory(result.Data.InventoryV2);
                 OnUserInventoryReceived?.Invoke(result.Data);
+            }
+
+            return result;
+        }
+
+        public static async Task<OperationResult<UserEventTokensState>> GetEventTokens()
+        {
+            var request = CreateBaseRequest();
+            var result = await UserAPI.GetEventTokens(request);
+
+            if (result.Success)
+            {
+                //IDosGamesData.User.ApplyEventToken(result.Data);
+                OnEventTokensReceived?.Invoke(result.Data);
             }
 
             return result;

@@ -21,6 +21,9 @@ namespace IDosGames
         public static async Task<OperationResult<UserInventoryState>> GetInventory(UserRequest request)
             => await SendRequest<UserInventoryState>(UserAction.GetInventory, request);
 
+        public static async Task<OperationResult<UserEventTokensState>> GetEventTokens(UserRequest request)
+            => await SendRequest<UserEventTokensState>(UserAction.GetEventTokens, request);
+
         public static async Task<OperationResult<UsageTimeStats>> GetUsageTime(UserRequest request)
             => await SendRequest<UsageTimeStats>(UserAction.GetUsageTime, request);
 
