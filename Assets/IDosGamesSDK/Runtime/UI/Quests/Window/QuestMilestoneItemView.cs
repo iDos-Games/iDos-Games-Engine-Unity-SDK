@@ -13,6 +13,7 @@ namespace IDosGames.UI.Quest
         [SerializeField] private Image           _itemIcon;
         [SerializeField] private TextMeshProUGUI _progressText;
         [SerializeField] private TextMeshProUGUI _rewardText;
+        [SerializeField] private Slider          _progressSlider;
         [SerializeField] private GameObject      _iconCheck;
         [SerializeField] private GameObject      _dim;
         [SerializeField] private GameObject      _iconLock;
@@ -25,6 +26,7 @@ namespace IDosGames.UI.Quest
             string displayName,
             long requiredCount,
             long currentCount,
+            long previousCount,
             long rewardAmount,
             QuestMilestoneState state,
             string iconPath,
@@ -38,7 +40,13 @@ namespace IDosGames.UI.Quest
 
             bool canClaim = state == QuestMilestoneState.Reached;
 
-            if (_progressText != null) _progressText.text = $"{currentCount}/{requiredCount}";
+            if (_progressText   != null) _progressText.text = $"{currentCount}/{requiredCount}";
+            if (_progressSlider != null)
+            {
+                long segment = requiredCount - previousCount;
+                float t = segment > 0 ? (float)(currentCount - previousCount) / segment : 1f;
+                _progressSlider.value = Mathf.Clamp01(t);
+            }
             if (_rewardText != null) _rewardText.text = rewardAmount > 0 ? $"+{rewardAmount}" : string.Empty;
 
             if (_itemIcon != null && !string.IsNullOrEmpty(iconPath))

@@ -1107,6 +1107,7 @@ MonoBehaviour:
   _itemIcon: {fileID: 0}
   _progressText: {fileID: 2367737014812350698}
   _rewardText: {fileID: 0}
+  _progressSlider: {fileID: 1675084276405148425}
   _iconCheck: {fileID: 0}
   _dim: {fileID: 0}
   _iconLock: {fileID: 0}

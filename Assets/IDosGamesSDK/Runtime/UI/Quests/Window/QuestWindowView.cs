@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using IDosGames.ClientModels;
@@ -9,8 +10,6 @@ using UnityEngine.Events;
 
 namespace IDosGames.UI.Quest
 {
-    public enum QuestTab { Cycle, Permanent }
-
     public class QuestWindowView : MonoBehaviour
     {
         [Header("Header")]
@@ -18,208 +17,272 @@ namespace IDosGames.UI.Quest
         [SerializeField] private TextMeshProUGUI _gemText;
 
         [Header("Tabs")]
-        [SerializeField] private Button _cycleTabButton;
-        [SerializeField] private Button _permanentTabButton;
-        [SerializeField] private Image _cycleTabImage;
-        [SerializeField] private Image _permanentTabImage;
+        [SerializeField] private QuestTabView    _tabTemplate;
+        [SerializeField] private RectTransform   _tabContainer;
 
         [Header("Cycle Progress")]
-        [SerializeField] private Slider _progressSlider;
         [SerializeField] private TextMeshProUGUI _progressText;
-        [SerializeField] private TextMeshProUGUI _milestoneRewardText;
+        [SerializeField] private TextMeshProUGUI _timerText;
 
         [Header("Quest List")]
-        [SerializeField] private QuestItemView _questItemTemplate;
-        [SerializeField] private RectTransform _questListContainer;
+        [SerializeField] private QuestItemView   _questItemTemplate;
+        [SerializeField] private RectTransform   _questListContainer;
 
         [Header("Milestone")]
         [SerializeField] private QuestMilestoneItemView _milestoneTemplate;
-        [SerializeField] private Button _claimMilestoneButton;
 
         [Header("Premium")]
-        [SerializeField] private Button _activatePremiumButton;
+        [SerializeField] private Button     _activatePremiumButton;
         [SerializeField] private GameObject _premiumLockIcon;
 
         [Header("Navigation")]
         [SerializeField] private Button _backButton;
 
-        public Button BackButton => _backButton;
+        public Button BackButton            => _backButton;
         public Button ActivatePremiumButton => _activatePremiumButton;
-        public QuestTab ActiveTab { get; private set; } = QuestTab.Cycle;
 
-        private QuestWindowModel _cachedModel;
+        /// <summary>CycleID активного таба; "" = постоянные квесты.</summary>
+        public string ActiveTabId { get; private set; } = "";
+
+        private QuestWindowModel                  _cachedModel;
         private Func<string, string, UnityAction> _cachedClaimQuestFactory;
-        private Func<string, Func<Task>> _cachedClaimMilestoneFactory;
+        private Func<string, string, Func<Task>>  _cachedClaimMilestoneFactory;
+        private readonly List<QuestTabView>        _spawnedTabs = new();
+
+        // ─────────────────────────────────────────────────────────────
+
+        private void Update() => RefreshTimer();
+
+        // ─────────────────────────────────────────────────────────────
 
         public void Render(
-            QuestWindowModel model,
+            QuestWindowModel                  model,
             Func<string, string, UnityAction> claimQuestFactory,
-            Func<string, Func<Task>> claimMilestoneFactory)
+            Func<string, string, Func<Task>>  claimMilestoneFactory)
         {
-            _cachedModel = model;
-            _cachedClaimQuestFactory = claimQuestFactory;
+            _cachedModel                 = model;
+            _cachedClaimQuestFactory     = claimQuestFactory;
             _cachedClaimMilestoneFactory = claimMilestoneFactory;
 
-            SetupTabButtons();
+            SetupTabs(model);
             RenderUI(model);
+
             if (model.IsLoaded)
             {
                 RenderQuestList(model, claimQuestFactory);
-                RenderMilestones(model, claimMilestoneFactory);
             }
         }
 
         public void RenderUI(QuestWindowModel model)
         {
             if (_coinText != null) _coinText.text = model.CoinBalance.ToString("N0");
-            if (_gemText != null) _gemText.text = model.GemBalance.ToString("N0");
-
-            if (_milestoneRewardText != null)
-            {
-                var ms = NextMilestone(model);
-                long amount = ms?.Rewards?.FirstOrDefault()?.Amount ?? 0;
-                _milestoneRewardText.text = amount > 0 ? $"+{amount}" : "";
-            }
+            if (_gemText  != null) _gemText.text  = model.GemBalance.ToString("N0");
 
             if (_activatePremiumButton != null) _activatePremiumButton.gameObject.SetActive(true);
-            if (_premiumLockIcon != null) _premiumLockIcon.SetActive(false);
+            if (_premiumLockIcon       != null) _premiumLockIcon.SetActive(false);
 
-            RefreshTabVisuals();
+            RefreshTabVisuals(model);
         }
 
-        public void SwitchTab(QuestTab tab)
+        // ─────────────────────────────────────────────────────────────
+
+        public void SwitchTab(string tabId)
         {
             if (_cachedModel == null) return;
-            ActiveTab = tab;
-            RefreshTabVisuals();
+            ActiveTabId = tabId;
+            RefreshTabVisuals(_cachedModel);
             RenderQuestList(_cachedModel, _cachedClaimQuestFactory);
-            RenderMilestones(_cachedModel, _cachedClaimMilestoneFactory);
         }
 
-        private void SetupTabButtons()
+        // ─────────────────────────────────────────────────────────────
+
+        private void SetupTabs(QuestWindowModel model)
         {
-            if (_cycleTabButton != null)
+            if (_tabTemplate == null || _tabContainer == null) return;
+
+            foreach (var t in _spawnedTabs)
+                if (t != null) DestroyImmediate(t.gameObject);
+            _spawnedTabs.Clear();
+
+            // One tab per cycle
+            foreach (var cycle in model.AllCycles)
             {
-                _cycleTabButton.onClick.RemoveAllListeners();
-                _cycleTabButton.onClick.AddListener(() => SwitchTab(QuestTab.Cycle));
+                var tab        = Instantiate(_tabTemplate, _tabContainer);
+                var capturedId = cycle.CycleID;
+                tab.Setup(capturedId, capturedId, () => SwitchTab(capturedId));
+                tab.gameObject.SetActive(true);
+                _spawnedTabs.Add(tab);
             }
 
-            if (_permanentTabButton != null)
-            {
-                _permanentTabButton.onClick.RemoveAllListeners();
-                _permanentTabButton.onClick.AddListener(() => SwitchTab(QuestTab.Permanent));
-            }
+            // Permanent tab — always last
+            var permTab = Instantiate(_tabTemplate, _tabContainer);
+            permTab.Setup("", "Постоянные", () => SwitchTab(""));
+            permTab.gameObject.SetActive(true);
+            _spawnedTabs.Add(permTab);
+
+            // If current selection is no longer valid, pick first tab
+            if (!_spawnedTabs.Any(t => t.TabId == ActiveTabId))
+                ActiveTabId = _spawnedTabs.Count > 0 ? _spawnedTabs[0].TabId : "";
         }
 
-        private static readonly Color TabActiveColor   = new Color(0x31 / 255f, 0x81 / 255f, 1f);
-        private static readonly Color TabInactiveColor = new Color(0x36 / 255f, 0x36 / 255f, 0x4E / 255f);
-
-        private void RefreshTabVisuals()
+        private void RefreshTabVisuals(QuestWindowModel model)
         {
-            bool isCycle = ActiveTab == QuestTab.Cycle;
+            foreach (var tab in _spawnedTabs)
+            {
+                tab.SetSelected(tab.TabId == ActiveTabId);
 
-            if (_cycleTabImage != null) _cycleTabImage.color = isCycle ? TabActiveColor : TabInactiveColor;
-            if (_permanentTabImage != null) _permanentTabImage.color = isCycle ? TabInactiveColor : TabActiveColor;
+                bool hasCompleted = string.IsNullOrEmpty(tab.TabId)
+                    ? model.PermanentQuests.Any(q => q.Status == QuestStatus.Completed)
+                    : model.AllCycles.FirstOrDefault(c => c.CycleID == tab.TabId)
+                             ?.Quests.Any(q => q.Status == QuestStatus.Completed) == true;
 
-            if (_cachedModel == null) return;
+                tab.SetHasCompleted(hasCompleted);
+            }
 
-            float sliderValue;
             string progressLabel;
 
-            if (isCycle)
+            if (string.IsNullOrEmpty(ActiveTabId))
             {
-                sliderValue   = _cachedModel.SegmentProgress;
-                progressLabel = _cachedModel.ProgressText;
+                int total = model.PermanentQuests.Count;
+                int done  = model.PermanentQuests.Count(q => q.Status != QuestStatus.Active);
+                progressLabel = $"{done}/{total}";
             }
             else
             {
-                int total = _cachedModel.PermanentQuests.Count;
-                int done  = _cachedModel.PermanentQuests.Count(q => q.Status != QuestStatus.Active);
-                sliderValue   = total > 0 ? (float)done / total : 0f;
-                progressLabel = $"{done}/{total}";
+                var cycle     = GetActiveCycle(model);
+                progressLabel = cycle?.ProgressText    ?? "0/0";
             }
 
-            if (_progressSlider != null) _progressSlider.value = sliderValue;
-            if (_progressText != null)   _progressText.text    = progressLabel;
+            if (_progressText   != null) _progressText.text    = progressLabel;
+
+            RefreshTimer();
         }
 
-        private void RenderQuestList(QuestWindowModel model, Func<string, string, UnityAction> claimFactory)
+        private void RefreshTimer()
+        {
+            if (_timerText == null || _cachedModel == null) return;
+
+            var cycle = GetActiveCycle(_cachedModel);
+            if (cycle == null)
+            {
+                _timerText.text = "";
+                return;
+            }
+
+            _timerText.text = FormatCountdown(cycle.EndUtc - DateTime.UtcNow);
+        }
+
+        private static string FormatCountdown(TimeSpan diff)
+        {
+            if (diff.TotalSeconds <= 0) return "0м";
+
+            if (diff.TotalDays >= 7)
+            {
+                int weeks = (int)(diff.TotalDays / 7);
+                int days  = (int)diff.TotalDays % 7;
+                return $"{weeks}н {days}д";
+            }
+            if (diff.TotalHours >= 24)
+            {
+                int days  = (int)diff.TotalDays;
+                int hours = diff.Hours;
+                return $"{days}д {hours}ч";
+            }
+            if (diff.TotalMinutes >= 60)
+            {
+                int hours   = (int)diff.TotalHours;
+                int minutes = diff.Minutes;
+                return $"{hours}ч {minutes}м";
+            }
+            {
+                int minutes = (int)diff.TotalMinutes;
+                int seconds = diff.Seconds;
+                return $"{minutes}м {seconds}с";
+            }
+        }
+
+        // ─────────────────────────────────────────────────────────────
+
+        private void RenderQuestList(
+            QuestWindowModel               model,
+            Func<string, string, UnityAction> claimFactory)
         {
             if (_questItemTemplate == null || _questListContainer == null) return;
 
             ClearContainer(_questListContainer);
 
-            // Milestone — всегда первым, только на вкладке цикличных
-            if (ActiveTab == QuestTab.Cycle && _milestoneTemplate != null)
+            var cycle = GetActiveCycle(model);
+
+            // Milestone banner — only on cycle tabs, always at top
+            if (cycle != null && _milestoneTemplate != null)
             {
-                var ms = NextMilestone(model);
+                var ms = NextMilestone(cycle);
                 if (ms != null)
                 {
-                    var msItem = Instantiate(_milestoneTemplate, _questListContainer);
-                    long rewardAmount = ms.Rewards?.FirstOrDefault()?.Amount ?? 0;
-                    var state = ms.IsReached ? QuestMilestoneState.Reached : QuestMilestoneState.Locked;
+                    var msItem    = Instantiate(_milestoneTemplate, _questListContainer);
+                    long reward   = ms.Rewards?.FirstOrDefault()?.Amount ?? 0;
+                    var state     = ms.IsFreeClaimed
+                                        ? QuestMilestoneState.Claimed
+                                        : ms.IsReached
+                                            ? QuestMilestoneState.Reached
+                                            : QuestMilestoneState.Locked;
+
+                    int  msIndex      = cycle.Milestones.IndexOf(ms);
+                    long prevRequired = msIndex > 0 ? cycle.Milestones[msIndex - 1].RequiredCount : 0;
+
                     msItem.Setup(
-                        displayName: ms.DisplayName,
+                        displayName:   ms.DisplayName,
                         requiredCount: ms.RequiredCount,
-                        currentCount: model.AllCycles.FirstOrDefault()?.CompletedCount ?? 0,
-                        rewardAmount: rewardAmount,
-                        state: state,
-                        iconPath: ms.IconPath,
-                        onClaim: _cachedClaimMilestoneFactory?.Invoke(ms.MilestoneID)
+                        currentCount:  cycle.CompletedCount,
+                        previousCount: prevRequired,
+                        rewardAmount:  reward,
+                        state:         state,
+                        iconPath:      ms.IconPath,
+                        onClaim:       _cachedClaimMilestoneFactory?.Invoke(ms.CycleID, ms.MilestoneID)
                     );
                     msItem.gameObject.SetActive(true);
                 }
             }
 
-            // Квесты — после milestone
-            var source = ActiveTab == QuestTab.Permanent
-                ? model.PermanentQuests
-                : model.AllCycles.Count > 0
-                    ? model.AllCycles.SelectMany(c => c.Quests).ToList()
-                    : model.PermanentQuests;
+            // Quest items
+            var source = cycle != null ? cycle.Quests : model.PermanentQuests;
 
-            var quests = source
-                .OrderBy(q => SortOrder(q.Status))
-                .ThenByDescending(q => q.ProgressPercent);
-
-            foreach (var quest in quests)
+            foreach (var quest in source.OrderBy(q => SortOrder(q.Status))
+                                        .ThenByDescending(q => q.ProgressPercent))
             {
-                var item = Instantiate(_questItemTemplate, _questListContainer);
+                var item         = Instantiate(_questItemTemplate, _questListContainer);
                 long rewardAmount = quest.Rewards?.FirstOrDefault()?.Amount ?? 0;
                 item.Setup(
-                    title: quest.Title,
-                    description: "",
-                    iconPath: "",
-                    current: quest.CurrentProgress,
-                    target: quest.TargetProgress,
-                    status: quest.Status,
-                    canClaim: quest.CanClaim,
-                    rewardAmount: rewardAmount,
+                    title:          quest.Title,
+                    description:    "",
+                    iconPath:       "",
+                    current:        quest.CurrentProgress,
+                    target:         quest.TargetProgress,
+                    status:         quest.Status,
+                    canClaim:       quest.CanClaim,
+                    rewardAmount:   rewardAmount,
                     onClaimClicked: quest.CanClaim ? claimFactory?.Invoke(quest.QuestID, quest.CycleID) : null
                 );
                 item.gameObject.SetActive(true);
             }
         }
 
-        private void RenderMilestones(QuestWindowModel model, Func<string, Func<Task>> claimFactory)
+        // ─────────────────────────────────────────────────────────────
+
+        private ActiveQuestCycle GetActiveCycle(QuestWindowModel model)
         {
-            if (_claimMilestoneButton == null) return;
-            var ms = NextMilestone(model);
-            bool canClaim = ms?.IsReached == true;
-            _claimMilestoneButton.interactable = canClaim;
-            _claimMilestoneButton.onClick.RemoveAllListeners();
-            if (canClaim && claimFactory != null)
-            {
-                var claimFunc = claimFactory.Invoke(ms.MilestoneID);
-                _claimMilestoneButton.onClick.AddListener(() => _ = WrapAsync(claimFunc));
-            }
+            if (string.IsNullOrEmpty(ActiveTabId)) return null;
+            return model.AllCycles.FirstOrDefault(c => c.CycleID == ActiveTabId);
         }
 
-        // Следующий незаклеймленный milestone: сначала тот что можно забрать, иначе ближайший locked
-        private static MilestoneUIItem NextMilestone(QuestWindowModel model)
+        private static MilestoneUIItem NextMilestone(ActiveQuestCycle cycle)
         {
-            var unclaimed = model.CycleMilestones.Where(m => !m.IsFreeClaimed).ToList();
-            return unclaimed.FirstOrDefault(m => m.IsReached) ?? unclaimed.FirstOrDefault();
+            if (cycle == null || cycle.Milestones.Count == 0) return null;
+            var unclaimed = cycle.Milestones.Where(m => !m.IsFreeClaimed).ToList();
+            // Если все взяты — показываем последний в состоянии Claimed
+            return unclaimed.FirstOrDefault(m => m.IsReached)
+                ?? unclaimed.FirstOrDefault()
+                ?? cycle.Milestones[^1];
         }
 
         private static int SortOrder(QuestStatus status) => status switch
@@ -231,10 +294,10 @@ namespace IDosGames.UI.Quest
             _                     => 4,
         };
 
-        private static async Task WrapAsync(Func<Task> asyncAction)
+        private static async Task WrapAsync(Func<Task> fn)
         {
-            try { await asyncAction(); }
-            catch (Exception ex) { Debug.LogError($"[QuestWindow] Error: {ex.Message}"); }
+            try   { await fn(); }
+            catch (Exception ex) { Debug.LogError($"[QuestWindow] {ex.Message}"); }
         }
 
         private static void ClearContainer(RectTransform container)

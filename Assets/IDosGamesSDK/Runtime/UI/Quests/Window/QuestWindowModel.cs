@@ -19,11 +19,6 @@ namespace IDosGames.UI.Quest
 
         public List<ActiveQuestCycle> AllCycles { get; } = new();
         public List<QuestUIItem> PermanentQuests { get; } = new();
-        public List<MilestoneUIItem> CycleMilestones { get; } = new();
-
-        public float SegmentProgress => AllCycles.FirstOrDefault()?.SegmentProgress ?? 0f;
-        public string ProgressText => AllCycles.FirstOrDefault()?.ProgressText ?? "0/0";
-        public DateTime CycleEndUtc => AllCycles.FirstOrDefault()?.EndUtc ?? DateTime.UtcNow;
 
         public void Apply(UserQuestState state, QuestDefinitions config)
         {
@@ -36,39 +31,39 @@ namespace IDosGames.UI.Quest
                 {
                     var cycle = new ActiveQuestCycle
                     {
-                        CycleID = cycleState.CycleID,
-                        StartUtc = cycleState.CycleStartUtc,
-                        EndUtc = cycleState.CycleEndUtc,
+                        CycleID      = cycleState.CycleID,
+                        StartUtc     = cycleState.CycleStartUtc,
+                        EndUtc       = cycleState.CycleEndUtc,
                         CompletedCount = cycleState.CompletedQuestsCount,
-                        Quests = cycleState.Quests?.Values
-                            .Select(q => BuildQuestItem(q, config))
-                            .ToList() ?? new List<QuestUIItem>(),
+                        Quests       = cycleState.Quests?.Values
+                                           .Select(q => BuildQuestItem(q, config, cycleState.CycleID))
+                                           .ToList() ?? new List<QuestUIItem>(),
                     };
+
+                    BuildMilestonesForCycle(cycleState, config, cycle);
                     AllCycles.Add(cycle);
                 }
-
-                var firstCycleState = state.Cycles.Values.FirstOrDefault();
-                if (firstCycleState != null)
-                    BuildMilestones(firstCycleState, config);
             }
 
             BuildPermanentQuests(state, config);
         }
 
-        private void BuildMilestones(UserQuestCycleState cycleState, QuestDefinitions config)
+        private static void BuildMilestonesForCycle(
+            UserQuestCycleState cycleState,
+            QuestDefinitions config,
+            ActiveQuestCycle cycle)
         {
-            CycleMilestones.Clear();
+            cycle.Milestones.Clear();
 
-            // Cycles — List<QuestCycleDefinition>, ищем по CycleID
             var cycleDef = config?.Cycles?.FirstOrDefault(x => x.CycleID == cycleState.CycleID);
             if (cycleDef?.Milestones == null) return;
 
             foreach (var ms in cycleDef.Milestones.OrderBy(m => m.RequiredCompletedQuests))
             {
-                CycleMilestones.Add(new MilestoneUIItem
+                cycle.Milestones.Add(new MilestoneUIItem
                 {
                     MilestoneID   = ms.MilestoneID,
-                    // DisplayName и AssetPaths в QuestCycleMilestoneDefinition отсутствуют
+                    CycleID       = cycleState.CycleID,
                     DisplayName   = $"Выполни {ms.RequiredCompletedQuests} квестов",
                     RequiredCount = ms.RequiredCompletedQuests,
                     Rewards       = ms.Rewards,
@@ -85,61 +80,43 @@ namespace IDosGames.UI.Quest
             if (state.PermanentQuests == null) return;
 
             foreach (var kvp in state.PermanentQuests)
-                PermanentQuests.Add(BuildQuestItem(kvp.Value, config));
+                PermanentQuests.Add(BuildQuestItem(kvp.Value, config, null));
         }
 
-        private QuestUIItem BuildQuestItem(UserQuestProgress progress, QuestDefinitions config)
+        private static QuestUIItem BuildQuestItem(UserQuestProgress progress, QuestDefinitions config, string cycleId)
         {
-            // 1. Ищем определение квеста в конфиге по ID
             var questDef = config?.Quests?.FirstOrDefault(q => q.QuestID == progress.QuestID);
 
             var item = new QuestUIItem
             {
-                QuestID = progress.QuestID,
-                CycleID = null, // для перманентных; для циклических передаётся извне
-                Status = progress.Status,
-        
-                // 2. Берём тексты из конфига, с фоллбэком на ID если не найдено
-                Title = questDef?.DisplayName ?? progress.QuestID,
-        
-                CanClaim = progress.Status == QuestStatus.Completed,
-                IsExpired = progress.Status == QuestStatus.Expired,
-        
-                // 3. Берём награды из конфига (если есть)
-                Rewards = questDef?.Rewards ?? new List<ItemOrCurrency>()
+                QuestID    = progress.QuestID,
+                CycleID    = cycleId,
+                Status     = progress.Status,
+                Title      = questDef?.DisplayName ?? progress.QuestID,
+                CanClaim   = progress.Status == QuestStatus.Completed,
+                IsExpired  = progress.Status == QuestStatus.Expired,
+                Rewards    = questDef?.Rewards ?? new List<ItemOrCurrency>()
             };
 
-            // 4. Прогресс по целям
             if (progress.Objectives?.Count > 0 && questDef?.Objectives?.Count > 0)
             {
-                // Считаем общий таргет и текущий прогресс по всем целям
-                var total = questDef.Objectives.Sum(obj => obj.TargetValue);
-                var current = progress.Objectives.Values
-                    .Sum(obj => obj.CurrentValue);
-        
+                var total   = questDef.Objectives.Sum(obj => obj.TargetValue);
+                var current = progress.Objectives.Values.Sum(obj => obj.CurrentValue);
                 item.CurrentProgress = current;
-                item.TargetProgress = total;
+                item.TargetProgress  = total;
                 item.ProgressPercent = total > 0 ? Mathf.Clamp01((float)current / total) : 0f;
             }
             else if (progress.Objectives?.Count > 0)
             {
-                // Fallback: если в конфиге нет целей, считаем по флагу Completed
-                var total = progress.Objectives.Count;
+                var total   = progress.Objectives.Count;
                 var current = progress.Objectives.Values.Count(obj => obj.Completed);
-        
                 item.CurrentProgress = current;
-                item.TargetProgress = total;
+                item.TargetProgress  = total;
                 item.ProgressPercent = total > 0 ? (float)current / total : 0f;
             }
 
             return item;
         }
-
-        public bool IsMilestoneFreeClaimed(string milestoneId)
-            => CycleMilestones.FirstOrDefault(m => m.MilestoneID == milestoneId)?.IsFreeClaimed == true;
-
-        public bool IsMilestoneReached(long requiredCount)
-            => AllCycles.FirstOrDefault()?.CompletedCount >= requiredCount == true;
     }
 
     public class ActiveQuestCycle
@@ -149,8 +126,10 @@ namespace IDosGames.UI.Quest
         public DateTime EndUtc;
         public int CompletedCount;
         public List<QuestUIItem> Quests = new();
-        public float SegmentProgress => Quests.Count > 0 
-            ? (float)Quests.Count(q => q.Status != QuestStatus.Active) / Quests.Count 
+        public List<MilestoneUIItem> Milestones = new();
+
+        public float SegmentProgress => Quests.Count > 0
+            ? (float)Quests.Count(q => q.Status != QuestStatus.Active) / Quests.Count
             : 0f;
         public string ProgressText => $"{CompletedCount}/{Quests.Count}";
     }
@@ -172,6 +151,7 @@ namespace IDosGames.UI.Quest
     public class MilestoneUIItem
     {
         public string MilestoneID;
+        public string CycleID;
         public string DisplayName;
         public long RequiredCount;
         public List<ItemOrCurrency> Rewards;
