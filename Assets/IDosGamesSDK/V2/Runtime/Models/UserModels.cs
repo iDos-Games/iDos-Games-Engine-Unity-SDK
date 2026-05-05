@@ -132,18 +132,12 @@ namespace IDosGames
     {
         public string ItemInstanceID { get; set; }
         public string ItemID { get; set; }
+        public string CatalogID { get; set; }
         public long RemainingUses { get; set; }
         public DateTime AcquiredAt { get; set; }
         public DateTime? ExpiresAt { get; set; }
         public EquipmentSlot EquippedSlot { get; set; }
         public string CustomData { get; set; }
-    }
-
-    [Serializable]
-    public class EquipmentSlot
-    {
-        public string CharacterID { get; set; }
-        public string SlotID { get; set; }
     }
 
     public enum UserAction

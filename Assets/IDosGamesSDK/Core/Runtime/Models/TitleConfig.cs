@@ -11,8 +11,18 @@ namespace IDosGames
         public event Action OnTitleCustomDataUpdated;
         public event Action OnCurrencyDefinitionsUpdated;
         public event Action OnItemDefinitionsUpdated;
-        
+
+        public event Action OnCharacterDefinitionsUpdated;
+
         internal TitleConfig() { }
+
+        internal void PatchCharacter(CharacterDefinitions data)
+        {
+            TitlePublicConfiguration ??= new ();
+            TitlePublicConfiguration.Character = data;
+            OnCharacterDefinitionsUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
 
         internal void ApplyTitlePublicConfiguration(TitlePublicConfigurationModel data)
         {

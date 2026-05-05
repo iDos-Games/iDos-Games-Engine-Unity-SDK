@@ -28,7 +28,7 @@ namespace IDosGames
         //public UserCustomDataState CustomData { get; set; }
         //public UserBlockchainState Blockchain { get; set; }
         //public UserRewardState Reward { get; set; }
-        //public UserCharactersState Character { get; set; }
+        public UserCharactersState Character { get; set; }
         //public UserMatchState Match { get; set; }
     }
 

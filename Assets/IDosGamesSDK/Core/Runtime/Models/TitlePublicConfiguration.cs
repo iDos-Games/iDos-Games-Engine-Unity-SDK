@@ -20,7 +20,7 @@ namespace IDosGames
         //public SeasonDefinitions Season { get; set; }
 
         //public GameLoopDefinitions GameLoop { get; set; }
-        //public CharacterDefinitions Character { get; set; }
+        public CharacterDefinitions Character { get; set; }
         //public CollectionDefinitions Collection { get; set; }
         //public CraftDefinitions Craft { get; set; }
         //public LootboxDefinitions Lootbox { get; set; }
