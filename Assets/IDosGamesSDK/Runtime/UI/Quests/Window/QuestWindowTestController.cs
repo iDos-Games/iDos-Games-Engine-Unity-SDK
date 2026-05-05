@@ -27,6 +27,7 @@ namespace IDosGames.UI.Quest
         public QuestStatus status        = QuestStatus.Active;
         public List<MockQuestObjective> objectives = new() { new() { currentValue = 3, targetValue = 10 } };
         public long baseReward           = 100;
+        public List<long> extraRewards   = new();
         public bool forceClaimed         = false;
     }
 
@@ -144,6 +145,13 @@ namespace IDosGames.UI.Quest
                     objectives = new() { new() { label = "Победы",    currentValue = 1,  targetValue = 3   } } },
             new() { cycleId = "Ежедневные", questId = "d_dmg_500",    title = "Нанеси 500 урона",         baseReward = 120,
                     objectives = new() { new() { label = "Урон",      currentValue = 210, targetValue = 500 } } },
+            new() { cycleId = "Ежедневные", questId = "d_multi_obj",  title = "Множественные цели",       baseReward = 300,
+                    extraRewards = new() { 100 },
+                    objectives = new() { 
+                        new() { label = "Цель А", currentValue = 5, targetValue = 10 },
+                        new() { label = "Цель Б", currentValue = 2, targetValue = 5 },
+                        new() { label = "Цель В", currentValue = 1, targetValue = 1, completed = true }
+                    } },
             new() { cycleId = "Ежедневные", questId = "d_expired",    title = "Улучши снаряжение",        baseReward = 175,
                     status = QuestStatus.Expired,
                     objectives = new() { new() { label = "Улучшения", currentValue = 1,  targetValue = 3   } } },
@@ -198,6 +206,22 @@ namespace IDosGames.UI.Quest
                     objectives = new() { new() { label = "Эфир",     currentValue = 380, targetValue = 500 } } },
 
             // ── Перманентные квесты (cycleId = "") ──────────────────────────────
+            new() { cycleId = "", questId = "perm_complex",     title = "Эпическое приключение",     baseReward = 1500,
+                    objectives = new() { 
+                        new() { label = "Собрать ресурсы", currentValue = 15, targetValue = 50 },
+                        new() { label = "Победить монстров", currentValue = 3, targetValue = 5 },
+                        new() { label = "Найти артефакт", currentValue = 0, targetValue = 1 }
+                    } },
+            new() { cycleId = "", questId = "perm_mega",        title = "Марафон Героя",            baseReward = 2000,
+                    extraRewards = new() { 500, 100, 50, 25, 10 },
+                    objectives = new() { 
+                        new() { label = "Шаги", currentValue = 1200, targetValue = 5000 },
+                        new() { label = "Прыжки", currentValue = 45, targetValue = 100 },
+                        new() { label = "Удары", currentValue = 89, targetValue = 200 },
+                        new() { label = "Блоки", currentValue = 12, targetValue = 50 },
+                        new() { label = "Уклонения", currentValue = 5, targetValue = 10 },
+                        new() { label = "Прогресс 6", currentValue = 0, targetValue = 100 }
+                    } },
             new() { cycleId = "", questId = "perm_login_7",     title = "Войди 7 дней подряд",       baseReward = 500,
                     objectives = new() { new() { label = "Дни входа",  currentValue = 4,  targetValue = 7    } } },
             new() { cycleId = "", questId = "perm_kill_100",    title = "Уничтожь 100 врагов",       baseReward = 1000,
@@ -354,13 +378,22 @@ namespace IDosGames.UI.Quest
 
             foreach (var q in _quests)
             {
+                var rewards = new List<ItemOrCurrency> { new() { Amount = q.baseReward, Type = ItemType.VirtualCurrency } };
+                if (q.extraRewards != null)
+                {
+                    foreach (var extra in q.extraRewards)
+                    {
+                        rewards.Add(new ItemOrCurrency { Amount = extra, Type = ItemType.VirtualCurrency });
+                    }
+                }
+
                 defs.Quests.Add(new QuestDefinition
                 {
                     QuestID     = q.questId,
                     DisplayName = q.title,
-                    Rewards     = new List<ItemOrCurrency> { new() { Amount = q.baseReward } },
+                    Rewards     = rewards,
                     Objectives  = q.objectives.Select(o => new QuestObjectiveDefinition
-                    {
+{
                         ObjectiveID = o.label,
                         TargetValue = o.targetValue,
                     }).ToList(),

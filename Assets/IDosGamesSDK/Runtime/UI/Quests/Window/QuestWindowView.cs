@@ -250,17 +250,15 @@ namespace IDosGames.UI.Quest
             foreach (var quest in source.OrderBy(q => SortOrder(q.Status))
                                         .ThenByDescending(q => q.ProgressPercent))
             {
-                var item         = Instantiate(_questItemTemplate, _questListContainer);
-                long rewardAmount = quest.Rewards?.FirstOrDefault()?.Amount ?? 0;
+                var item = Instantiate(_questItemTemplate, _questListContainer);
                 item.Setup(
                     title:          quest.Title,
                     description:    "",
                     iconPath:       "",
-                    current:        quest.CurrentProgress,
-                    target:         quest.TargetProgress,
                     status:         quest.Status,
                     canClaim:       quest.CanClaim,
-                    rewardAmount:   rewardAmount,
+                    objectives:     quest.Objectives,
+                    rewards:        quest.Rewards,
                     onClaimClicked: quest.CanClaim ? claimFactory?.Invoke(quest.QuestID, quest.CycleID) : null
                 );
                 item.gameObject.SetActive(true);

@@ -98,21 +98,30 @@ namespace IDosGames.UI.Quest
                 Rewards    = questDef?.Rewards ?? new List<ItemOrCurrency>()
             };
 
-            if (progress.Objectives?.Count > 0 && questDef?.Objectives?.Count > 0)
+            if (progress.Objectives?.Count > 0)
             {
-                var total   = questDef.Objectives.Sum(obj => obj.TargetValue);
-                var current = progress.Objectives.Values.Sum(obj => obj.CurrentValue);
-                item.CurrentProgress = current;
-                item.TargetProgress  = total;
-                item.ProgressPercent = total > 0 ? Mathf.Clamp01((float)current / total) : 0f;
-            }
-            else if (progress.Objectives?.Count > 0)
-            {
-                var total   = progress.Objectives.Count;
-                var current = progress.Objectives.Values.Count(obj => obj.Completed);
-                item.CurrentProgress = current;
-                item.TargetProgress  = total;
-                item.ProgressPercent = total > 0 ? (float)current / total : 0f;
+                foreach (var kvp in progress.Objectives)
+                {
+                    var objDef = questDef?.Objectives?.FirstOrDefault(o => o.ObjectiveID == kvp.Key);
+                    long target = objDef?.TargetValue > 0
+                        ? objDef.TargetValue
+                        : kvp.Value.Completed ? kvp.Value.CurrentValue : System.Math.Max(kvp.Value.CurrentValue, 1L);
+
+                    item.Objectives.Add(new ObjectiveUIItem
+                    {
+                        Label     = kvp.Key,
+                        Current   = kvp.Value.CurrentValue,
+                        Target    = target,
+                        Completed = kvp.Value.Completed,
+                    });
+                }
+
+                // Keep aggregate totals for sorting
+                item.CurrentProgress = item.Objectives.Sum(o => o.Current);
+                item.TargetProgress  = item.Objectives.Sum(o => o.Target);
+                item.ProgressPercent = item.TargetProgress > 0
+                    ? Mathf.Clamp01((float)item.CurrentProgress / item.TargetProgress)
+                    : 0f;
             }
 
             return item;
@@ -134,6 +143,14 @@ namespace IDosGames.UI.Quest
         public string ProgressText => $"{CompletedCount}/{Quests.Count}";
     }
 
+    public class ObjectiveUIItem
+    {
+        public string Label;
+        public long   Current;
+        public long   Target;
+        public bool   Completed;
+    }
+
     public class QuestUIItem
     {
         public string QuestID;
@@ -145,7 +162,8 @@ namespace IDosGames.UI.Quest
         public float ProgressPercent;
         public bool CanClaim;
         public bool IsExpired;
-        public List<ItemOrCurrency> Rewards;
+        public List<ItemOrCurrency>  Rewards    = new();
+        public List<ObjectiveUIItem> Objectives = new();
     }
 
     public class MilestoneUIItem
