@@ -6,21 +6,10 @@ namespace IDosGames
         public static TitleData Title { get; private set; } = new();
         public static UserData User { get; private set; } = new ();
 
-        public static bool IsUserLoggedIn => User.IsLoggedIn;
-
-        internal static void OnUserLoggedIn()
-        {
-            User.IsLoggedIn = true;
-        }
-
-        internal static void OnUserLoggedOut()
-        {
-            User.Clear();
-        }
-
         internal static void Reset()
         {
             Config = new TitleConfig();
+            Title = new TitleData();
             User = new UserData();
         }
     }

@@ -6,7 +6,7 @@ namespace IDosGames
     public static class TitleService
     {
         public static event Action<TitlePublicConfigurationModel> OnTitlePublicConfigurationReceived;
-        public static event Action<CustomTitleDataResponse> OnPublicCustomTitleDataReceived;
+        public static event Action<TitleCustomDataResponse> OnPublicCustomTitleDataReceived;
         public static event Action<CurrencyDefinitions> OnCurrencyDefinitionsReceived;
         public static event Action<ItemDefinitions> OnItemDefinitionsReceived;
         public static event Action<SuccessResponse> OnServerTimeReceived;
@@ -40,14 +40,14 @@ namespace IDosGames
             return result;
         }
 
-        public static async Task<OperationResult<CustomTitleDataResponse>> GetPublicCustomTitleData()
+        public static async Task<OperationResult<TitleCustomDataResponse>> GetPublicTitleCustomData()
         {
             var request = CreateBaseRequest();
-            var result = await TitleAPI.GetPublicCustomTitleData(request);
+            var result = await TitleAPI.GetPublicTitleCustomData(request);
 
             if (result.Success)
             {
-                IDosGamesData.Config.ApplyPublicCustomTitleData(result.Data.PublicData);
+                IDosGamesData.Config.PatchTitleCustomData(result.Data);
                 OnPublicCustomTitleDataReceived?.Invoke(result.Data);
             }
 
@@ -61,7 +61,7 @@ namespace IDosGames
 
             if (result.Success)
             {
-                IDosGamesData.Config.ApplyCurrencyDefinitions(result.Data);
+                IDosGamesData.Config.PatchCurrencyDefinitions(result.Data);
                 OnCurrencyDefinitionsReceived?.Invoke(result.Data);
             }
 
@@ -75,7 +75,7 @@ namespace IDosGames
 
             if (result.Success)
             {
-                IDosGamesData.Config.ApplyItemDefinitions(result.Data);
+                IDosGamesData.Config.PatchItemDefinitions(result.Data);
                 OnItemDefinitionsReceived?.Invoke(result.Data);
             }
 

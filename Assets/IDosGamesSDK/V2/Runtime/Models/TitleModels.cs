@@ -10,7 +10,7 @@ namespace IDosGames
     }
 
     [Serializable]
-    public class CustomTitleDataResponse
+    public class TitleCustomDataResponse
     {
         public Dictionary<string, TitlePublicData> PublicData { get; set; }
     }
@@ -25,11 +25,10 @@ namespace IDosGames
 
     public enum TitleAction
     {
-        GetPublicCustomTitleData,
         GetTitlePublicConfiguration,
+        GetPublicTitleCustomData,
+        GetCurrencyDefinitions,
         GetItemDefinitions,
         GetServerTime,
-        GetPlatformSettings,
-        GetCurrencyDefinitions,
     }
 }

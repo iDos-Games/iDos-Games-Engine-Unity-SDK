@@ -7,9 +7,9 @@ namespace IDosGames
         public Dictionary<string, string> ImageData { get; set; }
         public Dictionary<string, string> AssetBundle { get; set; }
 
-        //public CustomTitleData TitleData { get; set; }
-        //public CurrencyDefinitions Currency { get; set; }
-        //public ItemDefinitions Item { get; set; }
+        public TitleCustomDataResponse TitleCustomData { get; set; }
+        public CurrencyDefinitions Currency { get; set; }
+        public ItemDefinitions Item { get; set; }
         //public PremiumDefinitions Premium { get; set; }
         //public RewardDefinitions Reward { get; set; }
 

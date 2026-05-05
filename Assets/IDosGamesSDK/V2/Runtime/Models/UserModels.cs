@@ -12,6 +12,21 @@ namespace IDosGames
     }
 
     [Serializable]
+    public class UserPublicDataModel
+    {
+        public string Username { get; set; }
+        public string Country { get; set; }
+        public string AvatarUrl { get; set; }
+        public bool Premium { get; set; }
+
+        // Можно переиспользовать под общий прогресс
+        public int Level { get; set; }
+        public long Power { get; set; }
+        public long NetWorth { get; set; }
+        //public Dictionary<string, float> Stats { get; set; }
+    }
+
+    [Serializable]
     public class UserUsageState
     {
         public long TotalSeconds { get; set; }

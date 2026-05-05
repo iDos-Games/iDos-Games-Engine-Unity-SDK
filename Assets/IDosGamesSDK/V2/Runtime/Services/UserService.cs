@@ -30,14 +30,13 @@ namespace IDosGames
         public static async Task<OperationResult<ClientState>> GetClientState()
         {
             var request = CreateBaseRequest();
-            request.UsageTime = IDosGamesSDKSettings.Instance.PlayTime;
 
             var result = await UserAPI.GetClientState(request);
 
             if (result.Success)
             {
-                IDosGamesSDKSettings.Instance.PlayTime = 0;
-                //DataService.ProcessingAllData(result.Data);
+                IDosGamesData.Config.ApplyTitlePublicConfiguration(result.Data.Title);
+                IDosGamesData.User.ApplyUserState(result.Data.User);
                 OnClientStateReceived?.Invoke(result.Data);
             }
 

@@ -13,6 +13,7 @@ namespace IDosGames
         Email,
         iDosGames,
         Facebook,
+        Google,
         GooglePlay,
     }
 

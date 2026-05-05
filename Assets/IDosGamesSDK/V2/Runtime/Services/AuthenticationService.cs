@@ -14,7 +14,7 @@ namespace IDosGames
         private static string SAVED_AUTH_PASSWORD_KEY => "Saved_Auth_Password_" + AuthenticationAPI.GetTitleID();
 
         public static AuthType LastAuthType => (AuthType)PlayerPrefs.GetInt(SAVED_AUTH_TYPE_KEY, (int)AuthType.None);
-        public static bool IsLoggedIn => LastAuthType != AuthType.Device && LastAuthType != AuthType.None;
+        public static bool IsLoggedIn => _authContext != null && !string.IsNullOrEmpty(_authContext.UserID) && !string.IsNullOrEmpty(_authContext.ClientSessionTicket);
         public static string SavedEmail => PlayerPrefs.GetString(SAVED_AUTH_EMAIL_KEY, string.Empty);
         public static string SavedPassword => PlayerPrefs.GetString(SAVED_AUTH_PASSWORD_KEY, string.Empty);
 
@@ -33,12 +33,7 @@ namespace IDosGames
 
         public static AuthContext GetAuthContext()
         {
-            if (_authContext == null)
-                throw new Exception("Not logged in. AuthContext is null.");
-            if (string.IsNullOrEmpty(_authContext.UserID))
-                throw new Exception("Not logged in. UserID is empty.");
-            if (string.IsNullOrEmpty(_authContext.ClientSessionTicket))
-                throw new Exception("Not logged in. ClientSessionTicket is empty.");
+            if (!IsLoggedIn) throw new Exception("Not logged in.");
             return _authContext;
         }
 
@@ -78,7 +73,7 @@ namespace IDosGames
                 return OperationResult<ClientState>.Fail(tokenResult.Error);
             }
 
-            ApplyTokenContext(tokenResult.Data);
+            ApplyAuthContext(tokenResult.Data);
             return await FetchAndApplyClientState(AuthType.iDosGames);
         }
 
@@ -110,7 +105,7 @@ namespace IDosGames
                 return OperationResult<ClientState>.Fail(tokenResult.Error);
             }
 
-            ApplyTokenContext(tokenResult.Data);
+            ApplyAuthContext(tokenResult.Data);
             return await FetchAndApplyClientState(AuthType.Device);
         }
 
@@ -130,11 +125,9 @@ namespace IDosGames
                 return OperationResult<ClientState>.Fail(tokenResult.Error);
             }
 
-            ApplyTokenContext(tokenResult.Data);
+            ApplyAuthContext(tokenResult.Data);
             var result = await FetchAndApplyClientState(AuthType.Email);
-
-            if (result.Success)
-                SaveEmailAndPassword(email, password);
+            if (result.Success) SaveEmailAndPassword(email, password);
 
             return result;
         }
@@ -158,11 +151,9 @@ namespace IDosGames
                 return OperationResult<ClientState>.Fail(tokenResult.Error);
             }
 
-            ApplyTokenContext(tokenResult.Data);
+            ApplyAuthContext(tokenResult.Data);
             var result = await FetchAndApplyClientState(AuthType.Email);
-
-            if (result.Success)
-                SaveEmailAndPassword(email, password);
+            if (result.Success) SaveEmailAndPassword(email, password);
 
             return result;
         }
@@ -173,7 +164,6 @@ namespace IDosGames
             Loading.ShowTransparentPanel();
 
             var request = CreateBaseRequest();
-            // Бэкенд ожидает поле GoogleIdToken (IGSRequest), не PlatformAuthToken
             request.GoogleIDToken = googleIDToken;
 
             var tokenResult = await AuthenticationAPI.LoginWithGoogle(request);
@@ -183,8 +173,8 @@ namespace IDosGames
                 return OperationResult<ClientState>.Fail(tokenResult.Error);
             }
 
-            ApplyTokenContext(tokenResult.Data);
-            return await FetchAndApplyClientState(AuthType.iDosGames);
+            ApplyAuthContext(tokenResult.Data);
+            return await FetchAndApplyClientState(AuthType.Google);
         }
 
         // ─── Password recovery ────────────────────────────────────────────────────
@@ -199,8 +189,7 @@ namespace IDosGames
 
             var result = await AuthenticationAPI.ForgotPassword(request);
 
-            if (!result.Success)
-                Message.Show(result.Error);
+            if (!result.Success) Message.Show(result.Error);
 
             return result;
         }
@@ -217,8 +206,7 @@ namespace IDosGames
 
             var result = await AuthenticationAPI.ResetPassword(request);
 
-            if (!result.Success)
-                Message.Show(result.Error);
+            if (!result.Success) Message.Show(result.Error);
 
             return result;
         }
@@ -236,7 +224,7 @@ namespace IDosGames
         public static void LogOut()
         {
             _authContext = null;
-            IDosGamesData.OnUserLoggedOut();
+            IDosGamesData.User.Clear();
             OnLoggedOut?.Invoke();
             Loading.SwitchToLoginScene();
         }
@@ -244,99 +232,39 @@ namespace IDosGames
         // ─── Validation ───────────────────────────────────────────────────────────
 
         public static bool IsValidEmail(string email) =>
-            !string.IsNullOrEmpty(email) &&
-            System.Text.RegularExpressions.Regex.IsMatch(
-                email,
-                @"^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$",
-                System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+            !string.IsNullOrEmpty(email) && System.Text.RegularExpressions.Regex.IsMatch(email, @"^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
 
         public static bool IsValidPasswordLength(string password) =>
-            !string.IsNullOrEmpty(password) &&
-            password.Length >= PASSWORD_MIN_LENGTH &&
-            password.Length <= PASSWORD_MAX_LENGTH;
+            !string.IsNullOrEmpty(password) && password.Length >= PASSWORD_MIN_LENGTH && password.Length <= PASSWORD_MAX_LENGTH;
 
         // ─── Private helpers ──────────────────────────────────────────────────────
-
-        private static void ApplyTokenContext(PlatformLoginResponse tokenData)
-        {
-            _authContext = new AuthContext
-            {
-                UserID = tokenData.TitleUserID,
-                ClientSessionTicket = tokenData.TitleClientSessionTicket,
-                ClientSessionTicketExpiration = tokenData.TitleClientSessionTicketExpiration,
-            };
-        }
 
         private static async Task<OperationResult<ClientState>> FetchAndApplyClientState(AuthType authType)
         {
             var result = await UserService.GetClientState();
 
-            if (!result.Success
-                || result.Data?.AuthContext == null
-                || string.IsNullOrEmpty(result.Data.AuthContext.ClientSessionTicket))
+            if (!result.Success)
             {
                 var err = !string.IsNullOrEmpty(result.Error) ? result.Error : "Invalid ClientState response.";
                 Message.Show(err);
                 return OperationResult<ClientState>.Fail(err);
             }
 
-            ApplyFullSession(result.Data, authType);
+            SaveAuthType(authType);
             OnLoggedIn?.Invoke();
-
             return result;
         }
 
-        private static void ApplyFullSession(ClientState data, AuthType authType)
+        private static void ApplyAuthContext(PlatformLoginResponse data)
         {
-            var ctx = data.AuthContext;
-            _authContext = new AuthContext(ctx.UserID, ctx.ClientSessionTicket);
-
-            //ApplyPlatformSDKSettings(data.PlatformSettings);
-
-            //DataService.ProcessingAllData(data);
-            IDosGamesData.OnUserLoggedIn();
-            SaveAuthType(authType);
-        }
-
-        private static void ApplyPlatformSDKSettings(PlatformSettingsModel settings)
-        {
-            var sdk = IDosGamesSDKSettings.Instance;
-            var platform = sdk.BuildForPlatform;
-
-            if (platform == Platforms.GooglePlay)
-            {
-                sdk.AndroidBundleID = settings.GooglePlay.BundleID;
-                sdk.AdEnabled = settings.GooglePlay.AdSettings.AdEnabled;
-                sdk.MediationAppKeyAndroid = settings.GooglePlay.AdSettings.AppKey;
-                sdk.BannerEnabled = settings.GooglePlay.AdSettings.BannerEnabled;
-                sdk.BannerPosition = settings.GooglePlay.AdSettings.BanerPosition;
-                sdk.ReferralTrackerLink = settings.GooglePlay.ReferralSystemSettings.ReferralAppLink;
-            }
-            else if (platform == Platforms.AppleAppStore)
-            {
-                sdk.IosBundleID = settings.AppleAppStore.BundleID;
-                sdk.IosAppStoreID = settings.AppleAppStore.AppStoreID;
-                sdk.AdEnabled = settings.AppleAppStore.AdSettings.AdEnabled;
-                sdk.MediationAppKeyIOS = settings.AppleAppStore.AdSettings.AppKey;
-                sdk.BannerEnabled = settings.AppleAppStore.AdSettings.BannerEnabled;
-                sdk.BannerPosition = settings.AppleAppStore.AdSettings.BanerPosition;
-                sdk.ReferralTrackerLink = settings.AppleAppStore.ReferralSystemSettings.ReferralAppLink;
-            }
-            else if (platform == Platforms.Telegram)
-            {
-                sdk.AdEnabled = settings.Telegram.AdSettings.AdEnabled;
-                sdk.AdsGramBlockID = settings.Telegram.AdSettings.BlockID;
-                sdk.PlatformCurrencyPriceInCent = settings.Telegram.PlatformCurrencyPriceInCent;
-                sdk.TelegramWebAppLink = settings.Telegram.ReferralSystemSettings.ReferralAppLink;
-            }
-            else if (platform == Platforms.Web)
-            {
-                sdk.AdEnabled = settings.Web.AdSettings.AdEnabled;
-                sdk.BannerEnabled = settings.Web.AdSettings.BannerEnabled;
-                sdk.BannerPosition = settings.Web.AdSettings.BanerPosition;
-                sdk.PlatformCurrencyPriceInCent = settings.Web.PlatformCurrencyPriceInCent;
-                sdk.ReferralTrackerLink = settings.Web.ReferralSystemSettings.ReferralAppLink;
-            }
+            _authContext = new AuthContext(
+                userID: data.TitleUserID,
+                clientSessionTicket: data.TitleClientSessionTicket,
+                clientSessionTicketExpiration: data.TitleClientSessionTicketExpiration,
+                platformUserID: data.PlatformUserID,
+                platformAuthToken: data.PlatformAuthToken,
+                platformAuthTokenExpiration: data.PlatformAuthTokenExpiration
+            );
         }
 
         private static void SaveAuthType(AuthType authType)

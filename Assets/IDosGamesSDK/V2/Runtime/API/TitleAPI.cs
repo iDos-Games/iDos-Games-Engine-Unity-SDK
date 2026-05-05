@@ -18,8 +18,8 @@ namespace IDosGames
         public static async Task<OperationResult<TitlePublicConfigurationModel>> GetTitlePublicConfiguration(TitleRequest request)
             => await SendRequest<TitlePublicConfigurationModel>(TitleAction.GetTitlePublicConfiguration, request);
 
-        public static async Task<OperationResult<CustomTitleDataResponse>> GetPublicCustomTitleData(TitleRequest request)
-            => await SendRequest<CustomTitleDataResponse>(TitleAction.GetPublicCustomTitleData, request);
+        public static async Task<OperationResult<TitleCustomDataResponse>> GetPublicTitleCustomData(TitleRequest request)
+            => await SendRequest<TitleCustomDataResponse>(TitleAction.GetPublicTitleCustomData, request);
 
         public static async Task<OperationResult<CurrencyDefinitions>> GetCurrencyDefinitions(TitleRequest request)
             => await SendRequest<CurrencyDefinitions>(TitleAction.GetCurrencyDefinitions, request);
