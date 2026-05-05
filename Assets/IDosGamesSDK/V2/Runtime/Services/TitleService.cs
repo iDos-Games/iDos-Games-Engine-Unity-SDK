@@ -1,13 +1,14 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace IDosGames
 {
     public static class TitleService
     {
-        public static event Action<Dictionary<string, object>> OnTitleDataReceived;
-        public static event Action<TitlePublicConfigurationModel> OnConfigReceived;
+        public static event Action<TitlePublicConfigurationModel> OnTitlePublicConfigurationReceived;
+        public static event Action<CustomTitleDataResponse> OnPublicCustomTitleDataReceived;
+        public static event Action<CurrencyDefinitions> OnCurrencyDefinitionsReceived;
+        public static event Action<ItemDefinitions> OnItemDefinitionsReceived;
         public static event Action<SuccessResponse> OnServerTimeReceived;
 
         private static AuthContext Ctx => AuthenticationService.GetAuthContext();
@@ -25,20 +26,6 @@ namespace IDosGames
             };
         }
 
-        public static async Task<OperationResult<Dictionary<string, object>>> GetTitlePublicData()
-        {
-            var request = CreateBaseRequest();
-            var result = await TitleAPI.GetTitlePublicData(request);
-
-            if (result.Success)
-            {
-                //IDosGamesData.Config?.ApplyTitlePublicData(result.Data);
-                OnTitleDataReceived?.Invoke(result.Data);
-            }
-
-            return result;
-        }
-
         public static async Task<OperationResult<TitlePublicConfigurationModel>> GetTitlePublicConfiguration()
         {
             var request = CreateBaseRequest();
@@ -46,8 +33,50 @@ namespace IDosGames
 
             if (result.Success)
             {
-                IDosGamesData.Config?.ApplyTitlePublicConfiguration(result.Data);
-                OnConfigReceived?.Invoke(result.Data);
+                IDosGamesData.Config.ApplyTitlePublicConfiguration(result.Data);
+                OnTitlePublicConfigurationReceived?.Invoke(result.Data);
+            }
+
+            return result;
+        }
+
+        public static async Task<OperationResult<CustomTitleDataResponse>> GetPublicCustomTitleData()
+        {
+            var request = CreateBaseRequest();
+            var result = await TitleAPI.GetPublicCustomTitleData(request);
+
+            if (result.Success)
+            {
+                IDosGamesData.Config.ApplyPublicCustomTitleData(result.Data.PublicData);
+                OnPublicCustomTitleDataReceived?.Invoke(result.Data);
+            }
+
+            return result;
+        }
+
+        public static async Task<OperationResult<CurrencyDefinitions>> GetCurrencyDefinitions()
+        {
+            var request = CreateBaseRequest();
+            var result = await TitleAPI.GetCurrencyDefinitions(request);
+
+            if (result.Success)
+            {
+                IDosGamesData.Config.ApplyCurrencyDefinitions(result.Data);
+                OnCurrencyDefinitionsReceived?.Invoke(result.Data);
+            }
+
+            return result;
+        }
+
+        public static async Task<OperationResult<ItemDefinitions>> GetItemDefinitions()
+        {
+            var request = CreateBaseRequest();
+            var result = await TitleAPI.GetItemDefinitions(request);
+
+            if (result.Success)
+            {
+                IDosGamesData.Config.ApplyItemDefinitions(result.Data);
+                OnItemDefinitionsReceived?.Invoke(result.Data);
             }
 
             return result;

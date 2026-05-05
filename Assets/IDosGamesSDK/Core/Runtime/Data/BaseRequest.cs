@@ -17,6 +17,7 @@ namespace IDosGames
         public string BuildKey { get; set; }
         public bool DevBuild { get; set; }
         public string WebAppLink { get; set; }
+        public string RelatedEntityID { get; set; }
         public int UsageTime { get; set; }
         public string TelegramInitData { get; set; }
     }

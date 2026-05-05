@@ -22,7 +22,8 @@ namespace IDosGames
                 UserID = UserID,
                 ClientSessionTicket = ClientSessionTicket,
                 BuildKey = IDosGamesSDKSettings.Instance.BuildKey,
-                WebAppLink = WebSDK.webAppLink
+                WebAppLink = WebSDK.webAppLink,
+                RelatedEntityID = Guid.NewGuid().ToString(),
             };
         }
 

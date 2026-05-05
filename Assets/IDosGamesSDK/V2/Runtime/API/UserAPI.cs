@@ -6,7 +6,7 @@ namespace IDosGames
     {
         private static string GetEndpoint(UserAction action, string userID)
         {
-            string titleID = IDosGamesSDKSettings.Instance.TitleID;
+            string titleID = !string.IsNullOrEmpty(IDosGamesSDKSettings.Instance.TitleID) ? IDosGamesSDKSettings.Instance.TitleID : "0";
             return $"api/v2/{titleID}/Client/User/{action}/{userID}";
         }
 
