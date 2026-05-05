@@ -30,14 +30,12 @@ namespace IDosGames
             ClientSessionTicket = Ctx.ClientSessionTicket,
             BuildKey = IDosGamesSDKSettings.Instance.BuildKey,
             WebAppLink = WebSDK.webAppLink,
-            // ASSUMPTION: IGSRequest carries RelatedEntityID for idempotent retries.
-            RelatedEntityID = Guid.NewGuid().ToString(),
         };
 
         private static string ResolveCharacterID(string characterID)
         {
             var trimmed = (characterID ?? "").Trim();
-            return string.IsNullOrEmpty(trimmed) ? DefaultData.Main : trimmed; // ASSUMPTION: DefaultData.Main exists
+            return string.IsNullOrEmpty(trimmed) ? DefaultData.Main : trimmed;
         }
 
         // ===================== Actions =====================
@@ -250,7 +248,7 @@ namespace IDosGames
                     && inst != null)
                 {
                     itemID = inst.ItemID ?? itemID;
-                    catalogID = inst.CatalogID; // ASSUMPTION: UnstackableItemInstanceState.CatalogID exists
+                    catalogID = inst.CatalogID;
                 }
 
                 // 1. Reset previously equipped instance in the same slot (if any).

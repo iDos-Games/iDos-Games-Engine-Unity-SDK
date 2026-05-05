@@ -60,7 +60,7 @@ namespace IDosGames
         /// V2 unified resource container. Cost lives under
         /// <c>Resources.Consume.Standard.Entries</c> / <c>Resources.Consume.Standard.EventTokens</c>.
         /// </summary>
-        public ResourceOperation Resources { get; set; } = new(); // ASSUMPTION: ResourceOperation already exists in SDK
+        public ResourceOperation Resources { get; set; }
     }
 
     /// <summary>Response for a successful <see cref="CharacterAction.UpgradeCharacterLevel"/>.</summary>
@@ -72,7 +72,7 @@ namespace IDosGames
         public int NewLevel { get; set; }
 
         /// <summary>V2 unified resource container — see <see cref="UpgradeStatLevelResponse.Resources"/>.</summary>
-        public ResourceOperation Resources { get; set; } = new(); // ASSUMPTION: ResourceOperation already exists in SDK
+        public ResourceOperation Resources { get; set; }
     }
 
     /// <summary>
@@ -175,7 +175,7 @@ namespace IDosGames
         public int Weight { get; set; }
 
         /// <summary>Base cost for level 1; scales linearly via <see cref="CostScalingFactor"/>.</summary>
-        public ResourceConsume BaseCostResource { get; set; } // ASSUMPTION: ResourceConsume already exists in SDK
+        public ResourceConsume BaseCostResource { get; set; }
 
         public double CostScalingFactor { get; set; }
         public double BaseStatValue { get; set; }
@@ -203,9 +203,9 @@ namespace IDosGames
         public int Level { get; set; }
 
         /// <summary>Cost of stepping into this level (consumed atomically by the server).</summary>
-        public ResourceConsume UpgradeCost { get; set; } // ASSUMPTION: ResourceConsume already exists in SDK
+        public ResourceConsume UpgradeCost { get; set; }
 
-        public double GlobalStatMultiplier { get; set; } = 1.0;
+        public double GlobalStatMultiplier { get; set; }
 
         /// <summary>Multiplier applied to <see cref="StatDefinition.MaxLevel"/> at this rank.</summary>
         public float StatMaxLevelMultiplier { get; set; }

@@ -16,21 +16,11 @@ namespace IDosGames
         public event Action OnSocialUpdated;
 
         public event Action OnCharacterUpdated;
-        //public event Action OnLimitedTimeEventsUpdated;
-        //public event Action OnCustomUserDataUpdated;
-        //public event Action OnUserPublicDataUpdated;
-        //public event Action OnBoardUpdated;
-        //public event Action OnQuestsUpdated;
-        //public event Action OnCharactersUpdated;
-        //public event Action OnDailyRewardsUpdated;
-        //public event Action OnPremiumUpdated;
-        //public event Action OnLeaderboardDataUpdated;
-        //public event Action OnPvPBattleStrategyUpdated;
-        //public event Action OnDealOffersUpdated;
-        //public event Action OnActiveDealSlotsUpdated;
-        //public event Action OnLeaderboardProgressUpdated;
-        //public event Action OnReferralUpdated;
-        //public event Action OnStoreUpdated;
+        public event Action OnTimedEventUpdated;
+        public event Action OnQuestUpdated;
+
+        private GetActiveEventsResponse _activeEventsCache;
+        public GetActiveEventsResponse GetCachedActiveEvents() => _activeEventsCache;
 
         internal UserData() { }
 
@@ -578,6 +568,194 @@ namespace IDosGames
             State.Social ??= new();
             State.Social.Accepted?.Remove(userId);
             OnSocialUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void ApplyActiveEvents(GetActiveEventsResponse data)
+        {
+            _activeEventsCache = data ?? new GetActiveEventsResponse();
+            OnTimedEventUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void ApplyUserLteState(UserTimedEventStateResponse data)
+        {
+            if (data == null) return;
+
+            State ??= new();
+            State.EventToken ??= new UserEventTokensState();
+            State.EventToken.TimedEvent ??= new UserTimedEventTokenState();
+
+            State.EventToken.TimedEvent.Scheduled = data.Scheduled ?? new();
+            State.EventToken.TimedEvent.Chain = data.Chain ?? new();
+
+            OnTimedEventUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchTimedEventMilestoneClaimed(TimedEventType type, string lteID, string milestoneID)
+        {
+            if (string.IsNullOrWhiteSpace(lteID) || string.IsNullOrWhiteSpace(milestoneID)) return;
+
+            State ??= new();
+            State.EventToken ??= new UserEventTokensState();
+            State.EventToken.TimedEvent ??= new UserTimedEventTokenState();
+
+            Dictionary<string, UserEventTokenProgress> dict;
+            if (type == TimedEventType.Scheduled)
+            {
+                State.EventToken.TimedEvent.Scheduled ??= new();
+                dict = State.EventToken.TimedEvent.Scheduled;
+            }
+            else
+            {
+                State.EventToken.TimedEvent.Chain ??= new();
+                dict = State.EventToken.TimedEvent.Chain;
+            }
+
+            if (!dict.TryGetValue(lteID, out var progress) || progress == null)
+            {
+                progress = new UserEventTokenProgress();
+                dict[lteID] = progress;
+            }
+
+            progress.Milestone ??= new EventTokenMilestoneData();
+            progress.Milestone.ClaimedIDs ??= new();
+
+            if (!progress.Milestone.ClaimedIDs.Contains(milestoneID))
+                progress.Milestone.ClaimedIDs.Add(milestoneID);
+
+            progress.Milestone.UnlockedIDs?.Remove(milestoneID);
+
+            OnTimedEventUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void ApplyQuest(UserQuestState data)
+        {
+            State ??= new();
+            State.Quest = data ?? new UserQuestState();
+            OnQuestUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchQuestStatus(string questID, string cycleID, QuestStatus status)
+        {
+            if (string.IsNullOrWhiteSpace(questID)) return;
+
+            State ??= new();
+            State.Quest ??= new UserQuestState();
+
+            if (string.IsNullOrWhiteSpace(cycleID))
+            {
+                State.Quest.PermanentQuests ??= new Dictionary<string, UserQuestProgress>();
+                if (!State.Quest.PermanentQuests.TryGetValue(questID, out var progress) || progress == null)
+                {
+                    progress = new UserQuestProgress { QuestID = questID };
+                    State.Quest.PermanentQuests[questID] = progress;
+                }
+                progress.Status = status;
+                if (status == QuestStatus.Claimed)
+                    progress.ClaimedAtUtc ??= DateTime.UtcNow;
+            }
+            else
+            {
+                State.Quest.Cycles ??= new Dictionary<string, UserQuestCycleState>();
+                if (!State.Quest.Cycles.TryGetValue(cycleID, out var cycle) || cycle == null) return;
+
+                cycle.Quests ??= new Dictionary<string, UserQuestProgress>();
+                if (!cycle.Quests.TryGetValue(questID, out var progress) || progress == null)
+                {
+                    progress = new UserQuestProgress { QuestID = questID };
+                    cycle.Quests[questID] = progress;
+                }
+                progress.Status = status;
+                if (status == QuestStatus.Claimed)
+                    progress.ClaimedAtUtc ??= DateTime.UtcNow;
+            }
+
+            OnQuestUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchMilestoneClaimed(string cycleID, string milestoneID, int completedQuestsCount)
+        {
+            if (string.IsNullOrWhiteSpace(cycleID) || string.IsNullOrWhiteSpace(milestoneID)) return;
+
+            State ??= new();
+            State.Quest ??= new UserQuestState();
+            State.Quest.Cycles ??= new Dictionary<string, UserQuestCycleState>();
+
+            if (!State.Quest.Cycles.TryGetValue(cycleID, out var cycle) || cycle == null) return;
+
+            cycle.ClaimedMilestoneIDs ??= new List<string>();
+            if (!cycle.ClaimedMilestoneIDs.Contains(milestoneID))
+                cycle.ClaimedMilestoneIDs.Add(milestoneID);
+
+            cycle.CompletedQuestsCount = completedQuestsCount;
+
+            OnQuestUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchQuestProgressUpdates(List<QuestProgressUpdate> updates)
+        {
+            if (updates == null || updates.Count == 0) return;
+
+            State ??= new();
+            State.Quest ??= new UserQuestState();
+
+            foreach (var upd in updates)
+            {
+                if (upd == null || string.IsNullOrWhiteSpace(upd.QuestID)) continue;
+
+                UserQuestProgress progress = null;
+
+                if (string.IsNullOrWhiteSpace(upd.CycleID))
+                {
+                    State.Quest.PermanentQuests ??= new Dictionary<string, UserQuestProgress>();
+                    if (!State.Quest.PermanentQuests.TryGetValue(upd.QuestID, out progress) || progress == null)
+                    {
+                        progress = new UserQuestProgress { QuestID = upd.QuestID };
+                        State.Quest.PermanentQuests[upd.QuestID] = progress;
+                    }
+                }
+                else
+                {
+                    State.Quest.Cycles ??= new Dictionary<string, UserQuestCycleState>();
+                    if (!State.Quest.Cycles.TryGetValue(upd.CycleID, out var cycle) || cycle == null) continue;
+
+                    cycle.Quests ??= new Dictionary<string, UserQuestProgress>();
+                    if (!cycle.Quests.TryGetValue(upd.QuestID, out progress) || progress == null)
+                    {
+                        progress = new UserQuestProgress { QuestID = upd.QuestID };
+                        cycle.Quests[upd.QuestID] = progress;
+                    }
+                }
+
+                progress.Status = upd.Status;
+
+                if (!string.IsNullOrWhiteSpace(upd.ObjectiveID))
+                {
+                    progress.Objectives ??= new Dictionary<string, UserQuestObjectiveProgress>();
+                    if (!progress.Objectives.TryGetValue(upd.ObjectiveID, out var obj) || obj == null)
+                    {
+                        obj = new UserQuestObjectiveProgress { ObjectiveID = upd.ObjectiveID };
+                        progress.Objectives[upd.ObjectiveID] = obj;
+                    }
+                    obj.CurrentValue = upd.NewValue;
+                    if (upd.ObjectiveCompleted)
+                    {
+                        obj.Completed = true;
+                        obj.CompletedAtUtc ??= DateTime.UtcNow;
+                    }
+                }
+
+                if (upd.Status == QuestStatus.Completed)
+                    progress.CompletedAtUtc ??= DateTime.UtcNow;
+            }
+
+            OnQuestUpdated?.Invoke();
             OnAnyUpdated?.Invoke();
         }
     }

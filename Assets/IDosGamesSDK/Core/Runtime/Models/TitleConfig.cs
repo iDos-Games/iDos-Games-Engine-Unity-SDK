@@ -13,6 +13,8 @@ namespace IDosGames
         public event Action OnItemDefinitionsUpdated;
 
         public event Action OnCharacterDefinitionsUpdated;
+        public event Action OnTimedEventDefinitionsUpdated;
+        public event Action OnQuestDefinitionsUpdated;
 
         internal TitleConfig() { }
 
@@ -49,6 +51,22 @@ namespace IDosGames
         {
             TitlePublicConfiguration.Currency = data;
             OnCurrencyDefinitionsUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchTimedEvent(TimedEventDefinitions data)
+        {
+            TitlePublicConfiguration ??= new();
+            TitlePublicConfiguration.TimedEvent = data;
+            OnTimedEventDefinitionsUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchQuest(QuestDefinitions data)
+        {
+            TitlePublicConfiguration ??= new();
+            TitlePublicConfiguration.Quest = data;
+            OnQuestDefinitionsUpdated?.Invoke();
             OnAnyUpdated?.Invoke();
         }
     }
