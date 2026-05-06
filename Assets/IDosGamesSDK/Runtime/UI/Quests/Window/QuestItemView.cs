@@ -83,11 +83,7 @@ namespace IDosGames.UI.Quest
             {
                 var child = _objectiveContainer.GetChild(i);
                 if (child == _objectiveTemplate.transform) continue;
-        #if UNITY_EDITOR
-                if (!Application.isPlaying) DestroyImmediate(child.gameObject);
-                else
-        #endif
-                    Destroy(child.gameObject);
+                DestroyImmediate(child.gameObject);
             }
 
             if (!hasObjectives) return;
@@ -116,11 +112,7 @@ namespace IDosGames.UI.Quest
             {
                 var child = _rewardContainer.GetChild(i);
                 if (child == _rewardRowTemplate) continue;
-        #if UNITY_EDITOR
-                if (!Application.isPlaying) DestroyImmediate(child.gameObject);
-                else
-        #endif
-                    Destroy(child.gameObject);
+                DestroyImmediate(child.gameObject);
             }
 
             if (!hasRewards) return;

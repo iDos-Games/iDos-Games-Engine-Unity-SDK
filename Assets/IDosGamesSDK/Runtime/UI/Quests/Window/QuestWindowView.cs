@@ -42,7 +42,7 @@ namespace IDosGames.UI.Quest
         public Button ActivatePremiumButton => _activatePremiumButton;
 
         /// <summary>CycleID активного таба; "" = постоянные квесты.</summary>
-        public string ActiveTabId { get; private set; } = "";
+        public string ActiveTabId { get; private set; } = "Ежедневные";
 
         private QuestWindowModel                  _cachedModel;
         private Func<string, string, UnityAction> _cachedClaimQuestFactory;
@@ -100,8 +100,12 @@ namespace IDosGames.UI.Quest
         {
             if (_tabTemplate == null || _tabContainer == null) return;
 
-            foreach (var t in _spawnedTabs)
-                if (t != null) DestroyImmediate(t.gameObject);
+            for (int i = _tabContainer.childCount - 1; i >= 0; i--)
+            {
+                var child = _tabContainer.GetChild(i);
+                if (child == _tabTemplate.transform) continue;
+                DestroyImmediate(child.gameObject);
+            }
             _spawnedTabs.Clear();
 
             // One tab per cycle
@@ -219,9 +223,8 @@ namespace IDosGames.UI.Quest
                 var ms = NextMilestone(cycle);
                 if (ms != null)
                 {
-                    var msItem    = Instantiate(_milestoneTemplate, _questListContainer);
-                    long reward   = ms.Rewards?.FirstOrDefault()?.Amount ?? 0;
-                    var state     = ms.IsFreeClaimed
+                    var msItem = Instantiate(_milestoneTemplate, _questListContainer);
+                    var state  = ms.IsFreeClaimed
                                         ? QuestMilestoneState.Claimed
                                         : ms.IsReached
                                             ? QuestMilestoneState.Reached
@@ -235,7 +238,7 @@ namespace IDosGames.UI.Quest
                         requiredCount: ms.RequiredCount,
                         currentCount:  cycle.CompletedCount,
                         previousCount: prevRequired,
-                        rewardAmount:  reward,
+                        rewards:       ms.Rewards,
                         state:         state,
                         iconPath:      ms.IconPath,
                         onClaim:       _cachedClaimMilestoneFactory?.Invoke(ms.CycleID, ms.MilestoneID)
