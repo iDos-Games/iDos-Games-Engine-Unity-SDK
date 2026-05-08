@@ -223,7 +223,7 @@ namespace IDosGames
     [Serializable]
     public class LeaderboardDefinition
     {
-        /// <summary>Unique leaderboard ID. MongoDB-safe (no '.' or '$'). Example: "weekly_pvp".</summary>
+        /// <summary>Unique leaderboard ID. Example: "weekly_pvp".</summary>
         public string LeaderboardID;
 
         public string DisplayName;

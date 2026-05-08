@@ -20,6 +20,18 @@ namespace IDosGames
         public event Action OnQuestUpdated;
         public event Action OnSeasonUpdated;
         public event Action OnLeaderboardUpdated;
+        public event Action OnCollectionUpdated;
+        public event Action OnCoopEventUpdated;
+        public event Action OnDealOfferUpdated;
+        public event Action OnGameLoopUpdated;
+        public event Action OnLootboxUpdated;
+        public event Action OnMatchUpdated;
+        public event Action OnPremiumUpdated;
+        public event Action OnReferralUpdated;
+        public event Action OnRewardUpdated;
+        public event Action OnStoreUpdated;
+        public event Action OnTimedBoostUpdated;
+        public event Action OnUserCustomDataUpdated;
 
         private GetActiveEventsResponse _activeEventsCache;
         public GetActiveEventsResponse GetCachedActiveEvents() => _activeEventsCache;
@@ -512,67 +524,6 @@ namespace IDosGames
             OnAnyUpdated?.Invoke();
         }
 
-        internal void PatchSocialRecommended(List<string> userIds)
-        {
-            State.Social ??= new();
-            State.Social.RecommendedFriends = userIds;
-            OnSocialUpdated?.Invoke();
-            OnAnyUpdated?.Invoke();
-        }
-
-        internal void PatchSocialAccepted(List<string> userIds)
-        {
-            State.Social ??= new();
-            State.Social.Accepted = userIds;
-            OnSocialUpdated?.Invoke();
-            OnAnyUpdated?.Invoke();
-        }
-
-        internal void PatchSocialIncomingRequests(List<string> userIds)
-        {
-            State.Social ??= new();
-            State.Social.IncomingRequests = userIds;
-            OnSocialUpdated?.Invoke();
-            OnAnyUpdated?.Invoke();
-        }
-
-        internal void PatchSocialOutgoingAdd(string userId)
-        {
-            State.Social ??= new();
-            State.Social.OutgoingRequests ??= new();
-            if (!State.Social.OutgoingRequests.Contains(userId))
-                State.Social.OutgoingRequests.Add(userId);
-            OnSocialUpdated?.Invoke();
-            OnAnyUpdated?.Invoke();
-        }
-
-        internal void PatchSocialAcceptRequest(string userId)
-        {
-            State.Social ??= new();
-            State.Social.IncomingRequests?.Remove(userId);
-            State.Social.Accepted ??= new();
-            if (!State.Social.Accepted.Contains(userId))
-                State.Social.Accepted.Add(userId);
-            OnSocialUpdated?.Invoke();
-            OnAnyUpdated?.Invoke();
-        }
-
-        internal void PatchSocialRemoveIncoming(string userId)
-        {
-            State.Social ??= new();
-            State.Social.IncomingRequests?.Remove(userId);
-            OnSocialUpdated?.Invoke();
-            OnAnyUpdated?.Invoke();
-        }
-
-        internal void PatchSocialRemoveFriend(string userId)
-        {
-            State.Social ??= new();
-            State.Social.Accepted?.Remove(userId);
-            OnSocialUpdated?.Invoke();
-            OnAnyUpdated?.Invoke();
-        }
-
         internal void ApplyActiveEvents(GetActiveEventsResponse data)
         {
             _activeEventsCache = data ?? new GetActiveEventsResponse();
@@ -919,6 +870,603 @@ namespace IDosGames
 
             OnLeaderboardUpdated?.Invoke();
             OnAnyUpdated?.Invoke();
+        }
+
+        internal void ApplyCollection(UserCollectionState data)
+        {
+            State ??= new();
+            State.Collection = data ?? new UserCollectionState();
+            OnCollectionUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void ApplyCoopEvent(UserCoopEventState data)
+        {
+            State ??= new();
+            State.CoopEvent = data ?? new UserCoopEventState { MyObjectIndex = -1 };
+            OnCoopEventUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchCoopEventActiveGroup(string groupID, string coopEventID, int myObjectIndex)
+        {
+            State ??= new();
+            State.CoopEvent ??= new UserCoopEventState { MyObjectIndex = -1 };
+
+            State.CoopEvent.ActiveGroupID = groupID;
+            State.CoopEvent.ActiveCoopEventID = coopEventID;
+            State.CoopEvent.MyObjectIndex = myObjectIndex;
+
+            OnCoopEventUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void ApplyDealOffer(UserDealOffersState data)
+        {
+            State ??= new();
+            State.DealOffer = data ?? new UserDealOffersState();
+            OnDealOfferUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchDealOfferSlotDismissed(string slotID, DateTime serverTimeUtc)
+        {
+            if (string.IsNullOrWhiteSpace(slotID)) return;
+
+            State ??= new();
+            State.DealOffer ??= new UserDealOffersState();
+            State.DealOffer.Slots ??= new();
+
+            if (!State.DealOffer.Slots.TryGetValue(slotID, out var slot) || slot == null)
+                return;
+
+            if (slot.ActiveOffer != null)
+            {
+                slot.ActiveOffer.Status = DealOfferActivationStatus.Dismissed;
+                slot.ActiveOffer.DismissedAtUtc = serverTimeUtc;
+            }
+
+            slot.LastDismissedAtUtc = serverTimeUtc;
+            slot.LastUpdatedUtc = serverTimeUtc;
+            State.DealOffer.LastUpdatedUtc = serverTimeUtc;
+
+            OnDealOfferUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchDealOfferNodeExecuted(string slotID, string nodeID, bool nodeCompleted, bool offerExhausted, DateTime serverTimeUtc)
+        {
+            if (string.IsNullOrWhiteSpace(slotID) || string.IsNullOrWhiteSpace(nodeID)) return;
+
+            State ??= new();
+            State.DealOffer ??= new UserDealOffersState();
+            State.DealOffer.Slots ??= new();
+
+            if (!State.DealOffer.Slots.TryGetValue(slotID, out var slot) || slot?.ActiveOffer == null)
+                return;
+
+            var activation = slot.ActiveOffer;
+            activation.Nodes ??= new();
+
+            if (!activation.Nodes.TryGetValue(nodeID, out var nodeState) || nodeState == null)
+            {
+                nodeState = new UserDealNodeState { NodeID = nodeID };
+                activation.Nodes[nodeID] = nodeState;
+            }
+
+            nodeState.ExecutionCount++;
+            nodeState.LastExecutedAtUtc = serverTimeUtc;
+
+            if (nodeCompleted)
+            {
+                nodeState.Status = DealNodeRuntimeStatus.Completed;
+                nodeState.CompletedAtUtc = serverTimeUtc;
+            }
+            else
+            {
+                nodeState.Status = DealNodeRuntimeStatus.Available;
+            }
+
+            if (offerExhausted)
+            {
+                activation.Status = DealOfferActivationStatus.Exhausted;
+                activation.ExhaustedAtUtc = serverTimeUtc;
+            }
+
+            slot.LastUpdatedUtc = serverTimeUtc;
+            State.DealOffer.LastUpdatedUtc = serverTimeUtc;
+
+            OnDealOfferUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchDealOfferShowRecorded(string slotID, DateTime serverTimeUtc)
+        {
+            if (string.IsNullOrWhiteSpace(slotID)) return;
+
+            State ??= new();
+            State.DealOffer ??= new UserDealOffersState();
+            State.DealOffer.Slots ??= new();
+
+            if (!State.DealOffer.Slots.TryGetValue(slotID, out var slot) || slot?.ActiveOffer == null)
+                return;
+
+            slot.ActiveOffer.ShowCount++;
+            slot.ActiveOffer.LastShownAtUtc = serverTimeUtc;
+            slot.LastUpdatedUtc = serverTimeUtc;
+            State.DealOffer.LastUpdatedUtc = serverTimeUtc;
+
+            OnDealOfferUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void ApplyBoardState(BoardLoopState data)
+        {
+            State ??= new();
+            State.GameLoop ??= new UserGameLoopsState();
+            State.GameLoop.Board = data ?? new BoardLoopState();
+            OnGameLoopUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchBoardState(Action<BoardLoopState> patch)
+        {
+            if (patch == null) return;
+            State ??= new();
+            State.GameLoop ??= new UserGameLoopsState();
+            State.GameLoop.Board ??= new BoardLoopState();
+            patch(State.GameLoop.Board);
+            OnGameLoopUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchBoardBuilding(int slotIndex, Action<BuildingState> patch)
+        {
+            if (patch == null || slotIndex < 0) return;
+            State ??= new();
+            State.GameLoop ??= new UserGameLoopsState();
+            State.GameLoop.Board ??= new BoardLoopState();
+            State.GameLoop.Board.BuildingStates ??= new();
+
+            var building = State.GameLoop.Board.BuildingStates.Find(b => b?.SlotIndex == slotIndex);
+            if (building == null)
+            {
+                building = new BuildingState { SlotIndex = slotIndex };
+                State.GameLoop.Board.BuildingStates.Add(building);
+            }
+
+            patch(building);
+            OnGameLoopUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchBoardPendingRaidLayout(List<HeistCell> updatedLayout, int openedIndex)
+        {
+            State ??= new();
+            State.GameLoop ??= new UserGameLoopsState();
+            State.GameLoop.Board ??= new BoardLoopState();
+
+            var pending = State.GameLoop.Board.Pending;
+            if (pending == null) return;
+
+            if (updatedLayout != null)
+                pending.RaidLayout = updatedLayout;
+
+            if (openedIndex >= 0 && !(pending.OpenedIndices ??= new()).Contains(openedIndex))
+                pending.OpenedIndices.Add(openedIndex);
+
+            OnGameLoopUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void ApplyLootbox(UserLootboxState data)
+        {
+            State ??= new();
+            State.Lootbox = data ?? new UserLootboxState();
+            OnLootboxUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void ApplyLootboxPityTriggers(string lootboxID, System.Collections.Generic.List<LootboxPityTriggerResponse> triggeredPity, int count)
+        {
+            if (string.IsNullOrWhiteSpace(lootboxID) || count <= 0) return;
+
+            State ??= new();
+            State.Lootbox ??= new UserLootboxState();
+            State.Lootbox.Pity ??= new System.Collections.Generic.Dictionary<string, UserLootboxPityCounter>();
+
+            // —чЄтчик дл€ каждого сработавшего правила Ч сбрасываем по модулю.
+            // ѕор€док обработки: сначала сработавшие (с точным newCounter = (current + count) % Threshold),
+            // затем не сработавшие инкрементируютс€ на count без сброса.
+            // “ак как клиент не знает Threshold, дл€ сработавших просто занул€ем счЄтчик
+            if (triggeredPity != null)
+            {
+                var now = System.DateTime.UtcNow;
+                foreach (var trigger in triggeredPity)
+                {
+                    if (string.IsNullOrWhiteSpace(trigger?.RuleID)) continue;
+                    string key = $"{lootboxID}:{trigger.RuleID}";
+                    State.Lootbox.Pity[key] = new UserLootboxPityCounter
+                    {
+                        OpensSinceLastTrigger = 0,
+                        LastTriggeredAtUtc = now,
+                    };
+                }
+            }
+
+            OnLootboxUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void ApplyMatch(UserMatchState data)
+        {
+            State ??= new();
+            State.Match = data ?? new UserMatchState();
+            OnMatchUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchMatchStrategy(List<BattleStepConfig> strategy)
+        {
+            if (strategy == null) return;
+
+            State ??= new();
+            State.Match ??= new UserMatchState();
+            State.Match.PvPBattleStrategy = strategy;
+            OnMatchUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void ApplyPremium(UserPremiumState data)
+        {
+            State ??= new();
+            State.Premium = data ?? new UserPremiumState();
+            OnPremiumUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchPremiumSubscription(string premiumID, PremiumSubscription subscription)
+        {
+            if (string.IsNullOrWhiteSpace(premiumID) || subscription == null) return;
+
+            State ??= new();
+            State.Premium ??= new UserPremiumState();
+            State.Premium.Subscriptions ??= new Dictionary<string, PremiumSubscription>();
+            State.Premium.Subscriptions[premiumID] = subscription;
+
+            OnPremiumUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void ApplyReferral(UserReferralState data)
+        {
+            State ??= new();
+            State.Referral = data ?? new UserReferralState();
+            OnReferralUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchReferralSubscription(string referralCode)
+        {
+            if (string.IsNullOrWhiteSpace(referralCode)) return;
+
+            State ??= new();
+            State.Referral ??= new UserReferralState();
+            State.Referral.SubscribedToUserID = referralCode;
+            State.Referral.UpdatedAt = DateTime.UtcNow;
+            OnReferralUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchReferralInviteRewardClaimed(string rewardID)
+        {
+            if (string.IsNullOrWhiteSpace(rewardID)) return;
+
+            State ??= new();
+            State.Referral ??= new UserReferralState();
+            State.Referral.InviteRewardStates ??= new();
+            State.Referral.InviteRewardStates[rewardID] = new ReferralInviteRewardState
+            {
+                RewardID = rewardID,
+                IsClaimed = true,
+                ClaimedAt = DateTime.UtcNow,
+            };
+            OnReferralUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void ApplyReward(UserRewardState data)
+        {
+            State ??= new UserState();
+            State.Reward = data ?? new UserRewardState();
+            OnRewardUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchDailyCalendarState(string calendarID, UserDailyCalendarState newState)
+        {
+            if (string.IsNullOrWhiteSpace(calendarID) || newState == null) return;
+
+            State ??= new UserState();
+            State.Reward ??= new UserRewardState();
+            State.Reward.DailyCalendars ??= new Dictionary<string, UserDailyCalendarState>();
+            State.Reward.DailyCalendars[calendarID] = newState;
+
+            OnRewardUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchIdleAccrualState(string accrualID, UserIdleAccrualState newState)
+        {
+            if (string.IsNullOrWhiteSpace(accrualID) || newState == null) return;
+
+            State ??= new UserState();
+            State.Reward ??= new UserRewardState();
+            State.Reward.IdleAccruals ??= new Dictionary<string, UserIdleAccrualState>();
+            State.Reward.IdleAccruals[accrualID] = newState;
+
+            OnRewardUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchComebackState(string comebackID, UserComebackState newState)
+        {
+            if (string.IsNullOrWhiteSpace(comebackID) || newState == null) return;
+
+            State ??= new UserState();
+            State.Reward ??= new UserRewardState();
+            State.Reward.Comebacks ??= new Dictionary<string, UserComebackState>();
+            State.Reward.Comebacks[comebackID] = newState;
+
+            OnRewardUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchClaimRewardState(string claimID, UserClaimRewardState newState)
+        {
+            if (string.IsNullOrWhiteSpace(claimID) || newState == null) return;
+
+            State ??= new UserState();
+            State.Reward ??= new UserRewardState();
+            State.Reward.Claims ??= new Dictionary<string, UserClaimRewardState>();
+            State.Reward.Claims[claimID] = newState;
+
+            OnRewardUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void ApplySocialFriendsList(List<FriendPublicProfile> friends)
+        {
+            State ??= new();
+            State.Social ??= new UserSocialState();
+            State.Social.Accepted = friends == null
+                ? new List<string>()
+                : friends.ConvertAll(f => f.UserID);
+            OnSocialUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void ApplySocialIncomingRequests(List<FriendPublicProfile> profiles)
+        {
+            State ??= new();
+            State.Social ??= new UserSocialState();
+            State.Social.IncomingRequests = profiles == null
+                ? new List<string>()
+                : profiles.ConvertAll(p => p.UserID);
+            OnSocialUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void ApplySocialTimeline(List<SocialTimelineEvent> events)
+        {
+            State ??= new();
+            State.Social ??= new UserSocialState();
+            State.Social.Timeline = events ?? new List<SocialTimelineEvent>();
+            OnSocialUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchSocialAddOutgoingRequest(string targetUserID)
+        {
+            if (string.IsNullOrWhiteSpace(targetUserID)) return;
+            State ??= new();
+            State.Social ??= new UserSocialState();
+            State.Social.OutgoingRequests ??= new List<string>();
+            if (!State.Social.OutgoingRequests.Contains(targetUserID))
+                State.Social.OutgoingRequests.Add(targetUserID);
+            OnSocialUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchSocialAcceptFriend(string requesterUserID)
+        {
+            if (string.IsNullOrWhiteSpace(requesterUserID)) return;
+            State ??= new();
+            State.Social ??= new UserSocialState();
+            State.Social.IncomingRequests ??= new List<string>();
+            State.Social.Accepted ??= new List<string>();
+            State.Social.IncomingRequests.Remove(requesterUserID);
+            if (!State.Social.Accepted.Contains(requesterUserID))
+                State.Social.Accepted.Add(requesterUserID);
+            OnSocialUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchSocialRemoveIncomingRequest(string requesterUserID)
+        {
+            if (string.IsNullOrWhiteSpace(requesterUserID)) return;
+            State ??= new();
+            State.Social ??= new UserSocialState();
+            State.Social.IncomingRequests ??= new List<string>();
+            State.Social.IncomingRequests.Remove(requesterUserID);
+            OnSocialUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchSocialRemoveFriend(string friendUserID)
+        {
+            if (string.IsNullOrWhiteSpace(friendUserID)) return;
+            State ??= new();
+            State.Social ??= new UserSocialState();
+            State.Social.Accepted ??= new List<string>();
+            State.Social.Accepted.Remove(friendUserID);
+            OnSocialUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void ApplyStore(UserStoreState data)
+        {
+            State ??= new();
+            State.Store = data ?? new UserStoreState();
+            OnStoreUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchStorePurchase(string offerID, int count, DateTime serverTimeUtc)
+        {
+            if (string.IsNullOrWhiteSpace(offerID) || count < 1) return;
+
+            State ??= new();
+            State.Store ??= new UserStoreState();
+            State.Store.Purchases ??= new System.Collections.Generic.Dictionary<string, StorePurchaseState>();
+
+            if (!State.Store.Purchases.TryGetValue(offerID, out var state) || state == null)
+            {
+                state = new StorePurchaseState { OfferID = offerID };
+                State.Store.Purchases[offerID] = state;
+            }
+
+            state.TotalPurchases += count;
+            state.LastPurchasedAt = serverTimeUtc;
+
+            // ƒейли-окно: если сброс уже прошЄл Ч начинаем новое окно.
+            if (serverTimeUtc >= state.DailyResetUtc)
+            {
+                state.DailyPurchases = count;
+                state.DailyResetUtc = serverTimeUtc.Date.AddDays(1);
+            }
+            else
+            {
+                state.DailyPurchases += count;
+            }
+
+            OnStoreUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void ApplyTimedBoost(UserTimedBoostsState data)
+        {
+            State ??= new();
+            State.TimedBoost = data ?? new UserTimedBoostsState();
+            OnTimedBoostUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchActiveTimedBoost(ActiveTimedBoost boost, TimedBoostStackingPolicy policy)
+        {
+            if (boost == null) return;
+
+            State ??= new();
+            State.TimedBoost ??= new UserTimedBoostsState();
+            State.TimedBoost.Active ??= new System.Collections.Generic.Dictionary<string, ActiveTimedBoost>();
+
+            // ƒл€ Replace и KeepBest на клиенте убираем прежние экземпл€ры с тем же BoostID,
+            // чтобы локальный кэш не расходилс€ с серверным состо€нием.
+            if (policy == TimedBoostStackingPolicy.Replace || policy == TimedBoostStackingPolicy.KeepBest)
+            {
+                var toRemove = new System.Collections.Generic.List<string>();
+                foreach (var kv in State.TimedBoost.Active)
+                {
+                    if (kv.Value != null &&
+                        string.Equals(kv.Value.BoostID, boost.BoostID, StringComparison.Ordinal) &&
+                        !string.Equals(kv.Key, boost.InstanceID, StringComparison.Ordinal))
+                    {
+                        toRemove.Add(kv.Key);
+                    }
+                }
+                foreach (var key in toRemove)
+                    State.TimedBoost.Active.Remove(key);
+            }
+
+            State.TimedBoost.Active[boost.InstanceID] = boost;
+            OnTimedBoostUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void ApplyUserCustomData(GetMyUserCustomDataResponse data)
+        {
+            State ??= new();
+            State.CustomData ??= new UserCustomDataState();
+            State.CustomData.Version = data.Version;
+            State.CustomData.Private = data.Private ?? new Dictionary<string, UserCustomDataRecord>();
+            State.CustomData.Public = data.Public ?? new Dictionary<string, UserCustomDataRecord>();
+            State.CustomData.ReadOnly = data.ReadOnly ?? new Dictionary<string, UserCustomDataRecord>();
+            OnUserCustomDataUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchUserCustomDataKey(
+            CustomDataBucket bucket,
+            string keyID,
+            string value,
+            int version,
+            DateTime? expiresAt)
+        {
+            if (string.IsNullOrWhiteSpace(keyID)) return;
+
+            State ??= new();
+            State.CustomData ??= new UserCustomDataState();
+
+            var record = new UserCustomDataRecord
+            {
+                Value = value,
+                UpdatedAt = DateTime.UtcNow,
+                Version = version,
+                LastWriter = CustomDataWriter.Client,
+                ExpiresAt = expiresAt,
+            };
+
+            switch (bucket)
+            {
+                case CustomDataBucket.Private:
+                    State.CustomData.Private ??= new Dictionary<string, UserCustomDataRecord>();
+                    State.CustomData.Private[keyID] = record;
+                    break;
+                case CustomDataBucket.Public:
+                    State.CustomData.Public ??= new Dictionary<string, UserCustomDataRecord>();
+                    State.CustomData.Public[keyID] = record;
+                    break;
+                default:
+                    return; // клиент патчит только Private/Public
+            }
+
+            State.CustomData.Version++;
+            OnUserCustomDataUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void RemoveUserCustomDataKey(CustomDataBucket bucket, string keyID)
+        {
+            if (string.IsNullOrWhiteSpace(keyID)) return;
+            if (State?.CustomData == null) return;
+
+            bool removed = false;
+            switch (bucket)
+            {
+                case CustomDataBucket.Private:
+                    removed = State.CustomData.Private?.Remove(keyID) ?? false;
+                    break;
+                case CustomDataBucket.Public:
+                    removed = State.CustomData.Public?.Remove(keyID) ?? false;
+                    break;
+            }
+
+            if (removed)
+            {
+                State.CustomData.Version++;
+                OnUserCustomDataUpdated?.Invoke();
+                OnAnyUpdated?.Invoke();
+            }
         }
     }
 }

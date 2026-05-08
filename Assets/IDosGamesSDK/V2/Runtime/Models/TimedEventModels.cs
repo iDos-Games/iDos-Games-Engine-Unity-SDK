@@ -542,20 +542,6 @@ namespace IDosGames
         FeaturedAfterEnd,
     }
 
-    /// <summary>Tile type on the board. Used for BoardTileLanding source filtering.</summary>
-    [JsonConverter(typeof(StringEnumConverter))]
-    public enum BoardTileType
-    {
-        Empty,
-        Reward,
-        Chance,
-        RandomAction,
-        Attack,
-        Raid,
-        Shield,
-        EventToken,
-    }
-
     /// <summary>Type of system that may grant event tokens.</summary>
     [JsonConverter(typeof(StringEnumConverter))]
     public enum EventTokenSourceType

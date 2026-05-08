@@ -2,6 +2,7 @@ namespace IDosGames
 {
     public static class DefaultData
     {
+        public const string Default = "Default";
         public const string Main = "Main";
 
         public const string CoinCurrencyId = "CO";
