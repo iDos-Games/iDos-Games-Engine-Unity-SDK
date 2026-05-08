@@ -13,6 +13,8 @@ namespace IDosGames
         public UserSocialState Social { get; set; }
         public UserCharactersState Character { get; set; }
         public UserQuestState Quest { get; set; }
+        public UserSeasonsState Season { get; set; }
+        public UserLeaderboardsState Leaderboard { get; set; }
     }
 
     [Serializable]

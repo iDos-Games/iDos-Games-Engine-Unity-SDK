@@ -18,6 +18,8 @@ namespace IDosGames
         public event Action OnCharacterUpdated;
         public event Action OnTimedEventUpdated;
         public event Action OnQuestUpdated;
+        public event Action OnSeasonUpdated;
+        public event Action OnLeaderboardUpdated;
 
         private GetActiveEventsResponse _activeEventsCache;
         public GetActiveEventsResponse GetCachedActiveEvents() => _activeEventsCache;
@@ -756,6 +758,166 @@ namespace IDosGames
             }
 
             OnQuestUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void ApplySeasonsState(UserSeasonsState data)
+        {
+            State ??= new();
+            State.Season = data ?? new UserSeasonsState();
+            OnSeasonUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchSeasonState(string chainID, UserSeasonState state)
+        {
+            if (string.IsNullOrWhiteSpace(chainID) || state == null) return;
+
+            State ??= new();
+            State.Season ??= new UserSeasonsState();
+            State.Season.States ??= new Dictionary<string, UserSeasonState>();
+            State.Season.States[chainID] = state;
+            OnSeasonUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchSeasonCurrentTier(string chainID, int newTier)
+        {
+            if (string.IsNullOrWhiteSpace(chainID)) return;
+
+            State ??= new();
+            State.Season ??= new UserSeasonsState();
+            State.Season.States ??= new Dictionary<string, UserSeasonState>();
+
+            if (!State.Season.States.TryGetValue(chainID, out var s) || s == null)
+            {
+                s = new UserSeasonState { SeasonChainID = chainID };
+                State.Season.States[chainID] = s;
+            }
+
+            s.CurrentTier = newTier;
+            OnSeasonUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchSeasonClaimedTier(string chainID, int tierNumber)
+        {
+            if (string.IsNullOrWhiteSpace(chainID)) return;
+
+            State ??= new();
+            State.Season ??= new UserSeasonsState();
+            State.Season.States ??= new Dictionary<string, UserSeasonState>();
+
+            if (!State.Season.States.TryGetValue(chainID, out var s) || s == null)
+            {
+                s = new UserSeasonState { SeasonChainID = chainID };
+                State.Season.States[chainID] = s;
+            }
+
+            s.ClaimedTierRewards ??= new List<int>();
+            if (!s.ClaimedTierRewards.Contains(tierNumber))
+                s.ClaimedTierRewards.Add(tierNumber);
+
+            OnSeasonUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void ApplyLeaderboardsState(UserLeaderboardsState data)
+        {
+            State ??= new();
+            State.Leaderboard = data ?? new UserLeaderboardsState();
+            OnLeaderboardUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchLeaderboardMyProgress(string cycleDocID, GetMyProgressResponse data)
+        {
+            if (string.IsNullOrWhiteSpace(cycleDocID) || data == null) return;
+
+            State ??= new();
+            State.Leaderboard ??= new UserLeaderboardsState();
+            State.Leaderboard.ProgressByCycle ??= new Dictionary<string, UserLeaderboardProgress>();
+
+            if (!State.Leaderboard.ProgressByCycle.TryGetValue(cycleDocID, out var p) || p == null)
+            {
+                p = new UserLeaderboardProgress();
+                State.Leaderboard.ProgressByCycle[cycleDocID] = p;
+            }
+
+            p.CurrentScore = data.CurrentScore;
+            p.LastKnownRank = data.LastKnownRank;
+            p.ScoreEarnedThisCycle = data.ScoreEarnedThisCycle;
+            p.UnclaimedRewardCycleVersion = data.HasUnclaimedReward
+                ? Math.Max(1, p.UnclaimedRewardCycleVersion)
+                : 0;
+
+            OnLeaderboardUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchLeaderboardScoreSubmitted(string cycleDocID, long newScore, long submittedScore, int cycleVersion)
+        {
+            if (string.IsNullOrWhiteSpace(cycleDocID)) return;
+
+            State ??= new();
+            State.Leaderboard ??= new UserLeaderboardsState();
+            State.Leaderboard.ProgressByCycle ??= new Dictionary<string, UserLeaderboardProgress>();
+
+            if (!State.Leaderboard.ProgressByCycle.TryGetValue(cycleDocID, out var p) || p == null)
+            {
+                p = new UserLeaderboardProgress();
+                State.Leaderboard.ProgressByCycle[cycleDocID] = p;
+            }
+
+            if (p.ScoreCycleVersion < cycleVersion)
+            {
+                p.ScoreEarnedThisCycle = 0;
+                p.ClaimedMilestoneIDs = new List<string>();
+                p.BracketID = null;
+            }
+
+            p.CurrentScore = newScore;
+            p.ScoreEarnedThisCycle += submittedScore;
+            p.ScoreCycleVersion = cycleVersion;
+            p.LastScoreSubmitUtc = DateTime.UtcNow;
+            OnLeaderboardUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchLeaderboardCycleRewardClaimed(string cycleDocID)
+        {
+            if (string.IsNullOrWhiteSpace(cycleDocID)) return;
+
+            State ??= new();
+            State.Leaderboard ??= new UserLeaderboardsState();
+            State.Leaderboard.ProgressByCycle ??= new Dictionary<string, UserLeaderboardProgress>();
+
+            if (!State.Leaderboard.ProgressByCycle.TryGetValue(cycleDocID, out var p) || p == null) return;
+
+            p.UnclaimedRewardCycleVersion = 0;
+            OnLeaderboardUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchLeaderboardMilestoneClaimed(string cycleDocID, string milestoneID)
+        {
+            if (string.IsNullOrWhiteSpace(cycleDocID) || string.IsNullOrWhiteSpace(milestoneID)) return;
+
+            State ??= new();
+            State.Leaderboard ??= new UserLeaderboardsState();
+            State.Leaderboard.ProgressByCycle ??= new Dictionary<string, UserLeaderboardProgress>();
+
+            if (!State.Leaderboard.ProgressByCycle.TryGetValue(cycleDocID, out var p) || p == null)
+            {
+                p = new UserLeaderboardProgress();
+                State.Leaderboard.ProgressByCycle[cycleDocID] = p;
+            }
+
+            p.ClaimedMilestoneIDs ??= new List<string>();
+            if (!p.ClaimedMilestoneIDs.Contains(milestoneID))
+                p.ClaimedMilestoneIDs.Add(milestoneID);
+
+            OnLeaderboardUpdated?.Invoke();
             OnAnyUpdated?.Invoke();
         }
     }

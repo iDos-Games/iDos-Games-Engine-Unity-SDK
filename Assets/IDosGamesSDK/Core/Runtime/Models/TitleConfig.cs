@@ -15,6 +15,8 @@ namespace IDosGames
         public event Action OnCharacterDefinitionsUpdated;
         public event Action OnTimedEventDefinitionsUpdated;
         public event Action OnQuestDefinitionsUpdated;
+        public event Action OnSeasonDefinitionsUpdated;
+        public event Action OnLeaderboardDefinitionsUpdated;
 
         internal TitleConfig() { }
 
@@ -67,6 +69,22 @@ namespace IDosGames
             TitlePublicConfiguration ??= new();
             TitlePublicConfiguration.Quest = data;
             OnQuestDefinitionsUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchSeason(SeasonDefinitions data)
+        {
+            TitlePublicConfiguration ??= new();
+            TitlePublicConfiguration.Season = data;
+            OnSeasonDefinitionsUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchLeaderboard(LeaderboardDefinitions data)
+        {
+            TitlePublicConfiguration ??= new();
+            TitlePublicConfiguration.Leaderboard = data;
+            OnLeaderboardDefinitionsUpdated?.Invoke();
             OnAnyUpdated?.Invoke();
         }
     }

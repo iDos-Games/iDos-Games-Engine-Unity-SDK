@@ -14,5 +14,7 @@ namespace IDosGames
         public CharacterDefinitions Character { get; set; }
         public TimedEventDefinitions TimedEvent { get; set; }
         public QuestDefinitions Quest { get; set; }
+        public SeasonDefinitions Season { get; set; }
+        public LeaderboardDefinitions Leaderboard { get; set; }
     }
 }
