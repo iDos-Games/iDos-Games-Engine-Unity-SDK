@@ -367,6 +367,114 @@ namespace IDosGames
         public bool IsFeatured { get; set; } = false;
     }
 
+    /// <summary>
+    /// Bonus window config for a single event. Stored in EventContent.BonusWindow,
+    /// works the same for both ScheduledEventDefinition and ChainedEventDefinition.
+    /// null = bonus window is disabled for this event.
+    /// </summary>
+    [Serializable]
+    public class BonusWindowConfig
+    {
+        /// <summary>
+        /// Sequence of phases from the moment the event starts.
+        /// Each element is a single phase with a type (bonus/cooldown) and duration.
+        /// Empty list = window is effectively disabled.
+        /// </summary>
+        public List<BonusWindowPhase> Schedule { get; set; } = new();
+
+        /// <summary>
+        /// true  — after the last phase the cycle repeats from the first until the event ends.
+        /// false — after all phases are completed no more windows will open.
+        /// </summary>
+        public bool RepeatCycle { get; set; } = true;
+
+        /// <summary>
+        /// Max number of full passes through the entire Schedule (relevant only when RepeatCycle = true).
+        /// 0 = infinite (while the event itself is active). Once cycles are exhausted no more windows open.
+        /// </summary>
+        public int MaxCycles { get; set; } = 0;
+    }
+
+    /// <summary>
+    /// A single phase in the window schedule.
+    /// </summary>
+    [Serializable]
+    public class BonusWindowPhase
+    {
+        /// <summary>
+        /// Sequential index of the phase within the Schedule (0-based).
+        /// Defines the order regardless of the element's position in the list.
+        /// Unique within a single Schedule. Phases are sorted ascending by Order
+        /// to form a full cycle: bonus → cooldown → ...
+        /// </summary>
+        public int Order { get; set; }
+
+        /// <summary>Phase type: bonus or cooldown.</summary>
+        public BonusWindowPhaseType Type { get; set; }
+
+        /// <summary>Phase duration (seconds). Must be > 0.</summary>
+        public long DurationSec { get; set; }
+
+        /// <summary>
+        /// Multiplier for BonusRewards. Applied only when Type = MultipliedBonus.
+        /// 1.5 = bonus portion ×1.5, 0.5 = bonus portion ×0.5.
+        /// Ignored for Bonus (always 1.0) and Cooldown (always 0).
+        /// </summary>
+        public float BonusMultiplier { get; set; }
+    }
+
+    /// <summary>Phase type in the Schedule.</summary>
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum BonusWindowPhaseType
+    {
+        /// <summary>Cooldown phase: only base Rewards are granted.</summary>
+        Cooldown,
+
+        /// <summary>Bonus phase: BonusRewards of milestones are granted.</summary>
+        Bonus,
+
+        /// <summary>
+        /// Bonus phase: BonusRewards are scaled by BonusMultiplier.
+        /// Allows both amplifying (1.5, 2.0) and reducing (0.5) the bonus portion.
+        /// </summary>
+        MultipliedBonus,
+    }
+
+    /// <summary>
+    /// Computed state of the bonus window at the time of the request.
+    /// </summary>
+    [Serializable]
+    public class BonusWindowState
+    {
+        /// <summary>
+        /// true  — a BONUS phase is currently active, BonusRewards are being granted;
+        /// false — currently a cooldown phase / no more windows ahead, only base Rewards are granted.
+        /// </summary>
+        public bool IsActive { get; set; }
+
+        /// <summary>When the CURRENT phase ends (UTC). The UI renders a countdown to this moment.</summary>
+        public DateTime CurrentPhaseEndUtc { get; set; }
+
+        /// <summary>
+        /// When the NEXT bonus phase starts (UTC).
+        /// null = no more bonus windows (Schedule fully traversed or MaxCycles exhausted).
+        /// </summary>
+        public DateTime? NextBonusStartUtc { get; set; }
+
+        /// <summary>Index of the current full pass through the Schedule (0-based). For UI: "Cycle 3 of 10".</summary>
+        public int CurrentCycleIndex { get; set; }
+
+        /// <summary>Index of the current phase within the Schedule (0-based).</summary>
+        public int CurrentPhaseIndex { get; set; }
+
+        /// <summary>
+        /// BonusRewards multiplier for the currently active phase.
+        /// Bonus = 1.0, MultipliedBonus = value from BonusWindowPhase.BonusMultiplier.
+        /// 0 if IsActive = false.
+        /// </summary>
+        public float ActiveBonusMultiplier { get; set; }
+    }
+
     /// <summary>Computed active event info returned by GetActiveEvents.</summary>
     [Serializable]
     public class ActiveEventInfo
