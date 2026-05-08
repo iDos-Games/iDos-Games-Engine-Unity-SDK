@@ -1,0 +1,394 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Newtonsoft.Json;
+using UnityEngine;
+using UnityEngine.Networking;
+
+namespace IDosGames
+{
+    [System.Serializable]
+    public class CachedImageInfo
+    {
+        public string Url;
+        public string LocalPath;
+        public long LastAccessed;
+    }
+
+    public static class ImageLoader
+    {
+        public static event Action ImagesUpdated;
+        private static readonly SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
+
+        private static readonly Dictionary<string, Sprite> ImageCache = new Dictionary<string, Sprite>();
+        private static readonly Dictionary<string, Texture2D> TextureCache = new Dictionary<string, Texture2D>();
+        private static Dictionary<string, CachedImageInfo> CachedImageInfos;
+
+        private const long MaxCacheSize = 1024 * 1024 * 1024;
+
+        private const string CacheKeyPrefix = "ImageCache_";
+        private static string CacheKey => CacheKeyPrefix + (IDosGamesSDKSettings.Instance != null ? IDosGamesSDKSettings.Instance.TitleID : "DefaultTitle");
+
+        private static string GetLocalPathForUrl(string url)
+        {
+            string titleId = IDosGamesSDKSettings.Instance != null
+                ? IDosGamesSDKSettings.Instance.TitleID
+                : "DefaultTitle";
+
+            string folder = Path.Combine(Application.persistentDataPath, titleId);
+            if (!Directory.Exists(folder))
+            {
+                Directory.CreateDirectory(folder);
+            }
+
+            return Path.Combine(folder, Path.GetFileName(url));
+        }
+
+        static ImageLoader()
+        {
+            LoadCache();
+            IDosGamesData.Config.OnTitlePublicConfigurationUpdated += OnServerDataUpdated;
+        }
+
+        private static void OnServerDataUpdated()
+        {
+            if (IDosGamesData.Config.TitlePublicConfiguration.ImageData != null)
+            {
+                foreach (var kv in IDosGamesData.Config.TitlePublicConfiguration.ImageData)
+                {
+                    if (kv.Value != null && !string.IsNullOrEmpty(kv.Value))
+                    {
+                        var localPath = GetLocalPathForUrl(kv.Value);
+                        CachedImageInfos[kv.Key] = new CachedImageInfo
+                        {
+                            Url = kv.Value,
+                            LocalPath = localPath,
+                            LastAccessed = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+                        };
+                    }
+                }
+
+                SaveCache();
+                ImagesUpdated?.Invoke();
+            }
+        }
+
+        public static bool IsExternalUrl(string url)
+        {
+            return Uri.TryCreate(url, UriKind.Absolute, out var uriResult) &&
+                   (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
+        }
+
+        public static async Task<Sprite> LoadExternalImageAsync(string url)
+        {
+            if (string.IsNullOrEmpty(url)) return null;
+
+            if (ImageCache.TryGetValue(url, out var cachedSprite))
+            {
+                UpdateLastAccessedTime(url);
+                return cachedSprite;
+            }
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+            var sprite = await DownloadAndCacheSpriteWebGL(url);
+            return sprite;
+#else
+            return await DownloadAndCacheSpriteOtherPlatforms(url);
+#endif
+        }
+
+        public static async Task<Texture2D> LoadExternalTextureAsync(string url)
+        {
+            if (string.IsNullOrEmpty(url)) return null;
+
+            if (TextureCache.TryGetValue(url, out var cachedTexture))
+            {
+                UpdateLastAccessedTime(url);
+                return cachedTexture;
+            }
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+            var texture = await DownloadAndCacheTextureWebGL(url);
+            return texture;
+#else
+            return await DownloadAndCacheTextureOtherPlatforms(url);
+#endif
+        }
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+        private static async Task<Sprite> DownloadAndCacheSpriteWebGL(string url)
+        {
+            byte[] imageBytes = await DownloadImageBytes(url);
+            if (imageBytes == null) return null;
+
+            var sprite = CreateSpriteFromBytes(url, imageBytes);
+            UpdateLastAccessedTime(url);
+            CleanupWebGLCache();
+
+            return sprite;
+        }
+
+        private static async Task<Texture2D> DownloadAndCacheTextureWebGL(string url)
+        {
+            byte[] imageBytes = await DownloadImageBytes(url);
+            if (imageBytes == null) return null;
+
+            var texture = CreateTextureFromBytes(url, imageBytes);
+            UpdateLastAccessedTime(url);
+            CleanupWebGLCache();
+
+            return texture;
+        }
+
+        private static void CleanupWebGLCache()
+        {
+            long totalMemory = ImageCache.Values.Sum(s =>
+                s.texture.width * s.texture.height * 4);
+
+            if (totalMemory <= MaxCacheSize) return;
+
+            var toRemove = CachedImageInfos
+                .OrderBy(x => x.Value.LastAccessed)
+                .Take(ImageCache.Count / 4)
+                .ToList();
+
+            foreach (var item in toRemove)
+            {
+                ImageCache.Remove(item.Key);
+                CachedImageInfos.Remove(item.Key);
+            }
+
+            Debug.Log($"WebGL cache cleaned. Removed {toRemove.Count} entries");
+            SaveCache();
+        }
+#else
+        private static async Task<Sprite> DownloadAndCacheSpriteOtherPlatforms(string url)
+        {
+            byte[] imageBytes;
+
+            if (CachedImageInfos.TryGetValue(url, out var cachedInfo) && File.Exists(cachedInfo.LocalPath))
+            {
+                imageBytes = await File.ReadAllBytesAsync(cachedInfo.LocalPath);
+            }
+            else
+            {
+                imageBytes = await DownloadImageBytes(url);
+                string localPath = GetLocalPathForUrl(url);
+
+                await semaphore.WaitAsync();
+                try
+                {
+                    if (!File.Exists(localPath))
+                    {
+                        await File.WriteAllBytesAsync(localPath, imageBytes);
+                    }
+                    else
+                    {
+                        imageBytes = await File.ReadAllBytesAsync(localPath);
+                    }
+                }
+                finally
+                {
+                    semaphore.Release();
+                }
+
+                CachedImageInfos[url] = new CachedImageInfo
+                {
+                    Url = url,
+                    LocalPath = localPath,
+                    LastAccessed = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+                };
+
+                SaveCache();
+                CleanupCache();
+            }
+
+            return CreateSpriteFromBytes(url, imageBytes);
+        }
+
+        private static async Task<Texture2D> DownloadAndCacheTextureOtherPlatforms(string url)
+        {
+            byte[] imageBytes;
+
+            if (CachedImageInfos.TryGetValue(url, out var cachedInfo) && File.Exists(cachedInfo.LocalPath))
+            {
+                imageBytes = await File.ReadAllBytesAsync(cachedInfo.LocalPath);
+            }
+            else
+            {
+                imageBytes = await DownloadImageBytes(url);
+                string localPath = GetLocalPathForUrl(url);
+
+                await semaphore.WaitAsync();
+                try
+                {
+                    if (!File.Exists(localPath))
+                    {
+                        await File.WriteAllBytesAsync(localPath, imageBytes);
+                    }
+                    else
+                    {
+                        imageBytes = await File.ReadAllBytesAsync(localPath);
+                    }
+                }
+                finally
+                {
+                    semaphore.Release();
+                }
+
+                CachedImageInfos[url] = new CachedImageInfo
+                {
+                    Url = url,
+                    LocalPath = localPath,
+                    LastAccessed = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+                };
+
+                SaveCache();
+                CleanupCache();
+            }
+
+            return CreateTextureFromBytes(url, imageBytes);
+        }
+#endif
+
+        private static async Task<byte[]> DownloadImageBytes(string url)
+        {
+            using (UnityWebRequest uwr = UnityWebRequestTexture.GetTexture(url))
+            {
+                var asyncOp = uwr.SendWebRequest();
+                while (!asyncOp.isDone)
+                {
+                    await Task.Yield();
+                }
+
+                if (uwr.result != UnityWebRequest.Result.Success)
+                {
+                    Debug.LogError($"Error downloading image from URL {url}: {uwr.error}");
+                    return null;
+                }
+                return uwr.downloadHandler.data;
+            }
+        }
+
+        private static Sprite CreateSpriteFromBytes(string url, byte[] imageBytes)
+        {
+            if (imageBytes == null || imageBytes.Length == 0) return null;
+
+            Texture2D texture = new Texture2D(2, 2);
+            if (!texture.LoadImage(imageBytes)) return null;
+
+            var sprite = Sprite.Create(
+                texture,
+                new Rect(0, 0, texture.width, texture.height),
+                Vector2.zero
+            );
+
+            ImageCache[url] = sprite;
+            ImagesUpdated?.Invoke();
+
+            return sprite;
+        }
+
+        private static Texture2D CreateTextureFromBytes(string url, byte[] imageBytes)
+        {
+            if (imageBytes == null || imageBytes.Length == 0) return null;
+
+            Texture2D texture = new Texture2D(2, 2);
+            if (!texture.LoadImage(imageBytes)) return null;
+
+            TextureCache[url] = texture;
+            ImagesUpdated?.Invoke();
+
+            return texture;
+        }
+
+        public static Sprite LoadLocalImage(string imagePath)
+        {
+            return Resources.Load<Sprite>(imagePath);
+        }
+
+        public static async Task<Sprite> GetSpriteAsync(string imagePath)
+        {
+            if (string.IsNullOrWhiteSpace(imagePath)) return null;
+            if (IsExternalUrl(imagePath))
+            {
+                var sprite = await LoadExternalImageAsync(imagePath);
+                if (sprite != null)
+                {
+                    return sprite;
+                }
+                Debug.LogError($"Failed to load external image from url: {imagePath}");
+            }
+            else
+            {
+                return LoadLocalImage(imagePath);
+            }
+            return null;
+        }
+
+        private static void LoadCache()
+        {
+            if (PlayerPrefs.HasKey(CacheKey))
+            {
+                var json = PlayerPrefs.GetString(CacheKey);
+                CachedImageInfos = JsonConvert.DeserializeObject<Dictionary<string, CachedImageInfo>>(json);
+            }
+            else
+            {
+                CachedImageInfos = new Dictionary<string, CachedImageInfo>();
+            }
+        }
+
+        private static void SaveCache()
+        {
+            var json = JsonConvert.SerializeObject(CachedImageInfos, Formatting.Indented);
+            PlayerPrefs.SetString(CacheKey, json);
+            PlayerPrefs.Save();
+        }
+
+        public static void ClearCache()
+        {
+            ImageCache.Clear();
+            foreach (var cachedInfo in CachedImageInfos.Values)
+            {
+                if (File.Exists(cachedInfo.LocalPath))
+                {
+                    File.Delete(cachedInfo.LocalPath);
+                }
+            }
+            CachedImageInfos.Clear();
+            PlayerPrefs.DeleteKey(CacheKey);
+        }
+
+        private static void CleanupCache()
+        {
+            long totalSize = CachedImageInfos.Values.Sum(info => new FileInfo(info.LocalPath).Length);
+            if (totalSize <= MaxCacheSize) return;
+
+            var orderedInfos = CachedImageInfos.Values.OrderBy(info => info.LastAccessed).ToList();
+            foreach (var info in orderedInfos)
+            {
+                if (File.Exists(info.LocalPath))
+                {
+                    totalSize -= new FileInfo(info.LocalPath).Length;
+                    File.Delete(info.LocalPath);
+                }
+                CachedImageInfos.Remove(info.Url);
+                if (totalSize <= MaxCacheSize) break;
+            }
+            SaveCache();
+        }
+
+        private static void UpdateLastAccessedTime(string url)
+        {
+            if (CachedImageInfos.TryGetValue(url, out var info))
+            {
+                info.LastAccessed = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+                SaveCache();
+            }
+        }
+    }
+}
