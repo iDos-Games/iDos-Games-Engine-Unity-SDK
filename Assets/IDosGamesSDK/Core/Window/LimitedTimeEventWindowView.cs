@@ -1,6 +1,7 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using IDosGames.ClientModels;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -117,7 +118,7 @@ namespace IDosGames.UI.LimitedTimeEvent
 
             var tokenPaths = evt.Content?.Token?.AssetPaths;
             if (_tokenIcon != null && tokenPaths?.Count > 0)
-                LoadTokenIconAsync(tokenPaths[0]);
+                LoadTokenIconAsync(tokenPaths.Values.FirstOrDefault());
         }
 
         private void RenderProgressSlider(LimitedTimeEventWindowModel model)
@@ -136,10 +137,10 @@ namespace IDosGames.UI.LimitedTimeEvent
 
         private void RenderMilestones(LimitedTimeEventWindowModel model, Func<string, bool, Func<Task>> claimFactory)
         {
-            var milestones = model.Event.Content?.Milestones;
-            if (milestones == null) return;
+            var milestonesDict = model.Event.Content?.Milestones;
+            if (milestonesDict == null) return;
 
-            milestones.Sort((a, b) => a.SortOrder.CompareTo(b.SortOrder));
+            var milestones = milestonesDict.Values.OrderBy(m => m.SortOrder).ToList();
 
             // ── Free column ────────────────────────────────────────────────
             if (_freeMilestoneTemplate != null && _freeMilestoneContainer != null)
@@ -215,6 +216,7 @@ namespace IDosGames.UI.LimitedTimeEvent
 
         private async void LoadTokenIconAsync(string path)
         {
+            if (string.IsNullOrEmpty(path)) return;
             var sprite = await ImageLoader.GetSpriteAsync(path);
             if (this != null && _tokenIcon != null && sprite != null)
                 _tokenIcon.sprite = sprite;

@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using IDosGames.ClientModels;
-using IDosGames.TitlePublicConfiguration;
 using IDosGames.UI;
 using UnityEngine;
 using UnityEngine.UI;
@@ -41,7 +39,7 @@ namespace IDosGames.UI.Quest
             long requiredCount,
             long currentCount,
             long previousCount,
-            List<ItemOrCurrency> rewards,
+            List<ResourceEntry> rewards,
             QuestMilestoneState state,
             string iconPath,
             Func<Task> onClaim)
@@ -84,7 +82,7 @@ namespace IDosGames.UI.Quest
 
         // ─────────────────────────────────────────────────────────────
 
-        private void PopulateRewards(List<ItemOrCurrency> rewards)
+        private void PopulateRewards(List<ResourceEntry> rewards)
         {
             if (_rewardContainer == null || _rewardRowTemplate == null) return;
 
@@ -103,23 +101,20 @@ namespace IDosGames.UI.Quest
             {
                 var row = Instantiate(_rewardRowTemplate, _rewardContainer);
                 row.Setup(BuildRewardLabel(reward));
-
-                if (row.Icon != null && !string.IsNullOrEmpty(reward.ImagePath))
-                    LoadRewardIconAsync(reward.ImagePath, row.Icon);
             }
 
             LayoutRebuilder.ForceRebuildLayoutImmediate(_rewardContainer);
         }
 
-        private static string BuildRewardLabel(ItemOrCurrency reward)
+        private static string BuildRewardLabel(ResourceEntry reward)
         {
             long amount     = reward.Amount ?? 0;
-            bool isCurrency = reward.Type == null || reward.Type == ItemType.VirtualCurrency;
+            bool isCurrency = reward.Type == null || reward.Type == ResourceEntryType.VirtualCurrency;
 
             if (isCurrency)
                 return amount > 0 ? $"+{amount}" : string.Empty;
 
-            string name = reward.Name ?? reward.ItemID ?? "Item";
+            string name = reward.ItemID ?? reward.CurrencyID ?? "Item";
             return amount > 1 ? $"{name} x{amount}" : name;
         }
 
@@ -151,20 +146,6 @@ namespace IDosGames.UI.Quest
             catch (Exception ex)
             {
                 Debug.LogWarning($"[QuestMilestoneItemView] Icon load failed: {ex.Message}");
-            }
-        }
-
-        private async void LoadRewardIconAsync(string path, Image target)
-        {
-            try
-            {
-                var sprite = await ImageLoader.GetSpriteAsync(path);
-                if (this != null && target != null && sprite != null)
-                    target.sprite = sprite;
-            }
-            catch (Exception ex)
-            {
-                Debug.LogWarning($"[QuestMilestoneItemView] Reward icon load failed: {ex.Message}");
             }
         }
     }

@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using IDosGames.ClientModels;
-using IDosGames.TitlePublicConfiguration;
 using UnityEngine;
 
 namespace IDosGames.UI.Quest
@@ -55,18 +53,19 @@ namespace IDosGames.UI.Quest
         {
             cycle.Milestones.Clear();
 
-            var cycleDef = config?.Cycles?.FirstOrDefault(x => x.CycleID == cycleState.CycleID);
+            var cycleDef = config?.Cycles?.GetValueOrDefault(cycleState.CycleID);
             if (cycleDef?.Milestones == null) return;
 
-            foreach (var ms in cycleDef.Milestones.OrderBy(m => m.RequiredCompletedQuests))
+            foreach (var ms in cycleDef.Milestones.Values.OrderBy(m => m.RequiredCompletedQuests))
             {
+                var rewards = ms.Reward?.Standard?.Entries ?? new List<ResourceEntry>();
                 cycle.Milestones.Add(new MilestoneUIItem
                 {
                     MilestoneID   = ms.MilestoneID,
                     CycleID       = cycleState.CycleID,
                     DisplayName   = $"Выполни {ms.RequiredCompletedQuests} квестов",
                     RequiredCount = ms.RequiredCompletedQuests,
-                    Rewards       = ms.Rewards,
+                    Rewards       = rewards,
                     IconPath      = "",
                     IsFreeClaimed = cycleState.ClaimedMilestoneIDs?.Contains(ms.MilestoneID) == true,
                     IsReached     = cycleState.CompletedQuestsCount >= ms.RequiredCompletedQuests,
@@ -85,24 +84,25 @@ namespace IDosGames.UI.Quest
 
         private static QuestUIItem BuildQuestItem(UserQuestProgress progress, QuestDefinitions config, string cycleId)
         {
-            var questDef = config?.Quests?.FirstOrDefault(q => q.QuestID == progress.QuestID);
+            var questDef = config?.Quests?.GetValueOrDefault(progress.QuestID);
+            var rewards  = questDef?.Reward?.Standard?.Entries ?? new List<ResourceEntry>();
 
             var item = new QuestUIItem
             {
-                QuestID    = progress.QuestID,
-                CycleID    = cycleId,
-                Status     = progress.Status,
-                Title      = questDef?.DisplayName ?? progress.QuestID,
-                CanClaim   = progress.Status == QuestStatus.Completed,
-                IsExpired  = progress.Status == QuestStatus.Expired,
-                Rewards    = questDef?.Rewards ?? new List<ItemOrCurrency>()
+                QuestID   = progress.QuestID,
+                CycleID   = cycleId,
+                Status    = progress.Status,
+                Title     = questDef?.DisplayName ?? progress.QuestID,
+                CanClaim  = progress.Status == QuestStatus.Completed,
+                IsExpired = progress.Status == QuestStatus.Expired,
+                Rewards   = rewards,
             };
 
             if (progress.Objectives?.Count > 0)
             {
                 foreach (var kvp in progress.Objectives)
                 {
-                    var objDef = questDef?.Objectives?.FirstOrDefault(o => o.ObjectiveID == kvp.Key);
+                    var objDef = questDef?.Objectives?.GetValueOrDefault(kvp.Key);
                     long target = objDef?.TargetValue > 0
                         ? objDef.TargetValue
                         : kvp.Value.Completed ? kvp.Value.CurrentValue : System.Math.Max(kvp.Value.CurrentValue, 1L);
@@ -162,7 +162,7 @@ namespace IDosGames.UI.Quest
         public float ProgressPercent;
         public bool CanClaim;
         public bool IsExpired;
-        public List<ItemOrCurrency>  Rewards    = new();
+        public List<ResourceEntry>   Rewards    = new();
         public List<ObjectiveUIItem> Objectives = new();
     }
 
@@ -172,7 +172,7 @@ namespace IDosGames.UI.Quest
         public string CycleID;
         public string DisplayName;
         public long RequiredCount;
-        public List<ItemOrCurrency> Rewards;
+        public List<ResourceEntry> Rewards;
         public bool IsFreeClaimed;
         public bool IsReached;
         public string IconPath;

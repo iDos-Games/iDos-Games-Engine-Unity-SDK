@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using IDosGames.ClientModels;
-using IDosGames.TitlePublicConfiguration;
 using IDosGames.UI;
 using TMPro;
 using UnityEngine;
@@ -20,7 +18,7 @@ namespace IDosGames.UI.LimitedTimeEvent
         [SerializeField] private RectTransform   _rewardContainer;
         [SerializeField] private RewardItemView  _rewardRowTemplate;
         [SerializeField] private GameObject      _iconCheck;
-[SerializeField] private GameObject      _dim;
+        [SerializeField] private GameObject      _dim;
         [SerializeField] private GameObject      _iconLock;
         [SerializeField] private Button          _claimButton;
 
@@ -45,7 +43,7 @@ namespace IDosGames.UI.LimitedTimeEvent
             bool canClaim      = state == MilestoneItemState.Reached && !premiumLocked;
 
             if (_itemIcon != null && def.AssetPaths?.Count > 0)
-                LoadIconAsync(def.AssetPaths[0]);
+                LoadIconAsync(def.AssetPaths.Values.FirstOrDefault());
 
             PopulateRewards(def, isPremiumColumn);
 
@@ -64,30 +62,33 @@ namespace IDosGames.UI.LimitedTimeEvent
 
         private void PopulateRewards(EventMilestoneDefinition def, bool isPremiumColumn)
         {
-            var rewards = new List<ItemOrCurrency>();
+            var rewards = new List<ResourceEntry>();
             if (!isPremiumColumn)
             {
-                if (def.Rewards != null) rewards.AddRange(def.Rewards);
+                var entries = def.Rewards?.Standard?.Entries;
+                if (entries != null) rewards.AddRange(entries);
             }
             else
             {
-                if (def.PremiumRewards != null)
+                var premiumTiers = def.Rewards?.PremiumTiers;
+                if (premiumTiers != null)
                 {
-                    foreach (var pr in def.PremiumRewards)
+                    foreach (var tier in premiumTiers)
                     {
-                        if (pr.Rewards != null) rewards.AddRange(pr.Rewards);
+                        var entries = tier.Resources?.Entries;
+                        if (entries != null) rewards.AddRange(entries);
                     }
                 }
             }
 
-            bool hasRewards = rewards.Count > 0;
+            bool hasRewards   = rewards.Count > 0;
             bool useContainer = hasRewards && _rewardContainer != null && _rewardRowTemplate != null;
 
             if (_numText != null)
             {
                 if (hasRewards && !useContainer)
                 {
-                    _numText.text = rewards[0].Amount.GetValueOrDefault().ToString("N0");
+                    _numText.text = (rewards[0].Amount ?? 0).ToString("N0");
                 }
                 else
                 {
@@ -115,9 +116,9 @@ namespace IDosGames.UI.LimitedTimeEvent
 
                 if (row.AmountText != null)
                 {
-                    bool isCurrency = reward.Type == null || reward.Type == ItemType.VirtualCurrency;
+                    bool isCurrency = reward.Type == null || reward.Type == ResourceEntryType.VirtualCurrency;
                     string prefix = isCurrency ? "+" : "x";
-                    long amountValue = reward.Amount.GetValueOrDefault();
+                    long amountValue = reward.Amount ?? 0;
                     string amount = amountValue > 0 ? amountValue.ToString("N0") : string.Empty;
 
                     if (isCurrency)
@@ -126,30 +127,13 @@ namespace IDosGames.UI.LimitedTimeEvent
                     }
                     else
                     {
-                        string name = reward.Name ?? reward.ItemID ?? "Item";
+                        string name = reward.ItemID ?? reward.CurrencyID ?? "Item";
                         row.AmountText.text = string.IsNullOrEmpty(amount) ? name : $"{name} {prefix}{amount}";
                     }
                 }
-
-                if (row.Icon != null && !string.IsNullOrEmpty(reward.ImagePath))
-                    LoadRewardIconAsync(reward.ImagePath, row.Icon);
             }
 
             LayoutRebuilder.ForceRebuildLayoutImmediate(_rewardContainer);
-        }
-
-        private async void LoadRewardIconAsync(string path, Image target)
-        {
-            try
-            {
-                var sprite = await ImageLoader.GetSpriteAsync(path);
-                if (this != null && target != null && sprite != null)
-                    target.sprite = sprite;
-            }
-            catch (Exception ex)
-            {
-                Debug.LogWarning($"[MilestoneItemView] Reward icon load failed: {ex.Message}");
-            }
         }
 
         private async void OnClaimClicked()
@@ -174,10 +158,10 @@ namespace IDosGames.UI.LimitedTimeEvent
 
         private async void LoadIconAsync(string path)
         {
+            if (string.IsNullOrEmpty(path)) return;
             var sprite = await ImageLoader.GetSpriteAsync(path);
             if (this != null && _itemIcon != null && sprite != null)
                 _itemIcon.sprite = sprite;
         }
     }
 }
-

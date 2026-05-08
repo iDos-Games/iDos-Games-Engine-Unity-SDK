@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using IDosGames.ClientModels;
-using IDosGames.TitlePublicConfiguration;
 using UnityEngine;
 
 namespace IDosGames.UI.Quest
@@ -370,32 +368,47 @@ namespace IDosGames.UI.Quest
 
             foreach (var cycle in _cycles)
             {
-                defs.Cycles.Add(new QuestCycleDefinition
-                {
-                    CycleID     = cycle.cycleName,
-                    DisplayName = cycle.cycleName,
-                    Milestones  = cycle.milestones.Select(m => new QuestCycleMilestoneDefinition
+                var milestonesDict = new Dictionary<string, QuestCycleMilestoneDefinition>();
+                foreach (var m in cycle.milestones)
+                    milestonesDict[m.milestoneId] = new QuestCycleMilestoneDefinition
                     {
                         MilestoneID             = m.milestoneId,
                         RequiredCompletedQuests = m.requiredQuests,
-                        Rewards                 = m.rewards?.Select(r => new ItemOrCurrency { Amount = r, Type = ItemType.VirtualCurrency }).ToList() ?? new(),
-                    }).ToList(),
-                });
+                        Reward = new ResourceGrant
+                        {
+                            Standard = new ResourceBundle
+                            {
+                                Entries = m.rewards?.Select(r => new ResourceEntry { Amount = r, Type = ResourceEntryType.VirtualCurrency }).ToList() ?? new()
+                            }
+                        },
+                    };
+                defs.Cycles[cycle.cycleName] = new QuestCycleDefinition
+                {
+                    CycleID     = cycle.cycleName,
+                    DisplayName = cycle.cycleName,
+                    Milestones  = milestonesDict,
+                };
             }
 
             foreach (var q in _quests)
             {
-                defs.Quests.Add(new QuestDefinition
+                var objectivesDict = new Dictionary<string, QuestObjectiveDefinition>();
+                foreach (var o in q.objectives)
+                    objectivesDict[o.label] = new QuestObjectiveDefinition { ObjectiveID = o.label, TargetValue = o.targetValue };
+
+                defs.Quests[q.questId] = new QuestDefinition
                 {
                     QuestID     = q.questId,
                     DisplayName = q.title,
-                    Rewards     = q.rewards?.Select(r => new ItemOrCurrency { Amount = r, Type = ItemType.VirtualCurrency }).ToList() ?? new(),
-                    Objectives  = q.objectives.Select(o => new QuestObjectiveDefinition
+                    Reward = new ResourceGrant
                     {
-                        ObjectiveID = o.label,
-                        TargetValue = o.targetValue,
-                    }).ToList(),
-                });
+                        Standard = new ResourceBundle
+                        {
+                            Entries = q.rewards?.Select(r => new ResourceEntry { Amount = r, Type = ResourceEntryType.VirtualCurrency }).ToList() ?? new()
+                        }
+                    },
+                    Objectives = objectivesDict,
+                };
             }
 
             return defs;

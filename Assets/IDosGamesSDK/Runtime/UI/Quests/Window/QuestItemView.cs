@@ -3,8 +3,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events;
-using IDosGames.ClientModels;
-using IDosGames.TitlePublicConfiguration;
 
 namespace IDosGames.UI.Quest
 {
@@ -41,7 +39,7 @@ namespace IDosGames.UI.Quest
             QuestStatus status,
             bool canClaim,
             List<ObjectiveUIItem> objectives,
-            List<ItemOrCurrency>  rewards,
+            List<ResourceEntry>   rewards,
             UnityAction onClaimClicked)
         {
             if (_titleText != null) _titleText.text = title;
@@ -100,7 +98,7 @@ namespace IDosGames.UI.Quest
             LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)transform);
             }
 
-        private void PopulateRewards(List<ItemOrCurrency> rewards)
+        private void PopulateRewards(List<ResourceEntry> rewards)
         {
             if (_rewardContainer == null || _rewardRowTemplate == null) return;
 
@@ -116,11 +114,11 @@ namespace IDosGames.UI.Quest
             }
 
             if (!hasRewards) return;
-            
+
             var glg = _rewardContainer.GetComponent<GridLayoutGroup>();
             if (glg != null)
             {
-                // We use Flexible constraint in the prefab now. 
+                // We use Flexible constraint in the prefab now.
                 // But we can still nudge it for very large or very small counts.
                 if (rewards.Count == 1)
                 {
@@ -143,16 +141,13 @@ namespace IDosGames.UI.Quest
 
                 if (text != null)
                 {
-                    bool isCurrency = reward.Type == null || reward.Type == ItemType.VirtualCurrency;
+                    bool isCurrency = reward.Type == null || reward.Type == ResourceEntryType.VirtualCurrency;
                     text.text = isCurrency
                         ? $"+{reward.Amount}"
-                        : (reward.Name ?? reward.ItemID ?? $"+{reward.Amount}");
+                        : (reward.ItemID ?? reward.CurrencyID ?? $"+{reward.Amount}");
                 }
-
-                if (icon != null && !string.IsNullOrEmpty(reward.ImagePath))
-                    LoadRewardIconAsync(reward.ImagePath, icon);
             }
-            
+
             // Rebuild layout to ensure everything fits perfectly
             LayoutRebuilder.ForceRebuildLayoutImmediate(_rewardContainer);
             // Also rebuild parent to account for reward container height changes
@@ -172,20 +167,6 @@ namespace IDosGames.UI.Quest
             catch (System.Exception ex)
             {
                 Debug.LogWarning($"[QuestItemView] Icon load failed: {ex.Message}");
-            }
-        }
-
-        private async void LoadRewardIconAsync(string path, Image target)
-        {
-            try
-            {
-                var sprite = await ImageLoader.GetSpriteAsync(path);
-                if (this != null && target != null && sprite != null)
-                    target.sprite = sprite;
-            }
-            catch (System.Exception ex)
-            {
-                Debug.LogWarning($"[QuestItemView] Reward icon load failed: {ex.Message}");
             }
         }
 

@@ -1,6 +1,5 @@
 using System;
 using System.Threading.Tasks;
-using IDosGames.ClientModels;
 using UnityEngine;
 
 namespace IDosGames.UI.LimitedTimeEvent
@@ -31,11 +30,10 @@ namespace IDosGames.UI.LimitedTimeEvent
         {
             _isActive = true;
 
-            LimitedTimeEventService.OnActiveEventsUpdated += HandleActiveEventsUpdated;
-            LimitedTimeEventService.OnMilestoneClaimed    += HandleMilestoneClaimed;
-            LimitedTimeEventService.OnStreakRewardClaimed += HandleStreakClaimed;
-            LimitedTimeEventService.OnTokensGranted       += HandleTokensGranted;
-            IDosGamesData.User.OnVirtualCurrencyUpdated   += HandleCurrencyUpdated;
+            TimedEventService.OnActiveEventsLoaded += HandleActiveEventsLoaded;
+            TimedEventService.OnMilestoneClaimed   += HandleMilestoneClaimed;
+            TimedEventService.OnTokensGranted      += HandleTokensGranted;
+            IDosGamesData.User.OnVirtualCurrencyUpdated += HandleCurrencyUpdated;
 
             _view.ActivateButton?.onClick.AddListener(OnActivateClicked);
             _view.BackButton?.onClick.AddListener(OnBackClicked);
@@ -48,11 +46,10 @@ namespace IDosGames.UI.LimitedTimeEvent
         {
             _isActive = false;
 
-            LimitedTimeEventService.OnActiveEventsUpdated -= HandleActiveEventsUpdated;
-            LimitedTimeEventService.OnMilestoneClaimed    -= HandleMilestoneClaimed;
-            LimitedTimeEventService.OnStreakRewardClaimed -= HandleStreakClaimed;
-            LimitedTimeEventService.OnTokensGranted       -= HandleTokensGranted;
-            IDosGamesData.User.OnVirtualCurrencyUpdated   -= HandleCurrencyUpdated;
+            TimedEventService.OnActiveEventsLoaded -= HandleActiveEventsLoaded;
+            TimedEventService.OnMilestoneClaimed   -= HandleMilestoneClaimed;
+            TimedEventService.OnTokensGranted      -= HandleTokensGranted;
+            IDosGamesData.User.OnVirtualCurrencyUpdated -= HandleCurrencyUpdated;
 
             _view.ActivateButton?.onClick.RemoveListener(OnActivateClicked);
             _view.BackButton?.onClick.RemoveListener(OnBackClicked);
@@ -67,7 +64,7 @@ namespace IDosGames.UI.LimitedTimeEvent
 
             var remaining = _model.Event.ComputedEndUtc - DateTime.UtcNow;
             _view.UpdateTimer(remaining.TotalSeconds > 0
-                ? TimeFormatUtil.FormatCountdown(_model.Event.ComputedEndUtc)
+                ? FormatCountdown(remaining)
                 : "Ended");
         }
 
@@ -75,7 +72,7 @@ namespace IDosGames.UI.LimitedTimeEvent
 
         private async Task LoadDataAsync()
         {
-            var result = await LimitedTimeEventService.GetActiveEvents();
+            var result = await TimedEventService.GetActiveEvents();
             if (!_isActive) return;
 
             if (!result.Success)
@@ -83,12 +80,12 @@ namespace IDosGames.UI.LimitedTimeEvent
                 Message.Show(result.Error ?? MessageCode.SOMETHING_WENT_WRONG.ToString());
                 _view.ShowEmpty();
             }
-            // View обновится через HandleActiveEventsUpdated
+            // View обновится через HandleActiveEventsLoaded
         }
 
         // ─── Service callbacks ─────────────────────────────────────────────────
 
-        private void HandleActiveEventsUpdated(GetActiveEventsResponse response)
+        private void HandleActiveEventsLoaded(GetActiveEventsResponse response)
         {
             if (!_isActive) return;
             var evt = response?.ActiveEvents?.Count > 0 ? response.ActiveEvents[0] : null;
@@ -100,12 +97,7 @@ namespace IDosGames.UI.LimitedTimeEvent
             if (_isActive) _view.Render(_model, _claimFactory);
         }
 
-        private void HandleStreakClaimed(EventStreakClaimResponse _)
-        {
-            if (_isActive) _view.Render(_model, _claimFactory);
-        }
-
-        private void HandleTokensGranted(EventTokenGrantInfo _)
+        private void HandleTokensGranted(ResourceOperation _)
         {
             if (_isActive) _view.Render(_model, _claimFactory);
         }
@@ -122,7 +114,7 @@ namespace IDosGames.UI.LimitedTimeEvent
 
         private void RefreshModel(ActiveEventInfo evt)
         {
-            bool hasPremium = (IDosGamesData.User.Premium?.MaxActiveTier ?? 0) > 0;
+            bool hasPremium = IDosGamesData.User.State?.PublicData?.Premium ?? false;
             var (coins, gems) = ReadCurrencies();
             _model.Apply(evt, hasPremium, coins, gems);
             _claimFactory = BuildClaimFactory(evt);
@@ -132,11 +124,9 @@ namespace IDosGames.UI.LimitedTimeEvent
         private static Func<string, bool, Func<Task>> BuildClaimFactory(ActiveEventInfo evt)
         {
             if (evt == null) return null;
-            string eventId = evt.EventType == ActiveEventType.Chained ? null    : evt.ID;
-            string chainId = evt.EventType == ActiveEventType.Chained ? evt.ID  : null;
             return (milestoneId, isPremium) => async () =>
             {
-                var result = await LimitedTimeEventService.ClaimMilestone(milestoneId, eventId, chainId);
+                var result = await TimedEventService.ClaimMilestone(evt.Type, evt.TimedEventID, milestoneId);
                 if (!result.Success)
                     Message.Show(result.Error ?? MessageCode.SOMETHING_WENT_WRONG.ToString());
             };
@@ -144,10 +134,26 @@ namespace IDosGames.UI.LimitedTimeEvent
 
         private (long coins, long gems) ReadCurrencies()
         {
-            var vc    = IDosGamesData.User.VirtualCurrency;
-            long coins = vc != null && vc.TryGetValue(_coinCurrencyKey, out var c) ? c : 0;
-            long gems  = vc != null && vc.TryGetValue(_gemCurrencyKey,  out var g) ? g : 0;
+            var vc     = IDosGamesData.User.State?.InventoryV2?.VirtualCurrencies;
+            long coins = vc != null && vc.TryGetValue(_coinCurrencyKey, out var c) ? c.Amount : 0;
+            long gems  = vc != null && vc.TryGetValue(_gemCurrencyKey,  out var g) ? g.Amount : 0;
             return (coins, gems);
+        }
+
+        private static string FormatCountdown(TimeSpan diff)
+        {
+            if (diff.TotalSeconds <= 0) return "0м";
+            if (diff.TotalDays >= 7)
+            {
+                int weeks = (int)(diff.TotalDays / 7);
+                int days  = (int)diff.TotalDays % 7;
+                return $"{weeks}н {days}д";
+            }
+            if (diff.TotalHours >= 24)
+                return $"{(int)diff.TotalDays}д {diff.Hours}ч";
+            if (diff.TotalMinutes >= 60)
+                return $"{(int)diff.TotalHours}ч {diff.Minutes}м";
+            return $"{(int)diff.TotalMinutes}м {diff.Seconds}с";
         }
 
         // ─── Button handlers ──────────────────────────────────────────────────

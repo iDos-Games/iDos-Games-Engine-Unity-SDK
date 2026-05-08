@@ -1,8 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using IDosGames.ClientModels;
-using IDosGames.TitlePublicConfiguration;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -164,7 +163,8 @@ namespace IDosGames.UI.LimitedTimeEvent
             _timerTick += Time.deltaTime;
             if (_timerTick < 1f) return;
             _timerTick = 0f;
-            _view.UpdateTimer(TimeFormatUtil.FormatCountdown(_model.Event.ComputedEndUtc));
+            var remaining = _model.Event.ComputedEndUtc - DateTime.UtcNow;
+            _view.UpdateTimer(remaining.TotalSeconds > 0 ? FormatCountdown(remaining) : "Ended");
         }
 
         private void OnEnable()
@@ -174,7 +174,7 @@ namespace IDosGames.UI.LimitedTimeEvent
         }
         private void OnActivateClicked()
         {
-            // TODO: \u043e\u0442\u043a\u0440\u044b\u0442\u044c \u044d\u043a\u0440\u0430\u043d \u043f\u043e\u043a\u0443\u043f\u043a\u0438 Premium Pass
+            // TODO: открыть экран покупки Premium Pass
             Message.Show("Premium pass activation coming soon!");
         }
 
@@ -278,33 +278,25 @@ namespace IDosGames.UI.LimitedTimeEvent
 
             var milestones = BuildMilestones();
             var progress   = BuildProgress(milestones);
-            var nextMs     = FindNextMilestone(milestones, progress.TokensEarnedTotal);
+            var nextMs     = FindNextMilestone(milestones, progress.Balance?.TotalEarned ?? 0);
 
             return new ActiveEventInfo
             {
-                EventType                    = ActiveEventType.Scheduled,
-                ID                           = "mock_event_001",
-                ComputedStartUtc             = DateTime.UtcNow.AddHours(-_event.hoursSinceStart),
-                ComputedEndUtc               = DateTime.UtcNow.AddHours(_event.hoursUntilEnd),
-                CanEarn                      = _event.canEarn,
-                CanClaim                     = _event.canClaim,
-                BonusWindowActive            = _bonusWindow.isActive,
-                BonusWindowMultiplier        = _bonusWindow.isActive ? _bonusWindow.multiplier : 1.0,
-                BonusWindowEndUtc            = _bonusWindow.isActive
-                    ? DateTime.UtcNow.AddMinutes(_bonusWindow.minutesLeft)
-                    : (DateTime?)null,
-                CurrentProgressiveMultiplier = _progressiveMult.multiplier,
-                CurrentProgressiveTierName   = _progressiveMult.tierName,
-                NextMilestone                = nextMs,
+                Type                  = TimedEventType.Scheduled,
+                TimedEventID          = "mock_event_001",
+                ComputedStartUtc      = DateTime.UtcNow.AddHours(-_event.hoursSinceStart),
+                ComputedEndUtc        = DateTime.UtcNow.AddHours(_event.hoursUntilEnd),
+                CanEarn               = _event.canEarn,
+                CanClaim              = _event.canClaim,
+                NextMilestone         = nextMs,
                 Content = new EventContent
                 {
                     DisplayName = _event.eventName,
                     Description = _event.description,
                     ClaimMode   = EventClaimMode.Instant,
-                    Milestones  = milestones,
+                    Milestones  = milestones.ToDictionary(m => m.MilestoneID),
                     Token = new EventTokenDefinition
                     {
-                        TokenID      = "MOCK_TOKEN",
                         DisplayName  = _token.displayName,
                         MaxBalance   = _token.maxBalance,
                         DailyEarnCap = _token.dailyEarnCap,
@@ -321,9 +313,9 @@ namespace IDosGames.UI.LimitedTimeEvent
             for (int i = 0; i < _milestones.Count; i++)
             {
                 var m = _milestones[i];
-                var paths = string.IsNullOrEmpty(m.rewardImagePath)
+                var assetPaths = string.IsNullOrEmpty(m.rewardImagePath)
                     ? null
-                    : new List<string> { m.rewardImagePath };
+                    : new Dictionary<string, string> { { "default", m.rewardImagePath } };
 
                 list.Add(new EventMilestoneDefinition
                 {
@@ -331,13 +323,19 @@ namespace IDosGames.UI.LimitedTimeEvent
                     DisplayName          = m.label,
                     RequiredTokensEarned = m.requiredTokens,
                     SortOrder            = i,
-                    AssetPaths           = paths,
-                    Rewards = new List<ItemOrCurrency>
+                    AssetPaths           = assetPaths,
+                    Rewards = new ResourceGrant
                     {
-                        new ItemOrCurrency
+                        Standard = new ResourceBundle
                         {
-                            Amount    = m.rewardAmount,
-                            ImagePath = m.rewardImagePath,
+                            Entries = new List<ResourceEntry>
+                            {
+                                new ResourceEntry
+                                {
+                                    Amount = m.rewardAmount,
+                                    Type   = ResourceEntryType.VirtualCurrency,
+                                }
+                            }
                         }
                     },
                 });
@@ -345,7 +343,7 @@ namespace IDosGames.UI.LimitedTimeEvent
             return list;
         }
 
-        private UserEventProgress BuildProgress(List<EventMilestoneDefinition> milestones)
+        private UserEventTokenProgress BuildProgress(List<EventMilestoneDefinition> milestones)
         {
             var claimed = new List<string>();
             for (int i = 0; i < milestones.Count; i++)
@@ -356,17 +354,27 @@ namespace IDosGames.UI.LimitedTimeEvent
                     claimed.Add(milestones[i].MilestoneID);
             }
 
-            return new UserEventProgress
+            return new UserEventTokenProgress
             {
-                EventID             = "mock_event_001",
-                TokenBalance        = _token.tokenBalance,
-                TokensEarnedTotal   = _token.tokensEarnedTotal,
-                TokensSpentTotal    = _token.tokensSpentTotal,
-                DailyEarnedTotal    = Math.Min(_token.tokensEarnedTotal, _token.dailyEarnCap),
-                ClaimedMilestoneIDs = claimed,
-                ClaimedStreakDays   = new List<int>(),
-                JoinedAtUtc         = DateTime.UtcNow.AddHours(-_event.hoursSinceStart),
-                LastEarnedAtUtc     = DateTime.UtcNow.AddMinutes(-5),
+                Balance = new EventTokenBalanceData
+                {
+                    Current     = _token.tokenBalance,
+                    TotalEarned = _token.tokensEarnedTotal,
+                    TotalSpent  = _token.tokensSpentTotal,
+                },
+                Daily = new EventTokenDailyData
+                {
+                    TotalEarned = Math.Min(_token.tokensEarnedTotal, _token.dailyEarnCap),
+                },
+                Milestone = new EventTokenMilestoneData
+                {
+                    ClaimedIDs = claimed,
+                },
+                Meta = new EventTokenMetaData
+                {
+                    JoinedAtUtc     = DateTime.UtcNow.AddHours(-_event.hoursSinceStart),
+                    LastEarnedAtUtc = DateTime.UtcNow.AddMinutes(-5),
+                },
             };
         }
 
@@ -412,6 +420,22 @@ namespace IDosGames.UI.LimitedTimeEvent
             }
 
             _token.maxBalance = threshold + rng.Next(0, 201);
+        }
+
+        private static string FormatCountdown(TimeSpan diff)
+        {
+            if (diff.TotalSeconds <= 0) return "0м";
+            if (diff.TotalDays >= 7)
+            {
+                int weeks = (int)(diff.TotalDays / 7);
+                int days  = (int)diff.TotalDays % 7;
+                return $"{weeks}н {days}д";
+            }
+            if (diff.TotalHours >= 24)
+                return $"{(int)diff.TotalDays}д {diff.Hours}ч";
+            if (diff.TotalMinutes >= 60)
+                return $"{(int)diff.TotalHours}ч {diff.Minutes}м";
+            return $"{(int)diff.TotalMinutes}м {diff.Seconds}с";
         }
 
         private static string RandomEventName(System.Random rng)

@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using IDosGames.ClientModels;
+using System.Linq;
 using UnityEngine;
 
 namespace IDosGames.UI.LimitedTimeEvent
@@ -33,13 +33,13 @@ namespace IDosGames.UI.LimitedTimeEvent
             completedCount  = 0;
             if (Event?.Progress == null) return 0f;
 
-            var milestones = Event.Content?.Milestones;
-            if (milestones == null || milestones.Count == 0) return 0f;
+            var milestoneDict = Event.Content?.Milestones;
+            if (milestoneDict == null || milestoneDict.Count == 0) return 0f;
 
-            milestones.Sort((a, b) => a.RequiredTokensEarned.CompareTo(b.RequiredTokensEarned));
+            var milestones = milestoneDict.Values.OrderBy(m => m.RequiredTokensEarned).ToList();
 
             int  total         = milestones.Count;
-            long earned        = Event.Progress.TokensEarnedTotal;
+            long earned        = Event.Progress?.Balance?.TotalEarned ?? 0;
             long lastThreshold = 0L;
 
             foreach (var m in milestones)
@@ -61,11 +61,11 @@ namespace IDosGames.UI.LimitedTimeEvent
 
             segmentProgress = Mathf.Clamp01((float)(earned - lastThreshold) / segmentSize);
             float result = (completedCount + segmentProgress) / total;
-            
+
 #if UNITY_EDITOR
             Debug.Log($"[TokenProgress]={result} \n" +
                       $"TokensEarnedTotal={earned} | \n" +
-                      $"TokenBalance={Event.Progress.TokenBalance} | \n" +
+                      $"TokenBalance={Event.Progress?.Balance?.Current ?? 0} | \n" +
                       $"lastThreshold={lastThreshold} (порог последнего пройденного milestone) | \n" +
                       $"nextThreshold={next.RequiredTokensEarned} (порог следующего milestone) | \n" +
                       $"segmentSize={segmentSize} (nextThreshold - lastThreshold) | \n" +
@@ -73,7 +73,7 @@ namespace IDosGames.UI.LimitedTimeEvent
                       $"completed={completedCount}/{total} (пройдено/всего milestone) | \n" +
                       $"fillAmount={result:F3}\n");
 #endif
-            
+
             return result;
         }
 
@@ -82,15 +82,15 @@ namespace IDosGames.UI.LimitedTimeEvent
             get
             {
                 if (Event?.Progress == null) return "0 / 0";
-                long balance = Event.Progress.TokensEarnedTotal;
+                long balance = Event.Progress?.Balance?.TotalEarned ?? 0;
                 long target  = Event.NextMilestone?.RequiredTokensEarned
-                               ?? Event.Progress.TokensEarnedTotal;
+                               ?? (Event.Progress?.Balance?.TotalEarned ?? 0);
                 return $"{balance:N0} / {target:N0}";
             }
         }
 
         public string BalanceText =>
-            Event?.Progress?.TokenBalance.ToString("N0") ?? "0";
+            (Event?.Progress?.Balance?.Current ?? 0).ToString("N0");
 
         private HashSet<string> _premiumClaimed = new HashSet<string>();
 
@@ -117,7 +117,7 @@ namespace IDosGames.UI.LimitedTimeEvent
         }
 
         public bool IsMilestoneFreeClaimed(string milestoneId) =>
-            Event?.Progress?.ClaimedMilestoneIDs?.Contains(milestoneId) ?? false;
+            Event?.Progress?.Milestone?.ClaimedIDs?.Contains(milestoneId) ?? false;
 
         public bool IsMilestonePremiumClaimed(string milestoneId) =>
             _premiumClaimed.Contains(milestoneId);
@@ -126,7 +126,7 @@ namespace IDosGames.UI.LimitedTimeEvent
             IsMilestoneFreeClaimed(milestoneId);
 
         public bool IsMilestoneReached(long required) =>
-            (Event?.Progress?.TokensEarnedTotal ?? 0) >= required;
+            (Event?.Progress?.Balance?.TotalEarned ?? 0) >= required;
 
         public bool CanClaimMilestone(string milestoneId, long required) =>
             IsMilestoneReached(required)
