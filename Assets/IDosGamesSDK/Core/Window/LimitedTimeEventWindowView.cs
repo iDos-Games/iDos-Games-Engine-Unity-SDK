@@ -119,21 +119,24 @@ namespace IDosGames.UI.LimitedTimeEvent
             if (_tabContainer != null) _tabContainer.gameObject.SetActive(multiEvent);
             if (!multiEvent || _tabTemplate == null || _tabContainer == null) return;
 
-            for (int i = _tabContainer.childCount - 1; i >= 0; i--)
+            if (_spawnedTabs.Count != names.Count)
             {
-                var child = _tabContainer.GetChild(i).gameObject;
-                if (child == _tabTemplate.gameObject) continue;
-                DestroyImmediate(child);
-            }
-            _spawnedTabs.Clear();
+                for (int i = _tabContainer.childCount - 1; i >= 0; i--)
+                {
+                    var child = _tabContainer.GetChild(i).gameObject;
+                    if (child == _tabTemplate.gameObject) continue;
+                    DestroyImmediate(child);
+                }
+                _spawnedTabs.Clear();
 
-            for (int i = 0; i < names.Count; i++)
-            {
-                int index = i;
-                var tab = Instantiate(_tabTemplate, _tabContainer);
-                tab.gameObject.SetActive(true);
-                tab.Setup(names[i], () => onSelect?.Invoke(index));
-                _spawnedTabs.Add(tab);
+                for (int i = 0; i < names.Count; i++)
+                {
+                    int index = i;
+                    var tab = Instantiate(_tabTemplate, _tabContainer);
+                    tab.gameObject.SetActive(true);
+                    tab.Setup(names[i], () => onSelect?.Invoke(index));
+                    _spawnedTabs.Add(tab);
+                }
             }
 
             SetActiveTab(selectedIndex);

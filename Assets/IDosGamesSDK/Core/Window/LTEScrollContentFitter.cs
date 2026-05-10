@@ -31,8 +31,8 @@ namespace IDosGames.UI.LimitedTimeEvent
         {
             if (_rt == null) _rt = (RectTransform)transform;
 
-            // Единый flush всего pending layout до измерения
-            Canvas.ForceUpdateCanvases();
+            if (_leftColumn  != null) LayoutRebuilder.ForceRebuildLayoutImmediate(_leftColumn);
+            if (_rightColumn != null) LayoutRebuilder.ForceRebuildLayoutImmediate(_rightColumn);
 
             float maxBottom = 0f;
             MeasureColumn(_leftColumn,  ref maxBottom);
@@ -46,11 +46,8 @@ namespace IDosGames.UI.LimitedTimeEvent
         {
             if (col == null) return;
 
-            // anchoredPosition.y отрицательный (pivot.y=1, anchor.y=1 → отступ вниз от верха родителя)
             float topOffset = -col.anchoredPosition.y;
             float bottom    = topOffset + col.rect.height;
-
-            Debug.Log($"[MeasureColumn] {col.name}: topOffset={topOffset}, height={col.rect.height}, bottom={bottom}");
 
             if (bottom > maxBottom) maxBottom = bottom;
         }

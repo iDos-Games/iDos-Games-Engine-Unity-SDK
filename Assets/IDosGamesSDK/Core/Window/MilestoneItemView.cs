@@ -134,7 +134,6 @@ namespace IDosGames.UI.LimitedTimeEvent
                 }
             }
 
-            LayoutRebuilder.ForceRebuildLayoutImmediate(_rewardContainer);
             LayoutRebuilder.ForceRebuildLayoutImmediate(GetComponent<RectTransform>());
         }
 
