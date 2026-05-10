@@ -55,6 +55,11 @@ namespace IDosGames.UI.LimitedTimeEvent
         [Header("Scroll")]
         [SerializeField] private LTEScrollContentFitter _scrollFitter;
 
+        // ── Event Tabs ────────────────────────────────────────────────────────
+        [Header("Event Tabs")]
+        [SerializeField] private EventTabButtonView _tabTemplate;
+        [SerializeField] private RectTransform      _tabContainer;
+
         // ── State Views ───────────────────────────────────────────────────────
         [Header("State Views")]
         [SerializeField] private GameObject _loadingView;
@@ -67,6 +72,8 @@ namespace IDosGames.UI.LimitedTimeEvent
 
         public Button ActivateButton => _activateButton;
         public Button BackButton     => _backButton;
+
+        private readonly List<EventTabButtonView> _spawnedTabs = new();
 
         // ─────────────────────────────────────────────────────────────────────
 
@@ -101,6 +108,41 @@ namespace IDosGames.UI.LimitedTimeEvent
         public void UpdateTimer(string timerText)
         {
             if (_timerText != null) _timerText.text = timerText;
+        }
+
+        // ── Tabs ──────────────────────────────────────────────────────────────
+
+        public void RenderTabs(IReadOnlyList<string> names, int selectedIndex, Action<int> onSelect)
+        {
+            bool multiEvent = names != null && names.Count > 1;
+
+            if (_tabContainer != null) _tabContainer.gameObject.SetActive(multiEvent);
+            if (!multiEvent || _tabTemplate == null || _tabContainer == null) return;
+
+            for (int i = _tabContainer.childCount - 1; i >= 0; i--)
+            {
+                var child = _tabContainer.GetChild(i).gameObject;
+                if (child == _tabTemplate.gameObject) continue;
+                DestroyImmediate(child);
+            }
+            _spawnedTabs.Clear();
+
+            for (int i = 0; i < names.Count; i++)
+            {
+                int index = i;
+                var tab = Instantiate(_tabTemplate, _tabContainer);
+                tab.gameObject.SetActive(true);
+                tab.Setup(names[i], () => onSelect?.Invoke(index));
+                _spawnedTabs.Add(tab);
+            }
+
+            SetActiveTab(selectedIndex);
+        }
+
+        public void SetActiveTab(int index)
+        {
+            for (int i = 0; i < _spawnedTabs.Count; i++)
+                _spawnedTabs[i].SetSelected(i == index);
         }
 
         // ── Private ───────────────────────────────────────────────────────────

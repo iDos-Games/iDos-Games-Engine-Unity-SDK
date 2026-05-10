@@ -80,6 +80,16 @@ namespace IDosGames.UI.LimitedTimeEvent
         [Min(0)] public int gems  = 250;
     }
 
+    [Serializable]
+    public class MockEventData
+    {
+        public MockEventSettings Event = new MockEventSettings();
+        public MockTokenSettings Token = new MockTokenSettings();
+
+        [Tooltip("Milestones in order of SortOrder")]
+        public List<MockMilestoneData> Milestones = new List<MockMilestoneData>();
+    }
+
     // ─── Test Controller ─────────────────────────────────────────────────────
 
     /// <summary>
@@ -92,39 +102,90 @@ namespace IDosGames.UI.LimitedTimeEvent
     {
         [SerializeField] private LimitedTimeEventWindowView _view;
 
-        [Header("Event")]
-        [SerializeField] private MockEventSettings _event = new MockEventSettings();
-
-        [Header("Token")]
-        [SerializeField] private MockTokenSettings _token = new MockTokenSettings();
-
-        [Header("Player")]
+        [Header("Player (общие для всех ивентов)")]
         [SerializeField] private MockPlayerSettings _player = new MockPlayerSettings();
 
-        [Header("Milestones  (order = SortOrder)")]
-        [SerializeField] private List<MockMilestoneData> _milestones = new List<MockMilestoneData>
+        [Header("Events")]
+        [SerializeField] private List<MockEventData> _events = new List<MockEventData>
         {
-            new MockMilestoneData { label = "Milestone 1 (1 free / 1 premium)", requiredTokens = 100,
-                rewards        = new List<MockRewardData> { new MockRewardData { amount = 300 } },
-                premiumRewards = new List<MockRewardData> { new MockRewardData { amount = 10 } } },
-            new MockMilestoneData { label = "Milestone 2 (2 free / 1 premium)", requiredTokens = 250,
-                rewards        = new List<MockRewardData> { new MockRewardData { amount = 600 }, new MockRewardData { amount = 150 } },
-                premiumRewards = new List<MockRewardData> { new MockRewardData { amount = 25 } } },
-            new MockMilestoneData { label = "Milestone 3 (1 free / 2 premium)", requiredTokens = 500,
-                rewards        = new List<MockRewardData> { new MockRewardData { amount = 1200 } },
-                premiumRewards = new List<MockRewardData> { new MockRewardData { amount = 50 }, new MockRewardData { amount = 500 } } },
-            new MockMilestoneData { label = "Milestone 4 (2 free / 2 premium)", requiredTokens = 800,
-                rewards        = new List<MockRewardData> { new MockRewardData { amount = 2500 }, new MockRewardData { amount = 300 } },
-                premiumRewards = new List<MockRewardData> { new MockRewardData { amount = 100 }, new MockRewardData { amount = 1000 } } },
-            new MockMilestoneData { label = "Milestone 5 (3 free / 3 premium)", requiredTokens = 1200,
-                rewards        = new List<MockRewardData> { new MockRewardData { amount = 5000 }, new MockRewardData { amount = 500 }, new MockRewardData { amount = 100 } },
-                premiumRewards = new List<MockRewardData> { new MockRewardData { amount = 200 }, new MockRewardData { amount = 50 }, new MockRewardData { amount = 2000 } } },
+            // ── Event 1: Summer Festival — partial progress ───────────────────
+            new MockEventData
+            {
+                Event  = new MockEventSettings { eventName = "Summer Festival", hoursUntilEnd = 72f, hoursSinceStart = 48f },
+                Token  = new MockTokenSettings  { displayName = "Festival Coin", maxBalance = 1500, dailyEarnCap = 300, maxPerGrant = 50, tokenBalance = 300, tokensEarnedTotal = 300 },
+                Milestones = new List<MockMilestoneData>
+                {
+                    new MockMilestoneData { label = "Milestone 1 (1 free / 1 premium)", requiredTokens = 100,
+                        rewards        = new List<MockRewardData> { new MockRewardData { amount = 300 } },
+                        premiumRewards = new List<MockRewardData> { new MockRewardData { amount = 10 } } },
+                    new MockMilestoneData { label = "Milestone 2 (2 free / 1 premium)", requiredTokens = 250,
+                        rewards        = new List<MockRewardData> { new MockRewardData { amount = 600 }, new MockRewardData { amount = 150 } },
+                        premiumRewards = new List<MockRewardData> { new MockRewardData { amount = 25 } } },
+                    new MockMilestoneData { label = "Milestone 3 (1 free / 2 premium)", requiredTokens = 500,
+                        rewards        = new List<MockRewardData> { new MockRewardData { amount = 1200 } },
+                        premiumRewards = new List<MockRewardData> { new MockRewardData { amount = 50 }, new MockRewardData { amount = 500 } } },
+                    new MockMilestoneData { label = "Milestone 4 (2 free / 2 premium)", requiredTokens = 800,
+                        rewards        = new List<MockRewardData> { new MockRewardData { amount = 2500 }, new MockRewardData { amount = 300 } },
+                        premiumRewards = new List<MockRewardData> { new MockRewardData { amount = 100 }, new MockRewardData { amount = 1000 } } },
+                    new MockMilestoneData { label = "Milestone 5 (3 free / 3 premium)", requiredTokens = 1200,
+                        rewards        = new List<MockRewardData> { new MockRewardData { amount = 5000 }, new MockRewardData { amount = 500 }, new MockRewardData { amount = 100 } },
+                        premiumRewards = new List<MockRewardData> { new MockRewardData { amount = 200 }, new MockRewardData { amount = 50 }, new MockRewardData { amount = 2000 } } },
+                },
+            },
+
+            // ── Event 2: Winter Blitz — high progress, некоторые claimed ────
+            new MockEventData
+            {
+                Event  = new MockEventSettings { eventName = "Winter Blitz", hoursUntilEnd = 24f, hoursSinceStart = 120f },
+                Token  = new MockTokenSettings  { displayName = "Ice Crystal", maxBalance = 2000, dailyEarnCap = 500, maxPerGrant = 100, tokenBalance = 1600, tokensEarnedTotal = 1600 },
+                Milestones = new List<MockMilestoneData>
+                {
+                    new MockMilestoneData { label = "Stage 1", requiredTokens = 200,  freeClaimed = true, premiumClaimed = true,
+                        rewards        = new List<MockRewardData> { new MockRewardData { amount = 500 } },
+                        premiumRewards = new List<MockRewardData> { new MockRewardData { amount = 30 } } },
+                    new MockMilestoneData { label = "Stage 2", requiredTokens = 500,  freeClaimed = true, premiumClaimed = true,
+                        rewards        = new List<MockRewardData> { new MockRewardData { amount = 1000 }, new MockRewardData { amount = 200 } },
+                        premiumRewards = new List<MockRewardData> { new MockRewardData { amount = 60 }, new MockRewardData { amount = 400 } } },
+                    new MockMilestoneData { label = "Stage 3", requiredTokens = 900,  freeClaimed = false, premiumClaimed = false,
+                        rewards        = new List<MockRewardData> { new MockRewardData { amount = 2000 } },
+                        premiumRewards = new List<MockRewardData> { new MockRewardData { amount = 120 } } },
+                    new MockMilestoneData { label = "Stage 4", requiredTokens = 1400,
+                        rewards        = new List<MockRewardData> { new MockRewardData { amount = 3500 }, new MockRewardData { amount = 500 } },
+                        premiumRewards = new List<MockRewardData> { new MockRewardData { amount = 200 }, new MockRewardData { amount = 1500 } } },
+                    new MockMilestoneData { label = "Stage 5", requiredTokens = 2000,
+                        rewards        = new List<MockRewardData> { new MockRewardData { amount = 8000 }, new MockRewardData { amount = 1000 }, new MockRewardData { amount = 200 } },
+                        premiumRewards = new List<MockRewardData> { new MockRewardData { amount = 400 }, new MockRewardData { amount = 100 }, new MockRewardData { amount = 3000 } } },
+                },
+            },
+
+            // ── Event 3: Dragon Hunt — нет прогресса ─────────────────────────
+            new MockEventData
+            {
+                Event  = new MockEventSettings { eventName = "Dragon Hunt", hoursUntilEnd = 168f, hoursSinceStart = 2f, canEarn = true, canClaim = false },
+                Token  = new MockTokenSettings  { displayName = "Dragon Scale", maxBalance = 1000, dailyEarnCap = 200, maxPerGrant = 30, tokenBalance = 0, tokensEarnedTotal = 0 },
+                Milestones = new List<MockMilestoneData>
+                {
+                    new MockMilestoneData { label = "Rank 1", requiredTokens = 100,
+                        rewards        = new List<MockRewardData> { new MockRewardData { amount = 200 } },
+                        premiumRewards = new List<MockRewardData> { new MockRewardData { amount = 15 } } },
+                    new MockMilestoneData { label = "Rank 2", requiredTokens = 300,
+                        rewards        = new List<MockRewardData> { new MockRewardData { amount = 500 }, new MockRewardData { amount = 100 } },
+                        premiumRewards = new List<MockRewardData> { new MockRewardData { amount = 40 } } },
+                    new MockMilestoneData { label = "Rank 3", requiredTokens = 600,
+                        rewards        = new List<MockRewardData> { new MockRewardData { amount = 1500 } },
+                        premiumRewards = new List<MockRewardData> { new MockRewardData { amount = 80 }, new MockRewardData { amount = 600 } } },
+                    new MockMilestoneData { label = "Rank 4", requiredTokens = 1000,
+                        rewards        = new List<MockRewardData> { new MockRewardData { amount = 4000 }, new MockRewardData { amount = 400 } },
+                        premiumRewards = new List<MockRewardData> { new MockRewardData { amount = 150 }, new MockRewardData { amount = 2000 } } },
+                },
+            },
         };
 
         // ── Runtime ──────────────────────────────────────────────────────────
 
         private LimitedTimeEventWindowModel _model;
-        private float _timerTick;
+        private float                       _timerTick;
+        private int                         _activeEventIndex;
 
         private void Awake()
         {
@@ -133,22 +194,7 @@ namespace IDosGames.UI.LimitedTimeEvent
                 _view = GetComponent<LimitedTimeEventWindowView>();
         }
 
-        private Task SimulateClaim(string milestoneId, bool isPremium)
-        {
-            for (int i = 0; i < _milestones.Count; i++)
-            {
-                if ($"ms_{i + 1:00}" == milestoneId)
-                {
-                    if (isPremium) _milestones[i].premiumClaimed = true;
-                    else           _milestones[i].freeClaimed    = true;
-                    break;
-                }
-            }
-            Render();
-            return Task.CompletedTask;
-        }
-
-        private void Start()  => Render();
+        private void Start() => Render();
 
         private void Update()
         {
@@ -171,9 +217,9 @@ namespace IDosGames.UI.LimitedTimeEvent
             _view.ActivateButton?.onClick.RemoveListener(OnActivateClicked);
             _view.BackButton?.onClick.RemoveListener(OnBackClicked);
         }
+
         private void OnActivateClicked()
         {
-            // TODO: открыть экран покупки Premium Pass
             Message.Show("Premium pass activation coming soon!");
         }
 
@@ -181,13 +227,26 @@ namespace IDosGames.UI.LimitedTimeEvent
         {
             gameObject.SetActive(false);
         }
+
         private void OnValidate()
         {
+            if (_events == null || _events.Count == 0) return;
             if (_model == null) _model = new LimitedTimeEventWindowModel();
             if (_view   == null) _view  = GetComponent<LimitedTimeEventWindowView>();
             if (_view   == null) return;
-            _model.Apply(BuildMockEvent(), _player.hasPremium, _player.coins, _player.gems);
+
+            int index = Mathf.Clamp(_activeEventIndex, 0, _events.Count - 1);
+            var data  = _events[index];
+            _model.Apply(BuildMockEvent(data), _player.hasPremium, _player.coins, _player.gems);
             _view.RenderUI(_model);
+        }
+
+        // ── Tab switching ─────────────────────────────────────────────────────
+
+        private void OnTabSelected(int index)
+        {
+            _activeEventIndex = index;
+            Render();
         }
 
         // ── Context-menu actions ──────────────────────────────────────────────
@@ -195,12 +254,24 @@ namespace IDosGames.UI.LimitedTimeEvent
         [ContextMenu("Render Mock")]
         public void Render()
         {
+            if (_events == null || _events.Count == 0) return;
             if (_model == null) _model = new LimitedTimeEventWindowModel();
-            _model.Apply(BuildMockEvent(), _player.hasPremium, _player.coins, _player.gems);
+
+            _activeEventIndex = Mathf.Clamp(_activeEventIndex, 0, _events.Count - 1);
+
+            // Tabs
+            var names = _events.Select(e => e.Event.eventName).ToList();
+            _view.RenderTabs(names, _activeEventIndex, OnTabSelected);
+
+            // Active event
+            var data = _events[_activeEventIndex];
+            ClampTokenValues(data.Token);
+
+            _model.Apply(BuildMockEvent(data), _player.hasPremium, _player.coins, _player.gems);
 
             var premiumIds = new List<string>();
-            for (int i = 0; i < _milestones.Count; i++)
-                if (_milestones[i].premiumClaimed)
+            for (int i = 0; i < data.Milestones.Count; i++)
+                if (data.Milestones[i].premiumClaimed)
                     premiumIds.Add($"ms_{i + 1:00}");
             _model.SetPremiumClaimed(premiumIds);
 
@@ -210,101 +281,125 @@ namespace IDosGames.UI.LimitedTimeEvent
         [ContextMenu("Randomize Everything")]
         public void RandomizeEverything()
         {
-            var rng = new System.Random();
+            if (_events == null || _events.Count == 0) return;
+            var rng  = new System.Random();
+            var data = _events[_activeEventIndex];
 
-            _event.eventName      = RandomEventName(rng);
-            _event.hoursUntilEnd  = rng.Next(1, 168);
-            _event.hoursSinceStart = rng.Next(1, 72);
-            _event.canEarn        = rng.Next(4) != 0;
-            _event.canClaim       = rng.Next(4) != 0;
+            data.Event.eventName      = RandomEventName(rng);
+            data.Event.hoursUntilEnd  = rng.Next(1, 168);
+            data.Event.hoursSinceStart = rng.Next(1, 72);
+            data.Event.canEarn        = rng.Next(4) != 0;
+            data.Event.canClaim       = rng.Next(4) != 0;
 
-            _token.maxBalance      = rng.Next(500, 5001);
-            _token.dailyEarnCap    = rng.Next(100, 1001);
-            _token.maxPerGrant     = rng.Next(10, 201);
-            _token.tokensEarnedTotal = rng.Next(0, _token.maxBalance + 1);
-            _token.tokenBalance      = rng.Next(0, _token.tokensEarnedTotal + 1);
-            _token.tokensSpentTotal  = _token.tokensEarnedTotal - _token.tokenBalance;
+            data.Token.maxBalance        = rng.Next(500, 5001);
+            data.Token.dailyEarnCap      = rng.Next(100, 1001);
+            data.Token.maxPerGrant       = rng.Next(10, 201);
+            data.Token.tokensEarnedTotal = rng.Next(0, data.Token.maxBalance + 1);
+            data.Token.tokenBalance      = rng.Next(0, data.Token.tokensEarnedTotal + 1);
+            data.Token.tokensSpentTotal  = data.Token.tokensEarnedTotal - data.Token.tokenBalance;
 
             _player.hasPremium = rng.Next(2) == 0;
             _player.coins      = rng.Next(0, 50001);
             _player.gems       = rng.Next(0, 5001);
 
-            RandomizeMilestones(rng);
+            RandomizeMilestones(data, rng);
             Render();
         }
 
         [ContextMenu("Randomize Token Progress Only")]
         public void RandomizeTokenProgress()
         {
-            var rng = new System.Random();
-            _token.tokensEarnedTotal = rng.Next(0, _token.maxBalance + 1);
-            _token.tokenBalance      = rng.Next(0, _token.tokensEarnedTotal + 1);
-            _token.tokensSpentTotal  = _token.tokensEarnedTotal - _token.tokenBalance;
+            if (_events == null || _events.Count == 0) return;
+            var rng  = new System.Random();
+            var token = _events[_activeEventIndex].Token;
+            token.tokensEarnedTotal = rng.Next(0, token.maxBalance + 1);
+            token.tokenBalance      = rng.Next(0, token.tokensEarnedTotal + 1);
+            token.tokensSpentTotal  = token.tokensEarnedTotal - token.tokenBalance;
             Render();
         }
 
         [ContextMenu("Claim All Milestones")]
         public void ClaimAllMilestones()
         {
-            foreach (var ms in _milestones) { ms.freeClaimed = true; ms.premiumClaimed = true; }
-            _token.tokensEarnedTotal = _token.maxBalance;
-            _token.tokenBalance      = _token.maxBalance;
+            if (_events == null || _events.Count == 0) return;
+            var data = _events[_activeEventIndex];
+            foreach (var ms in data.Milestones) { ms.freeClaimed = true; ms.premiumClaimed = true; }
+            data.Token.tokensEarnedTotal = data.Token.maxBalance;
+            data.Token.tokenBalance      = data.Token.maxBalance;
             Render();
         }
 
         [ContextMenu("Reset All Milestones")]
         public void ResetAllMilestones()
         {
-            foreach (var ms in _milestones) { ms.freeClaimed = false; ms.premiumClaimed = false; }
-            _token.tokensEarnedTotal = 0;
-            _token.tokenBalance      = 0;
+            if (_events == null || _events.Count == 0) return;
+            var data = _events[_activeEventIndex];
+            foreach (var ms in data.Milestones) { ms.freeClaimed = false; ms.premiumClaimed = false; }
+            data.Token.tokensEarnedTotal = 0;
+            data.Token.tokenBalance      = 0;
             Render();
+        }
+
+        // ── Claim simulation ──────────────────────────────────────────────────
+
+        private Task SimulateClaim(string milestoneId, bool isPremium)
+        {
+            if (_events == null || _events.Count == 0) return Task.CompletedTask;
+            var milestones = _events[_activeEventIndex].Milestones;
+            for (int i = 0; i < milestones.Count; i++)
+            {
+                if ($"ms_{i + 1:00}" == milestoneId)
+                {
+                    if (isPremium) milestones[i].premiumClaimed = true;
+                    else           milestones[i].freeClaimed    = true;
+                    break;
+                }
+            }
+            Render();
+            return Task.CompletedTask;
         }
 
         // ── Mock builders ─────────────────────────────────────────────────────
 
-        private ActiveEventInfo BuildMockEvent()
+        private ActiveEventInfo BuildMockEvent(MockEventData data)
         {
-            ClampTokenValues();
-
-            var milestones = BuildMilestones();
-            var progress   = BuildProgress(milestones);
+            var milestones = BuildMilestones(data.Milestones);
+            var progress   = BuildProgress(data);
             var nextMs     = FindNextMilestone(milestones, progress.Balance?.TotalEarned ?? 0);
 
             return new ActiveEventInfo
             {
-                Type                  = TimedEventType.Scheduled,
-                TimedEventID          = "mock_event_001",
-                ComputedStartUtc      = DateTime.UtcNow.AddHours(-_event.hoursSinceStart),
-                ComputedEndUtc        = DateTime.UtcNow.AddHours(_event.hoursUntilEnd),
-                CanEarn               = _event.canEarn,
-                CanClaim              = _event.canClaim,
-                NextMilestone         = nextMs,
+                Type             = TimedEventType.Scheduled,
+                TimedEventID     = $"mock_{data.Event.eventName.ToLower().Replace(" ", "_")}",
+                ComputedStartUtc = DateTime.UtcNow.AddHours(-data.Event.hoursSinceStart),
+                ComputedEndUtc   = DateTime.UtcNow.AddHours(data.Event.hoursUntilEnd),
+                CanEarn          = data.Event.canEarn,
+                CanClaim         = data.Event.canClaim,
+                NextMilestone    = nextMs,
                 Content = new EventContent
                 {
-                    DisplayName = _event.eventName,
-                    Description = _event.description,
+                    DisplayName = data.Event.eventName,
+                    Description = data.Event.description,
                     ClaimMode   = EventClaimMode.Instant,
                     Milestones  = milestones.ToDictionary(m => m.MilestoneID),
                     Token = new EventTokenDefinition
                     {
-                        DisplayName  = _token.displayName,
-                        MaxBalance   = _token.maxBalance,
-                        DailyEarnCap = _token.dailyEarnCap,
-                        MaxPerGrant  = _token.maxPerGrant,
+                        DisplayName  = data.Token.displayName,
+                        MaxBalance   = data.Token.maxBalance,
+                        DailyEarnCap = data.Token.dailyEarnCap,
+                        MaxPerGrant  = data.Token.maxPerGrant,
                     },
                 },
                 Progress = progress,
             };
         }
 
-        private List<EventMilestoneDefinition> BuildMilestones()
+        private static List<EventMilestoneDefinition> BuildMilestones(List<MockMilestoneData> milestones)
         {
             var list = new List<EventMilestoneDefinition>();
-            for (int i = 0; i < _milestones.Count; i++)
+            for (int i = 0; i < milestones.Count; i++)
             {
-                var m = _milestones[i];
-
+                var m = milestones[i];
                 var freeEntries    = BuildResourceEntries(m.rewards);
                 var premiumEntries = BuildResourceEntries(m.premiumRewards);
 
@@ -345,28 +440,24 @@ namespace IDosGames.UI.LimitedTimeEvent
             return entries;
         }
 
-        private UserEventTokenProgress BuildProgress(List<EventMilestoneDefinition> milestones)
+        private UserEventTokenProgress BuildProgress(MockEventData data)
         {
             var claimed = new List<string>();
-            for (int i = 0; i < milestones.Count; i++)
-            {
-                // Только явный forceClaimed добавляет в список — достигнутые по токенам
-                // остаются в состоянии Reached, кнопка Claim активна и кликабельна.
-                if (_milestones[i].freeClaimed)
-                    claimed.Add(milestones[i].MilestoneID);
-            }
+            for (int i = 0; i < data.Milestones.Count; i++)
+                if (data.Milestones[i].freeClaimed)
+                    claimed.Add($"ms_{i + 1:00}");
 
             return new UserEventTokenProgress
             {
                 Balance = new EventTokenBalanceData
                 {
-                    Current     = _token.tokenBalance,
-                    TotalEarned = _token.tokensEarnedTotal,
-                    TotalSpent  = _token.tokensSpentTotal,
+                    Current     = data.Token.tokenBalance,
+                    TotalEarned = data.Token.tokensEarnedTotal,
+                    TotalSpent  = data.Token.tokensSpentTotal,
                 },
                 Daily = new EventTokenDailyData
                 {
-                    TotalEarned = Math.Min(_token.tokensEarnedTotal, _token.dailyEarnCap),
+                    TotalEarned = Math.Min(data.Token.tokensEarnedTotal, data.Token.dailyEarnCap),
                 },
                 Milestone = new EventTokenMilestoneData
                 {
@@ -374,7 +465,7 @@ namespace IDosGames.UI.LimitedTimeEvent
                 },
                 Meta = new EventTokenMetaData
                 {
-                    JoinedAtUtc     = DateTime.UtcNow.AddHours(-_event.hoursSinceStart),
+                    JoinedAtUtc     = DateTime.UtcNow.AddHours(-data.Event.hoursSinceStart),
                     LastEarnedAtUtc = DateTime.UtcNow.AddMinutes(-5),
                 },
             };
@@ -382,35 +473,33 @@ namespace IDosGames.UI.LimitedTimeEvent
 
         // ── Helpers ───────────────────────────────────────────────────────────
 
-        private void ClampTokenValues()
+        private static void ClampTokenValues(MockTokenSettings token)
         {
-            _token.tokensEarnedTotal = Math.Max(0, _token.tokensEarnedTotal);
-            _token.tokenBalance      = Math.Min(_token.tokenBalance, _token.tokensEarnedTotal);
-            _token.tokenBalance      = Math.Max(0, _token.tokenBalance);
-            _token.tokensSpentTotal  = _token.tokensEarnedTotal - _token.tokenBalance;
+            token.tokensEarnedTotal = Math.Max(0, token.tokensEarnedTotal);
+            token.tokenBalance      = Math.Min(token.tokenBalance, token.tokensEarnedTotal);
+            token.tokenBalance      = Math.Max(0, token.tokenBalance);
+            token.tokensSpentTotal  = token.tokensEarnedTotal - token.tokenBalance;
         }
 
         private static EventMilestoneDefinition FindNextMilestone(
             List<EventMilestoneDefinition> milestones, long earned)
         {
             foreach (var ms in milestones)
-            {
                 if (earned < ms.RequiredTokensEarned)
                     return ms;
-            }
             return null;
         }
 
-        private void RandomizeMilestones(System.Random rng)
+        private static void RandomizeMilestones(MockEventData data, System.Random rng)
         {
             int count = rng.Next(2, 7);
-            _milestones.Clear();
+            data.Milestones.Clear();
 
             int threshold = 0;
             for (int i = 0; i < count; i++)
             {
                 threshold += rng.Next(50, 401);
-                _milestones.Add(new MockMilestoneData
+                data.Milestones.Add(new MockMilestoneData
                 {
                     label          = $"Milestone {i + 1}",
                     requiredTokens = threshold,
@@ -421,7 +510,7 @@ namespace IDosGames.UI.LimitedTimeEvent
                 });
             }
 
-            _token.maxBalance = threshold + rng.Next(0, 201);
+            data.Token.maxBalance = threshold + rng.Next(0, 201);
         }
 
         private static string FormatCountdown(TimeSpan diff)

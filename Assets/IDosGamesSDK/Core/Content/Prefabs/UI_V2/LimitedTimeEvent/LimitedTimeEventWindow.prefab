@@ -1576,7 +1576,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 1176.5, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &252415898282881377
 MonoBehaviour:
@@ -1607,10 +1607,10 @@ MonoBehaviour:
   m_Padding:
     m_Left: 0
     m_Right: 0
-    m_Top: 0
-    m_Bottom: 0
-  m_ChildAlignment: 0
-  m_Spacing: 0
+    m_Top: 10
+    m_Bottom: 10
+  m_ChildAlignment: 1
+  m_Spacing: 10
   m_ChildForceExpandWidth: 0
   m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 0
@@ -9793,127 +9793,6 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!1 &3252178134179100404
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 379563193596969136}
-  - component: {fileID: 1243010761294460281}
-  - component: {fileID: 4091236432244266739}
-  - component: {fileID: 5594288045293292006}
-  m_Layer: 0
-  m_Name: Button_01
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &379563193596969136
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3252178134179100404}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 2673275862144330631}
-  m_Father: {fileID: 4289041482684796468}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 180, y: 180}
-  m_Pivot: {x: 0.5, y: 0.5}
---- !u!222 &1243010761294460281
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3252178134179100404}
-  m_CullTransparentMesh: 1
---- !u!114 &4091236432244266739
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3252178134179100404}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
-  m_Color: {r: 0.11764706, g: 0.14117648, b: 0.2509804, a: 1}
-  m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 0}
-  m_Type: 1
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
---- !u!114 &5594288045293292006
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3252178134179100404}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Navigation:
-    m_Mode: 3
-    m_WrapAround: 0
-    m_SelectOnUp: {fileID: 0}
-    m_SelectOnDown: {fileID: 0}
-    m_SelectOnLeft: {fileID: 0}
-    m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
-  m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
-    m_ColorMultiplier: 1
-    m_FadeDuration: 0.1
-  m_SpriteState:
-    m_HighlightedSprite: {fileID: 0}
-    m_PressedSprite: {fileID: 0}
-    m_SelectedSprite: {fileID: 0}
-    m_DisabledSprite: {fileID: 0}
-  m_AnimationTriggers:
-    m_NormalTrigger: Normal
-    m_HighlightedTrigger: Highlighted
-    m_PressedTrigger: Pressed
-    m_SelectedTrigger: Selected
-    m_DisabledTrigger: Disabled
-  m_Interactable: 1
-  m_TargetGraphic: {fileID: 4091236432244266739}
-  m_OnClick:
-    m_PersistentCalls:
-      m_Calls: []
 --- !u!1 &3306520912914671068
 GameObject:
   m_ObjectHideFlags: 0
@@ -10363,6 +10242,9 @@ MonoBehaviour:
   _premiumMilestoneContainer: {fileID: 1587970410742275201}
   _stageProgress: {fileID: 2964770428476874459}
   _scrollFitter: {fileID: 6323730047058242215}
+  _tabTemplate: {fileID: 2001000000000000001, guid: 90b4daf4171b1664fba98225750006d2,
+    type: 3}
+  _tabContainer: {fileID: 4289041482684796468}
   _loadingView: {fileID: 0}
   _contentView: {fileID: 0}
   _emptyView: {fileID: 0}
@@ -10380,81 +10262,191 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::IDosGames.UI.LimitedTimeEvent.LimitedTimeEventWindowTestController
   _view: {fileID: 8713820984500769843}
-  _event:
-    eventName: Summer Festival
-    description: Collect tokens to earn rewards!
-    hoursUntilEnd: 72
-    hoursSinceStart: 48
-    canEarn: 1
-    canClaim: 1
-  _token:
-    displayName: Festival Coin
-    maxBalance: 1500
-    dailyEarnCap: 300
-    maxPerGrant: 50
-    tokenBalance: 300
-    tokensEarnedTotal: 300
-    tokensSpentTotal: 0
   _player:
     hasPremium: 0
     coins: 1500
     gems: 250
-  _milestones:
-  - label: Milestone 1 (1 free / 1 premium)
-    requiredTokens: 100
-    rewards:
-    - amount: 300
-    premiumRewards:
-    - amount: 10
-    freeClaimed: 0
-    premiumClaimed: 0
-  - label: Milestone 2 (2 free / 1 premium)
-    requiredTokens: 250
-    rewards:
-    - amount: 600
-    - amount: 150
-    premiumRewards:
-    - amount: 25
-    freeClaimed: 0
-    premiumClaimed: 0
-  - label: Milestone 3 (1 free / 2 premium)
-    requiredTokens: 500
-    rewards:
-    - amount: 1200
-    premiumRewards:
-    - amount: 50
-    - amount: 500
-    freeClaimed: 0
-    premiumClaimed: 0
-  - label: Milestone 4 (2 free / 2 premium)
-    requiredTokens: 800
-    rewards:
-    - amount: 2500
-    - amount: 300
-    premiumRewards:
-    - amount: 100
-    - amount: 1000
-    freeClaimed: 0
-    premiumClaimed: 0
-  - label: Milestone 5 (3 free / 3 premium)
-    requiredTokens: 1200
-    rewards:
-    - amount: 5000
-    - amount: 500
-    - amount: 100
-    premiumRewards:
-    - amount: 200
-    - amount: 50
-    - amount: 2000
-    freeClaimed: 0
-    premiumClaimed: 0
-  _bonusWindow:
-    isActive: 0
-    multiplier: 2
-    minutesLeft: 30
-  _progressiveMult:
-    multiplier: 1
-    tierName: 
+  _events:
+  - Event:
+      eventName: Summer Festival
+      description: Collect tokens to earn rewards!
+      hoursUntilEnd: 72
+      hoursSinceStart: 48
+      canEarn: 1
+      canClaim: 1
+    Token:
+      displayName: Festival Coin
+      maxBalance: 1500
+      dailyEarnCap: 300
+      maxPerGrant: 50
+      tokenBalance: 300
+      tokensEarnedTotal: 300
+      tokensSpentTotal: 0
+    Milestones:
+    - label: Milestone 1 (1 free / 1 premium)
+      requiredTokens: 100
+      rewards:
+      - amount: 300
+      premiumRewards:
+      - amount: 10
+      freeClaimed: 0
+      premiumClaimed: 0
+    - label: Milestone 2 (2 free / 1 premium)
+      requiredTokens: 250
+      rewards:
+      - amount: 600
+      - amount: 150
+      premiumRewards:
+      - amount: 25
+      freeClaimed: 0
+      premiumClaimed: 0
+    - label: Milestone 3 (1 free / 2 premium)
+      requiredTokens: 500
+      rewards:
+      - amount: 1200
+      premiumRewards:
+      - amount: 50
+      - amount: 500
+      freeClaimed: 0
+      premiumClaimed: 0
+    - label: Milestone 4 (2 free / 2 premium)
+      requiredTokens: 800
+      rewards:
+      - amount: 2500
+      - amount: 300
+      premiumRewards:
+      - amount: 100
+      - amount: 1000
+      freeClaimed: 0
+      premiumClaimed: 0
+    - label: Milestone 5 (3 free / 3 premium)
+      requiredTokens: 1200
+      rewards:
+      - amount: 5000
+      - amount: 500
+      - amount: 100
+      premiumRewards:
+      - amount: 200
+      - amount: 50
+      - amount: 2000
+      freeClaimed: 0
+      premiumClaimed: 0
+  - Event:
+      eventName: Winter Blitz
+      description: Collect tokens to earn rewards!
+      hoursUntilEnd: 24
+      hoursSinceStart: 120
+      canEarn: 1
+      canClaim: 1
+    Token:
+      displayName: Ice Crystal
+      maxBalance: 2000
+      dailyEarnCap: 500
+      maxPerGrant: 100
+      tokenBalance: 1600
+      tokensEarnedTotal: 1600
+      tokensSpentTotal: 0
+    Milestones:
+    - label: Stage 1
+      requiredTokens: 200
+      rewards:
+      - amount: 500
+      premiumRewards:
+      - amount: 30
+      freeClaimed: 1
+      premiumClaimed: 1
+    - label: Stage 2
+      requiredTokens: 500
+      rewards:
+      - amount: 1000
+      - amount: 200
+      premiumRewards:
+      - amount: 60
+      - amount: 400
+      freeClaimed: 1
+      premiumClaimed: 1
+    - label: Stage 3
+      requiredTokens: 900
+      rewards:
+      - amount: 2000
+      premiumRewards:
+      - amount: 120
+      freeClaimed: 0
+      premiumClaimed: 0
+    - label: Stage 4
+      requiredTokens: 1400
+      rewards:
+      - amount: 3500
+      - amount: 500
+      premiumRewards:
+      - amount: 200
+      - amount: 1500
+      freeClaimed: 0
+      premiumClaimed: 0
+    - label: Stage 5
+      requiredTokens: 2000
+      rewards:
+      - amount: 8000
+      - amount: 1000
+      - amount: 200
+      premiumRewards:
+      - amount: 400
+      - amount: 100
+      - amount: 3000
+      freeClaimed: 0
+      premiumClaimed: 0
+  - Event:
+      eventName: Dragon Hunt
+      description: Collect tokens to earn rewards!
+      hoursUntilEnd: 168
+      hoursSinceStart: 2
+      canEarn: 1
+      canClaim: 0
+    Token:
+      displayName: Dragon Scale
+      maxBalance: 1000
+      dailyEarnCap: 200
+      maxPerGrant: 30
+      tokenBalance: 0
+      tokensEarnedTotal: 0
+      tokensSpentTotal: 0
+    Milestones:
+    - label: Rank 1
+      requiredTokens: 100
+      rewards:
+      - amount: 200
+      premiumRewards:
+      - amount: 15
+      freeClaimed: 0
+      premiumClaimed: 0
+    - label: Rank 2
+      requiredTokens: 300
+      rewards:
+      - amount: 500
+      - amount: 100
+      premiumRewards:
+      - amount: 40
+      freeClaimed: 0
+      premiumClaimed: 0
+    - label: Rank 3
+      requiredTokens: 600
+      rewards:
+      - amount: 1500
+      premiumRewards:
+      - amount: 80
+      - amount: 600
+      freeClaimed: 0
+      premiumClaimed: 0
+    - label: Rank 4
+      requiredTokens: 1000
+      rewards:
+      - amount: 4000
+      - amount: 400
+      premiumRewards:
+      - amount: 150
+      - amount: 2000
+      freeClaimed: 0
+      premiumClaimed: 0
 --- !u!114 &8273550520306095817
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16055,97 +16047,6 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!1 &5894314461629231809
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 2673275862144330631}
-  - component: {fileID: 1312915919878983470}
-  - component: {fileID: 6787254103553393399}
-  - component: {fileID: 4874375069365144553}
-  m_Layer: 0
-  m_Name: Icon
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &2673275862144330631
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5894314461629231809}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 379563193596969136}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 2.6, y: 11}
-  m_SizeDelta: {x: 123, y: 101}
-  m_Pivot: {x: 0.5, y: 0.5}
---- !u!222 &1312915919878983470
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5894314461629231809}
-  m_CullTransparentMesh: 1
---- !u!114 &6787254103553393399
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5894314461629231809}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: e707c9be1fb3e47e9bc04786b20122b3, type: 3}
-  m_Type: 0
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
---- !u!114 &4874375069365144553
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5894314461629231809}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_EffectColor: {r: 0, g: 0, b: 0, a: 1}
-  m_EffectDistance: {x: 0, y: -4}
-  m_UseGraphicAlpha: 1
 --- !u!1 &5909009286042059046
 GameObject:
   m_ObjectHideFlags: 0
@@ -16459,7 +16360,7 @@ GameObject:
   - component: {fileID: 2647942822840730744}
   - component: {fileID: 480415465075216737}
   m_Layer: 0
-  m_Name: Scroll View
+  m_Name: EventIcons
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -16506,7 +16407,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.392}
+  m_Color: {r: 1, g: 1, b: 1, a: 0}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -25264,3 +25165,127 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!1001 &6425132574572672333
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 4289041482684796468}
+    m_Modifications:
+    - target: {fileID: 6660492613656311293, guid: 90b4daf4171b1664fba98225750006d2,
+        type: 3}
+      propertyPath: m_Pivot.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6660492613656311293, guid: 90b4daf4171b1664fba98225750006d2,
+        type: 3}
+      propertyPath: m_Pivot.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6660492613656311293, guid: 90b4daf4171b1664fba98225750006d2,
+        type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6660492613656311293, guid: 90b4daf4171b1664fba98225750006d2,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6660492613656311293, guid: 90b4daf4171b1664fba98225750006d2,
+        type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6660492613656311293, guid: 90b4daf4171b1664fba98225750006d2,
+        type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6660492613656311293, guid: 90b4daf4171b1664fba98225750006d2,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 180
+      objectReference: {fileID: 0}
+    - target: {fileID: 6660492613656311293, guid: 90b4daf4171b1664fba98225750006d2,
+        type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 180
+      objectReference: {fileID: 0}
+    - target: {fileID: 6660492613656311293, guid: 90b4daf4171b1664fba98225750006d2,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6660492613656311293, guid: 90b4daf4171b1664fba98225750006d2,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6660492613656311293, guid: 90b4daf4171b1664fba98225750006d2,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6660492613656311293, guid: 90b4daf4171b1664fba98225750006d2,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6660492613656311293, guid: 90b4daf4171b1664fba98225750006d2,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6660492613656311293, guid: 90b4daf4171b1664fba98225750006d2,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6660492613656311293, guid: 90b4daf4171b1664fba98225750006d2,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6660492613656311293, guid: 90b4daf4171b1664fba98225750006d2,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6660492613656311293, guid: 90b4daf4171b1664fba98225750006d2,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6660492613656311293, guid: 90b4daf4171b1664fba98225750006d2,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6660492613656311293, guid: 90b4daf4171b1664fba98225750006d2,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6660492613656311293, guid: 90b4daf4171b1664fba98225750006d2,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8361116054532408249, guid: 90b4daf4171b1664fba98225750006d2,
+        type: 3}
+      propertyPath: m_Name
+      value: EventTab
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 90b4daf4171b1664fba98225750006d2, type: 3}
+--- !u!224 &379563193596969136 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 6660492613656311293, guid: 90b4daf4171b1664fba98225750006d2,
+    type: 3}
+  m_PrefabInstance: {fileID: 6425132574572672333}
+  m_PrefabAsset: {fileID: 0}
