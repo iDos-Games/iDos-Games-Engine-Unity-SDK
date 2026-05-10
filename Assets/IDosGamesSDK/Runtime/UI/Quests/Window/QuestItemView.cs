@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -21,14 +22,22 @@ namespace IDosGames.UI.Quest
         [SerializeField] private RectTransform _rewardContainer;    // ItemFrame — holds reward rows
         [SerializeField] private RectTransform _rewardRowTemplate;  // RewardRow_1 — inactive template
 
+        [Header("Visual State")]
+        [SerializeField] private UnityEngine.UI.Image _bgInner;
+        [SerializeField] private UnityEngine.UI.Image _statusAccent; // left-edge color strip
+        [SerializeField] private GameObject           _dim;
+
         [Header("Status")]
         [SerializeField] private GameObject _completedBadge;
         [SerializeField] private GameObject _claimedBadge;
         [SerializeField] private GameObject _expiredBadge;
+        [SerializeField] private TextMeshProUGUI _objectiveSummaryText; // shown only for multi-objective quests
 
         [Header("Claim Button")]
         [SerializeField] private Button          _claimButton;
         [SerializeField] private TextMeshProUGUI _claimButtonText;
+
+        private Coroutine _pulseCoroutine;
 
         // ─────────────────────────────────────────────────────────────
 
@@ -42,15 +51,22 @@ namespace IDosGames.UI.Quest
             List<ResourceEntry>   rewards,
             UnityAction onClaimClicked)
         {
-            if (_titleText != null) _titleText.text = title;
+            if (_titleText != null)
+            {
+                _titleText.text  = title;
+                _titleText.color = (status == QuestStatus.Completed)
+                    ? new Color(0.102f, 0.910f, 0.447f) // #1AE872 green — ready to claim
+                    : Color.white;
+            }
             if (_descText  != null) _descText.text  = description;
 
             if (_iconImage != null && !string.IsNullOrEmpty(iconPath))
                 LoadIconAsync(iconPath);
 
-            if (_completedBadge != null) _completedBadge.SetActive(status == QuestStatus.Completed);
-            if (_claimedBadge   != null) _claimedBadge.SetActive(status == QuestStatus.Claimed);
-            if (_expiredBadge   != null) _expiredBadge.SetActive(status == QuestStatus.Expired);
+            // _completedBadge is wired to BgInner (background), SetVisualState always overrides it.
+            // State is communicated via background color + title color + Claim button.
+            if (_claimedBadge != null) _claimedBadge.SetActive(status == QuestStatus.Claimed);
+            if (_expiredBadge != null) _expiredBadge.SetActive(status == QuestStatus.Expired);
 
             if (_claimButton != null)
             {
@@ -60,11 +76,35 @@ namespace IDosGames.UI.Quest
                 _claimButton.onClick.RemoveAllListeners();
                 if (canClaim && onClaimClicked != null)
                     _claimButton.onClick.AddListener(onClaimClicked);
+
+                if (_pulseCoroutine != null) StopCoroutine(_pulseCoroutine);
+                if (status == QuestStatus.Completed && canClaim)
+                    _pulseCoroutine = StartCoroutine(PulseLoop(_claimButton));
+                else
+                    _claimButton.transform.localScale = Vector3.one;
             }
 
             PopulateObjectives(objectives);
             PopulateRewards(rewards);
-            SetVisualState(status);
+
+            bool hasProgress = false;
+            int completedObjectives = 0;
+            if (objectives != null)
+                foreach (var obj in objectives)
+                {
+                    if (obj.Current > 0) hasProgress = true;
+                    if (obj.Current >= obj.Target) completedObjectives++;
+                }
+
+            if (_objectiveSummaryText != null)
+            {
+                bool showSummary = objectives != null && objectives.Count > 1 && status == QuestStatus.Active;
+                _objectiveSummaryText.gameObject.SetActive(showSummary);
+                if (showSummary)
+                    _objectiveSummaryText.text = $"{completedObjectives}/{objectives.Count} целей выполнено";
+            }
+
+            SetVisualState(status, hasProgress);
         }
 
         // ─────────────────────────────────────────────────────────────
@@ -170,8 +210,89 @@ namespace IDosGames.UI.Quest
             }
         }
 
-        private void SetVisualState(QuestStatus status)
+        private void OnDisable()
         {
+            if (_pulseCoroutine != null)
+            {
+                StopCoroutine(_pulseCoroutine);
+                _pulseCoroutine = null;
+            }
+            if (_claimButton != null)
+            {
+                _claimButton.transform.localScale = Vector3.one;
+                var cb = _claimButton.colors;
+                cb.normalColor = Color.white;
+                _claimButton.colors = cb;
+            }
+        }
+
+        private static IEnumerator PulseLoop(Button btn)
+        {
+            const float speed    = 1.5f;
+            const float minScale = 1.00f;
+            const float maxScale = 1.12f;
+
+            Transform target    = btn.transform;
+            Color     baseColor = btn.colors.normalColor;
+            Color     glowColor = Color.Lerp(baseColor, Color.white, 0.55f);
+
+            float t = 0f;
+            while (true)
+            {
+                t += Time.deltaTime * speed;
+                float ping = Mathf.PingPong(t, 1f);
+                float s    = Mathf.SmoothStep(minScale, maxScale, ping);
+                target.localScale = new Vector3(s, s, 1f);
+
+                var cb = btn.colors;
+                cb.normalColor = Color.Lerp(baseColor, glowColor, ping);
+                btn.colors = cb;
+
+                yield return null;
+            }
+        }
+
+        // ── Colors ───────────────────────────────────────────────────────
+        private static readonly Color BgActive      = new Color(0x10 / 255f, 0x1C / 255f, 0x38 / 255f, 1f);
+        private static readonly Color BgInProgress  = new Color(0x12 / 255f, 0x22 / 255f, 0x46 / 255f, 1f);
+        private static readonly Color BgCompleted   = new Color(0x11 / 255f, 0x6B / 255f, 0x34 / 255f, 1f);
+        private static readonly Color BgClaimed     = new Color(0x0A / 255f, 0x0E / 255f, 0x1A / 255f, 1f);
+        private static readonly Color BgExpired     = new Color(0x12 / 255f, 0x12 / 255f, 0x1C / 255f, 1f);
+
+        private static readonly Color AccentCompleted  = new Color(0x1A / 255f, 0xE8 / 255f, 0x72 / 255f, 1f); // bright green
+        private static readonly Color AccentInProgress = new Color(0x31 / 255f, 0x81 / 255f, 1f,          1f); // blue
+        private static readonly Color AccentActive     = new Color(0x28 / 255f, 0x38 / 255f, 0x60 / 255f, 1f); // subtle navy
+        private static readonly Color AccentNone       = new Color(0, 0, 0, 0);
+
+        private void SetVisualState(QuestStatus status, bool hasProgress = false)
+        {
+            bool dimmed = status == QuestStatus.Claimed || status == QuestStatus.Expired;
+            if (_dim != null) _dim.SetActive(dimmed);
+
+            if (_bgInner != null)
+            {
+                _bgInner.gameObject.SetActive(true);
+                _bgInner.color = status switch
+                {
+                    QuestStatus.Completed => BgCompleted,
+                    QuestStatus.Claimed   => BgClaimed,
+                    QuestStatus.Expired   => BgExpired,
+                    QuestStatus.Active    => hasProgress ? BgInProgress : BgActive,
+                    _                     => BgActive,
+                };
+            }
+
+            if (_statusAccent != null)
+            {
+                _statusAccent.color = status switch
+                {
+                    QuestStatus.Completed => AccentCompleted,
+                    QuestStatus.Claimed   => AccentNone,
+                    QuestStatus.Expired   => AccentNone,
+                    QuestStatus.Active    => hasProgress ? AccentInProgress : AccentActive,
+                    _                     => AccentActive,
+                };
+            }
         }
     }
 }

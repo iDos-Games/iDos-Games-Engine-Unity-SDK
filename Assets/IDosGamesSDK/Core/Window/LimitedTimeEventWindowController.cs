@@ -59,7 +59,7 @@ namespace IDosGames.UI.LimitedTimeEvent
         {
             if (!_isActive || _model.Event == null) return;
             _timerTick += Time.deltaTime;
-            if (_timerTick < 1f) return;
+            if (_timerTick < 0.5f) return;
             _timerTick = 0f;
 
             var remaining = _model.Event.ComputedEndUtc - DateTime.UtcNow;

@@ -134,10 +134,18 @@ namespace IDosGames.UI.Quest
             {
                 tab.SetSelected(tab.TabId == ActiveTabId);
 
-                bool hasCompleted = string.IsNullOrEmpty(tab.TabId)
-                    ? model.PermanentQuests.Any(q => q.Status == QuestStatus.Completed)
-                    : model.AllCycles.FirstOrDefault(c => c.CycleID == tab.TabId)
-                             ?.Quests.Any(q => q.Status == QuestStatus.Completed) == true;
+                bool hasCompleted;
+                if (string.IsNullOrEmpty(tab.TabId))
+                {
+                    hasCompleted = model.PermanentQuests.Any(q => q.Status == QuestStatus.Completed);
+                }
+                else
+                {
+                    var tabCycle = model.AllCycles.FirstOrDefault(c => c.CycleID == tab.TabId);
+                    bool hasClaimableQuest     = tabCycle?.Quests.Any(q => q.Status == QuestStatus.Completed) == true;
+                    bool hasUnclaimedMilestone = tabCycle?.Milestones.Any(m => m.IsReached && !m.IsFreeClaimed) == true;
+                    hasCompleted = hasClaimableQuest || hasUnclaimedMilestone;
+                }
 
                 tab.SetHasCompleted(hasCompleted);
             }
@@ -168,7 +176,8 @@ namespace IDosGames.UI.Quest
             var cycle = GetActiveCycle(_cachedModel);
             if (cycle == null)
             {
-                _timerText.text = "";
+                // Permanent quests have no expiry
+                _timerText.text = "Never";
                 return;
             }
 

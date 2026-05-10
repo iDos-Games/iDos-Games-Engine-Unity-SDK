@@ -53,7 +53,7 @@ namespace IDosGames.UI.Quest
             bool canClaim = state == QuestMilestoneState.Reached;
 
             if (_progressText != null)
-                _progressText.text = $"{currentCount}/{requiredCount}";
+                _progressText.text = $"{Math.Min(currentCount, requiredCount)}/{requiredCount}";
 
             if (_progressSlider != null)
             {
