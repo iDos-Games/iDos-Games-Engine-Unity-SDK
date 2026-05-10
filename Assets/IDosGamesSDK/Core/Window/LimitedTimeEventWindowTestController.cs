@@ -10,6 +10,12 @@ namespace IDosGames.UI.LimitedTimeEvent
     // ─── Serializable data objects ───────────────────────────────────────────
 
     [Serializable]
+    public class MockRewardData
+    {
+        public int amount = 100;
+    }
+
+    [Serializable]
     public class MockMilestoneData
     {
         [Tooltip("Editor label only — not shown in-game")]
@@ -18,11 +24,11 @@ namespace IDosGames.UI.LimitedTimeEvent
         [Tooltip("Tokens earned threshold required to reach this milestone")]
         [Min(1)] public int requiredTokens = 100;
 
-        [Tooltip("Amount shown in the reward number text")]
-        public int rewardAmount = 500;
+        [Tooltip("Free rewards for this milestone (shown in the left/free column)")]
+        public List<MockRewardData> rewards = new List<MockRewardData>();
 
-        [Tooltip("URL or project path used to load the reward icon (leave empty = no icon)")]
-        public string rewardImagePath = "";
+        [Tooltip("Premium rewards for this milestone (shown in the right/premium column)")]
+        public List<MockRewardData> premiumRewards = new List<MockRewardData>();
 
         [Tooltip("Force the FREE reward of this milestone to show as Claimed")]
         [FormerlySerializedAs("forceClaimed")]
@@ -74,22 +80,6 @@ namespace IDosGames.UI.LimitedTimeEvent
         [Min(0)] public int gems  = 250;
     }
 
-    [Serializable]
-    public class MockBonusWindowSettings
-    {
-        public bool   isActive       = false;
-        [Min(1f)] public double multiplier = 2.0;
-        [Tooltip("Minutes until the bonus window closes")]
-        [Min(0)] public int minutesLeft  = 30;
-    }
-
-    [Serializable]
-    public class MockProgressiveMultiplierSettings
-    {
-        [Min(1f)] public double multiplier = 1.0;
-        public string tierName = "";
-    }
-
     // ─── Test Controller ─────────────────────────────────────────────────────
 
     /// <summary>
@@ -114,19 +104,22 @@ namespace IDosGames.UI.LimitedTimeEvent
         [Header("Milestones  (order = SortOrder)")]
         [SerializeField] private List<MockMilestoneData> _milestones = new List<MockMilestoneData>
         {
-            new MockMilestoneData { label = "Milestone 1", requiredTokens = 100,  rewardAmount = 300  },
-            new MockMilestoneData { label = "Milestone 2", requiredTokens = 250,  rewardAmount = 600  },
-            new MockMilestoneData { label = "Milestone 3", requiredTokens = 500,  rewardAmount = 1200 },
-            new MockMilestoneData { label = "Milestone 4", requiredTokens = 800,  rewardAmount = 2500 },
-            new MockMilestoneData { label = "Milestone 5", requiredTokens = 1200, rewardAmount = 5000 },
+            new MockMilestoneData { label = "Milestone 1 (1 free / 1 premium)", requiredTokens = 100,
+                rewards        = new List<MockRewardData> { new MockRewardData { amount = 300 } },
+                premiumRewards = new List<MockRewardData> { new MockRewardData { amount = 10 } } },
+            new MockMilestoneData { label = "Milestone 2 (2 free / 1 premium)", requiredTokens = 250,
+                rewards        = new List<MockRewardData> { new MockRewardData { amount = 600 }, new MockRewardData { amount = 150 } },
+                premiumRewards = new List<MockRewardData> { new MockRewardData { amount = 25 } } },
+            new MockMilestoneData { label = "Milestone 3 (1 free / 2 premium)", requiredTokens = 500,
+                rewards        = new List<MockRewardData> { new MockRewardData { amount = 1200 } },
+                premiumRewards = new List<MockRewardData> { new MockRewardData { amount = 50 }, new MockRewardData { amount = 500 } } },
+            new MockMilestoneData { label = "Milestone 4 (2 free / 2 premium)", requiredTokens = 800,
+                rewards        = new List<MockRewardData> { new MockRewardData { amount = 2500 }, new MockRewardData { amount = 300 } },
+                premiumRewards = new List<MockRewardData> { new MockRewardData { amount = 100 }, new MockRewardData { amount = 1000 } } },
+            new MockMilestoneData { label = "Milestone 5 (3 free / 3 premium)", requiredTokens = 1200,
+                rewards        = new List<MockRewardData> { new MockRewardData { amount = 5000 }, new MockRewardData { amount = 500 }, new MockRewardData { amount = 100 } },
+                premiumRewards = new List<MockRewardData> { new MockRewardData { amount = 200 }, new MockRewardData { amount = 50 }, new MockRewardData { amount = 2000 } } },
         };
-
-        [Header("Bonus Window")]
-        [SerializeField] private MockBonusWindowSettings _bonusWindow = new MockBonusWindowSettings();
-
-        [Header("Progressive Multiplier")]
-        [SerializeField] private MockProgressiveMultiplierSettings _progressiveMult
-            = new MockProgressiveMultiplierSettings();
 
         // ── Runtime ──────────────────────────────────────────────────────────
 
@@ -171,6 +164,12 @@ namespace IDosGames.UI.LimitedTimeEvent
         {
             _view.ActivateButton?.onClick.AddListener(OnActivateClicked);
             _view.BackButton?.onClick.AddListener(OnBackClicked);
+        }
+
+        private void OnDisable()
+        {
+            _view.ActivateButton?.onClick.RemoveListener(OnActivateClicked);
+            _view.BackButton?.onClick.RemoveListener(OnBackClicked);
         }
         private void OnActivateClicked()
         {
@@ -229,14 +228,6 @@ namespace IDosGames.UI.LimitedTimeEvent
             _player.hasPremium = rng.Next(2) == 0;
             _player.coins      = rng.Next(0, 50001);
             _player.gems       = rng.Next(0, 5001);
-
-            _bonusWindow.isActive    = rng.Next(3) == 0;
-            _bonusWindow.multiplier  = 1.5 + rng.Next(0, 6) * 0.5;
-            _bonusWindow.minutesLeft = rng.Next(5, 121);
-
-            _progressiveMult.multiplier = 1.0 + rng.Next(0, 5) * 0.25;
-            _progressiveMult.tierName   = _progressiveMult.multiplier > 1.5 ? "Gold" :
-                                          _progressiveMult.multiplier > 1.0 ? "Silver" : "";
 
             RandomizeMilestones(rng);
             Render();
@@ -313,9 +304,22 @@ namespace IDosGames.UI.LimitedTimeEvent
             for (int i = 0; i < _milestones.Count; i++)
             {
                 var m = _milestones[i];
-                var assetPaths = string.IsNullOrEmpty(m.rewardImagePath)
-                    ? null
-                    : new Dictionary<string, string> { { "default", m.rewardImagePath } };
+
+                var freeEntries    = BuildResourceEntries(m.rewards);
+                var premiumEntries = BuildResourceEntries(m.premiumRewards);
+
+                List<PremiumTierBundle> premiumTiers = null;
+                if (premiumEntries.Count > 0)
+                {
+                    premiumTiers = new List<PremiumTierBundle>
+                    {
+                        new PremiumTierBundle
+                        {
+                            MinPremiumTier = 1,
+                            Resources = new ResourceBundle { Entries = premiumEntries }
+                        }
+                    };
+                }
 
                 list.Add(new EventMilestoneDefinition
                 {
@@ -323,24 +327,22 @@ namespace IDosGames.UI.LimitedTimeEvent
                     DisplayName          = m.label,
                     RequiredTokensEarned = m.requiredTokens,
                     SortOrder            = i,
-                    AssetPaths           = assetPaths,
                     Rewards = new ResourceGrant
                     {
-                        Standard = new ResourceBundle
-                        {
-                            Entries = new List<ResourceEntry>
-                            {
-                                new ResourceEntry
-                                {
-                                    Amount = m.rewardAmount,
-                                    Type   = ResourceEntryType.VirtualCurrency,
-                                }
-                            }
-                        }
+                        Standard     = new ResourceBundle { Entries = freeEntries },
+                        PremiumTiers = premiumTiers,
                     },
                 });
             }
             return list;
+        }
+
+        private static List<ResourceEntry> BuildResourceEntries(List<MockRewardData> rewards)
+        {
+            var entries = new List<ResourceEntry>();
+            foreach (var r in rewards)
+                entries.Add(new ResourceEntry { Amount = r.amount });
+            return entries;
         }
 
         private UserEventTokenProgress BuildProgress(List<EventMilestoneDefinition> milestones)
@@ -412,8 +414,8 @@ namespace IDosGames.UI.LimitedTimeEvent
                 {
                     label          = $"Milestone {i + 1}",
                     requiredTokens = threshold,
-                    rewardAmount   = (i + 1) * rng.Next(100, 1001),
-                    rewardImagePath = "",
+                    rewards        = new List<MockRewardData> { new MockRewardData { amount = (i + 1) * rng.Next(100, 1001) } },
+                    premiumRewards = new List<MockRewardData> { new MockRewardData { amount = (i + 1) * rng.Next(5, 51) } },
                     freeClaimed    = false,
                     premiumClaimed = false,
                 });

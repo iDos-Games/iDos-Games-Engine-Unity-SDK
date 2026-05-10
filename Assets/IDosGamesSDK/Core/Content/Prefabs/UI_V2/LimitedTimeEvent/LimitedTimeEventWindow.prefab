@@ -1384,7 +1384,7 @@ MonoBehaviour:
     m_Right: 0
     m_Top: 0
     m_Bottom: 0
-  m_ChildAlignment: 1
+  m_ChildAlignment: 0
   m_Spacing: 58
   m_ChildForceExpandWidth: 0
   m_ChildForceExpandHeight: 0
@@ -2386,8 +2386,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a5651e2961fcf547a319ead1e25587a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::IDosGames.UI.LimitedTimeEvent.MilestoneItemView
-  _itemIcon: {fileID: 2133377246724753007}
-  _numText: {fileID: 9002398449942023526}
+  _rewardContainer: {fileID: 0}
+  _rewardRowTemplate: {fileID: 0}
   _iconCheck: {fileID: 4863440638320955904}
   _dim: {fileID: 5572287187781251635}
   _iconLock: {fileID: 5784587734064787260}
@@ -2947,7 +2947,7 @@ MonoBehaviour:
     m_Right: 0
     m_Top: 0
     m_Bottom: 0
-  m_ChildAlignment: 1
+  m_ChildAlignment: 2
   m_Spacing: 58
   m_ChildForceExpandWidth: 0
   m_ChildForceExpandHeight: 0
@@ -3178,8 +3178,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a5651e2961fcf547a319ead1e25587a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::IDosGames.UI.LimitedTimeEvent.MilestoneItemView
-  _itemIcon: {fileID: 1043660272839650756}
-  _numText: {fileID: 3429622186892297752}
+  _rewardContainer: {fileID: 0}
+  _rewardRowTemplate: {fileID: 0}
   _iconCheck: {fileID: 6843582831542909189}
   _dim: {fileID: 4554854746776559879}
   _iconLock: {fileID: 2199762274857550078}
@@ -4967,7 +4967,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1500250988873794480
 RectTransform:
   m_ObjectHideFlags: 0
@@ -5611,8 +5611,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a5651e2961fcf547a319ead1e25587a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::IDosGames.UI.LimitedTimeEvent.MilestoneItemView
-  _itemIcon: {fileID: 798846849704968559}
-  _numText: {fileID: 8605713305428329042}
+  _rewardContainer: {fileID: 0}
+  _rewardRowTemplate: {fileID: 0}
   _iconCheck: {fileID: 8949259100500721900}
   _dim: {fileID: 2760043313930447309}
   _iconLock: {fileID: 0}
@@ -5883,8 +5883,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a5651e2961fcf547a319ead1e25587a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::IDosGames.UI.LimitedTimeEvent.MilestoneItemView
-  _itemIcon: {fileID: 5751377982218551635}
-  _numText: {fileID: 7763314244250934384}
+  _rewardContainer: {fileID: 0}
+  _rewardRowTemplate: {fileID: 0}
   _iconCheck: {fileID: 5760197268862418193}
   _dim: {fileID: 6486009989289669680}
   _iconLock: {fileID: 0}
@@ -6003,7 +6003,7 @@ MonoBehaviour:
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
-  m_FillAmount: 0.42857143
+  m_FillAmount: 0
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
@@ -6685,8 +6685,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a5651e2961fcf547a319ead1e25587a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::IDosGames.UI.LimitedTimeEvent.MilestoneItemView
-  _itemIcon: {fileID: 464918794967171558}
-  _numText: {fileID: 2537702715178556273}
+  _rewardContainer: {fileID: 0}
+  _rewardRowTemplate: {fileID: 0}
   _iconCheck: {fileID: 873239569726949975}
   _dim: {fileID: 2947342377443373998}
   _iconLock: {fileID: 0}
@@ -6828,8 +6828,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a5651e2961fcf547a319ead1e25587a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::IDosGames.UI.LimitedTimeEvent.MilestoneItemView
-  _itemIcon: {fileID: 5405642349484537379}
-  _numText: {fileID: 5678964016838923977}
+  _rewardContainer: {fileID: 0}
+  _rewardRowTemplate: {fileID: 0}
   _iconCheck: {fileID: 3091667019393647063}
   _dim: {fileID: 9129967897095243154}
   _iconLock: {fileID: 0}
@@ -10392,66 +10392,60 @@ MonoBehaviour:
     maxBalance: 1500
     dailyEarnCap: 300
     maxPerGrant: 50
-    tokenBalance: 1
-    tokensEarnedTotal: 801
-    tokensSpentTotal: 800
+    tokenBalance: 300
+    tokensEarnedTotal: 300
+    tokensSpentTotal: 0
   _player:
-    hasPremium: 1
+    hasPremium: 0
     coins: 1500
     gems: 250
   _milestones:
-  - label: Milestone 1
+  - label: Milestone 1 (1 free / 1 premium)
     requiredTokens: 100
-    rewardAmount: 300
-    rewardImagePath: 
+    rewards:
+    - amount: 300
+    premiumRewards:
+    - amount: 10
     freeClaimed: 0
     premiumClaimed: 0
-  - label: Milestone 2
+  - label: Milestone 2 (2 free / 1 premium)
     requiredTokens: 250
-    rewardAmount: 600
-    rewardImagePath: 
+    rewards:
+    - amount: 600
+    - amount: 150
+    premiumRewards:
+    - amount: 25
     freeClaimed: 0
     premiumClaimed: 0
-  - label: Milestone 3
+  - label: Milestone 3 (1 free / 2 premium)
     requiredTokens: 500
-    rewardAmount: 1200
-    rewardImagePath: 
+    rewards:
+    - amount: 1200
+    premiumRewards:
+    - amount: 50
+    - amount: 500
     freeClaimed: 0
     premiumClaimed: 0
-  - label: Milestone 4
+  - label: Milestone 4 (2 free / 2 premium)
     requiredTokens: 800
-    rewardAmount: 2500
-    rewardImagePath: 
+    rewards:
+    - amount: 2500
+    - amount: 300
+    premiumRewards:
+    - amount: 100
+    - amount: 1000
     freeClaimed: 0
     premiumClaimed: 0
-  - label: Milestone 5
+  - label: Milestone 5 (3 free / 3 premium)
     requiredTokens: 1200
-    rewardAmount: 5000
-    rewardImagePath: 
-    freeClaimed: 0
-    premiumClaimed: 0
-  - label: Milestone 6
-    requiredTokens: 1900
-    rewardAmount: 5001
-    rewardImagePath: 
-    freeClaimed: 0
-    premiumClaimed: 0
-  - label: Milestone 7
-    requiredTokens: 3224
-    rewardAmount: 5002
-    rewardImagePath: 
-    freeClaimed: 0
-    premiumClaimed: 0
-  - label: Milestone 8
-    requiredTokens: 3935
-    rewardAmount: 5003
-    rewardImagePath: 
-    freeClaimed: 0
-    premiumClaimed: 0
-  - label: Milestone 9
-    requiredTokens: 5286
-    rewardAmount: 5004
-    rewardImagePath: 
+    rewards:
+    - amount: 5000
+    - amount: 500
+    - amount: 100
+    premiumRewards:
+    - amount: 200
+    - amount: 50
+    - amount: 2000
     freeClaimed: 0
     premiumClaimed: 0
   _bonusWindow:
@@ -11991,7 +11985,7 @@ MonoBehaviour:
   m_MinValue: 0
   m_MaxValue: 1
   m_WholeNumbers: 0
-  m_Value: 0.44472224
+  m_Value: 0.44
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -12226,7 +12220,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 4
+  m_text: 2
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 7137805b022d44869b12d93cb388c588, type: 2}
   m_sharedMaterial: {fileID: 8527393934874279224, guid: 7137805b022d44869b12d93cb388c588,
@@ -14190,8 +14184,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a5651e2961fcf547a319ead1e25587a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::IDosGames.UI.LimitedTimeEvent.MilestoneItemView
-  _itemIcon: {fileID: 6867236909841011932}
-  _numText: {fileID: 5525843376978256958}
+  _rewardContainer: {fileID: 0}
+  _rewardRowTemplate: {fileID: 0}
   _iconCheck: {fileID: 185876941387188781}
   _dim: {fileID: 1714660785094484393}
   _iconLock: {fileID: 4840390797602661862}
@@ -15537,8 +15531,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a5651e2961fcf547a319ead1e25587a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::IDosGames.UI.LimitedTimeEvent.MilestoneItemView
-  _itemIcon: {fileID: 2959821098685692352}
-  _numText: {fileID: 8451275863271877584}
+  _rewardContainer: {fileID: 0}
+  _rewardRowTemplate: {fileID: 0}
   _iconCheck: {fileID: 9207867400634310493}
   _dim: {fileID: 3445666170344141224}
   _iconLock: {fileID: 0}
@@ -16707,8 +16701,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a5651e2961fcf547a319ead1e25587a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::IDosGames.UI.LimitedTimeEvent.MilestoneItemView
-  _itemIcon: {fileID: 3722302638857333827}
-  _numText: {fileID: 5317331543154770797}
+  _rewardContainer: {fileID: 0}
+  _rewardRowTemplate: {fileID: 0}
   _iconCheck: {fileID: 6045039094045577228}
   _dim: {fileID: 693336946319404049}
   _iconLock: {fileID: 0}
@@ -16960,7 +16954,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 2258}
+  m_SizeDelta: {x: 0, y: 174}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &6323730047058242215
 MonoBehaviour:
@@ -19256,7 +19250,7 @@ MonoBehaviour:
   m_MinValue: 0
   m_MaxValue: 1
   m_WholeNumbers: 0
-  m_Value: 0.0025
+  m_Value: 0.2
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -20880,8 +20874,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a5651e2961fcf547a319ead1e25587a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::IDosGames.UI.LimitedTimeEvent.MilestoneItemView
-  _itemIcon: {fileID: 8415396947720772216}
-  _numText: {fileID: 4183909742223840161}
+  _rewardContainer: {fileID: 0}
+  _rewardRowTemplate: {fileID: 0}
   _iconCheck: {fileID: 7201284649156498023}
   _dim: {fileID: 5949233702868392608}
   _iconLock: {fileID: 7851097782878008219}
@@ -21973,8 +21967,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a5651e2961fcf547a319ead1e25587a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::IDosGames.UI.LimitedTimeEvent.MilestoneItemView
-  _itemIcon: {fileID: 6261091835174422648}
-  _numText: {fileID: 3186006235731631133}
+  _rewardContainer: {fileID: 0}
+  _rewardRowTemplate: {fileID: 0}
   _iconCheck: {fileID: 7860532836423931237}
   _dim: {fileID: 1860152085406787677}
   _iconLock: {fileID: 409437596301327571}
@@ -23106,8 +23100,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a5651e2961fcf547a319ead1e25587a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::IDosGames.UI.LimitedTimeEvent.MilestoneItemView
-  _itemIcon: {fileID: 4106065675611752911}
-  _numText: {fileID: 8839552648055004829}
+  _rewardContainer: {fileID: 0}
+  _rewardRowTemplate: {fileID: 0}
   _iconCheck: {fileID: 8878867615172014228}
   _dim: {fileID: 3152223323898304261}
   _iconLock: {fileID: 2117369374110352942}
@@ -23249,8 +23243,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a5651e2961fcf547a319ead1e25587a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::IDosGames.UI.LimitedTimeEvent.MilestoneItemView
-  _itemIcon: {fileID: 55343354222048350}
-  _numText: {fileID: 2107184889840177111}
+  _rewardContainer: {fileID: 0}
+  _rewardRowTemplate: {fileID: 0}
   _iconCheck: {fileID: 1164209324835023849}
   _dim: {fileID: 1617228284571346397}
   _iconLock: {fileID: 0}
@@ -23708,8 +23702,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a5651e2961fcf547a319ead1e25587a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::IDosGames.UI.LimitedTimeEvent.MilestoneItemView
-  _itemIcon: {fileID: 875084378266421221}
-  _numText: {fileID: 6972258554981234490}
+  _rewardContainer: {fileID: 0}
+  _rewardRowTemplate: {fileID: 0}
   _iconCheck: {fileID: 8746296063021242955}
   _dim: {fileID: 7168515956361947516}
   _iconLock: {fileID: 7831682818915791543}
@@ -23989,7 +23983,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &7214301307420923861
 RectTransform:
   m_ObjectHideFlags: 0
@@ -24715,7 +24709,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "801 / 1\_200"
+  m_text: 300 / 500
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 7137805b022d44869b12d93cb388c588, type: 2}
   m_sharedMaterial: {fileID: 8527393934874279224, guid: 7137805b022d44869b12d93cb388c588,
@@ -24743,7 +24737,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 32.85
+  m_fontSize: 38
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1

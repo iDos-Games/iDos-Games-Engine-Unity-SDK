@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using IDosGames.UI;
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -13,8 +12,6 @@ namespace IDosGames.UI.LimitedTimeEvent
 
     public class MilestoneItemView : MonoBehaviour
     {
-        [SerializeField] private Image           _itemIcon;
-        [SerializeField] private TextMeshProUGUI _numText;
         [SerializeField] private RectTransform   _rewardContainer;
         [SerializeField] private RewardItemView  _rewardRowTemplate;
         [SerializeField] private GameObject      _iconCheck;
@@ -41,9 +38,6 @@ namespace IDosGames.UI.LimitedTimeEvent
 
             bool premiumLocked = isPremiumColumn && !hasPremiumPass;
             bool canClaim      = state == MilestoneItemState.Reached && !premiumLocked;
-
-            if (_itemIcon != null && def.AssetPaths?.Count > 0)
-                LoadIconAsync(def.AssetPaths.Values.FirstOrDefault());
 
             PopulateRewards(def, isPremiumColumn);
 
@@ -81,38 +75,45 @@ namespace IDosGames.UI.LimitedTimeEvent
                 }
             }
 
-            bool hasRewards   = rewards.Count > 0;
-            bool useContainer = hasRewards && _rewardContainer != null && _rewardRowTemplate != null;
+            PopulateRewardsInternal(rewards, def.AssetPaths);
+        }
 
-            if (_numText != null)
-            {
-                if (hasRewards && !useContainer)
-                {
-                    _numText.text = (rewards[0].Amount ?? 0).ToString("N0");
-                }
-                else
-                {
-                    _numText.text = string.Empty;
-                }
-            }
+        private void PopulateRewardsInternal(List<ResourceEntry> rewards, Dictionary<string, string> assetPaths)
+        {
+            bool hasRewards   = rewards != null && rewards.Count > 0;
+            bool useContainer = hasRewards && _rewardContainer != null && _rewardRowTemplate != null;
 
             if (!useContainer) return;
 
-            _rewardContainer.gameObject.SetActive(hasRewards);
+            _rewardContainer.gameObject.SetActive(true);
 
             for (int i = _rewardContainer.childCount - 1; i >= 0; i--)
             {
                 var child = _rewardContainer.GetChild(i);
-                if (child == _rewardRowTemplate) continue;
+                if (child.gameObject == _rewardRowTemplate.gameObject) continue;
                 DestroyImmediate(child.gameObject);
             }
-
-            if (!hasRewards) return;
 
             foreach (var reward in rewards)
             {
                 var row = Instantiate(_rewardRowTemplate, _rewardContainer);
                 row.gameObject.SetActive(true);
+
+                string id = reward.ItemID ?? reward.CurrencyID;
+                string iconPath = null;
+                if (!string.IsNullOrEmpty(id) && assetPaths != null && assetPaths.ContainsKey(id))
+                {
+                    iconPath = assetPaths[id];
+                }
+                else if (assetPaths != null && assetPaths.Count > 0)
+                {
+                    iconPath = assetPaths.Values.FirstOrDefault();
+                }
+
+                if (!string.IsNullOrEmpty(iconPath))
+                {
+                    LoadRewardIconAsync(row, iconPath);
+                }
 
                 if (row.AmountText != null)
                 {
@@ -134,6 +135,15 @@ namespace IDosGames.UI.LimitedTimeEvent
             }
 
             LayoutRebuilder.ForceRebuildLayoutImmediate(_rewardContainer);
+            LayoutRebuilder.ForceRebuildLayoutImmediate(GetComponent<RectTransform>());
+        }
+
+        private async void LoadRewardIconAsync(RewardItemView row, string path)
+        {
+            if (string.IsNullOrEmpty(path) || row == null) return;
+            var sprite = await ImageLoader.GetSpriteAsync(path);
+            if (this != null && row != null && row.Icon != null && sprite != null)
+                row.Icon.sprite = sprite;
         }
 
         private async void OnClaimClicked()
@@ -156,12 +166,5 @@ namespace IDosGames.UI.LimitedTimeEvent
             }
         }
 
-        private async void LoadIconAsync(string path)
-        {
-            if (string.IsNullOrEmpty(path)) return;
-            var sprite = await ImageLoader.GetSpriteAsync(path);
-            if (this != null && _itemIcon != null && sprite != null)
-                _itemIcon.sprite = sprite;
-        }
     }
 }
