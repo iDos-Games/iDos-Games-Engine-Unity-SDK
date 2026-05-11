@@ -61,7 +61,12 @@ namespace IDosGames.UI.LimitedTimeEvent
             _timerTick += Time.deltaTime;
             if (_timerTick < 0.5f) return;
             _timerTick = 0f;
+            UpdateTimerDisplay();
+        }
 
+        private void UpdateTimerDisplay()
+        {
+            if (_model.Event == null) return;
             var remaining = _model.Event.ComputedEndUtc - DateTime.UtcNow;
             _view.UpdateTimer(remaining.TotalSeconds > 0
                 ? FormatCountdown(remaining)
@@ -119,6 +124,8 @@ namespace IDosGames.UI.LimitedTimeEvent
             _model.Apply(evt, hasPremium, coins, gems);
             _claimFactory = BuildClaimFactory(evt);
             _view.Render(_model, _claimFactory);
+            _timerTick = 0f;
+            UpdateTimerDisplay();
         }
 
         private static Func<string, bool, Func<Task>> BuildClaimFactory(ActiveEventInfo evt)

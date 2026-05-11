@@ -8,7 +8,7 @@ using UnityEngine.UI;
 
 namespace IDosGames.UI.LimitedTimeEvent
 {
-    public enum MilestoneItemState { Locked, Reached, Claimed }
+    public enum MilestoneItemState { Locked, Reached, Pending, Claimed }
 
     public class MilestoneItemView : MonoBehaviour
     {
@@ -17,6 +17,7 @@ namespace IDosGames.UI.LimitedTimeEvent
         [SerializeField] private GameObject      _iconCheck;
         [SerializeField] private GameObject      _dim;
         [SerializeField] private GameObject      _iconLock;
+        [SerializeField] private GameObject      _pendingIcon;
         [SerializeField] private Button          _claimButton;
 
         private Func<Task> _onClaim;
@@ -37,13 +38,15 @@ namespace IDosGames.UI.LimitedTimeEvent
             _onClaim  = onClaim;
 
             bool premiumLocked = isPremiumColumn && !hasPremiumPass;
+            bool isPending     = state == MilestoneItemState.Pending;
             bool canClaim      = state == MilestoneItemState.Reached && !premiumLocked;
 
             PopulateRewards(def, isPremiumColumn);
 
-            if (_iconCheck != null) _iconCheck.SetActive(state == MilestoneItemState.Claimed && !premiumLocked);
-            if (_dim       != null) _dim.SetActive(state == MilestoneItemState.Locked || premiumLocked);
-            if (_iconLock  != null) _iconLock.SetActive(premiumLocked);
+            if (_iconCheck   != null) _iconCheck.SetActive(state == MilestoneItemState.Claimed && !premiumLocked);
+            if (_dim         != null) _dim.SetActive(state == MilestoneItemState.Locked || premiumLocked);
+            if (_iconLock    != null) _iconLock.SetActive(premiumLocked);
+            if (_pendingIcon != null) _pendingIcon.SetActive(isPending && !premiumLocked);
 
             if (_claimButton != null)
             {

@@ -36,6 +36,9 @@ namespace IDosGames.UI.LimitedTimeEvent
 
         [Tooltip("Force the PREMIUM reward of this milestone to show as Claimed")]
         public bool premiumClaimed = false;
+
+        [Tooltip("In FeaturedAfterEnd mode: featured milestones are only claimable after event ends")]
+        public bool isFeatured = false;
     }
 
     [Serializable]
@@ -70,6 +73,9 @@ namespace IDosGames.UI.LimitedTimeEvent
 
         public bool canEarn  = true;
         public bool canClaim = true;
+
+        [Tooltip("When milestone rewards can be claimed")]
+        public EventClaimMode claimMode = EventClaimMode.Instant;
     }
 
     [Serializable]
@@ -133,20 +139,20 @@ namespace IDosGames.UI.LimitedTimeEvent
                 },
             },
 
-            // ── Event 2: Winter Blitz — high progress, некоторые claimed ────
+            // ── Event 2: Winter Blitz — AfterEventEnd, событие ещё активно → Reached-милестоуны = Pending ──
             new MockEventData
             {
-                Event  = new MockEventSettings { eventName = "Winter Blitz", hoursUntilEnd = 24f, hoursSinceStart = 120f },
+                Event  = new MockEventSettings { eventName = "Winter Blitz", hoursUntilEnd = 24f, hoursSinceStart = 120f, canClaim = false, claimMode = EventClaimMode.AfterEventEnd },
                 Token  = new MockTokenSettings  { displayName = "Ice Crystal", maxBalance = 2000, dailyEarnCap = 500, maxPerGrant = 100, tokenBalance = 1600, tokensEarnedTotal = 1600 },
                 Milestones = new List<MockMilestoneData>
                 {
-                    new MockMilestoneData { label = "Stage 1", requiredTokens = 200,  freeClaimed = true, premiumClaimed = true,
+                    new MockMilestoneData { label = "Stage 1", requiredTokens = 200,
                         rewards        = new List<MockRewardData> { new MockRewardData { amount = 500 } },
                         premiumRewards = new List<MockRewardData> { new MockRewardData { amount = 30 } } },
-                    new MockMilestoneData { label = "Stage 2", requiredTokens = 500,  freeClaimed = true, premiumClaimed = true,
+                    new MockMilestoneData { label = "Stage 2", requiredTokens = 500,
                         rewards        = new List<MockRewardData> { new MockRewardData { amount = 1000 }, new MockRewardData { amount = 200 } },
                         premiumRewards = new List<MockRewardData> { new MockRewardData { amount = 60 }, new MockRewardData { amount = 400 } } },
-                    new MockMilestoneData { label = "Stage 3", requiredTokens = 900,  freeClaimed = false, premiumClaimed = false,
+                    new MockMilestoneData { label = "Stage 3", requiredTokens = 900,
                         rewards        = new List<MockRewardData> { new MockRewardData { amount = 2000 } },
                         premiumRewards = new List<MockRewardData> { new MockRewardData { amount = 120 } } },
                     new MockMilestoneData { label = "Stage 4", requiredTokens = 1400,
@@ -158,23 +164,23 @@ namespace IDosGames.UI.LimitedTimeEvent
                 },
             },
 
-            // ── Event 3: Dragon Hunt — нет прогресса ─────────────────────────
+            // ── Event 3: Dragon Hunt — FeaturedAfterEnd: обычные = Instant, featured = Pending пока активно ──
             new MockEventData
             {
-                Event  = new MockEventSettings { eventName = "Dragon Hunt", hoursUntilEnd = 168f, hoursSinceStart = 2f, canEarn = true, canClaim = false },
-                Token  = new MockTokenSettings  { displayName = "Dragon Scale", maxBalance = 1000, dailyEarnCap = 200, maxPerGrant = 30, tokenBalance = 0, tokensEarnedTotal = 0 },
+                Event  = new MockEventSettings { eventName = "Dragon Hunt", hoursUntilEnd = 168f, hoursSinceStart = 2f, canEarn = true, canClaim = true, claimMode = EventClaimMode.FeaturedAfterEnd },
+                Token  = new MockTokenSettings  { displayName = "Dragon Scale", maxBalance = 1000, dailyEarnCap = 200, maxPerGrant = 30, tokenBalance = 750, tokensEarnedTotal = 750 },
                 Milestones = new List<MockMilestoneData>
                 {
-                    new MockMilestoneData { label = "Rank 1", requiredTokens = 100,
+                    new MockMilestoneData { label = "Rank 1", requiredTokens = 100, isFeatured = false,
                         rewards        = new List<MockRewardData> { new MockRewardData { amount = 200 } },
                         premiumRewards = new List<MockRewardData> { new MockRewardData { amount = 15 } } },
-                    new MockMilestoneData { label = "Rank 2", requiredTokens = 300,
+                    new MockMilestoneData { label = "Rank 2", requiredTokens = 300, isFeatured = false,
                         rewards        = new List<MockRewardData> { new MockRewardData { amount = 500 }, new MockRewardData { amount = 100 } },
                         premiumRewards = new List<MockRewardData> { new MockRewardData { amount = 40 } } },
-                    new MockMilestoneData { label = "Rank 3", requiredTokens = 600,
+                    new MockMilestoneData { label = "Rank 3 (Featured)", requiredTokens = 600, isFeatured = true,
                         rewards        = new List<MockRewardData> { new MockRewardData { amount = 1500 } },
                         premiumRewards = new List<MockRewardData> { new MockRewardData { amount = 80 }, new MockRewardData { amount = 600 } } },
-                    new MockMilestoneData { label = "Rank 4", requiredTokens = 1000,
+                    new MockMilestoneData { label = "Rank 4 (Featured)", requiredTokens = 1000, isFeatured = true,
                         rewards        = new List<MockRewardData> { new MockRewardData { amount = 4000 }, new MockRewardData { amount = 400 } },
                         premiumRewards = new List<MockRewardData> { new MockRewardData { amount = 150 }, new MockRewardData { amount = 2000 } } },
                 },
@@ -202,6 +208,12 @@ namespace IDosGames.UI.LimitedTimeEvent
             _timerTick += Time.deltaTime;
             if (_timerTick < 1f) return;
             _timerTick = 0f;
+            UpdateTimerDisplay();
+        }
+
+        private void UpdateTimerDisplay()
+        {
+            if (_model?.Event == null) return;
             var remaining = _model.Event.ComputedEndUtc - DateTime.UtcNow;
             _view.UpdateTimer(remaining.TotalSeconds > 0 ? FormatCountdown(remaining) : "Ended");
         }
@@ -276,6 +288,8 @@ namespace IDosGames.UI.LimitedTimeEvent
             _model.SetPremiumClaimed(premiumIds);
 
             _view?.Render(_model, (id, isPremium) => () => SimulateClaim(id, isPremium));
+            _timerTick = 0f;
+            UpdateTimerDisplay();
         }
 
         [ContextMenu("Randomize Everything")]
@@ -380,7 +394,7 @@ namespace IDosGames.UI.LimitedTimeEvent
                 {
                     DisplayName = data.Event.eventName,
                     Description = data.Event.description,
-                    ClaimMode   = EventClaimMode.Instant,
+                    ClaimMode   = data.Event.claimMode,
                     Milestones  = milestones.ToDictionary(m => m.MilestoneID),
                     Token = new EventTokenDefinition
                     {
@@ -422,6 +436,7 @@ namespace IDosGames.UI.LimitedTimeEvent
                     DisplayName          = m.label,
                     RequiredTokensEarned = m.requiredTokens,
                     SortOrder            = i,
+                    IsFeatured           = m.isFeatured,
                     Rewards = new ResourceGrant
                     {
                         Standard     = new ResourceBundle { Entries = freeEntries },

@@ -247,7 +247,8 @@ namespace IDosGames.UI.LimitedTimeEvent
             bool claimed = isPremiumColumn
                 ? model.IsMilestonePremiumClaimed(def.MilestoneID)
                 : model.IsMilestoneFreeClaimed(def.MilestoneID);
-            if (claimed)                                             return MilestoneItemState.Claimed;
+            if (claimed) return MilestoneItemState.Claimed;
+            if (model.IsMilestonePendingEventEnd(def.RequiredTokensEarned, def.IsFeatured)) return MilestoneItemState.Pending;
             if (model.IsMilestoneReached(def.RequiredTokensEarned)) return MilestoneItemState.Reached;
             return MilestoneItemState.Locked;
         }

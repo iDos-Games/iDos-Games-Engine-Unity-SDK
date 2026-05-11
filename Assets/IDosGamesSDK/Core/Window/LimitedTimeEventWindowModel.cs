@@ -128,9 +128,25 @@ namespace IDosGames.UI.LimitedTimeEvent
         public bool IsMilestoneReached(long required) =>
             (Event?.Progress?.Balance?.TotalEarned ?? 0) >= required;
 
-        public bool CanClaimMilestone(string milestoneId, long required) =>
+        public bool IsMilestonePendingEventEnd(long required, bool isFeatured)
+        {
+            if (!IsMilestoneReached(required)) return false;
+
+            var claimMode = Event?.Content?.ClaimMode ?? EventClaimMode.Instant;
+            bool eventEnded = DateTime.UtcNow >= (Event?.ComputedEndUtc ?? DateTime.MaxValue);
+
+            return claimMode switch
+            {
+                EventClaimMode.AfterEventEnd    => !eventEnded,
+                EventClaimMode.FeaturedAfterEnd => isFeatured && !eventEnded,
+                _                               => false,
+            };
+        }
+
+        public bool CanClaimMilestone(string milestoneId, long required, bool isFeatured = false) =>
             IsMilestoneReached(required)
             && !IsMilestoneFreeClaimed(milestoneId)
+            && !IsMilestonePendingEventEnd(required, isFeatured)
             && (Event?.CanClaim ?? false);
     }
 }
