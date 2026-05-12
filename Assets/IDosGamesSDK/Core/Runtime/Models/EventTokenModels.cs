@@ -86,4 +86,18 @@ namespace IDosGames
         CoopEvent,
         Season,
     }
+
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum EventModifierTarget
+    {
+        BoardAttackReward,
+        BoardRaidReward,
+        BoardPassStartReward,
+        BoardBuildCost,
+        BoardBuildReward,
+        BoardTileLandingReward,
+        BoardRollSteps,
+        QuestReward,
+        Custom,
+    }
 }

@@ -213,7 +213,7 @@ namespace IDosGames
     [Serializable]
     public class QuestCycleDefinition
     {
-        /// <summary>Cycle identifier. Mongo-safe (no '.' or '$').</summary>
+        /// <summary>Cycle identifier.</summary>
         public string CycleID { get; set; }
 
         public string DisplayName { get; set; }
@@ -234,7 +234,7 @@ namespace IDosGames
     [Serializable]
     public class QuestCycleMilestoneDefinition
     {
-        /// <summary>Milestone identifier. Mongo-safe.</summary>
+        /// <summary>Milestone identifier.</summary>
         public string MilestoneID { get; set; }
 
         /// <summary>Number of Completed/Claimed quests required to unlock this milestone.</summary>
@@ -248,7 +248,7 @@ namespace IDosGames
     [Serializable]
     public class QuestDefinition
     {
-        /// <summary>Quest identifier. Mongo-safe.</summary>
+        /// <summary>Quest identifier.</summary>
         public string QuestID { get; set; }
 
         /// <summary>
@@ -275,7 +275,7 @@ namespace IDosGames
     [Serializable]
     public class QuestObjectiveDefinition
     {
-        /// <summary>Objective identifier within the quest. Mongo-safe.</summary>
+        /// <summary>Objective identifier within the quest.</summary>
         public string ObjectiveID { get; set; }
 
         /// <summary>Who is allowed to post progress for this objective.</summary>

@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json;
 using System;
@@ -83,5 +83,46 @@ namespace IDosGames
         VirtualCurrency,
         CryptoCurrency,
         UsdCent,
+    }
+
+    [Serializable]
+    public class ResourceDualPartyResult
+    {
+        public string FromUserID { get; set; }
+        public string ToUserID { get; set; }
+        public ResourceOperation FromResult { get; set; }
+        public ResourceOperation ToResult { get; set; }
+    }
+
+    [Serializable]
+    public class ResourceTransferResult
+    {
+        public string FromUserID { get; set; }
+        public string ToUserID { get; set; }
+        public ResourceBundle Transferred { get; set; }
+    }
+
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum ModifierOperation
+    {
+        /// <summary>
+        /// Multiply the final value.
+        /// Example: x2 from the event, x1.5 from the seasonal buff.
+        /// Applied as: result *= value
+        /// </summary>
+        Multiply,
+
+        /// <summary>
+        /// Add a percentage to the base value.
+        /// Example: +50% = value 0.5 → result += base * 0.5
+        /// All AddPercent values ​​are summed BEFORE multiplication (additive stacking).
+        /// </summary>
+        AddPercent,
+
+        /// <summary>
+        /// Fixed bonus to the base value (before multipliers).
+        /// Example: +5 spins, +100 coins.
+        /// </summary>
+        AddFlat,
     }
 }
