@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using IDosGames.UI;
 using UnityEngine;
@@ -78,10 +77,10 @@ namespace IDosGames.UI.LimitedTimeEvent
                 }
             }
 
-            PopulateRewardsInternal(rewards, def.AssetPaths);
+            PopulateRewardsInternal(rewards);
         }
 
-        private void PopulateRewardsInternal(List<ResourceEntry> rewards, Dictionary<string, string> assetPaths)
+        private void PopulateRewardsInternal(List<ResourceEntry> rewards)
         {
             bool hasRewards   = rewards != null && rewards.Count > 0;
             bool useContainer = hasRewards && _rewardContainer != null && _rewardRowTemplate != null;
@@ -100,52 +99,10 @@ namespace IDosGames.UI.LimitedTimeEvent
             foreach (var reward in rewards)
             {
                 var row = Instantiate(_rewardRowTemplate, _rewardContainer);
-                row.gameObject.SetActive(true);
-
-                string id = reward.ItemID ?? reward.CurrencyID;
-                string iconPath = null;
-                if (!string.IsNullOrEmpty(id) && assetPaths != null && assetPaths.ContainsKey(id))
-                {
-                    iconPath = assetPaths[id];
-                }
-                else if (assetPaths != null && assetPaths.Count > 0)
-                {
-                    iconPath = assetPaths.Values.FirstOrDefault();
-                }
-
-                if (!string.IsNullOrEmpty(iconPath))
-                {
-                    LoadRewardIconAsync(row, iconPath);
-                }
-
-                if (row.AmountText != null)
-                {
-                    bool isCurrency = reward.Type == null || reward.Type == ResourceEntryType.VirtualCurrency;
-                    string prefix = isCurrency ? "+" : "x";
-                    long amountValue = reward.Amount ?? 0;
-                    string amount = amountValue > 0 ? amountValue.ToString("N0") : string.Empty;
-
-                    if (isCurrency)
-                    {
-                        row.AmountText.text = $"{prefix}{amount}";
-                    }
-                    else
-                    {
-                        string name = reward.ItemID ?? reward.CurrencyID ?? "Item";
-                        row.AmountText.text = string.IsNullOrEmpty(amount) ? name : $"{name} {prefix}{amount}";
-                    }
-                }
+                row.Setup(reward);
             }
 
             LayoutRebuilder.ForceRebuildLayoutImmediate(GetComponent<RectTransform>());
-        }
-
-        private async void LoadRewardIconAsync(RewardItemView row, string path)
-        {
-            if (string.IsNullOrEmpty(path) || row == null) return;
-            var sprite = await ImageLoader.GetSpriteAsync(path);
-            if (this != null && row != null && row.Icon != null && sprite != null)
-                row.Icon.sprite = sprite;
         }
 
         private async void OnClaimClicked()

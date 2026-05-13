@@ -100,22 +100,10 @@ namespace IDosGames.UI.Quest
             foreach (var reward in rewards)
             {
                 var row = Instantiate(_rewardRowTemplate, _rewardContainer);
-                row.Setup(BuildRewardLabel(reward));
+                row.Setup(reward);
             }
 
             LayoutRebuilder.ForceRebuildLayoutImmediate(_rewardContainer);
-        }
-
-        private static string BuildRewardLabel(ResourceEntry reward)
-        {
-            long amount     = reward.Amount ?? 0;
-            bool isCurrency = reward.Type == null || reward.Type == ResourceEntryType.VirtualCurrency;
-
-            if (isCurrency)
-                return amount > 0 ? $"+{amount}" : string.Empty;
-
-            string name = reward.ItemID ?? reward.CurrencyID ?? "Item";
-            return amount > 1 ? $"{name} x{amount}" : name;
         }
 
         // ─────────────────────────────────────────────────────────────

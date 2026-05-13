@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -28,6 +29,37 @@ namespace IDosGames
 
         /// <summary>Fired after GetFriendsLeaderboard. No local state patched.</summary>
         public static event Action<GetLeaderboardResponse> OnFriendsLeaderboardLoaded;
+
+        /// <summary>
+        /// Fired after AutoClaimAllCycleRewards completes and at least one reward was claimed.
+        /// Contains all responses for leaderboards that had an unclaimed cycle reward.
+        /// Use this to show a "congratulations" popup on game startup.
+        /// </summary>
+        public static event Action<List<ClaimCycleRewardResponse>> OnStartupRewardsClaimed;
+
+        /// <summary>
+        /// Cached result of the last AutoClaimAllCycleRewards call.
+        /// Non-null if rewards were claimed but not yet consumed by the UI.
+        /// Set to null by ConsumeStartupRewards() once the popup has shown.
+        /// </summary>
+        public static List<ClaimCycleRewardResponse> PendingStartupRewards { get; private set; }
+
+        /// <summary>Call this after the popup has shown the rewards to clear the cache.</summary>
+        public static void ConsumeStartupRewards() => PendingStartupRewards = null;
+
+        // ---------- Startup ----------
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        private static void RegisterHooks()
+        {
+            AuthenticationService.OnLoggedIn += () => _ = AutoClaimAllCycleRewards();
+
+            UnityEngine.SceneManagement.SceneManager.sceneLoaded += (_, _) =>
+            {
+                if (PendingStartupRewards == null) return;
+                OnStartupRewardsClaimed?.Invoke(PendingStartupRewards);
+            };
+        }
 
         // ---------- Helpers ----------
 
@@ -225,6 +257,38 @@ namespace IDosGames
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Intended to be called once after login.
+        /// Fetches definitions and progress for every leaderboard; for each one that has an
+        /// unclaimed cycle reward, claims it automatically (no player interaction required).
+        /// Fires OnCycleRewardClaimed per claim and OnStartupRewardsClaimed with the full
+        /// batch when done (only if at least one reward was claimed).
+        /// </summary>
+        private static async Task AutoClaimAllCycleRewards()
+        {
+            var defsResult = await GetDefinitions();
+            if (!defsResult.Success || defsResult.Data?.Definitions == null) return;
+
+            var claimed = new List<ClaimCycleRewardResponse>();
+
+            foreach (var leaderboardID in defsResult.Data.Definitions.Keys)
+            {
+                var progressResult = await GetMyProgress(leaderboardID);
+                if (!progressResult.Success || progressResult.Data == null) continue;
+                if (!progressResult.Data.HasUnclaimedReward) continue;
+
+                var claimResult = await ClaimCycleReward(leaderboardID);
+                if (claimResult.Success && claimResult.Data != null)
+                    claimed.Add(claimResult.Data);
+            }
+
+            if (claimed.Count > 0)
+            {
+                PendingStartupRewards = claimed;
+                OnStartupRewardsClaimed?.Invoke(claimed);
+            }
         }
 
         /// <summary>
