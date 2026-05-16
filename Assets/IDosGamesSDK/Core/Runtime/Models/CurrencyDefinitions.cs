@@ -31,7 +31,7 @@ namespace IDosGames
     public class VirtualCurrencyEconomy
     {
         public decimal ValueInUSD { get; set; }
-        public DateTime ValueInUSDUpdatedAt { get; set; }
+        public DateTime? ValueInUSDUpdatedAt { get; set; }
         public long InitialDeposit { get; set; }
         public long MinBalance { get; set; }
         public long MaxBalance { get; set; }
@@ -115,7 +115,7 @@ namespace IDosGames
         public Dictionary<string, string> AssetPaths { get; set; }
         public int DisplayDecimals { get; set; }
         public decimal ValueInUSD { get; set; }
-        public DateTime ValueInUSDUpdatedAt { get; set; }
+        public DateTime? ValueInUSDUpdatedAt { get; set; }
         public List<CryptoNetworkBinding> Networks { get; set; }
         public CryptoLimits Limits { get; set; }
         public CryptoCurrencyPermissions Permissions { get; set; }

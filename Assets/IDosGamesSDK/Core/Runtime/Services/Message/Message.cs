@@ -14,6 +14,7 @@ namespace IDosGames
         [SerializeField] private MessagePopUp _messagePopUp;
 		[SerializeField] private RewardPopUp _rewardPopUp;
         [SerializeField] private RewardsListPopUp _rewardsListPopUp;
+        [SerializeField] private ResourceOperationPopUp _resourceOperationPopUp;
         [SerializeField] private ConnectionErrorPopUp _connectionErrorPopUp;
 
 		private static Message _instance;
@@ -85,6 +86,16 @@ namespace IDosGames
             _instance._rewardsListPopUp.Set(rewards);
         }
 
+        public static void ShowResourceOperation(ResourceOperation operation)
+        {
+            if (_instance == null) return;
+            if (operation == null) return;
+
+            _instance.HideAllPopUps();
+            _instance.ShowPopUp(_instance._resourceOperationPopUp);
+            _instance._resourceOperationPopUp.Set(operation);
+        }
+
         private static void StartDelayShowConnectionError(Action callbackAction)
 		{
 			if (_instance == null) return;
@@ -128,6 +139,9 @@ namespace IDosGames
             if (_instance._rewardsListPopUp != null)
                 _instance._rewardsListPopUp.gameObject.SetActive(false);
 
+            if (_instance._resourceOperationPopUp != null)
+                _instance._resourceOperationPopUp.gameObject.SetActive(false);
+
             if (_instance._connectionErrorPopUp != null)
                 _instance._connectionErrorPopUp.gameObject.SetActive(false);
         }
@@ -141,7 +155,7 @@ namespace IDosGames
             }
             catch
             {
-                return false; // кривой JSON
+                return false; // пїЅпїЅпїЅпїЅпїЅпїЅ JSON
             }
         }
 

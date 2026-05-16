@@ -73,6 +73,7 @@ crashlytics-build.properties
 /[Aa]ssets/Firebase/
 /[Ff]irebase/
 *.DS_Store
+CLAUDE.md
 
 # WebGL build directory  
 [Aa]ssets/WebGLBuild/
