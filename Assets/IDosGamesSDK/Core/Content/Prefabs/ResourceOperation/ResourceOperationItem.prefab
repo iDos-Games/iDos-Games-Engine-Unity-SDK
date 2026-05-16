@@ -733,10 +733,10 @@ GameObject:
   m_Component:
   - component: {fileID: 5455559134814707037}
   - component: {fileID: 2782942695690372331}
-  - component: {fileID: 7189983076663417324}
+  - component: {fileID: 2867071375362866472}
   - component: {fileID: 7689155680344414315}
   m_Layer: 0
-  m_Name: RewardListItem
+  m_Name: ResourceOperationItem
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -784,7 +784,7 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
---- !u!114 &7189983076663417324
+--- !u!114 &2867071375362866472
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -793,9 +793,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 5967115035737029820}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bb58174f9ef2863458c8f86137b77a8f, type: 3}
+  m_Script: {fileID: 11500000, guid: 6128efe48f08a1e4eaf01d92ead3f645, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::IDosGames.RewardListItemView
+  m_EditorClassIdentifier: Assembly-CSharp::IDosGames.ResourceOperationItemView
   _icon: {fileID: 593911417254907722}
   _nameText: {fileID: 8987027653447283452}
   _amountText: {fileID: 6182841102289432364}

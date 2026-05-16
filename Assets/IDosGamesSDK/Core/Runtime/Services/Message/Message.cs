@@ -1,7 +1,6 @@
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace IDosGames
@@ -12,8 +11,6 @@ namespace IDosGames
         private const int SHOW_CONNECTION_ERROR_POPUP_DELAY = 2;
 
         [SerializeField] private MessagePopUp _messagePopUp;
-		[SerializeField] private RewardPopUp _rewardPopUp;
-        [SerializeField] private RewardsListPopUp _rewardsListPopUp;
         [SerializeField] private ResourceOperationPopUp _resourceOperationPopUp;
         [SerializeField] private ConnectionErrorPopUp _connectionErrorPopUp;
 
@@ -68,24 +65,6 @@ namespace IDosGames
 			Show(messageCode.ToString());
 		}
 
-		public static void ShowReward(string message, string imagePath)
-		{
-			if (_instance == null) return;
-
-            _instance._rewardPopUp.Set(message, imagePath);
-			_instance.ShowPopUp(_instance._rewardPopUp);
-		}
-
-        public static void ShowRewards(IReadOnlyList<ResourceEntry> rewards)
-        {
-            if (_instance == null) return;
-            if (rewards == null || rewards.Count == 0) return;
-
-            _instance.HideAllPopUps();
-            _instance.ShowPopUp(_instance._rewardsListPopUp);
-            _instance._rewardsListPopUp.Set(rewards);
-        }
-
         public static void ShowResourceOperation(ResourceOperation operation)
         {
             if (_instance == null) return;
@@ -132,12 +111,6 @@ namespace IDosGames
 
             if (_instance._messagePopUp != null)
                 _instance._messagePopUp.gameObject.SetActive(false);
-
-            if (_instance._rewardPopUp != null)
-                _instance._rewardPopUp.gameObject.SetActive(false);
-
-            if (_instance._rewardsListPopUp != null)
-                _instance._rewardsListPopUp.gameObject.SetActive(false);
 
             if (_instance._resourceOperationPopUp != null)
                 _instance._resourceOperationPopUp.gameObject.SetActive(false);
