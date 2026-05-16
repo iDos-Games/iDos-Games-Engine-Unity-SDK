@@ -1,4 +1,3 @@
-using IDosGames.ClientModels;
 using System;
 using System.Collections;
 using UnityEngine;
@@ -9,8 +8,8 @@ namespace IDosGames
     public class RaidCell : MonoBehaviour
     {
         [SerializeField] private Button button;
-        [SerializeField] private Image frontImage;   // символ
-        [SerializeField] private Image backImage;    // рубашка / знак вопроса
+        [SerializeField] private Image frontImage;   // пїЅпїЅпїЅпїЅпїЅпїЅ
+        [SerializeField] private Image backImage;    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ / пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
         [SerializeField] private GameObject glowEffect;
         [SerializeField] private float flipDuration = 0.25f;
 
@@ -49,13 +48,13 @@ namespace IDosGames
 
         public void SetInteractable(bool value) => button.interactable = value;
 
-        /// <summary>Анимированное открытие после ответа сервера.</summary>
+        /// <summary>пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ.</summary>
         public IEnumerator RevealRoutine(Sprite revealedSprite)
         {
             IsOpened = true;
             button.interactable = false;
 
-            // Половина переворота — сжимаем по X
+            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ X
             float t = 0f;
             while (t < flipDuration)
             {
@@ -65,11 +64,11 @@ namespace IDosGames
                 yield return null;
             }
 
-            // Меняем картинку
+            // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
             frontImage.sprite = revealedSprite;
             ShowFront();
 
-            // Вторая половина — раскрываем
+            // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
             t = 0f;
             while (t < flipDuration)
             {
@@ -81,7 +80,7 @@ namespace IDosGames
 
             transform.localScale = Vector3.one;
 
-            // Эффект подсветки
+            // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
             if (glowEffect != null)
             {
                 glowEffect.SetActive(true);
@@ -90,7 +89,7 @@ namespace IDosGames
             }
         }
 
-        /// <summary>Мгновенное раскрытие для показа финального раскладки.</summary>
+        /// <summary>пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.</summary>
         public void ForceReveal(Sprite sprite)
         {
             IsOpened = true;

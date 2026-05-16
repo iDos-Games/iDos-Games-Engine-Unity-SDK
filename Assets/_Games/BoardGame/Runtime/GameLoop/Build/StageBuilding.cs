@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
-using IDosGames.TitlePublicConfiguration;
+using System.Collections.Generic;
 
 namespace IDosGames
 {
@@ -95,16 +95,23 @@ namespace IDosGames
 
         private static string ResolveImageUrl(BuildingDefinition definition, int currentLevel)
         {
-            if (definition?.ImageUrls == null || definition.ImageUrls.Count == 0)
+            var assetPaths = definition?.AssetPaths;
+            if (assetPaths == null || assetPaths.Count == 0)
                 return null;
 
-            if (definition.ImageUrls.Count == 1)
-                return definition.ImageUrls[0];
+            if (assetPaths.TryGetValue($"level_{currentLevel}", out var perLevel) && !string.IsNullOrWhiteSpace(perLevel))
+                return perLevel;
 
-            int levelIndex = Mathf.Max(0, currentLevel - 1);
-            levelIndex = Mathf.Clamp(levelIndex, 0, definition.ImageUrls.Count - 1);
+            if (assetPaths.TryGetValue("icon", out var icon) && !string.IsNullOrWhiteSpace(icon))
+                return icon;
 
-            return definition.ImageUrls[levelIndex];
+            foreach (var value in assetPaths.Values)
+            {
+                if (!string.IsNullOrWhiteSpace(value))
+                    return value;
+            }
+
+            return null;
         }
 
         private void SetDamaged(bool damaged)
@@ -189,7 +196,7 @@ namespace IDosGames
                 time += Time.unscaledDeltaTime;
                 float t = Mathf.Clamp01(time / duration);
 
-                // чуть приятнее, чем обычный Lerp
+                // пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ Lerp
                 float eased = 1f - Mathf.Pow(1f - t, 3f);
 
                 target.localScale = Vector3.Lerp(startScale, endScale, eased);

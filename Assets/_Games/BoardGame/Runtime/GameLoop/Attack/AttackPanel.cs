@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using IDosGames.ClientModels;
 using System.Threading.Tasks;
 
 namespace IDosGames
@@ -21,14 +20,14 @@ namespace IDosGames
         [SerializeField] private TMP_Text targetNameText;
         [SerializeField] private Image targetAvatarImage;
 
-        [Header("Building Slots (кнопки для атаки)")]
-        [SerializeField] private List<AttackBuildingSlot> buildingSlots; // по числу зданий на стейдже
+        [Header("Building Slots (пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ)")]
+        [SerializeField] private List<AttackBuildingSlot> buildingSlots; // пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 
         [Header("Result Overlay")]
         [SerializeField] private GameObject resultOverlay;
         [SerializeField] private TMP_Text resultTitleText;   // "HIT!" / "BLOCKED!"
         [SerializeField] private TMP_Text resultRewardText;  // "+ 12 500 coins"
-        [SerializeField] private Image resultIcon;           // иконка молнии / щита
+        [SerializeField] private Image resultIcon;           // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ / пїЅпїЅпїЅпїЅ
         [SerializeField] private Sprite hitSprite;
         [SerializeField] private Sprite blockedSprite;
 
@@ -54,8 +53,8 @@ namespace IDosGames
             root.SetActive(false);
         }
 
-        private void OnEnable() => GameLoopService.OnBoardAttackSuccess += HandleAttackResult;
-        private void OnDisable() => GameLoopService.OnBoardAttackSuccess -= HandleAttackResult;
+        private void OnEnable() => GameLoopService.OnBoardAttacked += HandleAttackResult;
+        private void OnDisable() => GameLoopService.OnBoardAttacked -= HandleAttackResult;
 
         // -----------------------------------------------------------------------
         public void Show(RollActionData target)
@@ -69,12 +68,12 @@ namespace IDosGames
             _currentTarget = target;
             _waitingForResult = false;
 
-            // Заполняем данные о цели
+            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅ
             targetNameText.text = target?.PublicData?.Username ?? "???";
-            // Аватар подгружаем async (пример — адаптируй под свой ImageLoader)
+            // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ async (пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ ImageLoader)
             _ = LoadAvatar(target?.PublicData?.AvatarUrl);
 
-            // Здания берём из текущего стейджа
+            // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
             RefreshBuildingSlots();
 
             resultOverlay.SetActive(false);
@@ -110,13 +109,13 @@ namespace IDosGames
             if (_waitingForResult) return;
             _waitingForResult = true;
 
-            // Блокируем все кнопки
+            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
             buildingSlots.ForEach(s => s?.SetInteractable(false));
 
-            // Анимация выбора слота
+            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
             StartCoroutine(AnimateSelection(slotIndex));
 
-            // Отправляем запрос
+            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
             _ = SendAttackRequest(slotIndex);
         }
 
@@ -126,13 +125,13 @@ namespace IDosGames
             {
                 var result = await GameLoopService.BoardLoopAttack(slotIndex);
 
-                // Если запрос провалился — разблокируем панель
+                // пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
                 if (result == null || !result.Success)
                 {
                     Debug.LogWarning("[AttackPanel] Attack request failed, unlocking panel.");
                     UnlockPanel();
                 }
-                // Успех — придёт через HandleAttackResult via event
+                // пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ HandleAttackResult via event
             }
             catch (Exception ex)
             {
@@ -168,7 +167,7 @@ namespace IDosGames
 
         private IEnumerator ShowResult(AttackResponse response)
         {
-            bool isHit = response?.Status == "HIT";
+            bool isHit = response?.Outcome == AttackOutcome.Hit;
 
             resultTitleText.text = isHit ? "HIT!" : "BLOCKED!";
             //resultRewardText.text = isHit ? $"+ {response.Reward:N0} coins" : "";
@@ -176,13 +175,20 @@ namespace IDosGames
 
             resultOverlay.SetActive(true);
 
-            // Анимация появления результата
+            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
             yield return StartCoroutine(PunchScale(resultOverlay.transform, 0.25f));
             yield return new WaitForSeconds(resultShowDuration);
 
-            // Скрываем панель
+            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
             yield return StartCoroutine(FadeOut());
             root.SetActive(false);
+
+            if (isHit)
+            {
+                var op = response.IsBotTarget ? response.Operation : response.DualResult?.ToResult;
+                if (op != null)
+                    Message.ShowResourceOperation(op);
+            }
         }
 
         private IEnumerator FadeIn()

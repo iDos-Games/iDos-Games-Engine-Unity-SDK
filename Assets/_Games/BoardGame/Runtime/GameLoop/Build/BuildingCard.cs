@@ -2,7 +2,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
-using IDosGames.TitlePublicConfiguration;
 
 namespace IDosGames
 {
@@ -81,16 +80,23 @@ namespace IDosGames
 
         private static string ResolveImageUrl(BuildingDefinition definition, int currentLevel)
         {
-            if (definition?.ImageUrls == null || definition.ImageUrls.Count == 0)
+            var assetPaths = definition?.AssetPaths;
+            if (assetPaths == null || assetPaths.Count == 0)
                 return null;
 
-            if (definition.ImageUrls.Count == 1)
-                return definition.ImageUrls[0];
+            if (assetPaths.TryGetValue($"level_{currentLevel}", out var perLevel) && !string.IsNullOrWhiteSpace(perLevel))
+                return perLevel;
 
-            int levelIndex = Mathf.Max(0, currentLevel - 1);
-            levelIndex = Mathf.Clamp(levelIndex, 0, definition.ImageUrls.Count - 1);
+            if (assetPaths.TryGetValue("icon", out var icon) && !string.IsNullOrWhiteSpace(icon))
+                return icon;
 
-            return definition.ImageUrls[levelIndex];
+            foreach (var value in assetPaths.Values)
+            {
+                if (!string.IsNullOrWhiteSpace(value))
+                    return value;
+            }
+
+            return null;
         }
 
         private async void LoadBuildingImage(string imageUrl)
@@ -107,12 +113,26 @@ namespace IDosGames
 
         private long CalculateCost(double costGrowthFactor)
         {
-            if (_definition.BaseBuildCost == null || !_definition.BaseBuildCost.Amount.HasValue)
+            long baseCost = GetBaseBuildCostAmount(_definition?.BaseBuildCost);
+            if (baseCost <= 0)
                 return 0;
 
-            double baseCost = _definition.BaseBuildCost.Amount.Value;
             double cost = baseCost * System.Math.Pow(costGrowthFactor, _currentLevel) * (_currentLevel + 1);
             return (long)System.Math.Ceiling(cost);
+        }
+
+        private static long GetBaseBuildCostAmount(ResourceConsume consume)
+        {
+            var entries = consume?.Standard?.Entries;
+            if (entries == null) return 0;
+
+            for (int i = 0; i < entries.Count; i++)
+            {
+                if (entries[i] != null && entries[i].Amount.HasValue)
+                    return entries[i].Amount.Value;
+            }
+
+            return 0;
         }
 
         private async void OnUpgradeClicked()

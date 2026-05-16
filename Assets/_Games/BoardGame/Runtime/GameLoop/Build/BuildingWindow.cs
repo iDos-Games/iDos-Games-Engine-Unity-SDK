@@ -2,8 +2,6 @@ using UnityEngine;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine.UI;
-using IDosGames.ClientModels;
-using IDosGames.TitlePublicConfiguration;
 using System.Linq;
 
 namespace IDosGames
@@ -55,9 +53,7 @@ namespace IDosGames
             if (stageNameText != null)
                 stageNameText.text = stage.Name;
 
-            string stageImagePath = string.IsNullOrEmpty(stage.StageImagePath)
-                ? "Sprites/Background/Default"
-                : stage.StageImagePath;
+            string stageImagePath = ResolveStageImagePath(stage.AssetPaths);
 
             if (stageImagePath != _loadedStageImagePath)
             {
@@ -141,6 +137,25 @@ namespace IDosGames
         private static BuildingDefinition GetDefinitionBySlotIndex(BoardStageDefinition stage, int slotIndex)
         {
             return stage?.Buildings?.Find(x => x != null && x.SlotIndex == slotIndex);
+        }
+
+        private static string ResolveStageImagePath(Dictionary<string, string> assetPaths)
+        {
+            const string fallback = "Sprites/Background/Default";
+
+            if (assetPaths == null || assetPaths.Count == 0)
+                return fallback;
+
+            if (assetPaths.TryGetValue("icon", out var icon) && !string.IsNullOrWhiteSpace(icon))
+                return icon;
+
+            foreach (var value in assetPaths.Values)
+            {
+                if (!string.IsNullOrWhiteSpace(value))
+                    return value;
+            }
+
+            return fallback;
         }
 
         private static BuildingState GetStateBySlotIndex(BoardLoopState state, int slotIndex)

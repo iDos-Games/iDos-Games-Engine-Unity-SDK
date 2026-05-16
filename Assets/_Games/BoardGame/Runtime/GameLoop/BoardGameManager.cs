@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Threading.Tasks;
-using IDosGames.ClientModels;
-using IDosGames.TitlePublicConfiguration;
 using UnityEngine;
 
 namespace IDosGames
@@ -14,13 +12,6 @@ namespace IDosGames
         public event Action OnDataUpdated;
         public event Action OnBoardReady;
 
-        [Header("Board Mode")]
-        [SerializeField] private bool use3DBoard = false;
-
-        [Header("2D")]
-        [SerializeField] private BoardHexRingRenderer boardHexRingRenderer;
-
-        [Header("3D")]
         [SerializeField] private Transform playerToken;
         [SerializeField] private Transform tokenMesh;
         [SerializeField] private Transform[] tiles;
@@ -34,7 +25,7 @@ namespace IDosGames
         private bool _isRolling;
         private Coroutine _moveRoutine;
 
-        public BoardLoopState BoardState => IDosGamesData.User.Board;
+        public BoardLoopState BoardState => IDosGamesData.User.State.GameLoop.Board;
         public BoardLoopDefinition BoardDefinition => IDosGamesData.Config.TitlePublicConfiguration?.GameLoop?.Board;
 
         public int CurrentStageLevel => BoardState?.StageLevel ?? 0;
@@ -92,10 +83,7 @@ namespace IDosGames
 
             ResolveCurrentStage();
 
-            if (use3DBoard)
-                SnapTokenToCurrentPosition();
-            else
-                boardHexRingRenderer?.RenderFromCurrentTemplate();
+            SnapTokenToCurrentPosition();
 
             OnBoardReady?.Invoke();
             CheckPendingInteraction();
@@ -111,7 +99,6 @@ namespace IDosGames
 
         public async void RollWithMultiplierFromUI(int multiplicator)
         {
-            if (!use3DBoard) return;
             if (_isRolling) return;
             if (multiplicator <= 0) multiplicator = 1;
             if (playerToken == null || tiles == null || tiles.Length == 0) return;
@@ -145,8 +132,8 @@ namespace IDosGames
                     if (rewardsPopupDelayMs > 0)
                         await Task.Delay(rewardsPopupDelayMs);
 
-                    if (response.GrantedRewards?.Count > 0)
-                        Message.ShowRewards(response.GrantedRewards);
+                    if (response.Operation != null)
+                        Message.ShowResourceOperation(response.Operation);
                 }
             }
             catch (Exception ex)
@@ -304,7 +291,7 @@ namespace IDosGames
                 Debug.Log("[GameLoopData] Restoring pending ATTACK");
                 AttackPanel.Instance?.Show(actionData);
             }
-            else if (pending.Type == "RAID" || pending.Type == "RAID_FINISHING")
+            else if (pending.Type == "RAID")
             {
                 Debug.Log("[GameLoopData] Restoring pending RAID");
                 RaidPanel.Instance?.Show(actionData);
@@ -351,24 +338,26 @@ namespace IDosGames
 
         private void Subscribe()
         {
-            IDosGamesData.User.OnBoardUpdated += OnBoardStateUpdated;
+            IDosGamesData.User.OnGameLoopUpdated += OnBoardStateUpdated;
             IDosGamesData.Config.OnTitlePublicConfigurationUpdated += OnConfigUpdated;
 
-            GameLoopService.OnBoardRollSuccess += SetRollResponse;
-            GameLoopService.OnBoardAttackSuccess += SetAttackResponse;
-            GameLoopService.OnBoardRaidSuccess += SetRaidResponse;
-            GameLoopService.OnBoardBuildSuccess += SetBuildResponse;
+            GameLoopService.OnBoardRolled += SetRollResponse;
+            GameLoopService.OnBoardAttacked += SetAttackResponse;
+            GameLoopService.OnBoardRaided += SetRaidResponse;
+            GameLoopService.OnBoardRaidedFast += SetRaidResponse;
+            GameLoopService.OnBoardBuilt += SetBuildResponse;
         }
 
         private void Unsubscribe()
         {
-            IDosGamesData.User.OnBoardUpdated -= OnBoardStateUpdated;
+            IDosGamesData.User.OnGameLoopUpdated -= OnBoardStateUpdated;
             IDosGamesData.Config.OnTitlePublicConfigurationUpdated -= OnConfigUpdated;
 
-            GameLoopService.OnBoardRollSuccess -= SetRollResponse;
-            GameLoopService.OnBoardAttackSuccess -= SetAttackResponse;
-            GameLoopService.OnBoardRaidSuccess -= SetRaidResponse;
-            GameLoopService.OnBoardBuildSuccess -= SetBuildResponse;
+            GameLoopService.OnBoardRolled -= SetRollResponse;
+            GameLoopService.OnBoardAttacked -= SetAttackResponse;
+            GameLoopService.OnBoardRaided -= SetRaidResponse;
+            GameLoopService.OnBoardRaidedFast -= SetRaidResponse;
+            GameLoopService.OnBoardBuilt -= SetBuildResponse;
         }
 
         private void OnBoardStateUpdated()
@@ -407,17 +396,11 @@ namespace IDosGames
 
             if (data != null)
             {
-                if (data.StageComplete)
-                {
-                    if (data.CompletionReward != null && data.CompletionReward.Count > 0)
-                        Message.ShowRewards(data.CompletionReward);
+                if (data.Operation != null)
+                    Message.ShowResourceOperation(data.Operation);
 
+                if (data.StageComplete)
                     _ = LoadBoard();
-                }
-                else if (data.MaxLevelReward != null && data.MaxLevelReward.Count > 0)
-                {
-                    Message.ShowRewards(data.MaxLevelReward);
-                }
             }
 
             OnDataUpdated?.Invoke();

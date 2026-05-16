@@ -1,9 +1,8 @@
 using System;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using IDosGames.TitlePublicConfiguration;
-using IDosGames.ClientModels;
 
 namespace IDosGames
 {
@@ -35,13 +34,33 @@ namespace IDosGames
 
         private async System.Threading.Tasks.Task LoadImage(BuildingDefinition def, int level)
         {
-            if (def?.ImageUrls == null || def.ImageUrls.Count == 0) return;
+            string path = ResolveBuildingAssetPath(def?.AssetPaths, level);
+            if (string.IsNullOrEmpty(path)) return;
 
-            int idx = Mathf.Clamp(Mathf.Max(0, level - 1), 0, def.ImageUrls.Count - 1);
-            var sprite = await ImageLoader.GetSpriteAsync(def.ImageUrls[idx]);
+            var sprite = await ImageLoader.GetSpriteAsync(path);
 
             if (sprite != null && buildingImage != null)
                 buildingImage.sprite = sprite;
+        }
+
+        private static string ResolveBuildingAssetPath(Dictionary<string, string> assetPaths, int level)
+        {
+            if (assetPaths == null || assetPaths.Count == 0)
+                return null;
+
+            if (assetPaths.TryGetValue($"level_{level}", out var perLevel) && !string.IsNullOrWhiteSpace(perLevel))
+                return perLevel;
+
+            if (assetPaths.TryGetValue("icon", out var icon) && !string.IsNullOrWhiteSpace(icon))
+                return icon;
+
+            foreach (var value in assetPaths.Values)
+            {
+                if (!string.IsNullOrWhiteSpace(value))
+                    return value;
+            }
+
+            return null;
         }
     }
 }

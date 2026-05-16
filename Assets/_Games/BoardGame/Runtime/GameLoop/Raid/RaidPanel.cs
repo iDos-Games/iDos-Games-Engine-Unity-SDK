@@ -1,12 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using IDosGames.ClientModels;
 using System;
 using System.Threading.Tasks;
-using IDosGames.TitlePublicConfiguration;
 
 namespace IDosGames
 {
@@ -23,11 +22,11 @@ namespace IDosGames
         [SerializeField] private Image targetAvatarImage;
 
         [Header("Raid Grid")]
-        [SerializeField] private List<RaidCell> cells; // ровно 9
+        [SerializeField] private List<RaidCell> cells; // пїЅпїЅпїЅпїЅпїЅ 9
 
         [Header("HUD")]
-        [SerializeField] private TMP_Text attemptsText;   // "Попыток: 3"
-        [SerializeField] private TMP_Text totalStolenText; // "Украдено: 4 200"
+        [SerializeField] private TMP_Text attemptsText;   // "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ: 3"
+        [SerializeField] private TMP_Text totalStolenText; // "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ: 4 200"
 
         [Header("Result")]
         [SerializeField] private GameObject resultOverlay;
@@ -70,12 +69,12 @@ namespace IDosGames
 
         private void OnEnable()
         {
-            GameLoopService.OnBoardRaidSuccess += HandleRaidResult;
+            GameLoopService.OnBoardRaided += HandleRaidResult;
         }
 
         private void OnDisable()
         {
-            GameLoopService.OnBoardRaidSuccess -= HandleRaidResult;
+            GameLoopService.OnBoardRaided -= HandleRaidResult;
         }
 
         // -----------------------------------------------------------------------
@@ -95,7 +94,7 @@ namespace IDosGames
 
             resultOverlay.SetActive(false);
 
-            // Определяем режим
+            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
             var boardDef = BoardGameManager.Instance?.BoardDefinition;
             bool isFastMode = boardDef != null && boardDef.RaidMode == RaidMode.Fast;
 
@@ -106,7 +105,7 @@ namespace IDosGames
         }
 
         // -----------------------------------------------------------------------
-        // Sequential — мгновенная инициализация (как было раньше)
+        // Sequential пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ)
         // -----------------------------------------------------------------------
         private void InitSequentialAndShow()
         {
@@ -123,12 +122,12 @@ namespace IDosGames
         }
 
         // -----------------------------------------------------------------------
-        // Fast — запрашиваем GetUserBoardState, получаем layout, потом показываем
+        // Fast пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ GetUserBoardState, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ layout, пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
         // -----------------------------------------------------------------------
         private IEnumerator InitFastAndShowCoroutine()
         {
-            // Показываем панель, но без интерактивности — пока загружаем данные
-            // (canvasGroup.alpha = 0, blocksRaycasts = true, чтобы заблокировать клики под панелью)
+            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+            // (canvasGroup.alpha = 0, blocksRaycasts = true, пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ)
 
             bool requestDone = false;
             BoardLoopState freshState = null;
@@ -139,14 +138,14 @@ namespace IDosGames
                 () => { requestFailed = true; requestDone = true; }
             );
 
-            // Ждём ответ сервера
+            // пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
             while (!requestDone)
                 yield return null;
 
             if (requestFailed || freshState == null)
             {
                 Debug.LogWarning("[RaidPanel] Failed to fetch board state for Fast raid. Falling back to Sequential.");
-                // Фоллбэк на Sequential с тем что есть
+                // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ Sequential пїЅ пїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
                 InitSequentialAndShow();
                 yield break;
             }
@@ -161,7 +160,7 @@ namespace IDosGames
                 yield break;
             }
 
-            // Инициализируем Fast-режим с актуальными данными
+            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ Fast-пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
             _isFastMode = true;
             InitFastMode(pending);
 
@@ -230,7 +229,9 @@ namespace IDosGames
         // -----------------------------------------------------------------------
         private void InitFastMode(BoardPendingInteraction pending)
         {
-            _localLayout = new List<HeistSymbol>(pending.RaidLayout);
+            _localLayout = pending.RaidLayout != null
+                ? pending.RaidLayout.Select(c => c?.Symbol ?? HeistSymbol.None).ToList()
+                : new List<HeistSymbol>();
             _localOpenedIndices = pending.OpenedIndices != null
                 ? new List<int>(pending.OpenedIndices)
                 : new List<int>();
@@ -287,7 +288,7 @@ namespace IDosGames
                     else
                     {
                         if (pending?.RaidLayout != null && i < pending.RaidLayout.Count)
-                            symbol = pending.RaidLayout[i];
+                            symbol = pending.RaidLayout[i]?.Symbol ?? HeistSymbol.None;
                     }
                 }
 
@@ -394,7 +395,8 @@ namespace IDosGames
                 yield break;
             }
 
-            yield return StartCoroutine(ShowFastRaidResult(tier, serverResponse.StolenResource));
+            var op = serverResponse.Operation ?? serverResponse.DualResult?.ToResult;
+            yield return StartCoroutine(ShowFastRaidResult(tier, op));
         }
 
         private async Task SendFastRaidRequestAsync(
@@ -423,26 +425,27 @@ namespace IDosGames
             }
         }
 
-        private IEnumerator ShowFastRaidResult(string tier, ItemOrCurrency stolenResource)
+        private IEnumerator ShowFastRaidResult(string tier, ResourceOperation op)
         {
             string title = tier switch
             {
-                "SMALL" => "Небольшой куш!",
-                "MEDIUM" => "Неплохо!",
-                "BIG" => "ДЖЕКПОТ!",
-                _ => "Ограбление завершено"
+                "SMALL" => "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ!",
+                "MEDIUM" => "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ!",
+                "BIG" => "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ!",
+                _ => "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"
             };
 
             resultTitleText.text = title;
-            resultAmountText.text = stolenResource != null
-                ? $"+ {stolenResource.Amount:N0} {stolenResource.Name ?? stolenResource.CurrencyID}"
-                : "Ничего не украдено";
+            resultAmountText.text = FormatStolenEntry(op);
 
             resultOverlay.SetActive(true);
             yield return StartCoroutine(PunchScale(resultOverlay.transform, 0.3f));
             yield return new WaitForSeconds(resultShowDuration);
             yield return StartCoroutine(FadeOut());
             root.SetActive(false);
+
+            if (op != null)
+                Message.ShowResourceOperation(op);
         }
 
         // -----------------------------------------------------------------------
@@ -493,7 +496,7 @@ namespace IDosGames
                 yield return StartCoroutine(cell.RevealRoutine(foundSprite));
             }
 
-            UpdateHUD(response.AttemptsLeft, response.StolenResource);
+            UpdateHUD(response.AttemptsLeft, response.Operation ?? response.DualResult?.ToResult);
 
             bool finished = response.Status != "CONTINUE";
 
@@ -528,36 +531,88 @@ namespace IDosGames
             }
         }
 
+        private void RevealAllCells(List<HeistCell> layout)
+        {
+            for (int i = 0; i < cells.Count; i++)
+            {
+                if (cells[i] == null || cells[i].IsOpened) continue;
+                if (i < layout.Count)
+                {
+                    var symbol = layout[i]?.Symbol ?? HeistSymbol.None;
+                    cells[i].ForceReveal(GetSymbolSprite(symbol));
+                }
+            }
+        }
+
         private IEnumerator ShowRaidResult(RaidResponse response)
         {
-            string title = response.Status switch
+            string title = response.Outcome switch
             {
-                "FINISHED_SMALL" => "Небольшой куш!",
-                "FINISHED_MEDIUM" => "Неплохо!",
-                "FINISHED_BIG" => "ДЖЕКПОТ!",
-                _ => "Ограбление завершено"
+                RaidOutcome.Small => "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ!",
+                RaidOutcome.Medium => "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ!",
+                RaidOutcome.Big => "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ!",
+                RaidOutcome.Jackpot => "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ!",
+                _ => "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"
             };
 
+            var op = response.Operation ?? response.DualResult?.ToResult;
+
             resultTitleText.text = title;
-            resultAmountText.text = response.StolenResource != null
-                ? $"+ {response.StolenResource.Amount:N0} {response.StolenResource.Name ?? response.StolenResource.CurrencyID}"
-                : "Nothing was stolen";
+            resultAmountText.text = FormatStolenEntry(op);
 
             resultOverlay.SetActive(true);
             yield return StartCoroutine(PunchScale(resultOverlay.transform, 0.3f));
             yield return new WaitForSeconds(resultShowDuration);
             yield return StartCoroutine(FadeOut());
             root.SetActive(false);
+
+            if (op != null)
+                Message.ShowResourceOperation(op);
         }
 
         // -----------------------------------------------------------------------
-        private void UpdateHUD(int attemptsLeft, ItemOrCurrency stolenResource)
+        private void UpdateHUD(int attemptsLeft, ResourceOperation op)
         {
             if (attemptsText != null) attemptsText.text = $"Attempts: {attemptsLeft}";
 
-            if (totalStolenText != null) totalStolenText.text = stolenResource != null
-                    ? $"Stolen: {stolenResource.Amount:N0}"
+            if (totalStolenText != null)
+            {
+                totalStolenText.text = TryGetFirstEntry(op, out var entry) && entry.Amount.HasValue
+                    ? $"Stolen: {entry.Amount.Value:N0}"
                     : "Stolen: 0";
+            }
+        }
+
+        private static bool TryGetFirstEntry(ResourceOperation op, out ResourceEntry entry)
+        {
+            var entries = op?.Grant?.Standard?.Entries;
+            if (entries != null)
+            {
+                for (int i = 0; i < entries.Count; i++)
+                {
+                    if (entries[i] != null)
+                    {
+                        entry = entries[i];
+                        return true;
+                    }
+                }
+            }
+
+            entry = null;
+            return false;
+        }
+
+        private static string FormatStolenEntry(ResourceOperation op)
+        {
+            if (!TryGetFirstEntry(op, out var entry))
+                return "Nothing was stolen";
+
+            long amount = entry.Amount ?? 0;
+            string name = !string.IsNullOrEmpty(entry.CurrencyID)
+                ? entry.CurrencyID
+                : (entry.ItemID ?? string.Empty);
+
+            return $"+ {amount:N0} {name}".TrimEnd();
         }
 
         private RaidCell GetCell(int digIndex)
@@ -574,7 +629,7 @@ namespace IDosGames
         };
 
         // -----------------------------------------------------------------------
-        // Анимации
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
         // -----------------------------------------------------------------------
 
         private IEnumerator FadeIn()
