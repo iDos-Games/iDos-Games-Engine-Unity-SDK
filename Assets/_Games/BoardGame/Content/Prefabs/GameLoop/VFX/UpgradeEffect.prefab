@@ -192,7 +192,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1449085386323563202}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d0efdca537f526346b6ad7d753228e60, type: 3}
+  m_Script: {fileID: 11500000, guid: 166f743813591b44899cc4a0ca7b07f7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HammerSpriteHit
   hammerVisual: {fileID: 7531447074007489927}
@@ -252,11 +252,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 7895175487501190485}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d0efdca537f526346b6ad7d753228e60, type: 3}
+  m_Script: {fileID: 11500000, guid: 166f743813591b44899cc4a0ca7b07f7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HammerSpriteHit
   hammerVisual: {fileID: 3972126958347572223}
-  startDelay: 0.15
+  startDelay: 0
   idleAngle: -35
   hitAngle: 20
   reboundAngle: -10
