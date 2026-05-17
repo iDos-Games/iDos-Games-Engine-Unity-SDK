@@ -85,16 +85,15 @@ namespace IDosGames
             return result;
         }
 
-        public static async Task<OperationResult<UsageTimeStats>> AddUsageTime()
+        public static async Task<OperationResult<UsageTimeStats>> AddUsageTime(int usageSeconds)
         {
             var request = CreateBaseRequest();
-            request.UsageTime = IDosGamesSDKSettings.Instance.PlayTime;
+            request.UsageTime = usageSeconds;
 
             var result = await UserAPI.AddUsageTime(request);
 
             if (result.Success)
             {
-                IDosGamesSDKSettings.Instance.PlayTime = 0;
                 OnUsageTimeReceived?.Invoke(result.Data);
             }
 
