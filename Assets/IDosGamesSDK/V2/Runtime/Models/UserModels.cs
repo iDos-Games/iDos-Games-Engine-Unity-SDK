@@ -7,6 +7,7 @@ namespace IDosGames
     public class UserRequest : BaseRequest
     {
         public bool IsNewSession { get; set; }
+        public int SessionDurationSeconds { get; set; }
         public List<string> Fields { get; set; }
         public List<string> TitleFields { get; set; }
     }

@@ -85,10 +85,12 @@ namespace IDosGames
             return result;
         }
 
-        public static async Task<OperationResult<UsageTimeStats>> AddUsageTime(int usageSeconds)
+        public static async Task<OperationResult<UsageTimeStats>> AddUsageTime(int usageTime, bool isNewSession, int sessionDurationSeconds)
         {
             var request = CreateBaseRequest();
-            request.UsageTime = usageSeconds;
+            request.UsageTime = usageTime;
+            request.IsNewSession = isNewSession;
+            request.SessionDurationSeconds = sessionDurationSeconds;
 
             var result = await UserAPI.AddUsageTime(request);
 
