@@ -24,9 +24,11 @@ namespace IDosGames
 
         private bool _isRolling;
         private Coroutine _moveRoutine;
+        private BoardLoopDefinition _levelBoardDefinition;
 
         public BoardLoopState BoardState => IDosGamesData.User.State.GameLoop.Board;
-        public BoardLoopDefinition BoardDefinition => IDosGamesData.Config.TitlePublicConfiguration?.GameLoop?.Board;
+        public BoardLoopDefinition BoardDefinition =>
+            IDosGamesData.Config.TitlePublicConfiguration?.GameLoop?.Board ?? _levelBoardDefinition;
 
         public int CurrentStageLevel => BoardState?.StageLevel ?? 0;
         public BoardStageDefinition CurrentStage { get; private set; }
@@ -80,6 +82,8 @@ namespace IDosGames
                 Debug.LogError($"[GameLoopData] Failed to load board definition for level {CurrentStageLevel}: {defResult.Error}");
                 return;
             }
+
+            _levelBoardDefinition = defResult.Data;
 
             ResolveCurrentStage();
 

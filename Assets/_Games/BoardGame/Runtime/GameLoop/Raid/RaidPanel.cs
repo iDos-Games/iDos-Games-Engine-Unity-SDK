@@ -96,7 +96,32 @@ namespace IDosGames
 
             // ���������� �����
             var boardDef = BoardGameManager.Instance?.BoardDefinition;
-            bool isFastMode = boardDef != null && boardDef.RaidMode == RaidMode.Fast;
+            var localPending = BoardGameManager.Instance?.BoardState?.Pending;
+
+            bool definitionSaysFast = boardDef != null && boardDef.RaidMode == RaidMode.Fast;
+
+            // Fast mode pre-reveals all 12 cells server-side; in Sequential the layout is masked
+            // (only opened cells carry non-None symbols). If there is any *unopened* cell with a
+            // revealed symbol, the server has pre-rolled the grid -> this is Fast.
+            bool pendingLayoutLooksFast = false;
+            if (localPending?.RaidLayout != null && localPending.RaidLayout.Count > 0)
+            {
+                var openedSet = localPending.OpenedIndices != null
+                    ? new HashSet<int>(localPending.OpenedIndices)
+                    : new HashSet<int>();
+
+                for (int i = 0; i < localPending.RaidLayout.Count; i++)
+                {
+                    var cell = localPending.RaidLayout[i];
+                    if (cell != null && cell.Symbol != HeistSymbol.None && !openedSet.Contains(i))
+                    {
+                        pendingLayoutLooksFast = true;
+                        break;
+                    }
+                }
+            }
+
+            bool isFastMode = definitionSaysFast || pendingLayoutLooksFast;
 
             if (isFastMode)
                 StartCoroutine(InitFastAndShowCoroutine());
