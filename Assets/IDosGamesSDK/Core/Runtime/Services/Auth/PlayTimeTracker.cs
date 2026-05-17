@@ -50,6 +50,11 @@ namespace IDosGames
         private DateTime? _suspendedAt;
         private Coroutine _flushLoop;
 
+        // Timestamp of the last actual AddUsageTime call. Used to enforce a minimum
+        // FLUSH_INTERVAL_SECONDS gap between server calls regardless of which event
+        // triggered the flush (login, lifecycle change, periodic loop, etc.).
+        private float _lastFlushRealtime = float.NegativeInfinity;
+
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void Bootstrap()
         {
@@ -235,6 +240,10 @@ namespace IDosGames
             // the next accumulated second.
             if (whole <= 0) return;
 
+            // Throttle: at most one server call per FLUSH_INTERVAL_SECONDS. Pending data
+            // remains in PlayerPrefs and will be sent by the next FlushLoopCoroutine tick.
+            if (Time.realtimeSinceStartup - _lastFlushRealtime < FLUSH_INTERVAL_SECONDS) return;
+
             int closedSession = _pendingClosedSessionSeconds;
             bool isNewSession = _isNewSessionPending;
 
@@ -246,6 +255,10 @@ namespace IDosGames
                 _isNewSessionPending = false;
                 PersistState();
                 PlayerPrefs.Save();
+
+                // Stamp before await so that network failures naturally back off to the next
+                // FlushLoopCoroutine tick instead of allowing immediate retries from events.
+                _lastFlushRealtime = Time.realtimeSinceStartup;
 
                 var result = await UserService.AddUsageTime(whole, isNewSession, closedSession);
                 if (!result.Success)
