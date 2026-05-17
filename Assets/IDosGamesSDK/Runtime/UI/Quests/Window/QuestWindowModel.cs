@@ -27,15 +27,14 @@ namespace IDosGames.UI.Quest
             {
                 foreach (var cycleState in state.Cycles.Values)
                 {
+                    var questsInCycle = BuildQuestsForCycle(cycleState, config);
                     var cycle = new ActiveQuestCycle
                     {
-                        CycleID      = cycleState.CycleID,
-                        StartUtc     = cycleState.CycleStartUtc,
-                        EndUtc       = cycleState.CycleEndUtc,
+                        CycleID        = cycleState.CycleID,
+                        StartUtc       = cycleState.CycleStartUtc,
+                        EndUtc         = cycleState.CycleEndUtc,
                         CompletedCount = cycleState.CompletedQuestsCount,
-                        Quests       = cycleState.Quests?.Values
-                                           .Select(q => BuildQuestItem(q, config, cycleState.CycleID))
-                                           .ToList() ?? new List<QuestUIItem>(),
+                        Quests         = questsInCycle,
                     };
 
                     BuildMilestonesForCycle(cycleState, config, cycle);
@@ -44,6 +43,33 @@ namespace IDosGames.UI.Quest
             }
 
             BuildPermanentQuests(state, config);
+        }
+
+        private static List<QuestUIItem> BuildQuestsForCycle(UserQuestCycleState cycleState, QuestDefinitions config)
+        {
+            var result = new List<QuestUIItem>();
+            if (config?.Quests == null) return result;
+
+            foreach (var questDef in config.Quests.Values)
+            {
+                if (questDef.CycleIDs == null || !questDef.CycleIDs.Contains(cycleState.CycleID))
+                    continue;
+
+                UserQuestProgress progress = null;
+                cycleState.Quests?.TryGetValue(questDef.QuestID, out progress);
+                progress ??= new UserQuestProgress { QuestID = questDef.QuestID };
+
+                result.Add(BuildQuestItem(progress, config, cycleState.CycleID));
+            }
+
+            result.Sort((a, b) =>
+            {
+                var da = config.Quests.GetValueOrDefault(a.QuestID);
+                var db = config.Quests.GetValueOrDefault(b.QuestID);
+                return (da?.SortOrder ?? 0).CompareTo(db?.SortOrder ?? 0);
+            });
+
+            return result;
         }
 
         private static void BuildMilestonesForCycle(
@@ -76,10 +102,26 @@ namespace IDosGames.UI.Quest
         private void BuildPermanentQuests(UserQuestState state, QuestDefinitions config)
         {
             PermanentQuests.Clear();
-            if (state.PermanentQuests == null) return;
+            if (config?.Quests == null) return;
 
-            foreach (var kvp in state.PermanentQuests)
-                PermanentQuests.Add(BuildQuestItem(kvp.Value, config, null));
+            foreach (var questDef in config.Quests.Values)
+            {
+                if (questDef.CycleIDs != null && questDef.CycleIDs.Count > 0)
+                    continue;
+
+                UserQuestProgress progress = null;
+                state.PermanentQuests?.TryGetValue(questDef.QuestID, out progress);
+                progress ??= new UserQuestProgress { QuestID = questDef.QuestID };
+
+                PermanentQuests.Add(BuildQuestItem(progress, config, null));
+            }
+
+            PermanentQuests.Sort((a, b) =>
+            {
+                var da = config.Quests.GetValueOrDefault(a.QuestID);
+                var db = config.Quests.GetValueOrDefault(b.QuestID);
+                return (da?.SortOrder ?? 0).CompareTo(db?.SortOrder ?? 0);
+            });
         }
 
         private static QuestUIItem BuildQuestItem(UserQuestProgress progress, QuestDefinitions config, string cycleId)
@@ -98,15 +140,32 @@ namespace IDosGames.UI.Quest
                 Rewards   = rewards,
             };
 
-            if (progress.Objectives?.Count > 0)
+            if (questDef?.Objectives?.Count > 0)
+            {
+                foreach (var objDef in questDef.Objectives.Values)
+                {
+                    UserQuestObjectiveProgress objProgress = null;
+                    progress.Objectives?.TryGetValue(objDef.ObjectiveID, out objProgress);
+                    long current   = objProgress?.CurrentValue ?? 0;
+                    bool completed = objProgress?.Completed ?? false;
+                    long target    = objDef.TargetValue > 0 ? objDef.TargetValue
+                                     : completed ? current : System.Math.Max(current, 1L);
+
+                    item.Objectives.Add(new ObjectiveUIItem
+                    {
+                        Label     = objDef.ObjectiveID,
+                        Current   = current,
+                        Target    = target,
+                        Completed = completed,
+                    });
+                }
+            }
+            else if (progress.Objectives?.Count > 0)
             {
                 foreach (var kvp in progress.Objectives)
                 {
-                    var objDef = questDef?.Objectives?.GetValueOrDefault(kvp.Key);
-                    long target = objDef?.TargetValue > 0
-                        ? objDef.TargetValue
-                        : kvp.Value.Completed ? kvp.Value.CurrentValue : System.Math.Max(kvp.Value.CurrentValue, 1L);
-
+                    long target = kvp.Value.Completed ? kvp.Value.CurrentValue
+                                  : System.Math.Max(kvp.Value.CurrentValue, 1L);
                     item.Objectives.Add(new ObjectiveUIItem
                     {
                         Label     = kvp.Key,
@@ -115,8 +174,10 @@ namespace IDosGames.UI.Quest
                         Completed = kvp.Value.Completed,
                     });
                 }
+            }
 
-                // Keep aggregate totals for sorting
+            if (item.Objectives.Count > 0)
+            {
                 item.CurrentProgress = item.Objectives.Sum(o => o.Current);
                 item.TargetProgress  = item.Objectives.Sum(o => o.Target);
                 item.ProgressPercent = item.TargetProgress > 0

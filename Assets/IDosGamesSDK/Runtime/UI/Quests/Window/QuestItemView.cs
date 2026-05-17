@@ -38,6 +38,23 @@ namespace IDosGames.UI.Quest
         [SerializeField] private TextMeshProUGUI _claimButtonText;
 
         private Coroutine _pulseCoroutine;
+        private readonly List<QuestObjectiveView> _spawnedObjectives = new();
+        private readonly List<RectTransform>      _spawnedRewards    = new();
+
+        // ─────────────────────────────────────────────────────────────
+
+        private void Awake()
+        {
+            ClearContainer(_objectiveContainer);
+            ClearContainer(_rewardContainer);
+        }
+
+        private static void ClearContainer(RectTransform container)
+        {
+            if (container == null) return;
+            for (int i = container.childCount - 1; i >= 0; i--)
+                Destroy(container.GetChild(i).gameObject);
+        }
 
         // ─────────────────────────────────────────────────────────────
 
@@ -113,72 +130,56 @@ namespace IDosGames.UI.Quest
         {
             if (_objectiveContainer == null || _objectiveTemplate == null) return;
 
-            bool hasObjectives = objectives != null && objectives.Count > 0;
-            _objectiveContainer.gameObject.SetActive(hasObjectives);
+            int needed = objectives?.Count ?? 0;
+            _objectiveContainer.gameObject.SetActive(needed > 0);
 
-            // Destroy all non-template children
-            for (int i = _objectiveContainer.childCount - 1; i >= 0; i--)
+            while (_spawnedObjectives.Count < needed)
+                _spawnedObjectives.Add(Instantiate(_objectiveTemplate, _objectiveContainer));
+
+            for (int i = 0; i < needed; i++)
             {
-                var child = _objectiveContainer.GetChild(i);
-                if (child == _objectiveTemplate.transform) continue;
-                DestroyImmediate(child.gameObject);
+                _spawnedObjectives[i].gameObject.SetActive(true);
+                _spawnedObjectives[i].Setup(objectives[i]);
             }
 
-            if (!hasObjectives) return;
+            for (int i = needed; i < _spawnedObjectives.Count; i++)
+                _spawnedObjectives[i].gameObject.SetActive(false);
 
-            foreach (var obj in objectives)
+            if (needed > 0)
             {
-                var row = Instantiate(_objectiveTemplate, _objectiveContainer);
-                row.gameObject.SetActive(true);
-                row.Setup(obj);
+                LayoutRebuilder.ForceRebuildLayoutImmediate(_objectiveContainer);
+                LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)transform);
             }
-
-            // Rebuild layout
-            LayoutRebuilder.ForceRebuildLayoutImmediate(_objectiveContainer);
-            LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)transform);
-            }
+        }
 
         private void PopulateRewards(List<ResourceEntry> rewards)
         {
             if (_rewardContainer == null || _rewardRowTemplate == null) return;
 
-            bool hasRewards = rewards != null && rewards.Count > 0;
-            _rewardContainer.gameObject.SetActive(hasRewards);
+            int needed = rewards?.Count ?? 0;
+            _rewardContainer.gameObject.SetActive(needed > 0);
 
-            // Destroy all non-template children
-            for (int i = _rewardContainer.childCount - 1; i >= 0; i--)
-            {
-                var child = _rewardContainer.GetChild(i);
-                if (child == _rewardRowTemplate) continue;
-                DestroyImmediate(child.gameObject);
-            }
-
-            if (!hasRewards) return;
+            if (needed == 0) return;
 
             var glg = _rewardContainer.GetComponent<GridLayoutGroup>();
             if (glg != null)
             {
-                // We use Flexible constraint in the prefab now.
-                // But we can still nudge it for very large or very small counts.
-                if (rewards.Count == 1)
-                {
-                    glg.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
-                    glg.constraintCount = 1;
-                }
-                else
-                {
-                    glg.constraint = GridLayoutGroup.Constraint.Flexible;
-                }
+                glg.constraint = needed == 1
+                    ? GridLayoutGroup.Constraint.FixedColumnCount
+                    : GridLayoutGroup.Constraint.Flexible;
+                if (needed == 1) glg.constraintCount = 1;
             }
 
-            foreach (var reward in rewards)
+            while (_spawnedRewards.Count < needed)
+                _spawnedRewards.Add(Instantiate(_rewardRowTemplate, _rewardContainer));
+
+            for (int i = 0; i < needed; i++)
             {
-                var row = Instantiate(_rewardRowTemplate, _rewardContainer);
+                var row    = _spawnedRewards[i];
+                var reward = rewards[i];
                 row.gameObject.SetActive(true);
 
-                var icon = row.GetComponentInChildren<Image>(true);
                 var text = row.GetComponentInChildren<TextMeshProUGUI>(true);
-
                 if (text != null)
                 {
                     bool isCurrency = reward.Type == null || reward.Type == ResourceEntryType.VirtualCurrency;
@@ -188,9 +189,10 @@ namespace IDosGames.UI.Quest
                 }
             }
 
-            // Rebuild layout to ensure everything fits perfectly
+            for (int i = needed; i < _spawnedRewards.Count; i++)
+                _spawnedRewards[i].gameObject.SetActive(false);
+
             LayoutRebuilder.ForceRebuildLayoutImmediate(_rewardContainer);
-            // Also rebuild parent to account for reward container height changes
             LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)transform);
         }
 

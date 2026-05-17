@@ -46,9 +46,17 @@ namespace IDosGames.UI.Quest
         private QuestWindowModel                  _cachedModel;
         private Func<string, string, UnityAction> _cachedClaimQuestFactory;
         private Func<string, string, Func<Task>>  _cachedClaimMilestoneFactory;
-        private readonly List<QuestTabView>        _spawnedTabs = new();
+        private readonly List<QuestTabView>        _spawnedTabs       = new();
+        private readonly List<QuestItemView>       _spawnedQuestItems = new();
+        private QuestMilestoneItemView             _spawnedMilestone;
 
         // ─────────────────────────────────────────────────────────────
+
+        private void Awake()
+        {
+            ClearContainer(_tabContainer);
+            ClearContainer(_questListContainer);
+        }
 
         private void Update() => RefreshTimer();
 
@@ -65,11 +73,7 @@ namespace IDosGames.UI.Quest
 
             SetupTabs(model);
             RenderUI(model);
-
-            if (model.IsLoaded)
-            {
-                RenderQuestList(model, claimQuestFactory);
-            }
+            RenderQuestList(model, claimQuestFactory);
         }
 
         public void RenderUI(QuestWindowModel model)
@@ -99,33 +103,27 @@ namespace IDosGames.UI.Quest
         {
             if (_tabTemplate == null || _tabContainer == null) return;
 
-            for (int i = _tabContainer.childCount - 1; i >= 0; i--)
-            {
-                var child = _tabContainer.GetChild(i);
-                if (child == _tabTemplate.transform) continue;
-                DestroyImmediate(child.gameObject);
-            }
-            _spawnedTabs.Clear();
-
-            // One tab per cycle
+            var tabDefs = new List<(string id, string label)>();
             foreach (var cycle in model.AllCycles)
+                tabDefs.Add((cycle.CycleID, cycle.CycleID));
+            tabDefs.Add(("", "Постоянные"));
+
+            while (_spawnedTabs.Count < tabDefs.Count)
+                _spawnedTabs.Add(Instantiate(_tabTemplate, _tabContainer));
+
+            for (int i = 0; i < tabDefs.Count; i++)
             {
-                var tab        = Instantiate(_tabTemplate, _tabContainer);
-                var capturedId = cycle.CycleID;
-                tab.Setup(capturedId, capturedId, () => SwitchTab(capturedId));
-                tab.gameObject.SetActive(true);
-                _spawnedTabs.Add(tab);
+                var (id, label) = tabDefs[i];
+                var capturedId  = id;
+                _spawnedTabs[i].Setup(id, label, () => SwitchTab(capturedId));
+                _spawnedTabs[i].gameObject.SetActive(true);
             }
 
-            // Permanent tab — always last
-            var permTab = Instantiate(_tabTemplate, _tabContainer);
-            permTab.Setup("", "Постоянные", () => SwitchTab(""));
-            permTab.gameObject.SetActive(true);
-            _spawnedTabs.Add(permTab);
+            for (int i = tabDefs.Count; i < _spawnedTabs.Count; i++)
+                _spawnedTabs[i].gameObject.SetActive(false);
 
-            // If current selection is no longer valid, pick first tab
-            if (!_spawnedTabs.Any(t => t.TabId == ActiveTabId))
-                ActiveTabId = _spawnedTabs.Count > 0 ? _spawnedTabs[0].TabId : "";
+            if (!_spawnedTabs.Take(tabDefs.Count).Any(t => t.TabId == ActiveTabId))
+                ActiveTabId = tabDefs.Count > 0 ? tabDefs[0].id : "";
         }
 
         private void RefreshTabVisuals(QuestWindowModel model)
@@ -216,52 +214,60 @@ namespace IDosGames.UI.Quest
         // ─────────────────────────────────────────────────────────────
 
         private void RenderQuestList(
-            QuestWindowModel               model,
+            QuestWindowModel                  model,
             Func<string, string, UnityAction> claimFactory)
         {
             if (_questItemTemplate == null || _questListContainer == null) return;
 
-            ClearContainer(_questListContainer);
-
             var cycle = GetActiveCycle(model);
 
-            // Milestone banner — only on cycle tabs, always at top
-            if (cycle != null && _milestoneTemplate != null)
+            // ── Milestone banner ──
+            var ms = cycle != null && _milestoneTemplate != null ? NextMilestone(cycle) : null;
+            if (ms != null)
             {
-                var ms = NextMilestone(cycle);
-                if (ms != null)
+                if (_spawnedMilestone == null)
                 {
-                    var msItem = Instantiate(_milestoneTemplate, _questListContainer);
-                    var state  = ms.IsFreeClaimed
-                                        ? QuestMilestoneState.Claimed
-                                        : ms.IsReached
-                                            ? QuestMilestoneState.Reached
-                                            : QuestMilestoneState.Locked;
-
-                    int  msIndex      = cycle.Milestones.IndexOf(ms);
-                    long prevRequired = msIndex > 0 ? cycle.Milestones[msIndex - 1].RequiredCount : 0;
-
-                    msItem.Setup(
-                        displayName:   ms.DisplayName,
-                        requiredCount: ms.RequiredCount,
-                        currentCount:  cycle.CompletedCount,
-                        previousCount: prevRequired,
-                        rewards:       ms.Rewards,
-                        state:         state,
-                        iconPath:      ms.IconPath,
-                        onClaim:       _cachedClaimMilestoneFactory?.Invoke(ms.CycleID, ms.MilestoneID)
-                    );
-                    msItem.gameObject.SetActive(true);
+                    _spawnedMilestone = Instantiate(_milestoneTemplate, _questListContainer);
+                    _spawnedMilestone.transform.SetAsFirstSibling();
                 }
+
+                var msState = ms.IsFreeClaimed ? QuestMilestoneState.Claimed
+                            : ms.IsReached     ? QuestMilestoneState.Reached
+                                               : QuestMilestoneState.Locked;
+                int  msIndex      = cycle.Milestones.IndexOf(ms);
+                long prevRequired = msIndex > 0 ? cycle.Milestones[msIndex - 1].RequiredCount : 0;
+
+                _spawnedMilestone.Setup(
+                    displayName:   ms.DisplayName,
+                    requiredCount: ms.RequiredCount,
+                    currentCount:  cycle.CompletedCount,
+                    previousCount: prevRequired,
+                    rewards:       ms.Rewards,
+                    state:         msState,
+                    iconPath:      ms.IconPath,
+                    onClaim:       _cachedClaimMilestoneFactory?.Invoke(ms.CycleID, ms.MilestoneID)
+                );
+                _spawnedMilestone.gameObject.SetActive(true);
+            }
+            else if (_spawnedMilestone != null)
+            {
+                _spawnedMilestone.gameObject.SetActive(false);
             }
 
-            // Quest items
-            var source = cycle != null ? cycle.Quests : model.PermanentQuests;
+            // ── Quest items ──
+            var source = (cycle != null ? cycle.Quests : model.PermanentQuests)
+                .OrderBy(q => SortOrder(q.Status))
+                .ThenByDescending(q => q.ProgressPercent)
+                .ToList();
 
-            foreach (var quest in source.OrderBy(q => SortOrder(q.Status))
-                                        .ThenByDescending(q => q.ProgressPercent))
+            while (_spawnedQuestItems.Count < source.Count)
+                _spawnedQuestItems.Add(Instantiate(_questItemTemplate, _questListContainer));
+
+            for (int i = 0; i < source.Count; i++)
             {
-                var item = Instantiate(_questItemTemplate, _questListContainer);
+                var quest = source[i];
+                var item  = _spawnedQuestItems[i];
+                item.gameObject.SetActive(true);
                 item.Setup(
                     title:          quest.Title,
                     description:    "",
@@ -272,8 +278,10 @@ namespace IDosGames.UI.Quest
                     rewards:        quest.Rewards,
                     onClaimClicked: quest.CanClaim ? claimFactory?.Invoke(quest.QuestID, quest.CycleID) : null
                 );
-                item.gameObject.SetActive(true);
             }
+
+            for (int i = source.Count; i < _spawnedQuestItems.Count; i++)
+                _spawnedQuestItems[i].gameObject.SetActive(false);
         }
 
         // ─────────────────────────────────────────────────────────────
@@ -311,8 +319,9 @@ namespace IDosGames.UI.Quest
 
         private static void ClearContainer(RectTransform container)
         {
+            if (container == null) return;
             for (int i = container.childCount - 1; i >= 0; i--)
-                DestroyImmediate(container.GetChild(i).gameObject);
+                Destroy(container.GetChild(i).gameObject);
         }
     }
 }

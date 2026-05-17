@@ -31,6 +31,16 @@ namespace IDosGames.UI.Quest
 
         private Func<Task> _onClaim;
         private bool       _claiming;
+        private readonly List<RewardItemView> _spawnedRewards = new();
+
+        // ─────────────────────────────────────────────────────────────
+
+        private void Awake()
+        {
+            if (_rewardContainer == null) return;
+            for (int i = _rewardContainer.childCount - 1; i >= 0; i--)
+                Destroy(_rewardContainer.GetChild(i).gameObject);
+        }
 
         // ─────────────────────────────────────────────────────────────
 
@@ -86,22 +96,22 @@ namespace IDosGames.UI.Quest
         {
             if (_rewardContainer == null || _rewardRowTemplate == null) return;
 
-            for (int i = _rewardContainer.childCount - 1; i >= 0; i--)
+            int needed = rewards?.Count ?? 0;
+            _rewardContainer.gameObject.SetActive(needed > 0);
+
+            if (needed == 0) return;
+
+            while (_spawnedRewards.Count < needed)
+                _spawnedRewards.Add(Instantiate(_rewardRowTemplate, _rewardContainer));
+
+            for (int i = 0; i < needed; i++)
             {
-                var child = _rewardContainer.GetChild(i);
-                if (child == _rewardRowTemplate.transform) continue;
-                DestroyImmediate(child.gameObject);
+                _spawnedRewards[i].gameObject.SetActive(true);
+                _spawnedRewards[i].Setup(rewards[i]);
             }
 
-            bool hasRewards = rewards != null && rewards.Count > 0;
-            _rewardContainer.gameObject.SetActive(hasRewards);
-            if (!hasRewards) return;
-
-            foreach (var reward in rewards)
-            {
-                var row = Instantiate(_rewardRowTemplate, _rewardContainer);
-                row.Setup(reward);
-            }
+            for (int i = needed; i < _spawnedRewards.Count; i++)
+                _spawnedRewards[i].gameObject.SetActive(false);
 
             LayoutRebuilder.ForceRebuildLayoutImmediate(_rewardContainer);
         }
