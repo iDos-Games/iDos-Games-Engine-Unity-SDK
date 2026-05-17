@@ -41,6 +41,19 @@ namespace IDosGames
             }
         }
 
+        public bool WouldDisplay(ResourceOperation operation)
+        {
+            if (operation == null) return false;
+
+            var grants = FlattenGrant(operation.Grant);
+            if (grants.Count > 0) return true;
+
+            if (!_showConsumeSection) return false;
+
+            var consumes = FlattenConsume(operation.Consume);
+            return consumes.Count > 0;
+        }
+
         public void Set(ResourceOperation operation)
         {
             StopShowRoutine();
