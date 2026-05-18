@@ -18,6 +18,7 @@ namespace IDosGames
 
         [Header("Stars")]
         public int StarCount = 1;
+        public bool UseSpecialStars;
     }
 
     [Serializable]
@@ -52,6 +53,7 @@ namespace IDosGames
 
         [Header("Stars")]
         [SerializeField] private List<GameObject> stars;
+        [SerializeField] private List<GameObject> specialStars;
 
         [Header("Rarity palette (per RarityID)")]
         [SerializeField] private List<CharacterRarityVisual> rarityVisuals;
@@ -138,12 +140,16 @@ namespace IDosGames
             if (gradientImage != null) gradientImage.color = visual.GradientColor;
             if (glowImage != null)     glowImage.color     = visual.GlowColor;
 
-            if (stars != null)
-            {
-                for (int i = 0; i < stars.Count; i++)
-                    if (stars[i] != null)
-                        stars[i].SetActive(i < visual.StarCount);
-            }
+            ApplyStars(visual.UseSpecialStars ? specialStars : stars, visual.StarCount);
+            ApplyStars(visual.UseSpecialStars ? stars : specialStars, 0);
+        }
+
+        private static void ApplyStars(List<GameObject> list, int activeCount)
+        {
+            if (list == null) return;
+            for (int i = 0; i < list.Count; i++)
+                if (list[i] != null)
+                    list[i].SetActive(i < activeCount);
         }
 
         private void ApplyClassIcon(string classID)
