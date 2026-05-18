@@ -26,8 +26,8 @@ namespace IDosGames
                 HttpService.OnBusyStateChanged += OnHttpBusyStateChanged;
 			}
 
-			SceneSwitcher.SwitchSceneStarted += ShowOpaquePanel;
-			SceneSwitcher.SwitchSceneFinished += HideOpaquePanel;
+			SceneSwitcher.SwitchSceneStarted += ShowTransparentPanel;
+			SceneSwitcher.SwitchSceneFinished += HideTransparentPanel;
 			Message.Showed += HideAllPanels;
 
 #if IDOSGAMES_MOBILE_IAP
@@ -44,8 +44,8 @@ namespace IDosGames
                 HttpService.OnBusyStateChanged -= OnHttpBusyStateChanged;
 			}
 
-			SceneSwitcher.SwitchSceneStarted -= ShowOpaquePanel;
-			SceneSwitcher.SwitchSceneFinished -= HideOpaquePanel;
+			SceneSwitcher.SwitchSceneStarted -= ShowTransparentPanel;
+			SceneSwitcher.SwitchSceneFinished -= HideTransparentPanel;
 			Message.Showed -= HideAllPanels;
 
 #if IDOSGAMES_MOBILE_IAP
