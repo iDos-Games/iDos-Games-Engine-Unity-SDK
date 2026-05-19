@@ -358,6 +358,8 @@ namespace IDosGames
         /// </summary>
         public double StatScalingFactor { get; set; }
 
+        public double CharacterLevelScalingFactor { get; set; }
+
         /// <summary>
         /// Prerequisite list. Before upgrading this stat to any level, each listed stat
         /// must have reached its required level.

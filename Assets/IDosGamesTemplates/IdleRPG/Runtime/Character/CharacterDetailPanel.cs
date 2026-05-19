@@ -9,21 +9,37 @@ namespace IDosGames
     {
         [Header("Root")]
         [SerializeField] private GameObject root;
-        [SerializeField] private Image backgroundMask;
-        [SerializeField] private Image frame;
+
+        [Header("Background (2 layers)")]
+        [SerializeField] private Image bgImage;
+        [SerializeField] private Image gradientImage;
 
         [Header("Content")]
         [SerializeField] private Image characterImage;
         [SerializeField] private TextMeshProUGUI nameText;
         [SerializeField] private TextMeshProUGUI levelText;
-        [SerializeField] private TextMeshProUGUI classText;
-        [SerializeField] private TextMeshProUGUI powerText;
-        [SerializeField] private TextMeshProUGUI descriptionText;
-        [SerializeField] private List<GameObject> stars;
+        [SerializeField] private TextMeshProUGUI loreText;
 
-        [Header("Resource bar (Top)")]
-        [SerializeField] private TextMeshProUGUI resourceText1;
-        [SerializeField] private TextMeshProUGUI resourceText2;
+        [Header("Class icon")]
+        [SerializeField] private Image classIcon;
+
+        [Header("Rarity label")]
+        [SerializeField] private Image rarityLabelImage;
+        [SerializeField] private TextMeshProUGUI rarityLabelText;
+        [SerializeField] private List<CharacterRarityLabel> rarityLabels;
+
+        [Header("Level badge")]
+        [SerializeField] private Image badgeImage;
+        [SerializeField] private Sprite badgeNormalSprite;
+        [SerializeField] private Sprite badgeMaxSprite;
+
+        [Header("Stars")]
+        [SerializeField] private List<GameObject> stars;
+        [SerializeField] private List<GameObject> specialStars;
+
+        [Header("Stat slots (4 fixed)")]
+        [SerializeField] private List<CharacterStatSlot> statSlots;
+        [SerializeField] private CharacterStatPopup statPopup;
 
         [Header("Upgrade")]
         [SerializeField] private Button upgradeButton;
@@ -32,8 +48,11 @@ namespace IDosGames
         [Header("Back")]
         [SerializeField] private Button backButton;
 
-        [Header("Rarity palette")]
+        [Header("Rarity palette (per RarityID)")]
         [SerializeField] private List<CharacterRarityVisual> rarityVisuals;
+
+        [Header("Class icons (per ClassID)")]
+        [SerializeField] private List<CharacterClassIcon> classIcons;
 
         private string _characterID;
         private string _loadedImagePath;
@@ -119,13 +138,14 @@ namespace IDosGames
                     : def?.Identity?.DisplayName ?? model.CharacterID;
             }
             if (levelText != null) levelText.text = $"Lv. {model.Level}";
-            if (classText != null) classText.text = def?.Classification?.ClassID ?? model.Class ?? string.Empty;
-            if (powerText != null) powerText.text = model.Power.ToString();
-            if (descriptionText != null) descriptionText.text = def?.Identity?.Description ?? string.Empty;
+            if (loreText != null) loreText.text = def?.Identity?.Lore ?? string.Empty;
 
+            ApplyBadge(IsMaxLevel(model, def));
             ApplyRarityVisual(Resolve(def?.Classification?.RarityID));
+            ApplyRarityLabel(def?.Classification?.RarityID);
+            ApplyClassIcon(def?.Classification?.ClassID ?? model.Class);
             ApplyUpgradeButton(model, def);
-            ApplyResourceBar(model, def);
+            ApplyStatSlots(model, def);
 
             string imgPath = ResolveBigImagePath(def);
             if (imgPath != _loadedImagePath)
@@ -139,14 +159,83 @@ namespace IDosGames
         {
             if (visual == null) return;
 
-            if (backgroundMask != null) backgroundMask.color = visual.BgColor;
-            
-            if (stars != null)
+            if (bgImage != null)       bgImage.color       = visual.BgColor;
+            if (gradientImage != null) gradientImage.color = visual.GradientColor;
+
+            ApplyStars(visual.UseSpecialStars ? specialStars : stars, visual.StarCount);
+            ApplyStars(visual.UseSpecialStars ? stars : specialStars, 0);
+        }
+
+        private void ApplyRarityLabel(string rarityID)
+        {
+            if (rarityLabels == null || rarityLabels.Count == 0) return;
+
+            CharacterRarityLabel label = null;
+            if (!string.IsNullOrEmpty(rarityID))
             {
-                for (int i = 0; i < stars.Count; i++)
-                    if (stars[i] != null)
-                        stars[i].SetActive(i < visual.StarCount);
+                for (int i = 0; i < rarityLabels.Count; i++)
+                {
+                    var l = rarityLabels[i];
+                    if (l != null && string.Equals(l.RarityID, rarityID, System.StringComparison.OrdinalIgnoreCase))
+                    {
+                        label = l;
+                        break;
+                    }
+                }
             }
+            if (label == null) label = rarityLabels[0];
+            if (label == null) return;
+
+            if (rarityLabelImage != null && label.LabelSprite != null)
+                rarityLabelImage.sprite = label.LabelSprite;
+
+            if (rarityLabelText != null)
+                rarityLabelText.text = label.DisplayName ?? string.Empty;
+        }
+
+        private static void ApplyStars(List<GameObject> list, int activeCount)
+        {
+            if (list == null) return;
+            for (int i = 0; i < list.Count; i++)
+                if (list[i] != null)
+                    list[i].SetActive(i < activeCount);
+        }
+
+        private void ApplyClassIcon(string classID)
+        {
+            if (classIcon == null) return;
+            if (classIcons == null || classIcons.Count == 0) return;
+            if (string.IsNullOrEmpty(classID)) return;
+
+            for (int i = 0; i < classIcons.Count; i++)
+            {
+                var c = classIcons[i];
+                if (c != null && string.Equals(c.ClassID, classID, System.StringComparison.OrdinalIgnoreCase))
+                {
+                    if (c.Icon != null) classIcon.sprite = c.Icon;
+                    return;
+                }
+            }
+        }
+
+        private void ApplyBadge(bool isMax)
+        {
+            if (badgeImage == null) return;
+
+            var sprite = isMax ? badgeMaxSprite : badgeNormalSprite;
+            if (sprite != null) badgeImage.sprite = sprite;
+        }
+
+        private static bool IsMaxLevel(CharacterModel model, CharacterDefinition def)
+        {
+            if (model == null || def?.Levels == null || def.Levels.Count == 0) return false;
+
+            int max = 0;
+            foreach (var key in def.Levels.Keys)
+                if (int.TryParse(key, out var n) && n > max)
+                    max = n;
+
+            return max > 0 && model.Level >= max;
         }
 
         private void ApplyUpgradeButton(CharacterModel model, CharacterDefinition def)
@@ -171,38 +260,39 @@ namespace IDosGames
             upgradeButton.interactable = true;
         }
 
-        private void ApplyResourceBar(CharacterModel model, CharacterDefinition def)
+        private void ApplyStatSlots(CharacterModel model, CharacterDefinition def)
         {
-            string line1 = null;
-            string line2 = null;
+            if (statSlots == null || statSlots.Count == 0) return;
 
-            if (def?.Stats != null && def.Stats.Count > 0)
+            int slotIndex = 0;
+            if (def?.Stats != null)
             {
-                int slot = 0;
                 foreach (var kv in def.Stats)
                 {
-                    var statDef = kv.Value;
-                    if (statDef == null) continue;
+                    if (slotIndex >= statSlots.Count) break;
+                    if (kv.Value == null) continue;
+
+                    var slot = statSlots[slotIndex];
+                    if (slot == null) { slotIndex++; continue; }
 
                     int statLevel = 0;
-                    model.StatLevels?.TryGetValue(kv.Key, out statLevel);
+                    model?.StatLevels?.TryGetValue(kv.Key, out statLevel);
 
-                    double value = statDef.BaseStatValue;
-                    if (statLevel > 1)
-                        value = statDef.BaseStatValue * (1.0 + statDef.StatScalingFactor * (statLevel - 1));
-
-                    string label = !string.IsNullOrEmpty(statDef.DisplayName) ? statDef.DisplayName : kv.Key;
-                    string line = $"{label}: {value:0.##}";
-
-                    if (slot == 0) line1 = line;
-                    else if (slot == 1) line2 = line;
-                    else break;
-                    slot++;
+                    slot.gameObject.SetActive(true);
+                    slot.Bind(kv.Key, kv.Value, statLevel, OpenStatPopup);
+                    slotIndex++;
                 }
             }
 
-            if (resourceText1 != null) resourceText1.text = line1 ?? string.Empty;
-            if (resourceText2 != null) resourceText2.text = line2 ?? string.Empty;
+            for (int i = slotIndex; i < statSlots.Count; i++)
+                if (statSlots[i] != null)
+                    statSlots[i].gameObject.SetActive(false);
+        }
+
+        private void OpenStatPopup()
+        {
+            if (statPopup != null && !string.IsNullOrEmpty(_characterID))
+                statPopup.Show(_characterID);
         }
 
         private CharacterRarityVisual Resolve(string rarityID)
