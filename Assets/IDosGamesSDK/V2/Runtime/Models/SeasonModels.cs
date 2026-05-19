@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Newtonsoft.Json.Converters;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 
 namespace IDosGames
@@ -317,6 +319,7 @@ namespace IDosGames
     // =====================================================================
 
     /// <summary>Who may call GrantStatusTokens for a given season chain.</summary>
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum SeasonGrantAccessMode
     {
         /// <summary>Server-side code only (tournament, quest). Recommended for production.</summary>

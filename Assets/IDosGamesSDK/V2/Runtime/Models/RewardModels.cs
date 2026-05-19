@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Newtonsoft.Json.Converters;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 
 namespace IDosGames
@@ -278,6 +280,7 @@ namespace IDosGames
     }
 
     /// <summary>Reward mode: how premium tier rewards combine with the base reward.</summary>
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum RewardMode
     {
         Additive,
@@ -347,6 +350,7 @@ namespace IDosGames
     }
 
     /// <summary>Behavior when the player misses more than MissThresholdMultiplier claim windows.</summary>
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum DailyMissBehavior
     {
         /// <summary>Progress is not affected. The next claim continues from where it left off.</summary>
@@ -360,6 +364,7 @@ namespace IDosGames
     }
 
     /// <summary>Determines what constitutes an available new claim for a daily calendar.</summary>
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum DailyClaimMode
     {
         /// <summary>A new claim is available on a new UTC calendar date (LastClaimAt.Date &lt; today).</summary>
@@ -464,6 +469,7 @@ namespace IDosGames
     }
 
     /// <summary>Behavior on the player's first access to an idle accrual.</summary>
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum IdleFirstClaimMode
     {
         /// <summary>First collect pays out 0 and initializes LastCollectAt = now. Accumulation starts from this point.</summary>
@@ -595,6 +601,7 @@ namespace IDosGames
     }
 
     /// <summary>Who initiates the claim.</summary>
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum ClaimRewardMode
     {
         /// <summary>Player claims via client API.</summary>

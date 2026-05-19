@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Newtonsoft.Json.Converters;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 
 namespace IDosGames
@@ -444,12 +446,14 @@ namespace IDosGames
         BoardLoopBuild,
     }
 
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum RaidMode
     {
         Fast,
         Sequential,
     }
 
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum BoardTileType
     {
         Empty,
@@ -462,12 +466,14 @@ namespace IDosGames
         EventToken,
     }
 
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum AttackOutcome
     {
         Hit,
         Blocked,
     }
 
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum RaidOutcome
     {
         Small,

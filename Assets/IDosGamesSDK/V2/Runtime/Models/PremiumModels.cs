@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Newtonsoft.Json.Converters;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 
 namespace IDosGames
@@ -76,6 +78,7 @@ namespace IDosGames
     }
 
     /// <summary>App store platform for real-money purchases.</summary>
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum StoreType
     {
         Apple,

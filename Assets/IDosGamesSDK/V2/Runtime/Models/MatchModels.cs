@@ -1,3 +1,5 @@
+using Newtonsoft.Json.Converters;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 
@@ -186,6 +188,7 @@ namespace IDosGames
         GetAvailableMatches,
     }
 
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum MatchStatus
     {
         Open,
@@ -194,6 +197,7 @@ namespace IDosGames
         Completed,
     }
 
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum BodyPart
     {
         Head,
@@ -201,6 +205,7 @@ namespace IDosGames
         Legs,
     }
 
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum BattleHitType
     {
         Hit,

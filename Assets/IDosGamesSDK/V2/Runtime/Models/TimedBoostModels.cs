@@ -1,6 +1,7 @@
-﻿using System;
+﻿using Newtonsoft.Json.Converters;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace IDosGames
 {
@@ -224,6 +225,7 @@ namespace IDosGames
     /// <summary>
     /// Behaviour on re-activation when an active instance of the same BoostID already exists.
     /// </summary>
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum TimedBoostStackingPolicy
     {
         /// <summary>All existing instances are removed; a fresh instance is created.</summary>
@@ -249,6 +251,7 @@ namespace IDosGames
     }
 
     /// <summary>Origin of an <see cref="ActiveTimedBoost"/> instance (for analytics).</summary>
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum TimedBoostSourceType
     {
         /// <summary>Player activated the boost via the standard HTTP endpoint.</summary>

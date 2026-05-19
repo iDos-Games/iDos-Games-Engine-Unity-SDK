@@ -145,6 +145,7 @@ namespace IDosGames
     }
 
     /// <summary>Quest status for a player.</summary>
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum QuestStatus
     {
         Active,
@@ -194,6 +195,7 @@ namespace IDosGames
     }
 
     /// <summary>Cycle reset type. Resets always at 00:00:00 UTC.</summary>
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum QuestCycleResetKind
     {
         /// <summary>Every day at 00:00 UTC.</summary>
