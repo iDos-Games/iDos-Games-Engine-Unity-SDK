@@ -6676,6 +6676,10 @@ MonoBehaviour:
   classIcon: {fileID: 1885578486}
   rarityLabelImage: {fileID: 1321111460}
   rarityLabelText: {fileID: 408696274}
+  rarityLabels:
+  - RarityID: 
+    DisplayName: 
+    LabelSprite: {fileID: 0}
   badgeImage: {fileID: 1180439377}
   badgeNormalSprite: {fileID: 21300000, guid: f71c132174347405a9d3d63db9df3c0f, type: 3}
   badgeMaxSprite: {fileID: 21300000, guid: 30dce27e256a74aa797da5e70d1c9a08, type: 3}
