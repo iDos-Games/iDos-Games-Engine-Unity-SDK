@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -19,6 +21,13 @@ namespace IDosGames.UI.LimitedTimeEvent
         private bool                           _isActive;
         private float                          _timerTick;
 
+        // ── Multi-event state ─────────────────────────────────────────────────
+        private readonly List<ActiveEventInfo> _allEvents = new();
+        private int                            _activeEventIndex;
+
+        // Статический кэш — живёт между открытиями окна, даёт мгновенный первый рендер
+        private static readonly List<ActiveEventInfo> _lastKnownEvents = new();
+
         private void Awake()
         {
             _model = new LimitedTimeEventWindowModel();
@@ -38,7 +47,21 @@ namespace IDosGames.UI.LimitedTimeEvent
             _view.ActivateButton?.onClick.AddListener(OnActivateClicked);
             _view.BackButton?.onClick.AddListener(OnBackClicked);
 
-            _view.ShowLoading();
+            // Если есть кэш с прошлого открытия — рендерим сразу, без мигания
+            if (_lastKnownEvents.Count > 0)
+            {
+                _allEvents.Clear();
+                _allEvents.AddRange(_lastKnownEvents);
+                var names = _allEvents.Select(e => e.Content?.DisplayName ?? e.TimedEventID).ToList();
+                _view.RenderTabs(names, 0, OnTabSelected);
+                RefreshActiveEvent();
+            }
+            else
+            {
+                _view.ShowLoading();
+            }
+
+            // В любом случае обновляемся с сервера в фоне
             _ = LoadDataAsync();
         }
 
@@ -93,8 +116,22 @@ namespace IDosGames.UI.LimitedTimeEvent
         private void HandleActiveEventsLoaded(GetActiveEventsResponse response)
         {
             if (!_isActive) return;
-            var evt = response?.ActiveEvents?.Count > 0 ? response.ActiveEvents[0] : null;
-            RefreshModel(evt);
+
+            _allEvents.Clear();
+            if (response?.ActiveEvents != null)
+                _allEvents.AddRange(response.ActiveEvents);
+
+            // Обновляем статический кэш для следующих открытий
+            _lastKnownEvents.Clear();
+            _lastKnownEvents.AddRange(_allEvents);
+
+            _activeEventIndex = 0;
+
+            // Tabs — показываем только если больше одного ивента
+            var names = _allEvents.Select(e => e.Content?.DisplayName ?? e.TimedEventID).ToList();
+            _view.RenderTabs(names, 0, OnTabSelected);
+
+            RefreshActiveEvent();
         }
 
         private void HandleMilestoneClaimed(EventMilestoneClaimResponse _)
@@ -115,7 +152,22 @@ namespace IDosGames.UI.LimitedTimeEvent
             _view.Render(_model, _claimFactory);
         }
 
+        // ─── Tab switching ─────────────────────────────────────────────────────
+
+        private void OnTabSelected(int index)
+        {
+            _activeEventIndex = Mathf.Clamp(index, 0, _allEvents.Count - 1);
+            _view.SetActiveTab(_activeEventIndex);
+            RefreshActiveEvent();
+        }
+
         // ─── Helpers ──────────────────────────────────────────────────────────
+
+        private void RefreshActiveEvent()
+        {
+            var evt = _allEvents.Count > 0 ? _allEvents[_activeEventIndex] : null;
+            RefreshModel(evt);
+        }
 
         private void RefreshModel(ActiveEventInfo evt)
         {
