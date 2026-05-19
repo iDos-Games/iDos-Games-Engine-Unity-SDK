@@ -10,9 +10,10 @@ namespace IDosGames
         [Header("Root")]
         [SerializeField] private GameObject root;
 
-        [Header("Background (2 layers)")]
+        [Header("Color Replacement")]
         [SerializeField] private Image bgImage;
         [SerializeField] private Image gradientImage;
+        [SerializeField] private List<Image> basicFrameImages;
 
         [Header("Content")]
         [SerializeField] private Image characterImage;
@@ -22,11 +23,6 @@ namespace IDosGames
 
         [Header("Class icon")]
         [SerializeField] private Image classIcon;
-
-        [Header("Rarity label")]
-        [SerializeField] private Image rarityLabelImage;
-        [SerializeField] private TextMeshProUGUI rarityLabelText;
-        [SerializeField] private List<CharacterRarityLabel> rarityLabels;
 
         [Header("Level badge")]
         [SerializeField] private Image badgeImage;
@@ -44,15 +40,18 @@ namespace IDosGames
         [Header("Upgrade")]
         [SerializeField] private Button upgradeButton;
         [SerializeField] private TextMeshProUGUI upgradeCostText;
+        [SerializeField] private Button upgradeStatsButton;
 
         [Header("Back")]
         [SerializeField] private Button backButton;
 
-        [Header("Rarity palette (per RarityID)")]
-        [SerializeField] private List<CharacterRarityVisual> rarityVisuals;
-
         [Header("Class icons (per ClassID)")]
         [SerializeField] private List<CharacterClassIcon> classIcons;
+
+        [Header("Rarity label")]
+        [SerializeField] private Image rarityLabelImage;
+        [SerializeField] private TextMeshProUGUI rarityLabelText;
+        [SerializeField] private List<CharacterRarityLabel> rarityLabels;
 
         private string _characterID;
         private string _loadedImagePath;
@@ -66,6 +65,12 @@ namespace IDosGames
             {
                 upgradeButton.onClick.RemoveAllListeners();
                 upgradeButton.onClick.AddListener(OnUpgradeClicked);
+            }
+
+            if (upgradeStatsButton != null)
+            {
+                upgradeStatsButton.onClick.RemoveAllListeners();
+                upgradeStatsButton.onClick.AddListener(OpenStatPopup);
             }
 
             if (backButton != null)
@@ -141,8 +146,7 @@ namespace IDosGames
             if (loreText != null) loreText.text = def?.Identity?.Lore ?? string.Empty;
 
             ApplyBadge(IsMaxLevel(model, def));
-            ApplyRarityVisual(Resolve(def?.Classification?.RarityID));
-            ApplyRarityLabel(def?.Classification?.RarityID);
+            ApplyRarity(def?.Classification?.RarityID);
             ApplyClassIcon(def?.Classification?.ClassID ?? model.Class);
             ApplyUpgradeButton(model, def);
             ApplyStatSlots(model, def);
@@ -155,18 +159,7 @@ namespace IDosGames
             }
         }
 
-        private void ApplyRarityVisual(CharacterRarityVisual visual)
-        {
-            if (visual == null) return;
-
-            if (bgImage != null)       bgImage.color       = visual.BgColor;
-            if (gradientImage != null) gradientImage.color = visual.GradientColor;
-
-            ApplyStars(visual.UseSpecialStars ? specialStars : stars, visual.StarCount);
-            ApplyStars(visual.UseSpecialStars ? stars : specialStars, 0);
-        }
-
-        private void ApplyRarityLabel(string rarityID)
+        private void ApplyRarity(string rarityID)
         {
             if (rarityLabels == null || rarityLabels.Count == 0) return;
 
@@ -191,6 +184,19 @@ namespace IDosGames
 
             if (rarityLabelText != null)
                 rarityLabelText.text = label.DisplayName ?? string.Empty;
+
+            if (bgImage != null)       bgImage.color       = label.BgColor;
+            if (gradientImage != null) gradientImage.color = label.GradientColor;
+
+            if (basicFrameImages != null)
+            {
+                for (int i = 0; i < basicFrameImages.Count; i++)
+                    if (basicFrameImages[i] != null)
+                        basicFrameImages[i].color = label.BasicFrameColor;
+            }
+
+            ApplyStars(label.UseSpecialStars ? specialStars : stars, label.StarCount);
+            ApplyStars(label.UseSpecialStars ? stars : specialStars, 0);
         }
 
         private static void ApplyStars(List<GameObject> list, int activeCount)
@@ -293,22 +299,6 @@ namespace IDosGames
         {
             if (statPopup != null && !string.IsNullOrEmpty(_characterID))
                 statPopup.Show(_characterID);
-        }
-
-        private CharacterRarityVisual Resolve(string rarityID)
-        {
-            if (rarityVisuals == null || rarityVisuals.Count == 0) return null;
-
-            if (!string.IsNullOrEmpty(rarityID))
-            {
-                for (int i = 0; i < rarityVisuals.Count; i++)
-                {
-                    var v = rarityVisuals[i];
-                    if (v != null && string.Equals(v.RarityID, rarityID, System.StringComparison.OrdinalIgnoreCase))
-                        return v;
-                }
-            }
-            return rarityVisuals[0];
         }
 
         private static long ExtractCost(ResourceConsume consume)

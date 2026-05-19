@@ -4,15 +4,26 @@ using UnityEngine;
 namespace IDosGames
 {
     /// <summary>
-    /// Per-rarity label visuals used by <see cref="CharacterDetailPanel"/> to display the
-    /// rarity tag (e.g. "RARE" / "LEGENDARY") above the character. Independent from
-    /// <see cref="CharacterRarityVisual"/> — only label-specific fields.
+    /// Per-rarity config used exclusively by <see cref="CharacterDetailPanel"/>.
+    /// Holds everything the detail panel needs for a rarity — label, background, stars —
+    /// independent from <see cref="CharacterRarityVisual"/> (which the list card uses).
     /// </summary>
     [Serializable]
     public class CharacterRarityLabel
     {
         public string RarityID;
-        public string DisplayName;   // shown text, e.g. "RARE"
-        public Sprite LabelSprite;   // background sprite of the label
+
+        [Header("Label")]
+        public string DisplayName;          // e.g. "RARE", "LEGENDARY"
+        public Sprite LabelSprite;          // background sprite of the label
+
+        [Header("Background")]
+        public Color BgColor = Color.white;
+        public Color GradientColor = Color.white;
+        public Color BasicFrameColor = Color.white;
+
+        [Header("Stars")]
+        public int StarCount = 1;
+        public bool UseSpecialStars;
     }
 }
