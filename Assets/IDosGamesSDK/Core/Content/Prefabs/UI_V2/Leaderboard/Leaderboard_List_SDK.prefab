@@ -4281,6 +4281,7 @@ GameObject:
   - component: {fileID: 7280702402422339795}
   - component: {fileID: 1039421410509536580}
   - component: {fileID: -8489899680897808216}
+  - component: {fileID: 8944257166276542155}
   m_Layer: 0
   m_Name: Leaderboard_List_SDK
   m_TagString: Untagged
@@ -4367,7 +4368,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 487058912633483413}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b89c09d13d1dcd24ca3618225b35a702, type: 3}
   m_Name: 
@@ -5430,6 +5431,21 @@ MonoBehaviour:
     gems: 250
     userId: player_local
     displayName: You
+--- !u!114 &8944257166276542155
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 487058912633483413}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fb15649791849bf46878e0352d89e1f7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::IDosGames.UI.Leaderboard.LeaderboardWindowController
+  _view: {fileID: 1039421410509536580}
+  _coinCurrencyKey: CO
+  _gemCurrencyKey: GE
 --- !u!1 &503909928630089912
 GameObject:
   m_ObjectHideFlags: 0

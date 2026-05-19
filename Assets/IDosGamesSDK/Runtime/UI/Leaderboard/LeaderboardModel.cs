@@ -115,16 +115,17 @@ public LeaderboardMyProgressUIItem       MyProgress;
 
         private void BuildMyProgress(GetMyProgressResponse progress, string currentUserID)
         {
-            if (progress == null) return;
-
+            // Always create MyProgress so CurrentUserRow is always visible.
+            // When progress is null (player never submitted, or data still loading)
+            // the row shows with zero score and no rank — better than hiding entirely.
             MyProgress = new LeaderboardMyProgressUIItem
             {
                 UserID                = currentUserID,
-                CurrentScore          = progress.CurrentScore,
-                ScoreEarnedThisCycle  = progress.ScoreEarnedThisCycle,
-                LastKnownRank         = progress.LastKnownRank,
-                HasUnclaimedReward    = progress.HasUnclaimedReward,
-                HasUnclaimedMilestone = progress.HasUnclaimedMilestone,
+                CurrentScore          = progress?.CurrentScore          ?? 0,
+                ScoreEarnedThisCycle  = progress?.ScoreEarnedThisCycle  ?? 0,
+                LastKnownRank         = progress?.LastKnownRank         ?? 0,
+                HasUnclaimedReward    = progress?.HasUnclaimedReward    ?? false,
+                HasUnclaimedMilestone = progress?.HasUnclaimedMilestone ?? false,
             };
         }
 
