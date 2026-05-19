@@ -55,6 +55,10 @@ namespace IDosGames
         [SerializeField] private List<GameObject> stars;
         [SerializeField] private List<GameObject> specialStars;
 
+        [Header("Locked overlay")]
+        [Tooltip("Darkening overlay shown when the character is not unlocked. Should block raycasts.")]
+        [SerializeField] private GameObject lockedOverlay;
+
         [Header("Rarity palette (per RarityID)")]
         [SerializeField] private List<CharacterRarityVisual> rarityVisuals;
 
@@ -66,7 +70,7 @@ namespace IDosGames
 
         public string CharacterID => _characterID;
 
-        public void Bind(CharacterModel model, CharacterDefinition def, Action<string> onSelected)
+        public void Bind(CharacterModel model, CharacterDefinition def, bool isLocked, Action<string> onSelected)
         {
             if (model == null) return;
 
@@ -77,7 +81,10 @@ namespace IDosGames
             {
                 cardButton.onClick.RemoveAllListeners();
                 cardButton.onClick.AddListener(OnClicked);
+                cardButton.interactable = !isLocked;
             }
+
+            if (lockedOverlay != null) lockedOverlay.SetActive(isLocked);
 
             if (nameText != null)
             {

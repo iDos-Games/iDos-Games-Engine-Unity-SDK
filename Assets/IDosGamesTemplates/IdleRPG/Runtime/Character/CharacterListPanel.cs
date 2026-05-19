@@ -58,31 +58,62 @@ namespace IDosGames
             var characters = IDosGamesData.User?.State?.Character?.Characters;
             var defs       = IDosGamesData.Config?.TitlePublicConfiguration?.Character?.Definitions;
 
-            if (characters == null || characters.Count == 0)
+            // Build the union: every character from the catalog is shown.
+            //   - Owned in state          → real model, isLocked=false
+            //   - UnlockedByDefault       → placeholder model (Level=0), isLocked=false
+            //   - Locked                  → placeholder model, isLocked=true (overlay blocks clicks)
+            var ordered = new List<(CharacterModel model, CharacterDefinition def, bool isLocked)>();
+
+            if (defs != null)
+            {
+                foreach (var kv in defs)
+                {
+                    var def = kv.Value;
+                    if (def == null) continue;
+
+                    CharacterModel model = null;
+                    characters?.TryGetValue(kv.Key, out model);
+
+                    bool unlockedByDefault = def.Unlock?.UnlockedByDefault ?? false;
+                    bool isLocked = model == null && !unlockedByDefault;
+
+                    if (model == null)
+                        model = CreatePlaceholderModel(kv.Key, def);
+
+                    ordered.Add((model, def, isLocked));
+                }
+            }
+
+            // Defensive: any state character without a matching definition.
+            if (characters != null)
+            {
+                foreach (var kv in characters)
+                {
+                    if (kv.Value == null) continue;
+                    if (defs != null && defs.ContainsKey(kv.Key)) continue;
+                    ordered.Add((kv.Value, null, false));
+                }
+            }
+
+            if (ordered.Count == 0)
             {
                 HideAll();
                 return;
             }
 
-            var ordered = new List<CharacterModel>(characters.Values);
             ordered.Sort((a, b) =>
             {
-                int sa = (defs != null && defs.TryGetValue(a.CharacterID, out var da) && da?.Identity != null) ? da.Identity.SortOrder : 0;
-                int sb = (defs != null && defs.TryGetValue(b.CharacterID, out var db) && db?.Identity != null) ? db.Identity.SortOrder : 0;
+                int sa = a.def?.Identity?.SortOrder ?? 0;
+                int sb = b.def?.Identity?.SortOrder ?? 0;
                 int cmp = sa.CompareTo(sb);
-                return cmp != 0 ? cmp : string.CompareOrdinal(a.CharacterID, b.CharacterID);
+                return cmp != 0 ? cmp : string.CompareOrdinal(a.model.CharacterID, b.model.CharacterID);
             });
 
             for (int i = 0; i < ordered.Count; i++)
             {
-                var model = ordered[i];
-                CharacterDefinition def = null;
-                if (defs != null && !string.IsNullOrEmpty(model?.CharacterID))
-                    defs.TryGetValue(model.CharacterID, out def);
-
                 var item = GetOrSpawn(i);
                 item.gameObject.SetActive(true);
-                item.Bind(model, def, OnItemSelected);
+                item.Bind(ordered[i].model, ordered[i].def, ordered[i].isLocked, OnItemSelected);
             }
 
             for (int i = ordered.Count; i < _spawned.Count; i++)
@@ -90,6 +121,21 @@ namespace IDosGames
                 if (_spawned[i] != null)
                     _spawned[i].gameObject.SetActive(false);
             }
+        }
+
+        internal static CharacterModel CreatePlaceholderModel(string characterID, CharacterDefinition def)
+        {
+            return new CharacterModel
+            {
+                CharacterID = characterID,
+                Class = def?.Classification?.ClassID,
+                Name = def?.Identity?.DisplayName,
+                Level = 0,
+                Experience = 0,
+                Power = 0,
+                StatLevels = new Dictionary<string, int>(),
+                Equipment = new Dictionary<string, EquippedItem>(),
+            };
         }
 
         private CharacterListItem GetOrSpawn(int index)

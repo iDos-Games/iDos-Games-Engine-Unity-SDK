@@ -26,7 +26,6 @@ namespace IDosGames
         private void Awake()
         {
             if (root == null) root = gameObject;
-            root.SetActive(false);
 
             if (closeButton != null)
             {
@@ -74,16 +73,24 @@ namespace IDosGames
         {
             if (string.IsNullOrEmpty(_characterID) || content == null || itemPrefab == null) return;
 
-            var characters = IDosGamesData.User?.State?.Character?.Characters;
-            if (characters == null || !characters.TryGetValue(_characterID, out var model) || model == null)
-            {
-                HideAll();
-                return;
-            }
-
             CharacterDefinition def = null;
             var defs = IDosGamesData.Config?.TitlePublicConfiguration?.Character?.Definitions;
             if (defs != null) defs.TryGetValue(_characterID, out def);
+
+            CharacterModel model = null;
+            var characters = IDosGamesData.User?.State?.Character?.Characters;
+            characters?.TryGetValue(_characterID, out model);
+
+            if (model == null)
+            {
+                bool unlockedByDefault = def?.Unlock?.UnlockedByDefault ?? false;
+                if (!unlockedByDefault)
+                {
+                    HideAll();
+                    return;
+                }
+                model = CharacterListPanel.CreatePlaceholderModel(_characterID, def);
+            }
 
             if (def?.Stats == null || def.Stats.Count == 0)
             {
