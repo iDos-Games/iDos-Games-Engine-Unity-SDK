@@ -15,9 +15,16 @@ namespace IDosGames
         [Header("Click")]
         [SerializeField] private Button button;
 
-        [Header("Frame & icon")]
-        [SerializeField] private Image frameImage;
+        [Header("Icon")]
         [SerializeField] private Image itemIcon;
+        [SerializeField] private Image classIcon;
+
+        [Header("Color Replacement")]
+        [SerializeField] private Image bgImage;
+        [SerializeField] private Image cornerDecoImage;
+        [SerializeField] private Image lightImage;
+        [SerializeField] private Image glowImage;
+        [SerializeField] private Image circleFrameImage;
 
         [Header("Level pill")]
         [SerializeField] private TextMeshProUGUI levelText;
@@ -48,12 +55,6 @@ namespace IDosGames
             {
                 button.onClick.RemoveAllListeners();
                 button.onClick.AddListener(InvokeClick);
-            }
-
-            if (frameImage != null && rarity != null)
-            {
-                if (rarity.FrameSprite != null) frameImage.sprite = rarity.FrameSprite;
-                frameImage.color = rarity.FrameTint;
             }
 
             if (levelText != null) levelText.text = $"Lv.{Mathf.Max(1, inst.Level)}";
