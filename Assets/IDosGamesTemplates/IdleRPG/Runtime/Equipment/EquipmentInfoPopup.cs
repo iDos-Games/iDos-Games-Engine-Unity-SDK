@@ -26,12 +26,15 @@ namespace IDosGames
         [SerializeField] private GameObject root;
 
         [Header("Header")]
-        [SerializeField] private TextMeshProUGUI titleText;
-        [SerializeField] private TextMeshProUGUI gradeText;
-        [SerializeField] private Image roleIcon;
-        [SerializeField] private Image itemImage;
-        [SerializeField] private TextMeshProUGUI infoText;
-        [SerializeField] private List<Image> basicFrameImages;
+        [SerializeField] private TextMeshProUGUI displayNameText;
+        [SerializeField] private TextMeshProUGUI rarityText;
+        [SerializeField] private Image itemClassIcon;
+        [SerializeField] private TextMeshProUGUI itemDescriptionText;
+        [SerializeField] private EquipmentItem item;
+
+        [Header("Popup Colors")]
+        [SerializeField] private Image topImage;
+        [SerializeField] private Image glowImage;
 
         [Header("Stars")]
         [SerializeField] private List<GameObject> stars;
@@ -48,9 +51,8 @@ namespace IDosGames
         [SerializeField] private TextMeshProUGUI levelUpCostText;
         [SerializeField] private TextMeshProUGUI equipButtonLabel;
 
-        [Header("Mappings")]
-        [SerializeField] private List<ItemRarityLabel> rarityLabels;
-        [SerializeField] private List<ItemClassIcon> classIcons;
+        [Header("Visuals")]
+        [SerializeField] private EquipmentVisualConfig visuals;
 
         private string _instanceID;
         private string _characterID;
@@ -139,21 +141,14 @@ namespace IDosGames
 
             var def = ResolveDefinition(inst);
 
-            if (titleText != null)
-                titleText.text = def?.DisplayName ?? inst.ItemID ?? string.Empty;
-            if (infoText != null)
-                infoText.text = def?.Description ?? string.Empty;
+            if (displayNameText != null)
+                displayNameText.text = def?.DisplayName ?? inst.ItemID ?? string.Empty;
+            if (itemDescriptionText != null)
+                itemDescriptionText.text = def?.Description ?? string.Empty;
 
             ApplyRarity(def?.Metadata?.RarityID);
             ApplyClassIcon(def?.ItemClass);
             ApplyStats(inst, def);
-
-            string imgPath = ResolveImagePath(def);
-            if (imgPath != _loadedImagePath)
-            {
-                _loadedImagePath = imgPath;
-                _ = LoadImage(imgPath);
-            }
 
             ApplyEquipButton(inst, def);
             ApplyLevelUpButton(inst, def);
@@ -166,32 +161,13 @@ namespace IDosGames
             ItemRarityLabel label = ResolveRarity(rarityID);
             if (label == null) return;
 
-            if (gradeText != null) gradeText.text = label.DisplayName ?? string.Empty;
-
-            if (basicFrameImages != null)
-                for (int i = 0; i < basicFrameImages.Count; i++)
-                    if (basicFrameImages[i] != null)
-                        basicFrameImages[i].color = label.BasicFrameColor;
+            if (rarityText != null) rarityText.text = label.DisplayName ?? string.Empty;
 
             ApplyStars(label.UseSpecialStars ? specialStars : stars, label.StarCount);
             ApplyStars(label.UseSpecialStars ? stars : specialStars, 0);
         }
 
-        private ItemRarityLabel ResolveRarity(string rarityID)
-        {
-            if (rarityLabels == null || rarityLabels.Count == 0) return null;
-
-            if (!string.IsNullOrEmpty(rarityID))
-            {
-                for (int i = 0; i < rarityLabels.Count; i++)
-                {
-                    var l = rarityLabels[i];
-                    if (l != null && string.Equals(l.RarityID, rarityID, StringComparison.OrdinalIgnoreCase))
-                        return l;
-                }
-            }
-            return rarityLabels[0];
-        }
+        private ItemRarityLabel ResolveRarity(string rarityID) => visuals?.ResolveRarityLabel(rarityID);
 
         private static void ApplyStars(List<GameObject> list, int activeCount)
         {
@@ -203,18 +179,9 @@ namespace IDosGames
 
         private void ApplyClassIcon(string itemClass)
         {
-            if (roleIcon == null || classIcons == null || classIcons.Count == 0 || string.IsNullOrEmpty(itemClass))
-                return;
-
-            for (int i = 0; i < classIcons.Count; i++)
-            {
-                var c = classIcons[i];
-                if (c != null && string.Equals(c.ItemClass, itemClass, StringComparison.OrdinalIgnoreCase))
-                {
-                    if (c.Icon != null) roleIcon.sprite = c.Icon;
-                    return;
-                }
-            }
+            if (itemClassIcon == null || string.IsNullOrEmpty(itemClass)) return;
+            var sprite = visuals?.ResolveClassIcon(itemClass);
+            if (sprite != null) itemClassIcon.sprite = sprite;
         }
 
         // ===== Stats =====
@@ -445,14 +412,6 @@ namespace IDosGames
             foreach (var v in def.AssetPaths.Values)
                 if (!string.IsNullOrWhiteSpace(v)) return v;
             return null;
-        }
-
-        private async Task LoadImage(string path)
-        {
-            if (string.IsNullOrEmpty(path) || itemImage == null) return;
-            var sprite = await ImageLoader.GetSpriteAsync(path);
-            if (sprite != null && this != null && itemImage != null && _loadedImagePath == path)
-                itemImage.sprite = sprite;
         }
 
         // ===== Event handlers =====

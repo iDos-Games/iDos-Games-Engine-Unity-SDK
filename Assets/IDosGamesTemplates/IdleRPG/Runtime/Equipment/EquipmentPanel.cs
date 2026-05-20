@@ -50,9 +50,8 @@ namespace IDosGames
         [Header("Popup")]
         [SerializeField] private EquipmentInfoPopup popup;
 
-        [Header("Mappings")]
-        [SerializeField] private List<ItemRarityVisual> rarityVisuals;
-        [SerializeField] private List<ItemClassIcon> classIcons;
+        [Header("Visuals")]
+        [SerializeField] private EquipmentVisualConfig visuals;
 
         private readonly List<EquipmentItem> _spawned = new();
         private string _characterID;
@@ -543,33 +542,8 @@ namespace IDosGames
             return null;
         }
 
-        private ItemRarityVisual ResolveRarity(string rarityID)
-        {
-            if (rarityVisuals == null || rarityVisuals.Count == 0) return null;
-
-            if (!string.IsNullOrEmpty(rarityID))
-            {
-                for (int i = 0; i < rarityVisuals.Count; i++)
-                {
-                    var v = rarityVisuals[i];
-                    if (v != null && string.Equals(v.RarityID, rarityID, StringComparison.OrdinalIgnoreCase))
-                        return v;
-                }
-            }
-            return rarityVisuals[0];
-        }
-
-        private Sprite ResolveClassIcon(string itemClass)
-        {
-            if (classIcons == null || string.IsNullOrEmpty(itemClass)) return null;
-            for (int i = 0; i < classIcons.Count; i++)
-            {
-                var c = classIcons[i];
-                if (c != null && string.Equals(c.ItemClass, itemClass, StringComparison.OrdinalIgnoreCase))
-                    return c.Icon;
-            }
-            return null;
-        }
+        private ItemRarityVisual ResolveRarity(string rarityID) => visuals?.ResolveRarityVisual(rarityID);
+        private Sprite ResolveClassIcon(string itemClass) => visuals?.ResolveClassIcon(itemClass);
 
         // -------------------- Event handlers --------------------
 

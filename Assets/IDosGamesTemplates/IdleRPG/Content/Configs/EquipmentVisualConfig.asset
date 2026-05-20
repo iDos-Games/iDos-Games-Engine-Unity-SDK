@@ -1,0 +1,99 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c9fe78f20090874283fe06ffb6cd511, type: 3}
+  m_Name: EquipmentVisualConfig
+  m_EditorClassIdentifier: Assembly-CSharp::IDosGames.EquipmentVisualConfig
+  RarityVisuals:
+  - RarityID: Common
+    BgColor: {r: 0.22745098, g: 0.29411766, b: 0.3529412, a: 1}
+    CornerDecoColor: {r: 0, g: 0, b: 0, a: 0}
+    LightColor: {r: 0, g: 0, b: 0, a: 0}
+    GlowColor: {r: 0, g: 0, b: 0, a: 0}
+    CircleFrameColor: {r: 0, g: 0, b: 0, a: 0}
+    StarCount: 1
+    UseSpecialStars: 0
+  RarityLabels:
+  - RarityID: Common
+    DisplayName: COMMON
+    LabelSprite: {fileID: 21300000, guid: 0eaf6715a248844b3b94a9d322d282c4, type: 3}
+    BgColor: {r: 0.58431375, g: 0.6627451, b: 0.7529412, a: 1}
+    GradientColor: {r: 0.3529412, g: 0.39607844, b: 0.5137255, a: 1}
+    BasicFrameColor: {r: 0.43529412, g: 0.5058824, b: 0.6392157, a: 1}
+    StarCount: 1
+    UseSpecialStars: 0
+  - RarityID: Uncommon
+    DisplayName: UNCOMMON
+    LabelSprite: {fileID: 21300000, guid: dad47e9b3f72d4253bd4959b57289345, type: 3}
+    BgColor: {r: 0.32941177, g: 0.8392157, b: 0.27450982, a: 1}
+    GradientColor: {r: 0.20392157, g: 0.69411767, b: 0.3254902, a: 1}
+    BasicFrameColor: {r: 0.20392157, g: 0.69411767, b: 0.4, a: 1}
+    StarCount: 2
+    UseSpecialStars: 0
+  - RarityID: Rare
+    DisplayName: RARE
+    LabelSprite: {fileID: 21300000, guid: e0387aa3821274a35b00020e1848abc5, type: 3}
+    BgColor: {r: 0.23529412, g: 0.53333336, b: 0.9647059, a: 1}
+    GradientColor: {r: 0.16862746, g: 0.44313726, b: 0.8980392, a: 1}
+    BasicFrameColor: {r: 0.17254902, g: 0.42352942, b: 0.8784314, a: 1}
+    StarCount: 3
+    UseSpecialStars: 0
+  - RarityID: Epic
+    DisplayName: EPIC
+    LabelSprite: {fileID: 21300000, guid: fb3e8ff77824f466aa94f46ebe089001, type: 3}
+    BgColor: {r: 0.5921569, g: 0.32156864, b: 1, a: 1}
+    GradientColor: {r: 0.4509804, g: 0.3019608, b: 0.93333334, a: 1}
+    BasicFrameColor: {r: 0.43137255, g: 0.22745098, b: 0.85882354, a: 1}
+    StarCount: 4
+    UseSpecialStars: 0
+  - RarityID: Legendary
+    DisplayName: LEGENDARY
+    LabelSprite: {fileID: 21300000, guid: d96f1c6be6b8d42e7a8e1d30ba2f963f, type: 3}
+    BgColor: {r: 1, g: 0.87058824, b: 0.15294118, a: 1}
+    GradientColor: {r: 1, g: 0.5921569, b: 0.07058824, a: 1}
+    BasicFrameColor: {r: 1, g: 0.68235296, b: 0, a: 1}
+    StarCount: 5
+    UseSpecialStars: 0
+  - RarityID: Mythic
+    DisplayName: MYTHIC
+    LabelSprite: {fileID: 21300000, guid: 534931a9afbea4c82b4c2260a63529fc, type: 3}
+    BgColor: {r: 1, g: 0.43137255, b: 0.5803922, a: 1}
+    GradientColor: {r: 0.99607843, g: 0.34117648, b: 0.4117647, a: 1}
+    BasicFrameColor: {r: 0.9254902, g: 0.28235295, b: 0.39607844, a: 1}
+    StarCount: 6
+    UseSpecialStars: 0
+  - RarityID: Exotic
+    DisplayName: EXOTIC
+    LabelSprite: {fileID: 21300000, guid: 06dd1d3f3653345a983ebd74926a3321, type: 3}
+    BgColor: {r: 0.8666667, g: 0.94509804, b: 1, a: 1}
+    GradientColor: {r: 0.81960785, g: 0.67058825, b: 1, a: 1}
+    BasicFrameColor: {r: 0.46666667, g: 0.79607844, b: 0.9843137, a: 1}
+    StarCount: 6
+    UseSpecialStars: 1
+  ClassIcons:
+  - ItemClass: Weapon
+    DisplayName: Weapon
+    Icon: {fileID: 21300000, guid: 1740839837d3b4cc8aec21c4857838f0, type: 3}
+  - ItemClass: Shield
+    DisplayName: Shield
+    Icon: {fileID: 21300000, guid: b0e0176379d5c4498bc407907ec4a75e, type: 3}
+  - ItemClass: Armor
+    DisplayName: Armor
+    Icon: {fileID: 21300000, guid: 82095098c7c4746f4ac8973e44dc14de, type: 3}
+  - ItemClass: Boots
+    DisplayName: Boots
+    Icon: {fileID: 21300000, guid: 41e92cd524be34a2783b6c7044182cc9, type: 3}
+  - ItemClass: Ring
+    DisplayName: Ring
+    Icon: {fileID: 21300000, guid: 28b2dee5c89ff42a6838b7dd92b1ec74, type: 3}
+  - ItemClass: Helmet
+    DisplayName: Helmet
+    Icon: {fileID: 21300000, guid: 2f5d9539836314bb5a9c0d2f0ebdb3b6, type: 3}
