@@ -14,68 +14,109 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::IDosGames.EquipmentVisualConfig
   RarityVisuals:
   - RarityID: Common
-    BgColor: {r: 0.22745098, g: 0.29411766, b: 0.3529412, a: 1}
-    CornerDecoColor: {r: 0, g: 0, b: 0, a: 0}
-    LightColor: {r: 0, g: 0, b: 0, a: 0}
-    GlowColor: {r: 0, g: 0, b: 0, a: 0}
-    CircleFrameColor: {r: 0, g: 0, b: 0, a: 0}
+    BgColor: {r: 0.38039216, g: 0.49411765, b: 0.5411765, a: 1}
+    CornerDecoColor: {r: 0.44313726, g: 0.5568628, b: 0.6, a: 1}
+    LightColor: {r: 0.50980395, g: 0.627451, b: 0.67058825, a: 1}
+    GlowColor: {r: 0.5137255, g: 0.6509804, b: 0.7058824, a: 1}
+    CircleFrameColor: {r: 0.38039216, g: 0.49411765, b: 0.5411765, a: 1}
     StarCount: 1
     UseSpecialStars: 0
+  - RarityID: Uncommon
+    BgColor: {r: 0.11372549, g: 0.7529412, b: 0.3372549, a: 1}
+    CornerDecoColor: {r: 0.20392157, g: 0.8509804, b: 0.20392157, a: 1}
+    LightColor: {r: 0.69803923, g: 0.94509804, b: 0.12156863, a: 1}
+    GlowColor: {r: 0.7529412, g: 1, b: 0.31764707, a: 1}
+    CircleFrameColor: {r: 0.13333334, g: 0.9372549, b: 0.11372549, a: 1}
+    StarCount: 2
+    UseSpecialStars: 0
+  - RarityID: Rare
+    BgColor: {r: 0, g: 0.65882355, b: 1, a: 1}
+    CornerDecoColor: {r: 0.17254902, g: 0.74509805, b: 1, a: 1}
+    LightColor: {r: 0.20784314, g: 0.9843137, b: 1, a: 1}
+    GlowColor: {r: 0.03137255, g: 0.9372549, b: 1, a: 1}
+    CircleFrameColor: {r: 0.05490196, g: 0.50980395, b: 0.9764706, a: 1}
+    StarCount: 3
+    UseSpecialStars: 0
+  - RarityID: Epic
+    BgColor: {r: 0.69803923, g: 0.3764706, b: 0.99215686, a: 1}
+    CornerDecoColor: {r: 0.78431374, g: 0.5019608, b: 0.99607843, a: 1}
+    LightColor: {r: 1, g: 0.5411765, b: 1, a: 1}
+    GlowColor: {r: 0.7254902, g: 0.5882353, b: 1, a: 1}
+    CircleFrameColor: {r: 0.6392157, g: 0.24313726, b: 1, a: 1}
+    StarCount: 4
+    UseSpecialStars: 0
+  - RarityID: Legendary
+    BgColor: {r: 1, g: 0.7882353, b: 0, a: 1}
+    CornerDecoColor: {r: 1, g: 0.87058824, b: 0, a: 1}
+    LightColor: {r: 0.99607843, g: 0.99215686, b: 0.30588236, a: 1}
+    GlowColor: {r: 0.9529412, g: 1, b: 0.19215687, a: 1}
+    CircleFrameColor: {r: 1, g: 0.87058824, b: 0, a: 1}
+    StarCount: 5
+    UseSpecialStars: 0
+  - RarityID: Mythic
+    BgColor: {r: 0.8745098, g: 0.18431373, b: 0.21960784, a: 1}
+    CornerDecoColor: {r: 1, g: 0.4862745, b: 0.49803922, a: 1}
+    LightColor: {r: 1, g: 0.56078434, b: 0.6117647, a: 1}
+    GlowColor: {r: 1, g: 0.6156863, b: 0.6431373, a: 1}
+    CircleFrameColor: {r: 1, g: 0.1882353, b: 0.3019608, a: 1}
+    StarCount: 6
+    UseSpecialStars: 0
+  - RarityID: Exotic
+    BgColor: {r: 0.8980392, g: 0.8352941, b: 1, a: 1}
+    CornerDecoColor: {r: 0.8117647, g: 0.91764706, b: 1, a: 1}
+    LightColor: {r: 0.8627451, g: 0.9647059, b: 0.99215686, a: 1}
+    GlowColor: {r: 1, g: 0.99215686, b: 0.83137256, a: 1}
+    CircleFrameColor: {r: 1, g: 0.73333335, b: 0.9843137, a: 1}
+    StarCount: 6
+    UseSpecialStars: 1
   RarityLabels:
   - RarityID: Common
     DisplayName: COMMON
-    LabelSprite: {fileID: 21300000, guid: 0eaf6715a248844b3b94a9d322d282c4, type: 3}
-    BgColor: {r: 0.58431375, g: 0.6627451, b: 0.7529412, a: 1}
-    GradientColor: {r: 0.3529412, g: 0.39607844, b: 0.5137255, a: 1}
-    BasicFrameColor: {r: 0.43529412, g: 0.5058824, b: 0.6392157, a: 1}
+    TopColor: {r: 0.22745098, g: 0.29411766, b: 0.3529412, a: 1}
+    GlowColor: {r: 0.34901962, g: 0.47843137, b: 0.5529412, a: 1}
+    TextColor: {r: 0.6392157, g: 0.6784314, b: 0.7529412, a: 1}
     StarCount: 1
     UseSpecialStars: 0
   - RarityID: Uncommon
     DisplayName: UNCOMMON
-    LabelSprite: {fileID: 21300000, guid: dad47e9b3f72d4253bd4959b57289345, type: 3}
-    BgColor: {r: 0.32941177, g: 0.8392157, b: 0.27450982, a: 1}
-    GradientColor: {r: 0.20392157, g: 0.69411767, b: 0.3254902, a: 1}
-    BasicFrameColor: {r: 0.20392157, g: 0.69411767, b: 0.4, a: 1}
+    TopColor: {r: 0.09803922, g: 0.41960785, b: 0.34117648, a: 1}
+    GlowColor: {r: 0.13333334, g: 0.6, b: 0.39607844, a: 1}
+    TextColor: {r: 0.56078434, g: 1, b: 0.4745098, a: 1}
     StarCount: 2
     UseSpecialStars: 0
   - RarityID: Rare
     DisplayName: RARE
-    LabelSprite: {fileID: 21300000, guid: e0387aa3821274a35b00020e1848abc5, type: 3}
-    BgColor: {r: 0.23529412, g: 0.53333336, b: 0.9647059, a: 1}
-    GradientColor: {r: 0.16862746, g: 0.44313726, b: 0.8980392, a: 1}
-    BasicFrameColor: {r: 0.17254902, g: 0.42352942, b: 0.8784314, a: 1}
+    TopColor: {r: 0.3019608, g: 0.3372549, b: 0.8745098, a: 1}
+    GlowColor: {r: 0.16862746, g: 0.61960787, b: 1, a: 1}
+    TextColor: {r: 0.43137255, g: 0.99215686, b: 1, a: 1}
     StarCount: 3
     UseSpecialStars: 0
   - RarityID: Epic
     DisplayName: EPIC
-    LabelSprite: {fileID: 21300000, guid: fb3e8ff77824f466aa94f46ebe089001, type: 3}
-    BgColor: {r: 0.5921569, g: 0.32156864, b: 1, a: 1}
-    GradientColor: {r: 0.4509804, g: 0.3019608, b: 0.93333334, a: 1}
-    BasicFrameColor: {r: 0.43137255, g: 0.22745098, b: 0.85882354, a: 1}
+    TopColor: {r: 0.5176471, g: 0, b: 1, a: 1}
+    GlowColor: {r: 0.6627451, g: 0.29411766, b: 1, a: 1}
+    TextColor: {r: 0.9098039, g: 0.5019608, b: 0.99607843, a: 1}
     StarCount: 4
     UseSpecialStars: 0
   - RarityID: Legendary
     DisplayName: LEGENDARY
-    LabelSprite: {fileID: 21300000, guid: d96f1c6be6b8d42e7a8e1d30ba2f963f, type: 3}
-    BgColor: {r: 1, g: 0.87058824, b: 0.15294118, a: 1}
-    GradientColor: {r: 1, g: 0.5921569, b: 0.07058824, a: 1}
-    BasicFrameColor: {r: 1, g: 0.68235296, b: 0, a: 1}
+    TopColor: {r: 1, g: 0.6901961, b: 0.2, a: 1}
+    GlowColor: {r: 1, g: 0.84705883, b: 0.16470589, a: 1}
+    TextColor: {r: 1, g: 0.972549, b: 0.25490198, a: 1}
     StarCount: 5
     UseSpecialStars: 0
   - RarityID: Mythic
     DisplayName: MYTHIC
-    LabelSprite: {fileID: 21300000, guid: 534931a9afbea4c82b4c2260a63529fc, type: 3}
-    BgColor: {r: 1, g: 0.43137255, b: 0.5803922, a: 1}
-    GradientColor: {r: 0.99607843, g: 0.34117648, b: 0.4117647, a: 1}
-    BasicFrameColor: {r: 0.9254902, g: 0.28235295, b: 0.39607844, a: 1}
+    TopColor: {r: 0.6, g: 0.08627451, b: 0.14509805, a: 1}
+    GlowColor: {r: 1, g: 0.42745098, b: 0.5019608, a: 1}
+    TextColor: {r: 1, g: 0.57254905, b: 0.5058824, a: 1}
     StarCount: 6
     UseSpecialStars: 0
   - RarityID: Exotic
     DisplayName: EXOTIC
-    LabelSprite: {fileID: 21300000, guid: 06dd1d3f3653345a983ebd74926a3321, type: 3}
-    BgColor: {r: 0.8666667, g: 0.94509804, b: 1, a: 1}
-    GradientColor: {r: 0.81960785, g: 0.67058825, b: 1, a: 1}
-    BasicFrameColor: {r: 0.46666667, g: 0.79607844, b: 0.9843137, a: 1}
+    TopColor: {r: 0.81960785, g: 0.67058825, b: 1, a: 1}
+    GlowColor: {r: 0.46666667, g: 0.79607844, b: 0.9843137, a: 1}
+    TextColor: {r: 0.8666667, g: 0.94509804, b: 1, a: 1}
     StarCount: 6
     UseSpecialStars: 1
   ClassIcons:

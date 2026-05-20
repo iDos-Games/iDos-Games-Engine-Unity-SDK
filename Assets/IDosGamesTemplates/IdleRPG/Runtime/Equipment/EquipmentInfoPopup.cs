@@ -57,7 +57,6 @@ namespace IDosGames
         private string _instanceID;
         private string _characterID;
         private string _targetSlotID;
-        private string _loadedImagePath;
 
         private void Awake()
         {
@@ -108,7 +107,6 @@ namespace IDosGames
             _instanceID = itemInstanceID;
             _characterID = characterID;
             _targetSlotID = targetSlotID;
-            _loadedImagePath = null;
 
             EnsureRoot().SetActive(true);
             Refresh();
@@ -120,7 +118,6 @@ namespace IDosGames
             _instanceID = null;
             _characterID = null;
             _targetSlotID = null;
-            _loadedImagePath = null;
         }
 
         private GameObject EnsureRoot() => root != null ? root : (root = gameObject);
@@ -148,10 +145,28 @@ namespace IDosGames
 
             ApplyRarity(def?.Metadata?.RarityID);
             ApplyClassIcon(def?.ItemClass);
+            ApplyItemPreview(inst, def);
             ApplyStats(inst, def);
 
             ApplyEquipButton(inst, def);
             ApplyLevelUpButton(inst, def);
+        }
+
+        private void ApplyItemPreview(UnstackableItemInstanceState inst, ItemDefinition def)
+        {
+            if (item == null) return;
+
+            var rarity = visuals?.ResolveRarityVisual(def?.Metadata?.RarityID);
+            var classSprite = visuals?.ResolveClassIcon(def?.ItemClass);
+
+            item.gameObject.SetActive(true);
+            item.BindUnstackable(
+                inst, def,
+                EquipmentItemMode.SlotChild,
+                isEquipped: false,
+                rarity,
+                classSprite,
+                onSelected: null);
         }
 
         // ===== Rarity / class =====
@@ -161,7 +176,13 @@ namespace IDosGames
             ItemRarityLabel label = ResolveRarity(rarityID);
             if (label == null) return;
 
-            if (rarityText != null) rarityText.text = label.DisplayName ?? string.Empty;
+            if (rarityText != null)
+            {
+                rarityText.text = label.DisplayName ?? string.Empty;
+                rarityText.color = label.TextColor;
+            }
+            if (topImage != null)   topImage.color   = label.TopColor;
+            if (glowImage != null)  glowImage.color  = label.GlowColor;
 
             ApplyStars(label.UseSpecialStars ? specialStars : stars, label.StarCount);
             ApplyStars(label.UseSpecialStars ? stars : specialStars, 0);
@@ -401,16 +422,6 @@ namespace IDosGames
                 if (!string.IsNullOrWhiteSpace(inst.ItemID) && c.Items.TryGetValue(inst.ItemID, out var d))
                     return d;
             }
-            return null;
-        }
-
-        private static string ResolveImagePath(ItemDefinition def)
-        {
-            if (def?.AssetPaths == null) return null;
-            if (def.AssetPaths.TryGetValue("portrait", out var p) && !string.IsNullOrWhiteSpace(p)) return p;
-            if (def.AssetPaths.TryGetValue("icon", out var i) && !string.IsNullOrWhiteSpace(i)) return i;
-            foreach (var v in def.AssetPaths.Values)
-                if (!string.IsNullOrWhiteSpace(v)) return v;
             return null;
         }
 
