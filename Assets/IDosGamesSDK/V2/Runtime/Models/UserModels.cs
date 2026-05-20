@@ -135,6 +135,7 @@ namespace IDosGames
         public string ItemID { get; set; }
         public string CatalogID { get; set; }
         public long RemainingUses { get; set; }
+        public int Level { get; set; }
         public DateTime AcquiredAt { get; set; }
         public DateTime? ExpiresAt { get; set; }
         public EquipmentSlot EquippedSlot { get; set; }

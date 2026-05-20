@@ -50,7 +50,7 @@ namespace IDosGames
 
             if (result.Success)
             {
-                //IDosGamesData.User.ApplyInventory(result.Data.InventoryV2);
+                IDosGamesData.User.ApplyInventory(result.Data);
                 OnUserInventoryReceived?.Invoke(result.Data);
             }
 

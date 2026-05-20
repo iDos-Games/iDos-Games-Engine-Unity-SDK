@@ -65,6 +65,16 @@ namespace IDosGames
         public Dictionary<string, int> UseRequirements { get; set; } = new();
         public List<string> AllowedCharacterIDs { get; set; } = new();
         public List<string> AllowedSlotIDs { get; set; } = new();
+        public ItemUpgrade Upgrade { get; set; } = new();
+    }
+
+    public class ItemUpgrade
+    {
+        public int MaxLevel { get; set; }
+        public ResourceConsume BaseCostResource { get; set; }
+        public double CostScalingFactor { get; set; }
+        public double FlatScalingFactor { get; set; }
+        public double PercentScalingFactor { get; set; }
     }
 
     [Serializable]
