@@ -54,6 +54,7 @@ namespace IDosGames
     [Serializable]
     public class ItemStats
     {
+        public int Power { get; set; }
         public Dictionary<string, double> FlatBonuses { get; set; } = new();
         public Dictionary<string, double> PercentBonuses { get; set; } = new();
     }

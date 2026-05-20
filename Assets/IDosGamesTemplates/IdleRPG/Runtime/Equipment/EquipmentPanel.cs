@@ -43,8 +43,8 @@ namespace IDosGames
 
         [Header("Buttons")]
         [SerializeField] private Button buttonUnequipAll;
+        [SerializeField] private Button buttonEquipAll;
         [SerializeField] private Button buttonBack;
-        [SerializeField] private Button buttonFuse;
         [SerializeField] private Button buttonProperty;
 
         [Header("Popup")]
@@ -75,10 +75,10 @@ namespace IDosGames
                 buttonBack.onClick.RemoveAllListeners();
                 buttonBack.onClick.AddListener(Hide);
             }
-            if (buttonFuse != null)
+            if (buttonEquipAll != null)
             {
-                buttonFuse.onClick.RemoveAllListeners();
-                buttonFuse.onClick.AddListener(OnFuseClicked);
+                buttonEquipAll.onClick.RemoveAllListeners();
+                buttonEquipAll.onClick.AddListener(OnFuseClicked);
             }
             if (buttonProperty != null)
             {
