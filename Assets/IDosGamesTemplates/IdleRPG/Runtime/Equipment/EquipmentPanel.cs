@@ -78,7 +78,7 @@ namespace IDosGames
             if (buttonEquipAll != null)
             {
                 buttonEquipAll.onClick.RemoveAllListeners();
-                buttonEquipAll.onClick.AddListener(OnFuseClicked);
+                buttonEquipAll.onClick.AddListener(OnEquipAllClicked);
             }
             if (buttonProperty != null)
             {
@@ -91,8 +91,8 @@ namespace IDosGames
 
         private void OnEnable()
         {
-            CharacterService.OnItemsEquipped       += HandleItemsEquipped;
-            CharacterService.OnItemsUnequipped     += HandleItemsUnequipped;
+            CharacterService.OnItemsEquipped           += HandleItemsEquipped;
+            CharacterService.OnItemsUnequipped         += HandleItemsUnequipped;
             CharacterService.OnAllCharactersUnequipped += HandleAllUnequipped;
 
             if (IDosGamesData.User != null)
@@ -107,8 +107,8 @@ namespace IDosGames
 
         private void OnDisable()
         {
-            CharacterService.OnItemsEquipped       -= HandleItemsEquipped;
-            CharacterService.OnItemsUnequipped     -= HandleItemsUnequipped;
+            CharacterService.OnItemsEquipped           -= HandleItemsEquipped;
+            CharacterService.OnItemsUnequipped         -= HandleItemsUnequipped;
             CharacterService.OnAllCharactersUnequipped -= HandleAllUnequipped;
 
             if (IDosGamesData.User != null)
@@ -266,8 +266,9 @@ namespace IDosGames
 
                 bool isLocked = rule != null && characterLevel < rule.MinCharacterLevel;
                 var rarity = ResolveRarity(itemDef?.Metadata?.RarityID);
+                var classSprite = ResolveClassIcon(itemDef?.ItemClass);
 
-                slot.Bind(equipped, inst, itemDef, isLocked, rarity, OnSlotClicked);
+                slot.Bind(equipped, inst, itemDef, isLocked, rarity, classSprite, OnSlotClicked);
             }
         }
 
@@ -293,9 +294,7 @@ namespace IDosGames
                 model?.StatLevels?.TryGetValue(row.StatKey, out statLevel);
                 double baseValue = CharacterStatMath.ComputeValueAtLevel(statDef, statLevel);
 
-                double equippedFlat = 0;
-                double equippedPercent = 0;
-                AggregateEquippedBonuses(model, row.StatKey, out equippedFlat, out equippedPercent);
+                AggregateEquippedBonuses(model, row.StatKey, out double equippedFlat, out double equippedPercent);
 
                 double total = (baseValue + equippedFlat) * (1.0 + equippedPercent);
                 if (row.ValueText != null) row.ValueText.text = $"{total:0}";
@@ -337,51 +336,107 @@ namespace IDosGames
                 return;
             }
 
-            var unstackables = IDosGamesData.User?.State?.InventoryV2?.UnstackableItems;
-            if (unstackables == null || unstackables.Count == 0)
+            var state = IDosGamesData.User?.State?.InventoryV2;
+            var unstackables = state?.UnstackableItems;
+            var stackTotals  = state?.Items;
+
+            // Collect tile data first so we can sort, then spawn/reuse.
+            var entries = new List<TileEntry>();
+
+            if (unstackables != null)
             {
-                HideAllTiles();
-                return;
+                foreach (var kv in unstackables)
+                {
+                    var inst = kv.Value;
+                    if (inst == null) continue;
+
+                    var def = ResolveItemDefinition(inst, null);
+                    if (def == null) continue;
+                    if (!MatchesActiveTab(def)) continue;
+
+                    entries.Add(new TileEntry
+                    {
+                        IsStackable = false,
+                        Instance = inst,
+                        ItemID = inst.ItemID,
+                        Amount = 0,
+                        Def = def,
+                        IsEquipped = inst.EquippedSlot != null && !string.IsNullOrWhiteSpace(inst.EquippedSlot.SlotID),
+                    });
+                }
             }
 
-            var visible = new List<(UnstackableItemInstanceState inst, ItemDefinition def)>();
-            foreach (var kv in unstackables)
+            if (stackTotals != null)
             {
-                var inst = kv.Value;
-                if (inst == null) continue;
+                foreach (var kv in stackTotals)
+                {
+                    var totals = kv.Value;
+                    if (totals == null || totals.StackableAmount <= 0) continue;
 
-                var def = ResolveItemDefinition(inst, null);
-                if (def == null) continue;
+                    var def = ResolveItemDefinitionByID(kv.Key);
+                    if (def == null) continue;
+                    if (!def.IsStackable) continue;
+                    if (!MatchesActiveTab(def)) continue;
 
-                if (!string.IsNullOrEmpty(_activeClass)
-                    && !string.Equals(def.ItemClass, _activeClass, StringComparison.OrdinalIgnoreCase))
-                    continue;
-
-                visible.Add((inst, def));
+                    entries.Add(new TileEntry
+                    {
+                        IsStackable = true,
+                        Instance = null,
+                        ItemID = kv.Key,
+                        Amount = totals.StackableAmount,
+                        Def = def,
+                        IsEquipped = false,
+                    });
+                }
             }
 
-            visible.Sort((a, b) =>
+            entries.Sort((a, b) =>
             {
-                int rb = (b.inst?.Level ?? 0).CompareTo(a.inst?.Level ?? 0);
-                return rb != 0 ? rb : string.CompareOrdinal(a.inst?.ItemInstanceID, b.inst?.ItemInstanceID);
+                int lvlCmp = (b.Instance?.Level ?? 0).CompareTo(a.Instance?.Level ?? 0);
+                if (lvlCmp != 0) return lvlCmp;
+                return string.CompareOrdinal(a.ItemID, b.ItemID);
             });
 
-            for (int i = 0; i < visible.Count; i++)
+            for (int i = 0; i < entries.Count; i++)
             {
                 var tile = GetOrSpawn(i);
                 tile.gameObject.SetActive(true);
 
-                var inst = visible[i].inst;
-                var def = visible[i].def;
-                bool isEquipped = inst.EquippedSlot != null && !string.IsNullOrWhiteSpace(inst.EquippedSlot.SlotID);
-                var rarity = ResolveRarity(def?.Metadata?.RarityID);
+                var e = entries[i];
+                var rarity = ResolveRarity(e.Def?.Metadata?.RarityID);
+                var classSprite = ResolveClassIcon(e.Def?.ItemClass);
 
-                tile.Bind(inst, def, isEquipped, rarity, OnTileClicked);
+                if (e.IsStackable)
+                {
+                    tile.BindStackable(e.ItemID, e.Amount, e.Def,
+                        EquipmentItemMode.InventoryGrid, rarity, classSprite, OnStackableTileClicked);
+                }
+                else
+                {
+                    tile.BindUnstackable(e.Instance, e.Def,
+                        EquipmentItemMode.InventoryGrid, e.IsEquipped, rarity, classSprite, OnUnstackableTileClicked);
+                }
             }
 
-            for (int i = visible.Count; i < _spawned.Count; i++)
+            for (int i = entries.Count; i < _spawned.Count; i++)
                 if (_spawned[i] != null)
                     _spawned[i].gameObject.SetActive(false);
+        }
+
+        private struct TileEntry
+        {
+            public bool IsStackable;
+            public UnstackableItemInstanceState Instance;
+            public string ItemID;
+            public long Amount;
+            public ItemDefinition Def;
+            public bool IsEquipped;
+        }
+
+        private bool MatchesActiveTab(ItemDefinition def)
+        {
+            if (string.IsNullOrEmpty(_activeClass)) return true;
+            return string.Equals(def?.ItemClass, _activeClass, StringComparison.OrdinalIgnoreCase);
         }
 
         private EquipmentItem GetOrSpawn(int index)
@@ -403,19 +458,20 @@ namespace IDosGames
         private void OnSlotClicked(string slotID, string itemInstanceID)
         {
             if (popup == null) return;
-
             if (!string.IsNullOrWhiteSpace(itemInstanceID))
-            {
                 popup.Show(itemInstanceID, _characterID, slotID);
-            }
-            // Empty slot click: no popup yet — would need a "pick item to equip" flow.
-            // Players can pick directly from the inventory grid below.
+            // Empty slot click: player picks an item from the grid below.
         }
 
-        private void OnTileClicked(string itemInstanceID)
+        private void OnUnstackableTileClicked(string itemInstanceID)
         {
             if (popup == null || string.IsNullOrWhiteSpace(itemInstanceID)) return;
             popup.Show(itemInstanceID, _characterID);
+        }
+
+        private void OnStackableTileClicked(string itemID)
+        {
+            Debug.Log($"[EquipmentPanel] TODO: stackable item '{itemID}' clicked — no popup wired for stackables yet.");
         }
 
         private async void OnUnequipAllClicked()
@@ -436,9 +492,9 @@ namespace IDosGames
             if (result != null && !result.Success) Refresh();
         }
 
-        private void OnFuseClicked()
+        private void OnEquipAllClicked()
         {
-            Debug.Log("[EquipmentPanel] TODO: fuse flow not implemented yet.");
+            Debug.Log("[EquipmentPanel] TODO: auto-equip-best flow not implemented yet.");
         }
 
         private void OnPropertyClicked()
@@ -464,6 +520,20 @@ namespace IDosGames
             {
                 return direct;
             }
+
+            foreach (var cat in catalogs.Values)
+            {
+                if (cat?.Items == null) continue;
+                if (cat.Items.TryGetValue(itemID, out var d)) return d;
+            }
+            return null;
+        }
+
+        private static ItemDefinition ResolveItemDefinitionByID(string itemID)
+        {
+            if (string.IsNullOrWhiteSpace(itemID)) return null;
+            var catalogs = IDosGamesData.Config?.TitlePublicConfiguration?.Item?.Catalogs;
+            if (catalogs == null) return null;
 
             foreach (var cat in catalogs.Values)
             {

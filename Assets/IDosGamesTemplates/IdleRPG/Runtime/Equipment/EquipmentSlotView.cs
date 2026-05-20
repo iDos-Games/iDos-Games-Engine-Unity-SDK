@@ -1,15 +1,14 @@
 using System;
-using System.Threading.Tasks;
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace IDosGames
 {
     /// <summary>
-    /// One of the equipment slots around the character in <see cref="EquipmentPanel"/>.
-    /// Click opens <see cref="EquipmentInfoPopup"/> for the equipped instance (or in "empty" mode
-    /// to let the player pick something to put here).
+    /// One slot around the character in <see cref="EquipmentPanel"/>. The slot itself is a thin
+    /// shell — the actual item rendering is delegated to a child <see cref="EquipmentItem"/>
+    /// (filling the slot) bound in <see cref="EquipmentItemMode.SlotChild"/> mode.
+    /// When the slot is empty the child <see cref="EquipmentItem"/> is simply disabled.
     /// </summary>
     public class EquipmentSlotView : MonoBehaviour
     {
@@ -17,23 +16,16 @@ namespace IDosGames
         [Tooltip("Slot ID — must match a key in the active character's CharacterEquipment.Slots.")]
         [SerializeField] private string slotID;
 
-        [Header("Click")]
+        [Header("Refs")]
         [SerializeField] private Button button;
 
-        [Header("Frame & icon")]
-        [SerializeField] private Image frameImage;
-        [SerializeField] private Image itemIcon;
-        [SerializeField] private GameObject emptyState;
+        [Tooltip("Child EquipmentItem that fills the slot when an item is equipped. Disabled when empty.")]
+        [SerializeField] private EquipmentItem equippedItemView;
 
-        [Header("Level pill")]
-        [SerializeField] private GameObject levelPill;
-        [SerializeField] private TextMeshProUGUI levelText;
-
-        [Header("Lock overlay")]
+        [Tooltip("Overlay shown when characterLevel < rule.MinCharacterLevel.")]
         [SerializeField] private GameObject lockedOverlay;
 
         private Action<string, string> _onClick;
-        private string _loadedIconPath;
         private string _instanceID;
 
         public string SlotID => slotID;
@@ -47,17 +39,13 @@ namespace IDosGames
             }
         }
 
-        /// <summary>
-        /// Bind a slot view. When <paramref name="inst"/> is null the slot renders as empty.
-        /// When <paramref name="isLocked"/> is true (character level &lt; rule.MinCharacterLevel),
-        /// the lock overlay is shown and the click is blocked.
-        /// </summary>
         public void Bind(
             EquippedItem equipped,
             UnstackableItemInstanceState inst,
             ItemDefinition def,
             bool isLocked,
             ItemRarityVisual rarity,
+            Sprite classIconSprite,
             Action<string, string> onClick)
         {
             _onClick = onClick;
@@ -65,54 +53,30 @@ namespace IDosGames
 
             bool hasItem = inst != null && def != null;
 
-            if (emptyState != null) emptyState.SetActive(!hasItem);
-            if (itemIcon != null) itemIcon.enabled = hasItem;
-            if (levelPill != null) levelPill.SetActive(hasItem);
             if (lockedOverlay != null) lockedOverlay.SetActive(isLocked);
-
             if (button != null) button.interactable = !isLocked;
 
-            if (frameImage != null && rarity != null)
+            if (equippedItemView != null)
             {
-                if (rarity.FrameSprite != null) frameImage.sprite = rarity.FrameSprite;
-                frameImage.color = rarity.FrameTint;
-            }
-
-            if (hasItem)
-            {
-                if (levelText != null) levelText.text = $"Lv.{Mathf.Max(1, inst.Level)}";
-
-                string iconPath = ResolveIconPath(def);
-                if (iconPath != _loadedIconPath)
+                if (hasItem)
                 {
-                    _loadedIconPath = iconPath;
-                    _ = LoadIcon(iconPath);
+                    equippedItemView.gameObject.SetActive(true);
+                    equippedItemView.BindUnstackable(
+                        inst, def,
+                        EquipmentItemMode.SlotChild,
+                        isEquipped: false, // badge is meaningless inside a slot
+                        rarity,
+                        classIconSprite,
+                        onSelected: null); // clicks are handled by the slot's own button
                 }
-            }
-            else
-            {
-                _loadedIconPath = null;
-                if (itemIcon != null) itemIcon.sprite = null;
+                else
+                {
+                    equippedItemView.Clear();
+                    equippedItemView.gameObject.SetActive(false);
+                }
             }
         }
 
         private void InvokeClick() => _onClick?.Invoke(slotID, _instanceID);
-
-        private static string ResolveIconPath(ItemDefinition def)
-        {
-            if (def?.AssetPaths == null) return null;
-            if (def.AssetPaths.TryGetValue("icon", out var icon) && !string.IsNullOrWhiteSpace(icon)) return icon;
-            foreach (var v in def.AssetPaths.Values)
-                if (!string.IsNullOrWhiteSpace(v)) return v;
-            return null;
-        }
-
-        private async Task LoadIcon(string path)
-        {
-            if (string.IsNullOrEmpty(path) || itemIcon == null) return;
-            var sprite = await ImageLoader.GetSpriteAsync(path);
-            if (sprite != null && this != null && itemIcon != null && _loadedIconPath == path)
-                itemIcon.sprite = sprite;
-        }
     }
 }
