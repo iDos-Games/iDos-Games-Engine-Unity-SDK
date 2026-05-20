@@ -42,6 +42,10 @@ namespace IDosGames
         [SerializeField] private TextMeshProUGUI upgradeCostText;
         [SerializeField] private Button upgradeStatsButton;
 
+        [Header("Equipment")]
+        [SerializeField] private Button equipmentButton;
+        [SerializeField] private EquipmentPanel equipmentPanel;
+
         [Header("Back")]
         [SerializeField] private Button backButton;
 
@@ -77,6 +81,18 @@ namespace IDosGames
                 backButton.onClick.RemoveAllListeners();
                 backButton.onClick.AddListener(Hide);
             }
+
+            if (equipmentButton != null)
+            {
+                equipmentButton.onClick.RemoveAllListeners();
+                equipmentButton.onClick.AddListener(OnEquipmentClicked);
+            }
+        }
+
+        private void OnEquipmentClicked()
+        {
+            if (equipmentPanel == null || string.IsNullOrEmpty(_characterID)) return;
+            equipmentPanel.Show(_characterID);
         }
 
         private void OnEnable()
