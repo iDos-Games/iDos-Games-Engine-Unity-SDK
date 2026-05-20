@@ -10,9 +10,9 @@ namespace IDosGames
             return $"api/v2/{titleID}/Client/User/{action}/{userID}";
         }
 
-        private static async Task<OperationResult<TResponse>> SendRequest<TResponse>(UserAction action, UserRequest request)
+        private static async Task<OperationResult<TResponse>> SendRequest<TResponse>(UserAction action, UserRequest request, bool silent = false)
         {
-            return await HttpService.Post<TResponse>(GetEndpoint(action, request.UserID), request, request.ClientSessionTicket);
+            return await HttpService.Post<TResponse>(GetEndpoint(action, request.UserID), request, request.ClientSessionTicket, silent: silent);
         }
 
         public static async Task<OperationResult<ClientState>> GetClientState(UserRequest request)
@@ -28,7 +28,7 @@ namespace IDosGames
             => await SendRequest<UsageTimeStats>(UserAction.GetUsageTime, request);
 
         public static async Task<OperationResult<UsageTimeStats>> AddUsageTime(UserRequest request)
-            => await SendRequest<UsageTimeStats>(UserAction.AddUsageTime, request);
+            => await SendRequest<UsageTimeStats>(UserAction.AddUsageTime, request, true);
 
         public static async Task<OperationResult<SuccessResponse>> DeleteUserAccount(UserRequest request)
             => await SendRequest<SuccessResponse>(UserAction.DeleteUserAccount, request);

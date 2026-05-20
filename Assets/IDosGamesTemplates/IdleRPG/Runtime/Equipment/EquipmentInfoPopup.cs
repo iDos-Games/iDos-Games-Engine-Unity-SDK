@@ -29,6 +29,7 @@ namespace IDosGames
         [SerializeField] private TextMeshProUGUI displayNameText;
         [SerializeField] private TextMeshProUGUI rarityText;
         [SerializeField] private Image itemClassIcon;
+        [SerializeField] private TextMeshProUGUI itemClassText;
         [SerializeField] private TextMeshProUGUI itemDescriptionText;
         [SerializeField] private EquipmentItem item;
 
@@ -200,9 +201,18 @@ namespace IDosGames
 
         private void ApplyClassIcon(string itemClass)
         {
-            if (itemClassIcon == null || string.IsNullOrEmpty(itemClass)) return;
-            var sprite = visuals?.ResolveClassIcon(itemClass);
-            if (sprite != null) itemClassIcon.sprite = sprite;
+            if (string.IsNullOrEmpty(itemClass)) return;
+
+            var classDef = visuals?.ResolveClassDefinition(itemClass);
+            if (itemClassIcon != null && classDef?.Icon != null)
+                itemClassIcon.sprite = classDef.Icon;
+
+            if (itemClassText != null)
+            {
+                itemClassText.text = !string.IsNullOrEmpty(classDef?.DisplayName)
+                    ? classDef.DisplayName
+                    : itemClass;
+            }
         }
 
         // ===== Stats =====

@@ -60,12 +60,18 @@ namespace IDosGames
 
         public Sprite ResolveClassIcon(string itemClass)
         {
+            var def = ResolveClassDefinition(itemClass);
+            return def?.Icon;
+        }
+
+        public ItemClassIcon ResolveClassDefinition(string itemClass)
+        {
             if (ClassIcons == null || string.IsNullOrEmpty(itemClass)) return null;
             for (int i = 0; i < ClassIcons.Count; i++)
             {
                 var c = ClassIcons[i];
                 if (c != null && string.Equals(c.ItemClass, itemClass, StringComparison.OrdinalIgnoreCase))
-                    return c.Icon;
+                    return c;
             }
             return null;
         }

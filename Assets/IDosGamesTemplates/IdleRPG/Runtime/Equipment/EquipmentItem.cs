@@ -128,8 +128,8 @@ namespace IDosGames
 
             if (classIcon != null)
             {
-                classIcon.gameObject.SetActive(isSlot && classIconSprite != null);
-                if (isSlot && classIconSprite != null) classIcon.sprite = classIconSprite;
+                classIcon.gameObject.SetActive(classIconSprite != null);
+                if (classIconSprite != null) classIcon.sprite = classIconSprite;
             }
 
             if (equippedBadge != null)
