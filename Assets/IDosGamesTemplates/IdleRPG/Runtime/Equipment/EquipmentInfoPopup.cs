@@ -84,6 +84,7 @@ namespace IDosGames
         {
             CharacterService.OnItemsEquipped += HandleItemsEquipped;
             CharacterService.OnItemsUnequipped += HandleItemsUnequipped;
+            ItemService.OnItemLevelUpgraded += HandleItemLevelUpgraded;
             if (IDosGamesData.User != null)
                 IDosGamesData.User.OnInventoryUpdated += Refresh;
         }
@@ -92,8 +93,15 @@ namespace IDosGames
         {
             CharacterService.OnItemsEquipped -= HandleItemsEquipped;
             CharacterService.OnItemsUnequipped -= HandleItemsUnequipped;
+            ItemService.OnItemLevelUpgraded -= HandleItemLevelUpgraded;
             if (IDosGamesData.User != null)
                 IDosGamesData.User.OnInventoryUpdated -= Refresh;
+        }
+
+        private void HandleItemLevelUpgraded(UpgradeItemLevelResponse data)
+        {
+            if (data != null && data.ItemInstanceID == _instanceID)
+                Refresh();
         }
 
         /// <summary>
@@ -392,21 +400,12 @@ namespace IDosGames
 
             if (levelUpButton != null) levelUpButton.interactable = false;
 
-            bool success = await TryUpgradeItemLevel(_instanceID);
+            var result = await ItemService.UpgradeLevel(_instanceID);
 
-            if (this == null) return;
-            if (!success) Refresh();
-        }
-
-        /// <summary>
-        /// Stub for the not-yet-added V2 item-level-up endpoint. Replace the body with
-        /// <c>var r = await ItemService.UpgradeItemLevel(itemInstanceID); return r.Success;</c>
-        /// once <c>ItemAPI</c>/<c>ItemService</c>/<c>ItemModels</c> land.
-        /// </summary>
-        private static Task<bool> TryUpgradeItemLevel(string itemInstanceID)
-        {
-            Debug.Log($"[EquipmentInfoPopup] TODO: ItemService.UpgradeItemLevel('{itemInstanceID}') — endpoint not wired yet.");
-            return Task.FromResult(false);
+            // ItemService patches IDosGamesData on success and fires OnItemLevelUpgraded,
+            // which triggers Refresh via the subscription. On failure we re-enable.
+            if (this == null || result == null) return;
+            if (!result.Success) Refresh();
         }
 
         // ===== Helpers =====

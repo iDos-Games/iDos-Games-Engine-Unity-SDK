@@ -335,59 +335,7 @@ namespace IDosGames
                 return;
             }
 
-            var state = IDosGamesData.User?.State?.InventoryV2;
-            var unstackables = state?.UnstackableItems;
-            var stackTotals  = state?.Items;
-
-            // Collect tile data first so we can sort, then spawn/reuse.
-            var entries = new List<TileEntry>();
-
-            if (unstackables != null)
-            {
-                foreach (var kv in unstackables)
-                {
-                    var inst = kv.Value;
-                    if (inst == null) continue;
-
-                    var def = ResolveItemDefinition(inst, null);
-                    if (def == null) continue;
-                    if (!MatchesActiveTab(def)) continue;
-
-                    entries.Add(new TileEntry
-                    {
-                        IsStackable = false,
-                        Instance = inst,
-                        ItemID = inst.ItemID,
-                        Amount = 0,
-                        Def = def,
-                        IsEquipped = inst.EquippedSlot != null && !string.IsNullOrWhiteSpace(inst.EquippedSlot.SlotID),
-                    });
-                }
-            }
-
-            if (stackTotals != null)
-            {
-                foreach (var kv in stackTotals)
-                {
-                    var totals = kv.Value;
-                    if (totals == null || totals.StackableAmount <= 0) continue;
-
-                    var def = ResolveItemDefinitionByID(kv.Key);
-                    if (def == null) continue;
-                    if (!def.IsStackable) continue;
-                    if (!MatchesActiveTab(def)) continue;
-
-                    entries.Add(new TileEntry
-                    {
-                        IsStackable = true,
-                        Instance = null,
-                        ItemID = kv.Key,
-                        Amount = totals.StackableAmount,
-                        Def = def,
-                        IsEquipped = false,
-                    });
-                }
-            }
+            var entries = CollectInventoryEntries();
 
             entries.Sort((a, b) =>
             {
@@ -430,6 +378,62 @@ namespace IDosGames
             public long Amount;
             public ItemDefinition Def;
             public bool IsEquipped;
+        }
+
+        private List<TileEntry> CollectInventoryEntries()
+        {
+            var entries = new List<TileEntry>();
+            var state = IDosGamesData.User?.State?.InventoryV2;
+            if (state == null) return entries;
+
+            if (state.UnstackableItems != null)
+            {
+                foreach (var kv in state.UnstackableItems)
+                {
+                    var inst = kv.Value;
+                    if (inst == null) continue;
+
+                    var def = ResolveItemDefinition(inst, null);
+                    if (def == null) continue;
+                    if (!MatchesActiveTab(def)) continue;
+
+                    entries.Add(new TileEntry
+                    {
+                        IsStackable = false,
+                        Instance = inst,
+                        ItemID = inst.ItemID,
+                        Amount = 0,
+                        Def = def,
+                        IsEquipped = inst.EquippedSlot != null && !string.IsNullOrWhiteSpace(inst.EquippedSlot.SlotID),
+                    });
+                }
+            }
+
+            if (state.Items != null)
+            {
+                foreach (var kv in state.Items)
+                {
+                    var totals = kv.Value;
+                    if (totals == null || totals.StackableAmount <= 0) continue;
+
+                    var def = ResolveItemDefinitionByID(kv.Key);
+                    if (def == null) continue;
+                    if (!def.IsStackable) continue;
+                    if (!MatchesActiveTab(def)) continue;
+
+                    entries.Add(new TileEntry
+                    {
+                        IsStackable = true,
+                        Instance = null,
+                        ItemID = kv.Key,
+                        Amount = totals.StackableAmount,
+                        Def = def,
+                        IsEquipped = false,
+                    });
+                }
+            }
+
+            return entries;
         }
 
         private bool MatchesActiveTab(ItemDefinition def)
