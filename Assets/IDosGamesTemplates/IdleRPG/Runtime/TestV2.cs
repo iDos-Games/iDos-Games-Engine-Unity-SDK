@@ -4,16 +4,14 @@ namespace IDosGames
 {
     public class TestV2 : MonoBehaviour
     {
-        // Start is called once before the first execution of Update after the MonoBehaviour is created
-        void Start()
+        public void Lootbox()
         {
-        
+            _ = LootboxService.Open("Test", 1, 1);
         }
 
-        // Update is called once per frame
-        void Update()
+        public void Lootbox2()
         {
-        
+            _ = LootboxService.Open("Test2", 1, 1);
         }
     }
 }

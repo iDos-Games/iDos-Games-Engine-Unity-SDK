@@ -297,9 +297,33 @@ namespace IDosGames
 
             string slot = ResolveEquipTargetSlot(inst, def, out bool slotAllowed);
 
-            equipButton.interactable = !isEquipped && slotAllowed && !string.IsNullOrWhiteSpace(_characterID);
+            bool interactable = !isEquipped && slotAllowed && !string.IsNullOrWhiteSpace(_characterID);
+            equipButton.interactable = interactable;
+
             if (equipButtonLabel != null)
                 equipButtonLabel.text = isEquipped ? "Unequip" : "Equip";
+
+            if (!interactable && !isEquipped)
+            {
+                var allowedSlots = def?.Equipment?.AllowedSlotIDs;
+                var defs = IDosGamesData.Config?.TitlePublicConfiguration?.Character?.Definitions;
+                CharacterDefinition charDef = null;
+                if (!string.IsNullOrWhiteSpace(_characterID))
+                    defs?.TryGetValue(_characterID, out charDef);
+
+                string allowedStr = (allowedSlots != null && allowedSlots.Count > 0)
+                    ? string.Join(",", allowedSlots)
+                    : "(empty)";
+                string charSlotStr = (charDef?.Equipment?.Slots != null && charDef.Equipment.Slots.Count > 0)
+                    ? string.Join(",", charDef.Equipment.Slots.Keys)
+                    : "(empty)";
+
+                Debug.LogWarning(
+                    $"[EquipmentInfoPopup] Equip blocked for itemID={inst?.ItemID} char={_characterID}: " +
+                    $"charID empty={string.IsNullOrWhiteSpace(_characterID)}, slotAllowed={slotAllowed}, " +
+                    $"resolvedSlot={slot}, AllowedSlotIDs=[{allowedStr}], charSlots=[{charSlotStr}], " +
+                    $"targetSlotID={_targetSlotID}");
+            }
         }
 
         private string ResolveEquipTargetSlot(UnstackableItemInstanceState inst, ItemDefinition def, out bool allowed)

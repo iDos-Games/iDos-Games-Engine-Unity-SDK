@@ -246,6 +246,8 @@ namespace IDosGames
             var unstackables = IDosGamesData.User?.State?.InventoryV2?.UnstackableItems;
             int characterLevel = model?.Level ?? 0;
 
+            int boundItems = 0;
+
             for (int i = 0; i < slots.Count; i++)
             {
                 var slot = slots[i];
@@ -268,6 +270,30 @@ namespace IDosGames
                 var classSprite = ResolveClassIcon(itemDef?.ItemClass);
 
                 slot.Bind(equipped, inst, itemDef, isLocked, rarity, classSprite, OnSlotClicked);
+
+                if (inst != null && itemDef != null) boundItems++;
+            }
+
+            // Diagnostic: server reports equipped items but no UI slot bound any of them.
+            // Almost always a SlotID mismatch between EquipmentSlotView (Inspector) and
+            // charDef.Equipment.Slots / model.Equipment keys (case-sensitive lookup).
+            if (boundItems == 0 && model?.Equipment != null && model.Equipment.Count > 0)
+            {
+                var uiSlotIDs = new List<string>(slots.Count);
+                for (int i = 0; i < slots.Count; i++)
+                    if (slots[i] != null) uiSlotIDs.Add(slots[i].SlotID ?? "(null)");
+
+                string uiStr = uiSlotIDs.Count > 0 ? string.Join(",", uiSlotIDs) : "(none)";
+                string equippedStr = string.Join(",", model.Equipment.Keys);
+                string defStr = (charDef?.Equipment?.Slots != null && charDef.Equipment.Slots.Count > 0)
+                    ? string.Join(",", charDef.Equipment.Slots.Keys)
+                    : "(empty)";
+
+                Debug.LogWarning(
+                    $"[EquipmentPanel] Equipped items not shown — SlotID mismatch. " +
+                    $"UI EquipmentSlotView.slotID=[{uiStr}], model.Equipment keys=[{equippedStr}], " +
+                    $"charDef.Equipment.Slots keys=[{defStr}]. " +
+                    $"Fix: align EquipmentSlotView.slotID (Inspector) with the server-side slot IDs.");
             }
         }
 
@@ -495,9 +521,110 @@ namespace IDosGames
             if (result != null && !result.Success) Refresh();
         }
 
-        private void OnEquipAllClicked()
+        private async void OnEquipAllClicked()
         {
-            Debug.Log("[EquipmentPanel] TODO: auto-equip-best flow not implemented yet.");
+            if (string.IsNullOrWhiteSpace(_characterID)) return;
+
+            var defs = IDosGamesData.Config?.TitlePublicConfiguration?.Character?.Definitions;
+            CharacterDefinition charDef = null;
+            defs?.TryGetValue(_characterID, out charDef);
+
+            var characters = IDosGamesData.User?.State?.Character?.Characters;
+            CharacterModel model = null;
+            characters?.TryGetValue(_characterID, out model);
+
+            if (model == null || charDef?.Equipment?.Slots == null || charDef.Equipment.Slots.Count == 0)
+            {
+                Debug.LogWarning("[EquipmentPanel] EquipAll: missing character data or no equipment slots defined.");
+                return;
+            }
+
+            var unstackables = IDosGamesData.User?.State?.InventoryV2?.UnstackableItems;
+            if (unstackables == null || unstackables.Count == 0) return;
+
+            int characterLevel = model.Level;
+
+            var candidates = new List<(UnstackableItemInstanceState inst, ItemDefinition def, int power)>();
+            foreach (var kv in unstackables)
+            {
+                var inst = kv.Value;
+                if (inst == null || string.IsNullOrWhiteSpace(inst.ItemInstanceID)) continue;
+
+                if (inst.EquippedSlot != null
+                    && !string.IsNullOrWhiteSpace(inst.EquippedSlot.CharacterID)
+                    && !string.Equals(inst.EquippedSlot.CharacterID, _characterID, StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                var def = ResolveItemDefinition(inst, null);
+                if (def?.Equipment?.AllowedSlotIDs == null || def.Equipment.AllowedSlotIDs.Count == 0) continue;
+                if (characterLevel < def.Equipment.MinCharacterLevel) continue;
+                if (def.Equipment.AllowedCharacterIDs != null
+                    && def.Equipment.AllowedCharacterIDs.Count > 0
+                    && !def.Equipment.AllowedCharacterIDs.Contains(_characterID))
+                {
+                    continue;
+                }
+
+                candidates.Add((inst, def, def.Stats?.Power ?? 0));
+            }
+
+            if (candidates.Count == 0) return;
+
+            candidates.Sort((a, b) =>
+            {
+                int cmp = b.power.CompareTo(a.power);
+                if (cmp != 0) return cmp;
+                int al = a.inst?.Level ?? 1;
+                int bl = b.inst?.Level ?? 1;
+                cmp = bl.CompareTo(al);
+                if (cmp != 0) return cmp;
+                return string.CompareOrdinal(a.inst.ItemInstanceID, b.inst.ItemInstanceID);
+            });
+
+            var assignment = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var c in candidates)
+            {
+                var allowed = c.def.Equipment.AllowedSlotIDs;
+                for (int i = 0; i < allowed.Count; i++)
+                {
+                    var slotID = allowed[i];
+                    if (string.IsNullOrWhiteSpace(slotID)) continue;
+                    if (assignment.ContainsKey(slotID)) continue;
+
+                    if (!charDef.Equipment.Slots.TryGetValue(slotID, out var rule) || rule == null) continue;
+                    if (characterLevel < rule.MinCharacterLevel) continue;
+
+                    assignment[slotID] = c.inst.ItemInstanceID;
+                    break;
+                }
+            }
+
+            var payload = new List<EquipSlotPair>();
+            foreach (var kv in assignment)
+            {
+                string slotID = kv.Key;
+                string newInstID = kv.Value;
+
+                EquippedItem current = null;
+                model.Equipment?.TryGetValue(slotID, out current);
+
+                if (current != null && string.Equals(current.ItemInstanceID, newInstID, StringComparison.Ordinal))
+                    continue;
+
+                payload.Add(new EquipSlotPair { SlotID = slotID, ItemInstanceID = newInstID });
+            }
+
+            if (payload.Count == 0) return;
+
+            if (buttonEquipAll != null) buttonEquipAll.interactable = false;
+
+            var result = await CharacterService.EquipItems(_characterID, payload);
+
+            if (this == null) return;
+            if (buttonEquipAll != null) buttonEquipAll.interactable = true;
+            if (result != null && !result.Success) Refresh();
         }
 
         private void OnPropertyClicked()

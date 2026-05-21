@@ -9191,7 +9191,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 563480717}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1769835368}
+        m_TargetAssemblyTypeName: IDosGames.TestV2, Assembly-CSharp
+        m_MethodName: Lootbox2
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &563480717
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12434,7 +12446,6 @@ MonoBehaviour:
   buttonProperty: {fileID: 2091856407}
   popup: {fileID: 681949485}
   visuals: {fileID: 11400000, guid: 33d0be63b53a9944f995da0f49c298c7, type: 2}
-  showCatalogItemsForTest: 0
 --- !u!95 &795618752
 Animator:
   serializedVersion: 7
@@ -28798,6 +28809,7 @@ GameObject:
   - component: {fileID: 1769835367}
   - component: {fileID: 1769835366}
   - component: {fileID: 1769835365}
+  - component: {fileID: 1769835368}
   m_Layer: 0
   m_Name: Button_01
   m_TagString: Untagged
@@ -28868,7 +28880,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1769835366}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1769835368}
+        m_TargetAssemblyTypeName: IDosGames.TestV2, Assembly-CSharp
+        m_MethodName: Lootbox
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1769835366
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -28907,6 +28931,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1769835363}
   m_CullTransparentMesh: 1
+--- !u!114 &1769835368
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1769835363}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f37e43550378ae54bb8b5ed4cdf241f3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::IDosGames.TestV2
 --- !u!1 &1770439910
 GameObject:
   m_ObjectHideFlags: 0
