@@ -12434,7 +12434,7 @@ MonoBehaviour:
   buttonProperty: {fileID: 2091856407}
   popup: {fileID: 681949485}
   visuals: {fileID: 11400000, guid: 33d0be63b53a9944f995da0f49c298c7, type: 2}
-  showCatalogItemsForTest: 1
+  showCatalogItemsForTest: 0
 --- !u!95 &795618752
 Animator:
   serializedVersion: 7

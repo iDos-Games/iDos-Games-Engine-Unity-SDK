@@ -1468,5 +1468,48 @@ namespace IDosGames
                 OnAnyUpdated?.Invoke();
             }
         }
+
+        internal void PatchUnstackableItemLevel(string instanceID, int level)
+        {
+            if (string.IsNullOrWhiteSpace(instanceID)) return;
+
+            State ??= new();
+            State.InventoryV2 ??= new UserInventoryState();
+            State.InventoryV2.UnstackableItems ??= new Dictionary<string, UnstackableItemInstanceState>();
+
+            if (!State.InventoryV2.UnstackableItems.TryGetValue(instanceID, out var inst) || inst == null)
+                return;
+
+            inst.Level = level;
+            OnInventoryUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
+        internal void PatchCryptoCurrencyDelta(string currencyID, decimal delta, DateTime updatedAt)
+        {
+            if (string.IsNullOrWhiteSpace(currencyID) || delta == 0m) return;
+
+            State ??= new();
+            State.InventoryV2 ??= new UserInventoryState();
+            State.InventoryV2.CryptoCurrencies ??= new Dictionary<string, UserCryptoCurrencyState>();
+
+            if (!State.InventoryV2.CryptoCurrencies.TryGetValue(currencyID, out var slot) || slot == null)
+            {
+                slot = new UserCryptoCurrencyState
+                {
+                    Amount = 0m,
+                    Frozen = 0m,
+                    CreatedAt = updatedAt,
+                    UpdatedAt = updatedAt,
+                };
+                State.InventoryV2.CryptoCurrencies[currencyID] = slot;
+            }
+
+            slot.Amount += delta;
+            slot.UpdatedAt = updatedAt;
+
+            OnInventoryUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
     }
 }
