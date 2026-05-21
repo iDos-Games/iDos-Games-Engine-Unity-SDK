@@ -59,6 +59,12 @@ namespace IDosGames
         [Tooltip("Darkening overlay shown when the character is not unlocked. Should block raycasts.")]
         [SerializeField] private GameObject lockedOverlay;
 
+        [Header("Unlock")]
+        [Tooltip("Button shown on top of the locked overlay. Calls CharacterService.UnlockCharacter on click.")]
+        [SerializeField] private Button unlockButton;
+        [Tooltip("Optional cost label inside the unlock button. Shows the unlock cost amount or 'Free'.")]
+        [SerializeField] private TextMeshProUGUI unlockCostText;
+
         [Header("Rarity palette (per RarityID)")]
         [SerializeField] private List<CharacterRarityVisual> rarityVisuals;
 
@@ -85,6 +91,8 @@ namespace IDosGames
             }
 
             if (lockedOverlay != null) lockedOverlay.SetActive(isLocked);
+
+            ApplyUnlockButton(isLocked, def);
 
             if (nameText != null)
             {
@@ -122,6 +130,55 @@ namespace IDosGames
         }
 
         private void OnClicked() => _onSelected?.Invoke(_characterID);
+
+        private void ApplyUnlockButton(bool isLocked, CharacterDefinition def)
+        {
+            if (unlockButton == null) return;
+
+            var cost = def?.Unlock?.Cost;
+            bool canUnlockByCost = isLocked && cost != null;
+
+            unlockButton.gameObject.SetActive(canUnlockByCost);
+            unlockButton.onClick.RemoveAllListeners();
+
+            if (!canUnlockByCost) return;
+
+            unlockButton.interactable = true;
+            unlockButton.onClick.AddListener(OnUnlockClicked);
+
+            if (unlockCostText != null)
+            {
+                long amount = ExtractCost(cost);
+                unlockCostText.text = amount > 0 ? amount.ToString() : "Free";
+            }
+        }
+
+        private async void OnUnlockClicked()
+        {
+            if (string.IsNullOrEmpty(_characterID)) return;
+            if (unlockButton == null) return;
+
+            unlockButton.interactable = false;
+
+            var result = await CharacterService.UnlockCharacter(_characterID);
+
+            // CharacterService patches IDosGamesData.User on success and fires OnCharacterUpdated,
+            // which triggers CharacterListPanel.Refresh and re-binds this item (isLocked=false).
+            // On failure we just re-enable the button so the user can retry.
+            if (this == null || result == null) return;
+            if (!result.Success && unlockButton != null)
+                unlockButton.interactable = true;
+        }
+
+        private static long ExtractCost(ResourceConsume consume)
+        {
+            var entries = consume?.Standard?.Entries;
+            if (entries == null) return 0;
+            for (int i = 0; i < entries.Count; i++)
+                if (entries[i] != null && entries[i].Amount.HasValue)
+                    return entries[i].Amount.Value;
+            return 0;
+        }
 
         private CharacterRarityVisual ResolveRarity(string rarityID)
         {

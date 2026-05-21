@@ -20,6 +20,7 @@ namespace IDosGames
         public static event Action<string, List<EquipSlotPair>> OnItemsEquipped;
         public static event Action<string, List<string>> OnItemsUnequipped;
         public static event Action OnAllCharactersUnequipped;
+        public static event Action<UnlockCharacterResponse> OnCharacterUnlocked;
 
         // ---------- Helpers ----------
         private static AuthContext Ctx => AuthenticationService.GetAuthContext();
@@ -74,11 +75,6 @@ namespace IDosGames
             {
                 Debug.LogWarning("[CharacterService] UpgradeStatLevel: StatID is required.");
                 return OperationResult<UpgradeStatLevelResponse>.Fail("StatID is required");
-            }
-            if (statID.Contains('.') || statID.Contains('$'))
-            {
-                Debug.LogWarning($"[CharacterService] UpgradeStatLevel: StatID '{statID}' contains invalid characters.");
-                return OperationResult<UpgradeStatLevelResponse>.Fail("StatID contains invalid characters ('.' or '$').");
             }
 
             var resolvedCharacterID = ResolveCharacterID(characterID);
@@ -204,6 +200,43 @@ namespace IDosGames
             {
                 ApplyUnequipChangesLocally(resolvedCharacterID, sanitized);
                 OnItemsUnequipped?.Invoke(resolvedCharacterID, sanitized);
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Unlocks a character for the player. Patches <c>UserData.State.Character.Characters[id]</c>
+        /// with a new entry (level 0, empty stats/equipment) and applies the resource op locally.
+        /// </summary>
+        public static async Task<OperationResult<UnlockCharacterResponse>> UnlockCharacter(string characterID)
+        {
+            if (string.IsNullOrWhiteSpace(characterID))
+            {
+                Debug.LogWarning("[CharacterService] UnlockCharacter: CharacterID is required.");
+                return OperationResult<UnlockCharacterResponse>.Fail("CharacterID is required");
+            }
+
+            var resolvedCharacterID = characterID.Trim();
+            var request = CreateBaseRequest();
+            request.CharacterID = resolvedCharacterID;
+            request.RelatedEntityID = $"unlock_char_{resolvedCharacterID}_{Guid.NewGuid():N}";
+
+            var result = await CharacterAPI.UnlockCharacter(request);
+            if (result.Success && result.Data != null)
+            {
+                var data = result.Data;
+
+                IDosGamesData.User.PatchCharacter(data.CharacterID, ch =>
+                {
+                    ch.StatLevels ??= new Dictionary<string, int>();
+                    ch.Equipment ??= new Dictionary<string, EquippedItem>();
+                    ch.UpdatedAt = data.ServerTimeUtc;
+                });
+
+                if (data.Resources != null)
+                    IDosGamesData.User.ApplyResourceOperation(data.Resources, IDosGamesData.Config?.TitlePublicConfiguration?.Item);
+
+                OnCharacterUnlocked?.Invoke(data);
             }
             return result;
         }

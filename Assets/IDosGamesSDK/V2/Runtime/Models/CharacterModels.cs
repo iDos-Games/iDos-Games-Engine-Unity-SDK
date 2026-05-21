@@ -416,6 +416,24 @@ namespace IDosGames
         public Dictionary<string, string> AssetPaths { get; set; }
     }
 
+    public class UnlockCharacterResponse
+    {
+        /// <summary>Server time of operation execution (UTC).</summary>
+        public DateTime ServerTimeUtc { get; set; }
+
+        /// <summary>
+        /// Unlocked character ID (<see cref="CharacterModel.CharacterID"/>).
+        /// </summary>
+        public string CharacterID { get; set; }
+
+        /// <summary>
+        /// Standard container of resource changes.
+        /// The debited unlock cost is stored in <c>Resources.Consume.Standard.Entries</c> and/or <c>Resources.Consume.Standard.EventTokens</c>.
+        /// When idempotently retried, contains the same result as the first successful call.
+        /// </summary>
+        public ResourceOperation Resources { get; set; } = new();
+    }
+
     /// <summary>
     /// Server-mirrored action enum for the Character V2 module.
     /// Values must stay 1:1 aligned with backend <c>CharacterAction</c>.
@@ -429,5 +447,6 @@ namespace IDosGames
         EquipItems,
         UnequipItems,
         UnequipAllCharacters,
+        UnlockCharacter,
     }
 }

@@ -35,5 +35,8 @@ namespace IDosGames
 
         public static Task<OperationResult<SuccessResponse>> UnequipAllCharacters(CharacterRequest request)
             => SendRequest<SuccessResponse>(CharacterAction.UnequipAllCharacters, request);
+
+        public static Task<OperationResult<UnlockCharacterResponse>> UnlockCharacter(CharacterRequest request)
+            => SendRequest<UnlockCharacterResponse>(CharacterAction.UnlockCharacter, request);
     }
 }
