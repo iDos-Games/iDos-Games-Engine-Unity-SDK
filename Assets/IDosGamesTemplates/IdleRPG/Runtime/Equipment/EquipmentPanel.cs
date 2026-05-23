@@ -273,28 +273,6 @@ namespace IDosGames
 
                 if (inst != null && itemDef != null) boundItems++;
             }
-
-            // Diagnostic: server reports equipped items but no UI slot bound any of them.
-            // Almost always a SlotID mismatch between EquipmentSlotView (Inspector) and
-            // charDef.Equipment.Slots / model.Equipment keys (case-sensitive lookup).
-            if (boundItems == 0 && model?.Equipment != null && model.Equipment.Count > 0)
-            {
-                var uiSlotIDs = new List<string>(slots.Count);
-                for (int i = 0; i < slots.Count; i++)
-                    if (slots[i] != null) uiSlotIDs.Add(slots[i].SlotID ?? "(null)");
-
-                string uiStr = uiSlotIDs.Count > 0 ? string.Join(",", uiSlotIDs) : "(none)";
-                string equippedStr = string.Join(",", model.Equipment.Keys);
-                string defStr = (charDef?.Equipment?.Slots != null && charDef.Equipment.Slots.Count > 0)
-                    ? string.Join(",", charDef.Equipment.Slots.Keys)
-                    : "(empty)";
-
-                Debug.LogWarning(
-                    $"[EquipmentPanel] Equipped items not shown — SlotID mismatch. " +
-                    $"UI EquipmentSlotView.slotID=[{uiStr}], model.Equipment keys=[{equippedStr}], " +
-                    $"charDef.Equipment.Slots keys=[{defStr}]. " +
-                    $"Fix: align EquipmentSlotView.slotID (Inspector) with the server-side slot IDs.");
-            }
         }
 
         private void RefreshStatReadouts(CharacterModel model, CharacterDefinition charDef)
@@ -345,7 +323,7 @@ namespace IDosGames
                 if (itemDef?.Stats == null) continue;
 
                 int level = Mathf.Max(1, inst?.Level ?? 1);
-                var (f, p) = ItemUpgradeMath.GetScaledBonuses(itemDef.Stats, statKey, itemDef.Equipment?.Upgrade, level);
+                var (f, p) = ItemUpgradeMath.GetScaledBonuses(itemDef.Stats, statKey, itemDef.Upgrade, level);
                 flat += f;
                 percent += p;
             }
@@ -572,6 +550,20 @@ namespace IDosGames
 
             if (candidates.Count == 0) return;
 
+            // Bundle expansion: one pristine instance with Quantity=N counts as N virtual
+            // candidates so a single bundle can cover up to N free slots. The server will
+            // split each requested item into its own instance (see CharacterV2.EquipItems
+            // bundleSplitCounts), and our ApplyEquipChangesLocally mirrors the splits.
+            {
+                var expanded = new List<(UnstackableItemInstanceState inst, ItemDefinition def, int power)>(candidates.Count);
+                foreach (var c in candidates)
+                {
+                    int qty = Mathf.Max(1, c.inst?.Quantity ?? 1);
+                    for (int i = 0; i < qty; i++) expanded.Add(c);
+                }
+                candidates = expanded;
+            }
+
             candidates.Sort((a, b) =>
             {
                 int cmp = b.power.CompareTo(a.power);
@@ -583,7 +575,7 @@ namespace IDosGames
                 return string.CompareOrdinal(a.inst.ItemInstanceID, b.inst.ItemInstanceID);
             });
 
-            var assignment = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            var assignment = new Dictionary<string, UnstackableItemInstanceState>(StringComparer.OrdinalIgnoreCase);
             foreach (var c in candidates)
             {
                 var allowed = c.def.Equipment.AllowedSlotIDs;
@@ -596,7 +588,7 @@ namespace IDosGames
                     if (!charDef.Equipment.Slots.TryGetValue(slotID, out var rule) || rule == null) continue;
                     if (characterLevel < rule.MinCharacterLevel) continue;
 
-                    assignment[slotID] = c.inst.ItemInstanceID;
+                    assignment[slotID] = c.inst;
                     break;
                 }
             }
@@ -605,15 +597,16 @@ namespace IDosGames
             foreach (var kv in assignment)
             {
                 string slotID = kv.Key;
-                string newInstID = kv.Value;
+                var inst = kv.Value;
+                if (inst == null || string.IsNullOrWhiteSpace(inst.ItemID)) continue;
 
                 EquippedItem current = null;
                 model.Equipment?.TryGetValue(slotID, out current);
 
-                if (current != null && string.Equals(current.ItemInstanceID, newInstID, StringComparison.Ordinal))
+                if (current != null && string.Equals(current.ItemID, inst.ItemID, StringComparison.Ordinal))
                     continue;
 
-                payload.Add(new EquipSlotPair { SlotID = slotID, ItemInstanceID = newInstID });
+                payload.Add(new EquipSlotPair { SlotID = slotID, ItemID = inst.ItemID, CatalogID = inst.CatalogID });
             }
 
             if (payload.Count == 0) return;
@@ -678,7 +671,7 @@ namespace IDosGames
 
         // -------------------- Event handlers --------------------
 
-        private void HandleItemsEquipped(string charID, List<EquipSlotPair> pairs) => Refresh();
+        private void HandleItemsEquipped(EquipItemsResponse response) => Refresh();
         private void HandleItemsUnequipped(string charID, List<string> slotIDs) => Refresh();
         private void HandleAllUnequipped() => Refresh();
     }

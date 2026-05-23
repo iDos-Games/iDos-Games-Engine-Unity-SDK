@@ -27,8 +27,8 @@ namespace IDosGames
         public static Task<OperationResult<UpgradeCharacterLevelResponse>> UpgradeCharacterLevel(CharacterRequest request)
             => SendRequest<UpgradeCharacterLevelResponse>(CharacterAction.UpgradeCharacterLevel, request);
 
-        public static Task<OperationResult<SuccessResponse>> EquipItems(CharacterRequest request)
-            => SendRequest<SuccessResponse>(CharacterAction.EquipItems, request);
+        public static Task<OperationResult<EquipItemsResponse>> EquipItems(CharacterRequest request)
+            => SendRequest<EquipItemsResponse>(CharacterAction.EquipItems, request);
 
         public static Task<OperationResult<SuccessResponse>> UnequipItems(CharacterRequest request)
             => SendRequest<SuccessResponse>(CharacterAction.UnequipItems, request);

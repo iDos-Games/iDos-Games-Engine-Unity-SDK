@@ -17,7 +17,7 @@ namespace IDosGames
         public static event Action<Dictionary<string, CharacterModel>> OnUserCharactersLoaded;
         public static event Action<UpgradeStatLevelResponse> OnStatLevelUpgraded;
         public static event Action<UpgradeCharacterLevelResponse> OnCharacterLevelUpgraded;
-        public static event Action<string, List<EquipSlotPair>> OnItemsEquipped;
+        public static event Action<EquipItemsResponse> OnItemsEquipped;
         public static event Action<string, List<string>> OnItemsUnequipped;
         public static event Action OnAllCharactersUnequipped;
         public static event Action<UnlockCharacterResponse> OnCharacterUnlocked;
@@ -136,18 +136,18 @@ namespace IDosGames
         }
 
         /// <summary>
-        /// Equips one or more items. Locally mirrors the server change in
-        /// <c>UserData.State.Character.Characters[id].Equipment</c> and
+        /// Equips one or more items. On success, mirrors the authoritative server response
+        /// (<see cref="EquipItemsResponse.Equipment"/>, <see cref="EquipItemsResponse.ReplacedInstanceIDs"/>,
+        /// <see cref="EquipItemsResponse.Power"/>) into
+        /// <c>UserData.State.Character.Characters[id]</c> and
         /// <c>UserData.State.InventoryV2.UnstackableItems[instId].EquippedSlot</c>.
-        /// If a pair has no <see cref="EquipSlotPair.ItemInstanceID"/>, the local mirror for that pair is skipped;
-        /// callers should re-fetch via <see cref="GetUserCharacters"/> to discover the chosen instance.
         /// </summary>
-        public static async Task<OperationResult<SuccessResponse>> EquipItems(string characterID, List<EquipSlotPair> itemsToEquip)
+        public static async Task<OperationResult<EquipItemsResponse>> EquipItems(string characterID, List<EquipSlotPair> itemsToEquip)
         {
             if (itemsToEquip == null || itemsToEquip.Count == 0)
             {
                 Debug.LogWarning("[CharacterService] EquipItems: items list is empty.");
-                return OperationResult<SuccessResponse>.Fail("Items list is empty");
+                return OperationResult<EquipItemsResponse>.Fail("Items list is empty");
             }
 
             var sanitized = itemsToEquip
@@ -159,7 +159,7 @@ namespace IDosGames
             if (sanitized.Count == 0)
             {
                 Debug.LogWarning("[CharacterService] EquipItems: items list is empty after sanitisation.");
-                return OperationResult<SuccessResponse>.Fail("Items list is empty after validation");
+                return OperationResult<EquipItemsResponse>.Fail("Items list is empty after validation");
             }
 
             var resolvedCharacterID = ResolveCharacterID(characterID);
@@ -168,10 +168,10 @@ namespace IDosGames
             request.ItemsToEquip = sanitized;
 
             var result = await CharacterAPI.EquipItems(request);
-            if (result.Success)
+            if (result.Success && result.Data != null)
             {
-                ApplyEquipChangesLocally(resolvedCharacterID, sanitized);
-                OnItemsEquipped?.Invoke(resolvedCharacterID, sanitized);
+                ApplyEquipChangesLocally(result.Data);
+                OnItemsEquipped?.Invoke(result.Data);
             }
             return result;
         }
@@ -254,67 +254,124 @@ namespace IDosGames
             return result;
         }
 
-        // ===================== Local mirrors =====================
-
-        private static void ApplyEquipChangesLocally(string characterID, List<EquipSlotPair> pairs)
+        private static void ApplyEquipChangesLocally(EquipItemsResponse response)
         {
+            if (response == null || string.IsNullOrWhiteSpace(response.CharacterID)) return;
+
             var user = IDosGamesData.User;
             var state = user.State;
             if (state == null) return;
 
-            var now = DateTime.UtcNow;
-            var characters = state.Character?.Characters;
+            string characterID = response.CharacterID;
+            var replaced = response.ReplacedInstanceIDs;
+
             CharacterModel character = null;
-            characters?.TryGetValue(characterID, out character);
+            state.Character?.Characters?.TryGetValue(characterID, out character);
 
-            foreach (var pair in pairs)
+            user.MutateUnstackableItems(store =>
             {
-                // We can only mirror when we know which instance was equipped.
-                if (string.IsNullOrWhiteSpace(pair.ItemInstanceID))
-                    continue;
+                var touched = new HashSet<(string ItemID, string CatalogID)>();
 
-                // Discover the catalog id from current inventory.
-                string catalogID = null;
-                string itemID = pair.ItemID;
-                if (state.InventoryV2?.UnstackableItems != null
-                    && state.InventoryV2.UnstackableItems.TryGetValue(pair.ItemInstanceID, out var inst)
-                    && inst != null)
+                if (replaced != null)
                 {
-                    itemID = inst.ItemID ?? itemID;
-                    catalogID = inst.CatalogID;
+                    foreach (var instID in replaced)
+                    {
+                        if (string.IsNullOrWhiteSpace(instID)) continue;
+                        if (store.TryGetValue(instID, out var inst) && inst != null)
+                        {
+                            inst.EquippedSlot = null;
+                            if (!string.IsNullOrEmpty(inst.ItemID))
+                                touched.Add((inst.ItemID, inst.CatalogID ?? string.Empty));
+                        }
+                    }
                 }
 
-                // 1. Reset previously equipped instance in the same slot (if any).
-                if (character?.Equipment != null
-                    && character.Equipment.TryGetValue(pair.SlotID, out var oldEquipped)
-                    && oldEquipped != null
-                    && !string.IsNullOrWhiteSpace(oldEquipped.ItemInstanceID))
+                if (response.Equipment != null)
                 {
-                    user.PatchUnstackableItemEquippedSlot(oldEquipped.ItemInstanceID, null);
+                    foreach (var kv in response.Equipment)
+                    {
+                        string slotID = kv.Key;
+                        var equipped = kv.Value;
+                        if (string.IsNullOrWhiteSpace(slotID) || equipped == null) continue;
+
+                        if (character?.Equipment != null
+                            && character.Equipment.TryGetValue(slotID, out var oldEquipped)
+                            && oldEquipped != null
+                            && !string.IsNullOrWhiteSpace(oldEquipped.ItemInstanceID)
+                            && !string.Equals(oldEquipped.ItemInstanceID, equipped.ItemInstanceID, StringComparison.Ordinal)
+                            && (replaced == null || !replaced.Contains(oldEquipped.ItemInstanceID))
+                            && store.TryGetValue(oldEquipped.ItemInstanceID, out var oldInst)
+                            && oldInst != null)
+                        {
+                            oldInst.EquippedSlot = null;
+                            if (!string.IsNullOrEmpty(oldInst.ItemID))
+                                touched.Add((oldInst.ItemID, oldInst.CatalogID ?? string.Empty));
+                        }
+
+                        string equippedInstID = equipped.ItemInstanceID;
+                        if (string.IsNullOrWhiteSpace(equippedInstID)) continue;
+
+                        if (!string.IsNullOrEmpty(equipped.ItemID))
+                            touched.Add((equipped.ItemID, equipped.CatalogID ?? string.Empty));
+
+                        var newSlot = new EquipmentSlot
+                        {
+                            CharacterID = characterID,
+                            SlotID = slotID,
+                        };
+
+                        if (store.TryGetValue(equippedInstID, out var existing) && existing != null)
+                        {
+                            existing.EquippedSlot = newSlot;
+                        }
+                        else
+                        {
+                            string bundleID = FindPristineBundleID(store, equipped.ItemID, equipped.CatalogID);
+                            if (bundleID != null && store.TryGetValue(bundleID, out var bundle) && bundle != null)
+                            {
+                                int bundleQty = Mathf.Max(1, bundle.Quantity);
+                                if (bundleQty <= 1) store.Remove(bundleID);
+                                else bundle.Quantity = bundleQty - 1;
+                            }
+
+                            store[equippedInstID] = new UnstackableItemInstanceState
+                            {
+                                ItemInstanceID = equippedInstID,
+                                ItemID = equipped.ItemID,
+                                CatalogID = equipped.CatalogID,
+                                Quantity = 1,
+                                Level = 1,
+                                RemainingUses = 1,
+                                AcquiredAt = response.ServerTimeUtc,
+                                EquippedSlot = newSlot,
+                            };
+                        }
+                    }
                 }
 
-                // 2. Write the new equipped item on the character.
-                var equipped = new EquippedItem
-                {
-                    ItemID = itemID,
-                    ItemInstanceID = pair.ItemInstanceID,
-                    CatalogID = catalogID,
-                    EquippedAt = now,
-                };
-                user.PatchCharacterEquipment(characterID, pair.SlotID, equipped);
+                DefragmentPristineDuplicates(store, touched);
+            });
 
-                // 3. Stamp EquippedSlot on the instance (source of truth).
-                user.PatchUnstackableItemEquippedSlot(pair.ItemInstanceID, new EquipmentSlot
+            if (response.Equipment != null)
+            {
+                foreach (var kv in response.Equipment)
                 {
-                    CharacterID = characterID,
-                    SlotID = pair.SlotID,
-                });
+                    if (string.IsNullOrWhiteSpace(kv.Key) || kv.Value == null) continue;
+                    user.PatchCharacterEquipment(characterID, kv.Key, kv.Value);
+                }
             }
+
+            user.PatchCharacter(characterID, ch =>
+            {
+                ch.Power = response.Power;
+                ch.UpdatedAt = response.ServerTimeUtc;
+            });
         }
 
         private static void ApplyUnequipChangesLocally(string characterID, List<string> slotIDs)
         {
-            var state = IDosGamesData.User.State;
+            var user = IDosGamesData.User;
+            var state = user.State;
             if (state?.Character?.Characters == null
                 || !state.Character.Characters.TryGetValue(characterID, out var character)
                 || character?.Equipment == null
@@ -323,6 +380,7 @@ namespace IDosGames
                 return;
             }
 
+            var pairs = new List<(string slotID, string instID)>();
             foreach (var slotID in slotIDs)
             {
                 if (!character.Equipment.TryGetValue(slotID, out var equipped)
@@ -331,10 +389,25 @@ namespace IDosGames
                 {
                     continue;
                 }
-
-                IDosGamesData.User.PatchCharacterEquipment(characterID, slotID, null);
-                IDosGamesData.User.PatchUnstackableItemEquippedSlot(equipped.ItemInstanceID, null);
+                pairs.Add((slotID, equipped.ItemInstanceID));
             }
+
+            foreach (var (slotID, _) in pairs)
+                user.PatchCharacterEquipment(characterID, slotID, null);
+
+            user.MutateUnstackableItems(store =>
+            {
+                var touched = new HashSet<(string ItemID, string CatalogID)>();
+                foreach (var (_, instID) in pairs)
+                {
+                    if (!store.TryGetValue(instID, out var inst) || inst == null) continue;
+                    if (!string.IsNullOrEmpty(inst.ItemID))
+                        touched.Add((inst.ItemID, inst.CatalogID ?? string.Empty));
+                    inst.EquippedSlot = null;
+                    TryMergeIntoPristineBundle(store, instID, inst);
+                }
+                DefragmentPristineDuplicates(store, touched);
+            });
         }
 
         private static void ApplyUnequipAllLocally()
@@ -343,13 +416,13 @@ namespace IDosGames
             var characters = user.State?.Character?.Characters;
             if (characters == null || characters.Count == 0) return;
 
+            var allInstanceIDs = new List<string>();
             foreach (var charKv in characters)
             {
                 var charID = charKv.Key;
                 var charModel = charKv.Value;
                 if (charModel?.Equipment == null || charModel.Equipment.Count == 0) continue;
 
-                // Snapshot ids before mutating.
                 var instanceIDs = charModel.Equipment.Values
                     .Where(e => e != null && !string.IsNullOrWhiteSpace(e.ItemInstanceID))
                     .Select(e => e.ItemInstanceID)
@@ -359,8 +432,123 @@ namespace IDosGames
                 foreach (var slotID in slotIDs)
                     user.PatchCharacterEquipment(charID, slotID, null);
 
-                foreach (var instID in instanceIDs)
-                    user.PatchUnstackableItemEquippedSlot(instID, null);
+                allInstanceIDs.AddRange(instanceIDs);
+            }
+
+            if (allInstanceIDs.Count == 0) return;
+
+            user.MutateUnstackableItems(store =>
+            {
+                var touched = new HashSet<(string ItemID, string CatalogID)>();
+                foreach (var instID in allInstanceIDs)
+                {
+                    if (!store.TryGetValue(instID, out var inst) || inst == null) continue;
+                    if (!string.IsNullOrEmpty(inst.ItemID))
+                        touched.Add((inst.ItemID, inst.CatalogID ?? string.Empty));
+                    inst.EquippedSlot = null;
+                    TryMergeIntoPristineBundle(store, instID, inst);
+                }
+                // Mirror server post-defrag for the cross-character case.
+                DefragmentPristineDuplicates(store, touched);
+            });
+        }
+
+        private static bool IsPristineForMerge(UnstackableItemInstanceState inst)
+        {
+            if (inst == null) return false;
+            return Math.Max(1, inst.Level) == 1
+                && Math.Max(1L, inst.RemainingUses) == 1L
+                && inst.ExpiresAt == null
+                && inst.EquippedSlot == null
+                && string.IsNullOrEmpty(inst.CustomData);
+        }
+
+        private static string FindPristineBundleID(
+            IDictionary<string, UnstackableItemInstanceState> store,
+            string itemID, string catalogID, string excludeID = null)
+        {
+            if (store == null) return null;
+
+            UnstackableItemInstanceState best = null;
+            foreach (var kv in store)
+            {
+                if (excludeID != null && string.Equals(kv.Key, excludeID, StringComparison.Ordinal)) continue;
+                var inst = kv.Value;
+                if (inst == null) continue;
+                if (!string.Equals(inst.ItemID, itemID, StringComparison.Ordinal)) continue;
+                bool catalogMatches = string.Equals(
+                    inst.CatalogID ?? string.Empty,
+                    catalogID ?? string.Empty,
+                    StringComparison.Ordinal);
+                if (!catalogMatches) continue;
+                if (!IsPristineForMerge(inst)) continue;
+
+                if (best == null
+                    || inst.AcquiredAt < best.AcquiredAt
+                    || (inst.AcquiredAt == best.AcquiredAt
+                        && string.CompareOrdinal(inst.ItemInstanceID, best.ItemInstanceID) < 0))
+                {
+                    best = inst;
+                }
+            }
+            return best?.ItemInstanceID;
+        }
+
+        private static void TryMergeIntoPristineBundle(
+            IDictionary<string, UnstackableItemInstanceState> store,
+            string instID, UnstackableItemInstanceState inst)
+        {
+            if (!IsPristineForMerge(inst)) return;
+
+            string bundleID = FindPristineBundleID(store, inst.ItemID, inst.CatalogID, excludeID: instID);
+            if (bundleID == null || !store.TryGetValue(bundleID, out var bundle) || bundle == null) return;
+
+            int addQty = Math.Max(1, inst.Quantity);
+            bundle.Quantity = Math.Max(1, bundle.Quantity) + addQty;
+            store.Remove(instID);
+        }
+
+        private static void DefragmentPristineDuplicates(
+            IDictionary<string, UnstackableItemInstanceState> store,
+            HashSet<(string ItemID, string CatalogID)> touchedItems)
+        {
+            if (store == null || touchedItems == null || touchedItems.Count == 0) return;
+
+            foreach (var key in touchedItems)
+            {
+                if (string.IsNullOrWhiteSpace(key.ItemID)) continue;
+
+                List<UnstackableItemInstanceState> pristine = null;
+                foreach (var inst in store.Values)
+                {
+                    if (inst == null) continue;
+                    if (!string.Equals(inst.ItemID, key.ItemID, StringComparison.Ordinal)) continue;
+                    if (!string.Equals(inst.CatalogID ?? string.Empty,
+                                       key.CatalogID ?? string.Empty,
+                                       StringComparison.Ordinal)) continue;
+                    if (!IsPristineForMerge(inst)) continue;
+                    pristine ??= new List<UnstackableItemInstanceState>();
+                    pristine.Add(inst);
+                }
+
+                if (pristine == null || pristine.Count <= 1) continue;
+
+                pristine.Sort((a, b) =>
+                {
+                    int cmp = a.AcquiredAt.CompareTo(b.AcquiredAt);
+                    if (cmp != 0) return cmp;
+                    return string.CompareOrdinal(a.ItemInstanceID, b.ItemInstanceID);
+                });
+
+                var canonical = pristine[0];
+                int canonicalQty = Math.Max(1, canonical.Quantity);
+                for (int i = 1; i < pristine.Count; i++)
+                {
+                    var frag = pristine[i];
+                    canonicalQty += Math.Max(1, frag.Quantity);
+                    store.Remove(frag.ItemInstanceID);
+                }
+                canonical.Quantity = canonicalQty;
             }
         }
     }

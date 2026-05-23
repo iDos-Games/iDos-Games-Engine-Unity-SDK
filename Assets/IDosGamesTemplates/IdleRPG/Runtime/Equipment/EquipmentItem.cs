@@ -77,7 +77,12 @@ namespace IDosGames
             if (levelText != null)
             {
                 levelText.gameObject.SetActive(true);
-                levelText.text = $"Lv.{Mathf.Max(1, inst.Level)}";
+                // Bundle (Quantity > 1) is always pristine (Level=1), so "Lv.1" is uninformative;
+                // mirror the stackable "xN" label instead so the player sees the bundle size.
+                int qty = Mathf.Max(1, inst.Quantity);
+                levelText.text = qty > 1
+                    ? $"x{qty}"
+                    : $"Lv.{Mathf.Max(1, inst.Level)}";
             }
 
             LoadIcon(def);

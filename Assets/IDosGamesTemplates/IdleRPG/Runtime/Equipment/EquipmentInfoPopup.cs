@@ -32,6 +32,8 @@ namespace IDosGames
         [SerializeField] private TextMeshProUGUI itemClassText;
         [SerializeField] private TextMeshProUGUI itemDescriptionText;
         [SerializeField] private EquipmentItem item;
+        [Tooltip("Optional. Shown as 'x{Quantity}' when the instance is a bundle (Quantity > 1); hidden otherwise.")]
+        [SerializeField] private TextMeshProUGUI quantityText;
 
         [Header("Popup Colors")]
         [SerializeField] private Image topImage;
@@ -154,11 +156,27 @@ namespace IDosGames
 
             ApplyRarity(def?.Metadata?.RarityID);
             ApplyClassIcon(def?.ItemClass);
+            ApplyQuantity(inst);
             ApplyItemPreview(inst, def);
             ApplyStats(inst, def);
 
             ApplyEquipButton(inst, def);
             ApplyLevelUpButton(inst, def);
+        }
+
+        private void ApplyQuantity(UnstackableItemInstanceState inst)
+        {
+            if (quantityText == null) return;
+            int qty = Mathf.Max(1, inst?.Quantity ?? 1);
+            if (qty > 1)
+            {
+                quantityText.gameObject.SetActive(true);
+                quantityText.text = $"x{qty}";
+            }
+            else
+            {
+                quantityText.gameObject.SetActive(false);
+            }
         }
 
         private void ApplyItemPreview(UnstackableItemInstanceState inst, ItemDefinition def)
@@ -230,7 +248,7 @@ namespace IDosGames
             if (statRows == null || statRows.Count == 0) return;
 
             int level = Mathf.Max(1, inst?.Level ?? 1);
-            var upgrade = def?.Equipment?.Upgrade;
+            var upgrade = def?.Upgrade;
             var stats = def?.Stats;
 
             var keys = new List<string>();
@@ -297,13 +315,24 @@ namespace IDosGames
 
             string slot = ResolveEquipTargetSlot(inst, def, out bool slotAllowed);
 
-            bool interactable = !isEquipped && slotAllowed && !string.IsNullOrWhiteSpace(_characterID);
+            // Redundant: target slot already holds an instance of the same (ItemID, CatalogID)
+            // with Level >= ours. Equipping would produce no visible change and still cost a
+            // server roundtrip, so we disable the button. Different ItemID, or our instance
+            // has a higher Level — interactive (real upgrade or swap).
+            bool redundant = !isEquipped
+                             && slotAllowed
+                             && !string.IsNullOrWhiteSpace(slot)
+                             && !string.IsNullOrWhiteSpace(_characterID)
+                             && inst != null
+                             && IsTargetSlotAlreadyEquivalent(slot, inst);
+
+            bool interactable = !isEquipped && slotAllowed && !string.IsNullOrWhiteSpace(_characterID) && !redundant;
             equipButton.interactable = interactable;
 
             if (equipButtonLabel != null)
                 equipButtonLabel.text = isEquipped ? "Unequip" : "Equip";
 
-            if (!interactable && !isEquipped)
+            if (!interactable && !isEquipped && !redundant)
             {
                 var allowedSlots = def?.Equipment?.AllowedSlotIDs;
                 var defs = IDosGamesData.Config?.TitlePublicConfiguration?.Character?.Definitions;
@@ -317,13 +346,40 @@ namespace IDosGames
                 string charSlotStr = (charDef?.Equipment?.Slots != null && charDef.Equipment.Slots.Count > 0)
                     ? string.Join(",", charDef.Equipment.Slots.Keys)
                     : "(empty)";
-
-                Debug.LogWarning(
-                    $"[EquipmentInfoPopup] Equip blocked for itemID={inst?.ItemID} char={_characterID}: " +
-                    $"charID empty={string.IsNullOrWhiteSpace(_characterID)}, slotAllowed={slotAllowed}, " +
-                    $"resolvedSlot={slot}, AllowedSlotIDs=[{allowedStr}], charSlots=[{charSlotStr}], " +
-                    $"targetSlotID={_targetSlotID}");
             }
+        }
+
+        // Returns true if `slotID` on the active character already holds an instance with
+        // the same (ItemID, CatalogID) and a Level >= ours — i.e. the equip would be a no-op
+        // (identical pristine) or a downgrade.
+        private bool IsTargetSlotAlreadyEquivalent(string slotID, UnstackableItemInstanceState ourInst)
+        {
+            var characters = IDosGamesData.User?.State?.Character?.Characters;
+            if (characters == null) return false;
+            if (!characters.TryGetValue(_characterID, out var character) || character?.Equipment == null) return false;
+            if (!character.Equipment.TryGetValue(slotID, out var equipped) || equipped == null) return false;
+            if (string.IsNullOrWhiteSpace(equipped.ItemInstanceID)) return false;
+
+            // Same definition: ItemID + CatalogID (treat null/"" as equal, like the server).
+            if (!string.Equals(equipped.ItemID, ourInst.ItemID, StringComparison.Ordinal)) return false;
+            if (!string.Equals(equipped.CatalogID ?? string.Empty,
+                               ourInst.CatalogID ?? string.Empty,
+                               StringComparison.Ordinal))
+                return false;
+
+            // Same instance reference is impossible here (caller already gated on !isEquipped),
+            // but be defensive — treat as redundant.
+            if (string.Equals(equipped.ItemInstanceID, ourInst.ItemInstanceID, StringComparison.Ordinal))
+                return true;
+
+            var unstackables = IDosGamesData.User?.State?.InventoryV2?.UnstackableItems;
+            UnstackableItemInstanceState equippedInst = null;
+            unstackables?.TryGetValue(equipped.ItemInstanceID, out equippedInst);
+
+            int equippedLevel = Mathf.Max(1, equippedInst?.Level ?? 1);
+            int ourLevel = Mathf.Max(1, ourInst.Level);
+
+            return equippedLevel >= ourLevel;
         }
 
         private string ResolveEquipTargetSlot(UnstackableItemInstanceState inst, ItemDefinition def, out bool allowed)
@@ -373,31 +429,34 @@ namespace IDosGames
 
             if (equipButton != null) equipButton.interactable = false;
 
-            OperationResult<SuccessResponse> result;
+            bool success;
             if (isEquipped)
             {
-                result = await CharacterService.UnequipItems(
+                var unequipResult = await CharacterService.UnequipItems(
                     inst.EquippedSlot.CharacterID ?? _characterID,
                     new List<string> { inst.EquippedSlot.SlotID });
+                if (this == null) return;
+                success = unequipResult != null && unequipResult.Success;
             }
             else
             {
                 var def = ResolveDefinition(inst);
                 string slot = ResolveEquipTargetSlot(inst, def, out bool allowed);
-                if (!allowed || string.IsNullOrWhiteSpace(slot))
+                if (!allowed || string.IsNullOrWhiteSpace(slot) || string.IsNullOrWhiteSpace(inst.ItemID))
                 {
                     if (equipButton != null) equipButton.interactable = true;
                     return;
                 }
 
-                result = await CharacterService.EquipItems(_characterID, new List<EquipSlotPair>
+                var equipResult = await CharacterService.EquipItems(_characterID, new List<EquipSlotPair>
                 {
-                    new EquipSlotPair { SlotID = slot, ItemInstanceID = _instanceID }
+                    new EquipSlotPair { SlotID = slot, ItemID = inst.ItemID, CatalogID = inst.CatalogID }
                 });
+                if (this == null) return;
+                success = equipResult != null && equipResult.Success;
             }
 
-            if (this == null || result == null) return;
-            if (!result.Success) Refresh();
+            if (!success) Refresh();
         }
 
         // ===== Level Up =====
@@ -406,7 +465,7 @@ namespace IDosGames
         {
             if (levelUpButton == null) return;
 
-            var upgrade = def?.Equipment?.Upgrade;
+            var upgrade = def?.Upgrade;
             int level = Mathf.Max(1, inst?.Level ?? 1);
             bool atMax = ItemUpgradeMath.IsMaxLevel(level, upgrade);
 
@@ -460,14 +519,10 @@ namespace IDosGames
 
         // ===== Event handlers =====
 
-        private void HandleItemsEquipped(string charID, List<EquipSlotPair> pairs)
+        private void HandleItemsEquipped(EquipItemsResponse response)
         {
-            for (int i = 0; i < pairs.Count; i++)
-                if (pairs[i] != null && pairs[i].ItemInstanceID == _instanceID)
-                {
-                    Refresh();
-                    return;
-                }
+            if (response == null) return;
+            Refresh();
         }
 
         private void HandleItemsUnequipped(string charID, List<string> slotIDs) => Refresh();

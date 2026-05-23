@@ -33,6 +33,7 @@ namespace IDosGames
         public NFTModel NFT { get; set; }
         public ItemStats Stats { get; set; }
         public ItemEquipment Equipment { get; set; }
+        public ItemUpgrade Upgrade { get; set; }
         public ItemMetadata Metadata { get; set; }
     }
 
@@ -66,7 +67,6 @@ namespace IDosGames
         public Dictionary<string, int> UseRequirements { get; set; } = new();
         public List<string> AllowedCharacterIDs { get; set; } = new();
         public List<string> AllowedSlotIDs { get; set; } = new();
-        public ItemUpgrade Upgrade { get; set; } = new();
     }
 
     public class ItemUpgrade

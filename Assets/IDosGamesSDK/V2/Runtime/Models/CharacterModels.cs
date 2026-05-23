@@ -37,6 +37,7 @@ namespace IDosGames
 
         /// <summary>Item catalog key. Used only when <see cref="ItemInstanceID"/> is missing.</summary>
         public string ItemID { get; set; }
+        public string CatalogID { get; set; }
     }
 
     /// <summary>Response for <see cref="CharacterAction.GetUserCharacters"/>.</summary>
@@ -73,6 +74,43 @@ namespace IDosGames
 
         /// <summary>V2 unified resource container — see <see cref="UpgradeStatLevelResponse.Resources"/>.</summary>
         public ResourceOperation Resources { get; set; }
+    }
+
+    /// <summary>
+    /// Response to a successful <see cref="CharacterAction.EquipItems"/>.
+    /// </summary>
+    public class EquipItemsResponse
+    {
+        /// <summary>Server time of operation execution (UTC).</summary>
+        public DateTime ServerTimeUtc { get; set; }
+
+        /// <summary>
+        /// The ID of the character the items were equipped on
+        /// (<see cref="CharacterModel.CharacterID"/>).
+        /// </summary>
+        public string CharacterID { get; set; }
+
+        /// <summary>
+        /// Items equipped by this request. Key is <c>SlotID</c>, value is the resulting entry
+        /// in <see cref="CharacterModel.Equipment"/> with resolved
+        /// <see cref="EquippedItem.ItemInstanceID"/>. For bundle-split cases,
+        /// <see cref="EquippedItem.ItemInstanceID"/> will be a new ID, different from the one
+        /// sent by the client.
+        /// </summary>
+        public Dictionary<string, EquippedItem> Equipment { get; set; } = new();
+
+        /// <summary>
+        /// Instance IDs of items removed from the character by this request
+        /// (displaced by new items from previously occupied slots).
+        /// Empty if none of the affected slots were occupied prior to the request.
+        /// </summary>
+        public List<string> ReplacedInstanceIDs { get; set; } = new();
+
+        /// <summary>
+        /// The character's recalculated combat power after equipping.
+        /// Corresponds to the value in <see cref="CharacterModel.Power"/>.
+        /// </summary>
+        public int Power { get; set; }
     }
 
     /// <summary>

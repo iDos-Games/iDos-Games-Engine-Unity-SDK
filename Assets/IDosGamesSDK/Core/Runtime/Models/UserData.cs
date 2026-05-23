@@ -122,6 +122,19 @@ namespace IDosGames
             OnAnyUpdated?.Invoke();
         }
 
+        internal void MutateUnstackableItems(Action<IDictionary<string, UnstackableItemInstanceState>> mutator)
+        {
+            if (mutator == null) return;
+            State ??= new();
+            State.InventoryV2 ??= new UserInventoryState();
+            State.InventoryV2.UnstackableItems ??= new Dictionary<string, UnstackableItemInstanceState>();
+
+            mutator(State.InventoryV2.UnstackableItems);
+
+            OnInventoryUpdated?.Invoke();
+            OnAnyUpdated?.Invoke();
+        }
+
         internal void ApplyResourceOperation(ResourceOperation op, ItemDefinitions itemDefs)
         {
             if (op == null || State == null) return;
@@ -1075,10 +1088,6 @@ namespace IDosGames
             State.Lootbox ??= new UserLootboxState();
             State.Lootbox.Pity ??= new System.Collections.Generic.Dictionary<string, UserLootboxPityCounter>();
 
-            // —чЄтчик дл€ каждого сработавшего правила Ч сбрасываем по модулю.
-            // ѕор€док обработки: сначала сработавшие (с точным newCounter = (current + count) % Threshold),
-            // затем не сработавшие инкрементируютс€ на count без сброса.
-            // “ак как клиент не знает Threshold, дл€ сработавших просто занул€ем счЄтчик
             if (triggeredPity != null)
             {
                 var now = System.DateTime.UtcNow;
@@ -1339,7 +1348,6 @@ namespace IDosGames
             state.TotalPurchases += count;
             state.LastPurchasedAt = serverTimeUtc;
 
-            // ƒейли-окно: если сброс уже прошЄл Ч начинаем новое окно.
             if (serverTimeUtc >= state.DailyResetUtc)
             {
                 state.DailyPurchases = count;
@@ -1370,8 +1378,6 @@ namespace IDosGames
             State.TimedBoost ??= new UserTimedBoostsState();
             State.TimedBoost.Active ??= new System.Collections.Generic.Dictionary<string, ActiveTimedBoost>();
 
-            // ƒл€ Replace и KeepBest на клиенте убираем прежние экземпл€ры с тем же BoostID,
-            // чтобы локальный кэш не расходилс€ с серверным состо€нием.
             if (policy == TimedBoostStackingPolicy.Replace || policy == TimedBoostStackingPolicy.KeepBest)
             {
                 var toRemove = new System.Collections.Generic.List<string>();
@@ -1437,7 +1443,7 @@ namespace IDosGames
                     State.CustomData.Public[keyID] = record;
                     break;
                 default:
-                    return; // клиент патчит только Private/Public
+                    return;
             }
 
             State.CustomData.Version++;
