@@ -1,27 +1,30 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-[RequireComponent(typeof(RawImage))]
-public class ScrollBackground : MonoBehaviour
+namespace IDosGames
 {
-    [SerializeField] private Vector2 speed = new Vector2(0.05f, 0.05f);
-
-    private RawImage image;
-
-    private void Awake()
+    [RequireComponent(typeof(RawImage))]
+    public class ScrollBackground : MonoBehaviour
     {
-        image = GetComponent<RawImage>();
-    }
+        [SerializeField] private Vector2 speed = new Vector2(0.05f, 0.05f);
 
-    private void Update()
-    {
-        Rect uv = image.uvRect;
+        private RawImage image;
 
-        uv.position += speed * Time.deltaTime;
+        private void Awake()
+        {
+            image = GetComponent<RawImage>();
+        }
 
-        uv.x = Mathf.Repeat(uv.x, 1f);
-        uv.y = Mathf.Repeat(uv.y, 1f);
+        private void Update()
+        {
+            Rect uv = image.uvRect;
 
-        image.uvRect = uv;
+            uv.position += speed * Time.deltaTime;
+
+            uv.x = Mathf.Repeat(uv.x, 1f);
+            uv.y = Mathf.Repeat(uv.y, 1f);
+
+            image.uvRect = uv;
+        }
     }
 }
