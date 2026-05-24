@@ -92,13 +92,51 @@ namespace IDosGames
         private void OnEquipmentClicked()
         {
             if (equipmentPanel == null || string.IsNullOrEmpty(_characterID)) return;
-            equipmentPanel.Show(_characterID);
+
+            var bgColor = Color.white;
+            var gradientColor = Color.white;
+            var basicFrameColor = Color.white;
+
+            var defs = IDosGamesData.Config?.TitlePublicConfiguration?.Character?.Definitions;
+            CharacterDefinition def = null;
+            defs?.TryGetValue(_characterID, out def);
+
+            if (TryResolveRarityLabel(def?.Classification?.RarityID, out var label) && label != null)
+            {
+                bgColor = label.BgColor;
+                gradientColor = label.GradientColor;
+                basicFrameColor = label.BasicFrameColor;
+            }
+
+            equipmentPanel.Show(_characterID, bgColor, gradientColor, basicFrameColor);
+        }
+
+        private bool TryResolveRarityLabel(string rarityID, out CharacterRarityLabel label)
+        {
+            label = null;
+            if (rarityLabels == null || rarityLabels.Count == 0) return false;
+
+            if (!string.IsNullOrEmpty(rarityID))
+            {
+                for (int i = 0; i < rarityLabels.Count; i++)
+                {
+                    var l = rarityLabels[i];
+                    if (l != null && string.Equals(l.RarityID, rarityID, System.StringComparison.OrdinalIgnoreCase))
+                    {
+                        label = l;
+                        return true;
+                    }
+                }
+            }
+
+            label = rarityLabels[0];
+            return label != null;
         }
 
         private void OnEnable()
         {
             CharacterService.OnCharacterLevelUpgraded += HandleCharacterLevelUpgraded;
-            CharacterService.OnStatLevelUpgraded      += HandleStatLevelUpgraded;
+            CharacterService.OnStatLevelUpgraded += HandleStatLevelUpgraded;
 
             if (IDosGamesData.User != null)
                 IDosGamesData.User.OnCharacterUpdated += RefreshFromCache;
@@ -107,7 +145,7 @@ namespace IDosGames
         private void OnDisable()
         {
             CharacterService.OnCharacterLevelUpgraded -= HandleCharacterLevelUpgraded;
-            CharacterService.OnStatLevelUpgraded      -= HandleStatLevelUpgraded;
+            CharacterService.OnStatLevelUpgraded -= HandleStatLevelUpgraded;
 
             if (IDosGamesData.User != null)
                 IDosGamesData.User.OnCharacterUpdated -= RefreshFromCache;
@@ -184,23 +222,7 @@ namespace IDosGames
 
         private void ApplyRarity(string rarityID)
         {
-            if (rarityLabels == null || rarityLabels.Count == 0) return;
-
-            CharacterRarityLabel label = null;
-            if (!string.IsNullOrEmpty(rarityID))
-            {
-                for (int i = 0; i < rarityLabels.Count; i++)
-                {
-                    var l = rarityLabels[i];
-                    if (l != null && string.Equals(l.RarityID, rarityID, System.StringComparison.OrdinalIgnoreCase))
-                    {
-                        label = l;
-                        break;
-                    }
-                }
-            }
-            if (label == null) label = rarityLabels[0];
-            if (label == null) return;
+            if (!TryResolveRarityLabel(rarityID, out var label) || label == null) return;
 
             if (rarityLabelImage != null && label.LabelSprite != null)
                 rarityLabelImage.sprite = label.LabelSprite;
@@ -208,7 +230,7 @@ namespace IDosGames
             if (rarityLabelText != null)
                 rarityLabelText.text = label.DisplayName ?? string.Empty;
 
-            if (bgImage != null)       bgImage.color       = label.BgColor;
+            if (bgImage != null) bgImage.color = label.BgColor;
             if (gradientImage != null) gradientImage.color = label.GradientColor;
 
             if (basicFrameImages != null)

@@ -33,6 +33,11 @@ namespace IDosGames
         [SerializeField] private TextMeshProUGUI nameText;
         [SerializeField] private List<StatReadout> statReadouts;
 
+        [Header("Color Replacement")]
+        [SerializeField] private Image bgImage;
+        [SerializeField] private Image gradientImage;
+        [SerializeField] private List<Image> basicFrameImages;
+
         [Header("Slots")]
         [SerializeField] private List<EquipmentSlotView> slots;
 
@@ -57,6 +62,9 @@ namespace IDosGames
         private string _characterID;
         private string _activeClass;
         private string _loadedImagePath;
+        private Color _bgColor = Color.white;
+        private Color _gradientColor = Color.white;
+        private Color _basicFrameColor = Color.white;
 
         // -------------------- Lifecycle --------------------
 
@@ -90,8 +98,8 @@ namespace IDosGames
 
         private void OnEnable()
         {
-            CharacterService.OnItemsEquipped           += HandleItemsEquipped;
-            CharacterService.OnItemsUnequipped         += HandleItemsUnequipped;
+            CharacterService.OnItemsEquipped += HandleItemsEquipped;
+            CharacterService.OnItemsUnequipped += HandleItemsUnequipped;
             CharacterService.OnAllCharactersUnequipped += HandleAllUnequipped;
 
             if (IDosGamesData.User != null)
@@ -106,8 +114,8 @@ namespace IDosGames
 
         private void OnDisable()
         {
-            CharacterService.OnItemsEquipped           -= HandleItemsEquipped;
-            CharacterService.OnItemsUnequipped         -= HandleItemsUnequipped;
+            CharacterService.OnItemsEquipped -= HandleItemsEquipped;
+            CharacterService.OnItemsUnequipped -= HandleItemsUnequipped;
             CharacterService.OnAllCharactersUnequipped -= HandleAllUnequipped;
 
             if (IDosGamesData.User != null)
@@ -119,11 +127,16 @@ namespace IDosGames
 
         // -------------------- Public API --------------------
 
-        public void Show(string characterID)
+        public void Show(string characterID) => Show(characterID, Color.white, Color.white, Color.white);
+
+        public void Show(string characterID, Color bgColor, Color gradientColor, Color basicFrameColor)
         {
             if (string.IsNullOrWhiteSpace(characterID)) return;
             _characterID = characterID;
             _loadedImagePath = null;
+            _bgColor = bgColor;
+            _gradientColor = gradientColor;
+            _basicFrameColor = basicFrameColor;
             EnsureRoot().SetActive(true);
             Refresh();
         }
@@ -133,6 +146,9 @@ namespace IDosGames
             EnsureRoot().SetActive(false);
             _characterID = null;
             _loadedImagePath = null;
+            _bgColor = Color.white;
+            _gradientColor = Color.white;
+            _basicFrameColor = Color.white;
         }
 
         private GameObject EnsureRoot() => root != null ? root : (root = gameObject);
@@ -205,6 +221,16 @@ namespace IDosGames
                 nameText.text = !string.IsNullOrEmpty(model?.Name)
                     ? model.Name
                     : def?.Identity?.DisplayName ?? _characterID;
+            }
+
+            if (bgImage != null) bgImage.color = _bgColor;
+            if (gradientImage != null) gradientImage.color = _gradientColor;
+
+            if (basicFrameImages != null)
+            {
+                for (int i = 0; i < basicFrameImages.Count; i++)
+                    if (basicFrameImages[i] != null)
+                        basicFrameImages[i].color = _basicFrameColor;
             }
 
             RefreshCharacterImage(def);

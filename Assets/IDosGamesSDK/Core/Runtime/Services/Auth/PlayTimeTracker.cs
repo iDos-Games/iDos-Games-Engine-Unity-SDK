@@ -7,7 +7,7 @@ namespace IDosGames
 {
     public class PlayTimeTracker : MonoBehaviour
     {
-        private const float FLUSH_INTERVAL_SECONDS = 60f;
+        private const float FLUSH_INTERVAL_SECONDS = 300f;
 
         // Idle time threshold for session boundaries. Matches the recommendation from
         // DailyUsageRecord.Sessions on the server: 5 minutes of inactivity =
