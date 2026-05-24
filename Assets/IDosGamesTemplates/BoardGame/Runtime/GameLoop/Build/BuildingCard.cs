@@ -67,13 +67,13 @@ namespace IDosGames
             else if (_isDamaged)
             {
                 long repairCost = CalculateCost(costGrowthFactor);
-                priceText.text = $"Repair: {repairCost}";
+                priceText.text = $"{repairCost}";
                 upgradeButton.interactable = true;
             }
             else
             {
                 long cost = CalculateCost(costGrowthFactor);
-                priceText.text = $"{cost} Coins";
+                priceText.text = $"{cost}";
                 upgradeButton.interactable = true;
             }
         }
