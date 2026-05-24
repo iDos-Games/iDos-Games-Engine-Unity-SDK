@@ -7,6 +7,7 @@ namespace IDosGames
     public class UserRequest : BaseRequest
     {
         public bool IsNewSession { get; set; }
+        public int SessionDurationSeconds { get; set; }
         public List<string> Fields { get; set; }
         public List<string> TitleFields { get; set; }
     }
@@ -133,7 +134,9 @@ namespace IDosGames
         public string ItemInstanceID { get; set; }
         public string ItemID { get; set; }
         public string CatalogID { get; set; }
+        public int Quantity { get; set; }
         public long RemainingUses { get; set; }
+        public int Level { get; set; }
         public DateTime AcquiredAt { get; set; }
         public DateTime? ExpiresAt { get; set; }
         public EquipmentSlot EquippedSlot { get; set; }

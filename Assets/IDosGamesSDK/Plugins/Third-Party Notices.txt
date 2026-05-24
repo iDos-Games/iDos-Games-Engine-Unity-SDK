@@ -1,12 +1,11 @@
 ---------------------------------------------------
 iDos Games
-https://idosgames.com/
+https://idosgames.com/en/
 ---------------------------------------------------
 
 Asset uses:
 Newtonsoft.Json under MIT License,
 UnityNativeShare under MIT License,
-QRCoder under MIT License,
-Noto Sans under Open Font License
+QRCoder under MIT License
 
 ---------------------------------------------------

@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Newtonsoft.Json.Converters;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 
 namespace IDosGames
@@ -282,6 +284,7 @@ namespace IDosGames
     }
 
     /// <summary>Trade offer lifecycle status.</summary>
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum TradeOfferStatus
     {
         Pending,

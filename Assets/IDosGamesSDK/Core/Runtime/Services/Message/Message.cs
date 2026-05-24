@@ -1,7 +1,4 @@
-using Newtonsoft.Json.Linq;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace IDosGames
@@ -9,11 +6,9 @@ namespace IDosGames
 	public class Message : MonoBehaviour
 	{
 		private const int MAX_MESSAGE_LENGTH = 200;
-        private const int SHOW_CONNECTION_ERROR_POPUP_DELAY = 2;
 
         [SerializeField] private MessagePopUp _messagePopUp;
-		[SerializeField] private RewardPopUp _rewardPopUp;
-        [SerializeField] private RewardsListPopUp _rewardsListPopUp;
+        [SerializeField] private ResourceOperationPopUp _resourceOperationPopUp;
         [SerializeField] private ConnectionErrorPopUp _connectionErrorPopUp;
 
 		private static Message _instance;
@@ -58,7 +53,7 @@ namespace IDosGames
 				message = message[..MAX_MESSAGE_LENGTH];
 			}
 
-			_instance._messagePopUp.Set(message); //LocalizationSystem
+			_instance._messagePopUp.Set(message);
             _instance.ShowPopUp(_instance._messagePopUp);
 		}
 
@@ -67,36 +62,16 @@ namespace IDosGames
 			Show(messageCode.ToString());
 		}
 
-		public static void ShowReward(string message, string imagePath)
-		{
-			if (_instance == null) return;
-
-            _instance._rewardPopUp.Set(message, imagePath);
-			_instance.ShowPopUp(_instance._rewardPopUp);
-		}
-
-        public static void ShowRewards(IReadOnlyList<ResourceEntry> rewards)
+        public static void ShowResourceOperation(ResourceOperation operation)
         {
             if (_instance == null) return;
-            if (rewards == null || rewards.Count == 0) return;
+            if (operation == null) return;
+            if (!_instance._resourceOperationPopUp.WouldDisplay(operation)) return;
 
             _instance.HideAllPopUps();
-            _instance.ShowPopUp(_instance._rewardsListPopUp);
-            _instance._rewardsListPopUp.Set(rewards);
+            _instance.ShowPopUp(_instance._resourceOperationPopUp);
+            _instance._resourceOperationPopUp.Set(operation);
         }
-
-        private static void StartDelayShowConnectionError(Action callbackAction)
-		{
-			if (_instance == null) return;
-
-            _instance.StartCoroutine(_instance.ShowDelayedConnectionError(callbackAction));
-		}
-
-		private IEnumerator ShowDelayedConnectionError(Action callbackAction)
-		{
-			yield return new WaitForSeconds(SHOW_CONNECTION_ERROR_POPUP_DELAY);
-			ShowConnectionError(callbackAction);
-		}
 
 		public static void ShowConnectionError(Action callbackAction)
 		{
@@ -122,44 +97,16 @@ namespace IDosGames
             if (_instance._messagePopUp != null)
                 _instance._messagePopUp.gameObject.SetActive(false);
 
-            if (_instance._rewardPopUp != null)
-                _instance._rewardPopUp.gameObject.SetActive(false);
-
-            if (_instance._rewardsListPopUp != null)
-                _instance._rewardsListPopUp.gameObject.SetActive(false);
+            if (_instance._resourceOperationPopUp != null)
+                _instance._resourceOperationPopUp.gameObject.SetActive(false);
 
             if (_instance._connectionErrorPopUp != null)
                 _instance._connectionErrorPopUp.gameObject.SetActive(false);
-        }
-
-        public static bool CheckMessage(string serverResponse, MessageCode messageCode)
-        {
-            try
-            {
-                var msg = JObject.Parse(serverResponse)?["Message"]?.ToString();
-                return string.Equals(msg, messageCode.ToString(), StringComparison.OrdinalIgnoreCase);
-            }
-            catch
-            {
-                return false; // кривой JSON
-            }
-        }
-
-		public static string MessageResult(string serverResponse)
-		{
-			return JObject.Parse(serverResponse)?["Message"]?.ToString();
         }
 
         private void OnHttpConnectionError(string error)
         {
             ShowConnectionError(null);
         }
-
-#if IDOSGAMES_MOBILE_IAP
-        private void OnIAPServiceNotInitialized()
-        {
-            Show("IAP Service Not Initialized");
-        }
-#endif
     }
 }

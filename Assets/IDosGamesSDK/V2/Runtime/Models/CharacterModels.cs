@@ -29,7 +29,7 @@ namespace IDosGames
     [Serializable]
     public class EquipSlotPair
     {
-        /// <summary>Slot to equip into; must be present in <c>CharacterDefinitions.AllowedEquipmentSlotIDs</c>.</summary>
+        /// <summary>Slot to equip into; must be present in the target character's <c>CharacterEquipment.Slots</c>.</summary>
         public string SlotID { get; set; }
 
         /// <summary>Concrete instance from <c>InventoryV2.UnstackableItems</c>. Optional if <see cref="ItemID"/> is set.</summary>
@@ -37,6 +37,7 @@ namespace IDosGames
 
         /// <summary>Item catalog key. Used only when <see cref="ItemInstanceID"/> is missing.</summary>
         public string ItemID { get; set; }
+        public string CatalogID { get; set; }
     }
 
     /// <summary>Response for <see cref="CharacterAction.GetUserCharacters"/>.</summary>
@@ -76,6 +77,43 @@ namespace IDosGames
     }
 
     /// <summary>
+    /// Response to a successful <see cref="CharacterAction.EquipItems"/>.
+    /// </summary>
+    public class EquipItemsResponse
+    {
+        /// <summary>Server time of operation execution (UTC).</summary>
+        public DateTime ServerTimeUtc { get; set; }
+
+        /// <summary>
+        /// The ID of the character the items were equipped on
+        /// (<see cref="CharacterModel.CharacterID"/>).
+        /// </summary>
+        public string CharacterID { get; set; }
+
+        /// <summary>
+        /// Items equipped by this request. Key is <c>SlotID</c>, value is the resulting entry
+        /// in <see cref="CharacterModel.Equipment"/> with resolved
+        /// <see cref="EquippedItem.ItemInstanceID"/>. For bundle-split cases,
+        /// <see cref="EquippedItem.ItemInstanceID"/> will be a new ID, different from the one
+        /// sent by the client.
+        /// </summary>
+        public Dictionary<string, EquippedItem> Equipment { get; set; } = new();
+
+        /// <summary>
+        /// Instance IDs of items removed from the character by this request
+        /// (displaced by new items from previously occupied slots).
+        /// Empty if none of the affected slots were occupied prior to the request.
+        /// </summary>
+        public List<string> ReplacedInstanceIDs { get; set; } = new();
+
+        /// <summary>
+        /// The character's recalculated combat power after equipping.
+        /// Corresponds to the value in <see cref="CharacterModel.Power"/>.
+        /// </summary>
+        public int Power { get; set; }
+    }
+
+    /// <summary>
     /// State of one player character. Stored on Unity side under
     /// <c>UserData.Character[CharacterID]</c>.
     /// </summary>
@@ -84,11 +122,11 @@ namespace IDosGames
     {
         /// <summary>
         /// Unique character id. Reserved value <c>"Main"</c> denotes the always-available main character.
-        /// Other ids must be present in <see cref="CharacterDefinitions.AllowedCharacterIDs"/>.
+        /// Other ids must be present in <see cref="CharacterDefinitions.Definitions"/>.
         /// </summary>
         public string CharacterID { get; set; }
 
-        /// <summary>Optional class label (e.g. <c>"Mage"</c>, <c>"Warrior"</c>).</summary>
+        /// <summary>Optional class label (denormalized from <c>CharacterClassification.ClassID</c>).</summary>
         public string Class { get; set; }
 
         /// <summary>Display name set by the player or assigned by default.</summary>
@@ -140,75 +178,298 @@ namespace IDosGames
         public string SlotID { get; set; }
     }
 
+    // ============================================================
+    // Title-wide character catalog
+    // Mirrors backend IDosGamesSDK/API/Client/v2/Character/Models/CharacterDefinitions.cs
+    // Lives under TitlePublicConfiguration.Character.
+    // ============================================================
+
     /// <summary>
-    /// Title-wide character configuration. Lives under
-    /// <c>TitlePublicConfiguration.Character</c> (V2 — singular, no <c>Definitions</c> suffix).
+    /// Title's character system configuration: character catalog only.
+    /// Each <see cref="CharacterDefinition"/> is self-contained (own stats, levels, equipment rules).
+    /// No global / fallback dictionaries.
     /// </summary>
     [Serializable]
     public class CharacterDefinitions
     {
-        /// <summary>Allowed character ids besides <c>"Main"</c>.</summary>
-        public List<string> AllowedCharacterIDs { get; set; }
-
-        /// <summary>Allowed equipment slot ids (e.g. <c>"Head"</c>, <c>"Weapon"</c>).</summary>
-        public List<string> AllowedEquipmentSlotIDs { get; set; }
-
-        /// <summary>Global stat dictionary (applies to every character unless overridden).</summary>
-        public Dictionary<string, StatDefinition> StatDefinitions { get; set; }
-
-        /// <summary>Per-character stat overrides. Keyed by <c>CharacterID</c>.</summary>
-        public Dictionary<string, Dictionary<string, StatDefinition>> CustomStatDefinitions { get; set; }
-
-        /// <summary>Global character-level dictionary keyed by level number (string).</summary>
-        public Dictionary<string, CharacterLevelDefinition> LevelDefinitions { get; set; }
-
-        /// <summary>Per-character level overrides. Keyed by <c>CharacterID</c>, then by level (string).</summary>
-        public Dictionary<string, Dictionary<string, CharacterLevelDefinition>> CustomLevelDefinitions { get; set; }
+        /// <summary>
+        /// Character catalog. Key — <c>CharacterID</c>.
+        /// The reserved <c>"Main"</c> character must also have an entry here.
+        /// </summary>
+        public Dictionary<string, CharacterDefinition> Definitions { get; set; }
     }
 
-    /// <summary>One upgradable stat definition.</summary>
+    /// <summary>
+    /// One character template (hero) in the title catalog.
+    /// Self-contained: identity, classification, unlock, equipment rules, stats, levels.
+    /// </summary>
+    [Serializable]
+    public class CharacterDefinition
+    {
+        /// <summary>
+        /// Unique character ID. Reserved value <c>"Main"</c> denotes the always-available primary character.
+        /// Must not contain <c>'.'</c> or <c>'$'</c> (MongoDB path restriction).
+        /// </summary>
+        public string CharacterID { get; set; }
+
+        /// <summary>Display identity (name, description, lore, icons/assets).</summary>
+        public CharacterIdentity Identity { get; set; }
+
+        /// <summary>Categorical metadata (class, rarity, tags). All fields are string IDs.</summary>
+        public CharacterClassification Classification { get; set; }
+
+        /// <summary>Unlock rules (default-available flag and/or cost).</summary>
+        public CharacterUnlock Unlock { get; set; }
+
+        /// <summary>Per-slot equipment rules.</summary>
+        public CharacterEquipment Equipment { get; set; }
+
+        /// <summary>
+        /// Per-character upgradable stat directory. Key — <c>StatID</c>.
+        /// null/empty = no upgradable stats. No global fallback.
+        /// </summary>
+        public Dictionary<string, StatDefinition> Stats { get; set; }
+
+        /// <summary>
+        /// Per-character level/rank directory. Key — level number as string (<c>"1"</c>, <c>"2"</c>, ...).
+        /// No global fallback.
+        /// </summary>
+        public Dictionary<string, CharacterLevelDefinition> Levels { get; set; }
+    }
+
+    /// <summary>
+    /// Identity / display metadata of a character.
+    /// All assets live in <see cref="AssetPaths"/> only — there are no separate IconPath fields.
+    /// </summary>
+    [Serializable]
+    public class CharacterIdentity
+    {
+        /// <summary>Display name shown in UI (localized or base).</summary>
+        public string DisplayName { get; set; }
+
+        /// <summary>Short description for UI tooltips.</summary>
+        public string Description { get; set; }
+
+        /// <summary>Optional long-form lore / backstory for character detail screens.</summary>
+        public string Lore { get; set; }
+
+        /// <summary>Display order in roster UI. Lower values are listed first.</summary>
+        public int SortOrder { get; set; }
+
+        /// <summary>
+        /// Named asset references (e.g. <c>"icon"</c>, <c>"portrait"</c>, <c>"fullArt"</c>,
+        /// <c>"sprite"</c>, <c>"voiceIntro"</c>). Only place asset paths live.
+        /// </summary>
+        public Dictionary<string, string> AssetPaths { get; set; }
+    }
+
+    /// <summary>
+    /// Classification / categorical metadata. All fields are string IDs referencing external catalogs.
+    /// Each field is optional — leave empty for systems the title does not use.
+    /// </summary>
+    [Serializable]
+    public class CharacterClassification
+    {
+        /// <summary>Character class identifier (e.g. <c>"Mage"</c>, <c>"Warrior"</c>).</summary>
+        public string ClassID { get; set; }
+
+        /// <summary>Rarity identifier (e.g. <c>"Common"</c>, <c>"Rare"</c>, <c>"Epic"</c>, <c>"Legendary"</c>).</summary>
+        public string RarityID { get; set; }
+
+        /// <summary>Free-form gameplay tags (e.g. <c>"ranged"</c>, <c>"flying"</c>, <c>"event-2026"</c>).</summary>
+        public List<string> Tags { get; set; }
+    }
+
+    /// <summary>
+    /// Unlock rules. If <see cref="UnlockedByDefault"/> is true, the character is available
+    /// without any unlock action. Otherwise it is obtained either via <see cref="Cost"/>
+    /// or through external grants (lootbox, quest reward, event).
+    /// </summary>
+    [Serializable]
+    public class CharacterUnlock
+    {
+        /// <summary>
+        /// If <c>true</c>, the character is available without any unlock action.
+        /// <c>"Main"</c> must have this set to <c>true</c>.
+        /// </summary>
+        public bool UnlockedByDefault { get; set; }
+
+        /// <summary>
+        /// Cost to unlock this character. Consumed atomically on the server.
+        /// <c>null</c> = cannot be unlocked through cost (must be granted by other systems).
+        /// </summary>
+        public ResourceConsume Cost { get; set; }
+    }
+
+    /// <summary>
+    /// Equipment rules for the character. Per-slot configuration with character-level gates,
+    /// stat prerequisites and item filters. Validated in addition to item-side <c>ItemEquipment</c>.
+    /// </summary>
+    [Serializable]
+    public class CharacterEquipment
+    {
+        /// <summary>
+        /// Per-slot equipment rules. Key — <c>SlotID</c>.
+        /// A character can equip into a slot iff it has an entry here — absence = slot forbidden.
+        /// </summary>
+        public Dictionary<string, CharacterEquipmentSlot> Slots { get; set; }
+    }
+
+    /// <summary>
+    /// Equip rules for one slot on one character. All gates must pass: character must satisfy
+    /// unlock/stat gates, and the item must satisfy rarity/tag/level filters.
+    /// </summary>
+    [Serializable]
+    public class CharacterEquipmentSlot
+    {
+        /// <summary>Slot identifier (e.g. <c>"Head"</c>, <c>"Weapon"</c>, <c>"Armor"</c>).</summary>
+        public string SlotID { get; set; }
+
+        /// <summary>Minimum character <c>Level</c> required to use this slot. <c>0</c> = always available.</summary>
+        public int MinCharacterLevel { get; set; }
+
+        /// <summary>Stat-level prerequisites the character must meet to use the slot.</summary>
+        public List<StatRequirement> StatRequirements { get; set; }
+
+        /// <summary>Allowed item rarity IDs. null/empty = any rarity.</summary>
+        public List<string> AllowedRarityIDs { get; set; }
+
+        /// <summary>Item must have at least one of these tags. null/empty = no tag filter.</summary>
+        public List<string> AllowedItemTags { get; set; }
+
+        /// <summary>Minimum allowed item level/tier in this slot. <c>0</c> = no lower bound.</summary>
+        public int MinItemLevel { get; set; }
+
+        /// <summary>Maximum allowed item level/tier in this slot. <c>0</c> = no upper bound.</summary>
+        public int MaxItemLevel { get; set; }
+    }
+
+    /// <summary>
+    /// Definition of one upgradable character stat (boost).
+    /// Specifies upgrade rules: max level, cost, value scaling, requirements.
+    /// </summary>
     [Serializable]
     public class StatDefinition
     {
+        /// <summary>Unique stat ID within the character (e.g. <c>"AttackSpeed"</c>).</summary>
         public string StatID { get; set; }
+
+        /// <summary>
+        /// Stat category — free-form string ID referencing an external title-level catalog of stat types.
+        /// Recommended (non-binding): <c>"Generic"</c>, <c>"PrimaryAttribute"</c>, <c>"Vital"</c>,
+        /// <c>"Combat"</c>, <c>"Resistance"</c>, <c>"AttackType"</c>, <c>"ArmorType"</c>, <c>"Resource"</c>.
+        /// </summary>
+        public string TypeID { get; set; }
+
+        /// <summary>Stat display name for the UI (localized or base).</summary>
+        public string DisplayName { get; set; }
+
+        /// <summary>Text description of the stat and its in-game effect, for UI.</summary>
+        public string Description { get; set; }
+
+        /// <summary>
+        /// Base maximum stat level. Effective max may be higher if the character's level supplies
+        /// <see cref="CharacterLevelDefinition.StatMaxLevelMultiplier"/> &gt; 1.
+        /// Effective max = <c>MaxLevel * StatMaxLevelMultiplier</c>.
+        /// </summary>
         public int MaxLevel { get; set; }
+
+        /// <summary>Stat weight when computing the character's overall combat <c>Power</c>.</summary>
         public int Weight { get; set; }
 
-        /// <summary>Base cost for level 1; scales linearly via <see cref="CostScalingFactor"/>.</summary>
+        /// <summary>
+        /// Resources paid per upgrade level. <c>ResourceEntry.Amount</c> is the base cost for level 1;
+        /// level N is scaled via <see cref="CostScalingFactor"/>:
+        /// <c>Amount * (1 + CostScalingFactor * (level - 1))</c>.
+        /// </summary>
         public ResourceConsume BaseCostResource { get; set; }
 
+        /// <summary>Linear cost-scaling coefficient per level. <c>0.1</c> = +10% over base cost per level above 1.</summary>
         public double CostScalingFactor { get; set; }
+
+        /// <summary>Base stat effect value at level 1.</summary>
         public double BaseStatValue { get; set; }
+
+        /// <summary>
+        /// Per-level value scaling coefficient.
+        /// Final value at level N: <c>BaseStatValue * (1 + StatScalingFactor * (N - 1))</c>.
+        /// </summary>
         public double StatScalingFactor { get; set; }
 
+        public double CharacterLevelScalingFactor { get; set; }
+
+        /// <summary>
+        /// Prerequisite list. Before upgrading this stat to any level, each listed stat
+        /// must have reached its required level.
+        /// </summary>
         public List<StatRequirement> Requirements { get; set; }
 
-        public string DisplayName { get; set; }
-        public string IconPath { get; set; }
-        public string Description { get; set; }
+        /// <summary>
+        /// Named asset references for the stat (e.g. <c>"icon"</c>).
+        /// Only place stat asset paths live — there is no separate <c>IconPath</c>.
+        /// </summary>
+        public Dictionary<string, string> AssetPaths { get; set; }
     }
 
-    /// <summary>Prerequisite stat that must reach <see cref="RequiredLevel"/> before upgrading the parent stat.</summary>
+    /// <summary>
+    /// Prerequisite that the referenced stat must reach the given level.
+    /// Used in <see cref="StatDefinition.Requirements"/> and <see cref="CharacterEquipmentSlot.StatRequirements"/>.
+    /// </summary>
     [Serializable]
     public class StatRequirement
     {
+        /// <summary>Dependency stat ID (<see cref="StatDefinition.StatID"/>) that must be upgraded to <see cref="RequiredLevel"/>.</summary>
         public string RequiredStatID { get; set; }
+
+        /// <summary>Minimum level of <see cref="RequiredStatID"/> needed to unlock the dependent action.</summary>
         public int RequiredLevel { get; set; }
     }
 
-    /// <summary>Configuration of a single character rank/level.</summary>
+    /// <summary>
+    /// Configuration of a single character level/rank.
+    /// Defines the upgrade cost, the global power multiplier and the stat cap available at this rank.
+    /// </summary>
     [Serializable]
     public class CharacterLevelDefinition
     {
+        /// <summary>Level/rank this configuration applies to. Numbering starts at <c>1</c>.</summary>
         public int Level { get; set; }
 
-        /// <summary>Cost of stepping into this level (consumed atomically by the server).</summary>
+        /// <summary>Cost to upgrade to this level. <c>null</c> = free upgrade.</summary>
         public ResourceConsume UpgradeCost { get; set; }
 
-        public double GlobalStatMultiplier { get; set; }
+        /// <summary>Global multiplier applied to the character's total <c>Power</c> at this level. <c>1.0</c> = no bonus.</summary>
+        public double GlobalStatMultiplier { get; set; } = 1.0;
 
-        /// <summary>Multiplier applied to <see cref="StatDefinition.MaxLevel"/> at this rank.</summary>
+        /// <summary>
+        /// Multiplier on each stat's max level at this rank. Multiplied against
+        /// <see cref="StatDefinition.MaxLevel"/>. <c>1.0</c> = no change; &gt;1.0 raises the cap.
+        /// </summary>
         public float StatMaxLevelMultiplier { get; set; }
+
+        /// <summary>
+        /// Named asset references for the level/rank (e.g. rank/star icon).
+        /// Only place level asset paths live.
+        /// </summary>
+        public Dictionary<string, string> AssetPaths { get; set; }
+    }
+
+    public class UnlockCharacterResponse
+    {
+        /// <summary>Server time of operation execution (UTC).</summary>
+        public DateTime ServerTimeUtc { get; set; }
+
+        /// <summary>
+        /// Unlocked character ID (<see cref="CharacterModel.CharacterID"/>).
+        /// </summary>
+        public string CharacterID { get; set; }
+
+        /// <summary>
+        /// Standard container of resource changes.
+        /// The debited unlock cost is stored in <c>Resources.Consume.Standard.Entries</c> and/or <c>Resources.Consume.Standard.EventTokens</c>.
+        /// When idempotently retried, contains the same result as the first successful call.
+        /// </summary>
+        public ResourceOperation Resources { get; set; } = new();
     }
 
     /// <summary>
@@ -224,5 +485,6 @@ namespace IDosGames
         EquipItems,
         UnequipItems,
         UnequipAllCharacters,
+        UnlockCharacter,
     }
 }

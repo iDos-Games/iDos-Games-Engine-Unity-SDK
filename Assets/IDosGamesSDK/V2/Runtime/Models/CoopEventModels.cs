@@ -1,3 +1,5 @@
+using Newtonsoft.Json.Converters;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 
@@ -52,6 +54,7 @@ namespace IDosGames
     // ENUMS
     // =====================================================================
 
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum CoopGroupStatus
     {
         Forming,
@@ -61,6 +64,7 @@ namespace IDosGames
         Expired
     }
 
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum CoopMemberStatus
     {
         Active,
@@ -68,12 +72,14 @@ namespace IDosGames
         Replaced
     }
 
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum CoopEventType
     {
         BuildObjects,
         BossAttack,
     }
 
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum CoopRewardType
     {
         ObjectCompletion,

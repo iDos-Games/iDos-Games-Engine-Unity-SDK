@@ -50,7 +50,7 @@ namespace IDosGames
 
             if (result.Success)
             {
-                //IDosGamesData.User.ApplyInventory(result.Data.InventoryV2);
+                IDosGamesData.User.ApplyInventory(result.Data);
                 OnUserInventoryReceived?.Invoke(result.Data);
             }
 
@@ -85,16 +85,17 @@ namespace IDosGames
             return result;
         }
 
-        public static async Task<OperationResult<UsageTimeStats>> AddUsageTime()
+        public static async Task<OperationResult<UsageTimeStats>> AddUsageTime(int usageTime, bool isNewSession, int sessionDurationSeconds)
         {
             var request = CreateBaseRequest();
-            request.UsageTime = IDosGamesSDKSettings.Instance.PlayTime;
+            request.UsageTime = usageTime;
+            request.IsNewSession = isNewSession;
+            request.SessionDurationSeconds = sessionDurationSeconds;
 
             var result = await UserAPI.AddUsageTime(request);
 
             if (result.Success)
             {
-                IDosGamesSDKSettings.Instance.PlayTime = 0;
                 OnUsageTimeReceived?.Invoke(result.Data);
             }
 

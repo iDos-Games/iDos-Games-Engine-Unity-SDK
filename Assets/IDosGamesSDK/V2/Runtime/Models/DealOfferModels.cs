@@ -1,3 +1,5 @@
+using Newtonsoft.Json.Converters;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 
@@ -193,6 +195,7 @@ namespace IDosGames
     }
 
     [Serializable]
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum DealOfferActivationStatus
     {
         Active,
@@ -202,6 +205,7 @@ namespace IDosGames
     }
 
     [Serializable]
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum DealNodeRuntimeStatus
     {
         Locked,
@@ -340,6 +344,7 @@ namespace IDosGames
     }
 
     [Serializable]
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum DealOfferGraphMode
     {
         Single,
@@ -384,6 +389,7 @@ namespace IDosGames
     }
 
     [Serializable]
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum DealNodeType
     {
         Purchase,
@@ -501,6 +507,7 @@ namespace IDosGames
     }
 
     [Serializable]
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum DealComparisonOperator
     {
         Eq,

@@ -33,6 +33,7 @@ namespace IDosGames
         public NFTModel NFT { get; set; }
         public ItemStats Stats { get; set; }
         public ItemEquipment Equipment { get; set; }
+        public ItemUpgrade Upgrade { get; set; }
         public ItemMetadata Metadata { get; set; }
     }
 
@@ -54,6 +55,7 @@ namespace IDosGames
     [Serializable]
     public class ItemStats
     {
+        public int Power { get; set; }
         public Dictionary<string, double> FlatBonuses { get; set; } = new();
         public Dictionary<string, double> PercentBonuses { get; set; } = new();
     }
@@ -65,6 +67,15 @@ namespace IDosGames
         public Dictionary<string, int> UseRequirements { get; set; } = new();
         public List<string> AllowedCharacterIDs { get; set; } = new();
         public List<string> AllowedSlotIDs { get; set; } = new();
+    }
+
+    public class ItemUpgrade
+    {
+        public int MaxLevel { get; set; }
+        public ResourceConsume BaseCostResource { get; set; }
+        public double CostScalingFactor { get; set; }
+        public double FlatScalingFactor { get; set; }
+        public double PercentScalingFactor { get; set; }
     }
 
     [Serializable]

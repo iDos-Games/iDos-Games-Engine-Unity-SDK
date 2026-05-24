@@ -1,3 +1,5 @@
+using Newtonsoft.Json.Converters;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 
@@ -327,6 +329,7 @@ namespace IDosGames
     // =====================================================================
 
     /// <summary>How an incoming score is combined with the player's current cycle value.</summary>
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum LeaderboardScoreAggregation
     {
         /// <summary>Each submit adds to the running total.</summary>
@@ -343,6 +346,7 @@ namespace IDosGames
     }
 
     /// <summary>How often the leaderboard cycle resets.</summary>
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum LeaderboardCycleReset
     {
         Hourly,
