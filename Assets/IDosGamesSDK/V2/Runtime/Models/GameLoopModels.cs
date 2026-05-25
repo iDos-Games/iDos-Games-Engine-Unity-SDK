@@ -394,6 +394,7 @@ namespace IDosGames
         /// <summary>Tile type — determines the mechanic triggered on landing.</summary>
         public BoardTileType Type { get; set; } = BoardTileType.Empty;
         /// <summary>Weight of the Attack option for RandomAction tiles.</summary>
+        public string CustomTypeID { get; set; }
         public int RandomActionAttackWeight { get; set; } = 50;
         /// <summary>Weight of the Raid option for RandomAction tiles.</summary>
         public int RandomActionRaidWeight { get; set; } = 50;
@@ -464,6 +465,7 @@ namespace IDosGames
         Raid,
         Shield,
         EventToken,
+        Custom,
     }
 
     [JsonConverter(typeof(StringEnumConverter))]

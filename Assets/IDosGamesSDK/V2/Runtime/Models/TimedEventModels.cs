@@ -324,7 +324,7 @@ namespace IDosGames
 
         /// <summary>BoardTileLanding only: whitelist of tile types that grant tokens.</summary>
         [JsonConverter(typeof(StringEnumConverter))]
-        public List<BoardTileType> TileTypeFilter { get; set; } = new();
+        public List<string> TileTypeFilter { get; set; } = new();
 
         /// <summary>
         /// BoardAttack/BoardRaid/BoardBuild only: whitelist of outcomes that grant tokens.
