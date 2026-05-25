@@ -9,6 +9,7 @@ namespace IDosGames
         public static event Action<UserInventoryState> OnUserInventoryReceived;
         public static event Action<UserEventTokensState> OnEventTokensReceived;
         public static event Action<UsageTimeStats> OnUsageTimeReceived;
+        public static event Action<SuccessResponse> OnUsageTimeAdded;
         public static event Action<SuccessResponse> OnUserAccountDeleted;
 
         private static AuthContext Ctx => AuthenticationService.GetAuthContext();
@@ -85,7 +86,7 @@ namespace IDosGames
             return result;
         }
 
-        public static async Task<OperationResult<UsageTimeStats>> AddUsageTime(int usageTime, bool isNewSession, int sessionDurationSeconds)
+        public static async Task<OperationResult<SuccessResponse>> AddUsageTime(int usageTime, bool isNewSession, int sessionDurationSeconds)
         {
             var request = CreateBaseRequest();
             request.UsageTime = usageTime;
@@ -96,7 +97,7 @@ namespace IDosGames
 
             if (result.Success)
             {
-                OnUsageTimeReceived?.Invoke(result.Data);
+                OnUsageTimeAdded?.Invoke(result.Data);
             }
 
             return result;

@@ -27,8 +27,8 @@ namespace IDosGames
         public static async Task<OperationResult<UsageTimeStats>> GetUsageTime(UserRequest request)
             => await SendRequest<UsageTimeStats>(UserAction.GetUsageTime, request);
 
-        public static async Task<OperationResult<UsageTimeStats>> AddUsageTime(UserRequest request)
-            => await SendRequest<UsageTimeStats>(UserAction.AddUsageTime, request, true);
+        public static async Task<OperationResult<SuccessResponse>> AddUsageTime(UserRequest request)
+            => await SendRequest<SuccessResponse>(UserAction.AddUsageTime, request, true);
 
         public static async Task<OperationResult<SuccessResponse>> DeleteUserAccount(UserRequest request)
             => await SendRequest<SuccessResponse>(UserAction.DeleteUserAccount, request);
