@@ -26,7 +26,7 @@ namespace IDosGames
         private Coroutine _moveRoutine;
         private BoardLoopDefinition _levelBoardDefinition;
 
-        public BoardLoopState BoardState => IDosGamesData.User.State.GameLoop.Board;
+        public BoardLoopState BoardState => IDosGamesData.User?.State?.GameLoop?.Board;
         public BoardLoopDefinition BoardDefinition =>
             IDosGamesData.Config.TitlePublicConfiguration?.GameLoop?.Board ?? _levelBoardDefinition;
 
