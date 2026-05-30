@@ -1,5 +1,14 @@
 {
   "permissions": {
-    "allow": ["Read"]
+    "allow": [
+      "Read",
+      "PowerShell(Get-ChildItem *)",
+      "PowerShell(Select-Object *)",
+      "PowerShell(Sort-Object *)",
+      "Bash(find *)",
+      "Bash(grep *)",
+      "Bash(head *)",
+      "Bash(cd *)"
+    ]
   }
 }
